@@ -1,0 +1,187 @@
+/* 🌕 Yellow Theme: globals.css */
+
+.sb-bg {
+  @apply bg-[#3A3000]; /* Deep golden brown background */
+}
+
+.sb-tab {
+  @apply text-yellow-100 hover:bg-[#5D4C00]; /* Tab hover effect */
+}
+
+.sb-tab-active {
+  @apply bg-[#FFC107] text-black shadow-md; /* Bright yellow active tab */
+}
+
+.sb-btn {
+  @apply bg-yellow-500 text-black hover:bg-yellow-600; /* Solid yellow button */
+}
+
+.sb-btn-outline {
+  @apply border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black;
+}
+
+.sb-header {
+  @apply text-yellow-300;
+}
+
+
+/* 🌿 Green Theme: globals.css (via Tailwind utility classes) */
+
+.sb-bg {
+  @apply bg-[#1B4332]; /* Sidebar background (deep green) */
+}
+
+.sb-tab {
+  @apply text-green-100 hover:bg-[#2D6A4F]; /* Normal tab */
+}
+
+.sb-tab-active {
+  @apply bg-[#40916C] text-white shadow-md; /* Active tab */
+}
+
+.sb-btn {
+  @apply bg-green-600 text-white hover:bg-green-700;
+}
+
+.sb-btn-outline {
+  @apply border border-green-600 text-green-600 hover:bg-green-600 hover:text-white;
+}
+
+.sb-header {
+  @apply text-green-300;
+}
+
+/* 🦚 Elegant Teal Theme */
+
+.sb-bg {
+  @apply bg-[#121C1B]; /* Very dark teal slate background */
+}
+
+.sb-tab {
+  @apply text-slate-300 hover:bg-[#1C2B29]; /* Soft slate hover */
+}
+
+.sb-tab-active {
+  @apply bg-[#00897B] text-white shadow-md; /* Main active tab color */
+}
+
+.sb-btn {
+  @apply bg-[#00897B] text-white hover:bg-[#00695C]; /* Main button */
+}
+
+.sb-btn-outline {
+  @apply border border-[#00897B] text-[#00897B] hover:bg-[#00897B] hover:text-white;
+}
+
+.sb-header {
+  @apply text-[#00BFA5]; /* Highlight teal tone for headers */
+}
+
+
+/* ✨ Golden Theme */
+
+.sb-bg {
+  @apply bg-[#1B1B1B]; /* Rich dark background for contrast */
+}
+
+.sb-tab {
+  @apply text-zinc-300 hover:bg-[#2A2A2A]; /* Muted gray hover */
+}
+
+.sb-tab-active {
+  @apply bg-[#D4AF37] text-black shadow-md; /* Golden active tab */
+}
+
+.sb-btn {
+  @apply bg-[#D4AF37] text-black hover:bg-[#C39B2E]; /* Golden button */
+}
+
+.sb-btn-outline {
+  @apply border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black;
+}
+
+.sb-header {
+  @apply text-[#FFD700]; /* Bright gold for headings */
+}
+
+
+/* ☕ Brownish Theme */
+
+.sb-bg {
+  @apply bg-[#3E2723]; /* Deep coffee background */
+}
+
+.sb-tab {
+  @apply text-zinc-300 hover:bg-[#4E342E]; /* Soft hover with medium brown */
+}
+
+.sb-tab-active {
+  @apply bg-[#6D4C41] text-white shadow-md; /* Primary brown tab highlight */
+}
+
+.sb-btn {
+  @apply bg-[#6D4C41] text-white hover:bg-[#5D4037]; /* Primary button */
+}
+
+.sb-btn-outline {
+  @apply border border-[#6D4C41] text-[#6D4C41] hover:bg-[#6D4C41] hover:text-white;
+}
+
+.sb-header {
+  @apply text-[#A1887F]; /* Accent warm beige */
+}
+
+
+/* 💙 Blue Theme: globals.css */
+
+.sb-bg {
+  @apply bg-[#0D1B2A]; /* Deep navy background */
+}
+
+.sb-tab {
+  @apply text-blue-100 hover:bg-[#1B263B]; /* Tab hover effect */
+}
+
+.sb-tab-active {
+  @apply bg-[#3F8EFC] text-white shadow-md; /* Bright blue active tab */
+}
+
+.sb-btn {
+  @apply bg-blue-500 text-white hover:bg-blue-600; /* Blue solid button */
+}
+
+.sb-btn-outline {
+  @apply border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white;
+}
+
+.sb-header {
+  @apply text-blue-300;
+}
+
+
+/* 💠 Material Indigo-Blue Theme (Enhanced Hover): globals.css */
+
+.sb-bg {
+  @apply bg-[#1E1F24]; /* Dark sidebar background */
+}
+
+.sb-tab {
+  @apply text-gray-300 hover:bg-[#4B4F65]; /* Darker bluish-gray hover */
+}
+
+.sb-tab-active {
+  @apply bg-[#3F51B5] text-white shadow-md; /* Active tab with indigo */
+}
+
+.sb-btn {
+  @apply bg-[#3F51B5] text-white hover:bg-[#2C3A99]; /* Deeper indigo on hover */
+}
+
+.sb-btn-outline {
+  @apply border border-[#3F51B5] text-[#3F51B5] hover:bg-[#3F51B5] hover:text-white;
+}
+
+.sb-header {
+  @apply text-[#3F51B5];
+}
+
