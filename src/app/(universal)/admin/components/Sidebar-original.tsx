@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+//import { signOut } from "next-auth/react";
 import { GoHome } from "react-icons/go";
 import { MdSpaceDashboard, MdOutlineProductionQuantityLimits } from "react-icons/md";
 import { FaUserTie } from "react-icons/fa";
@@ -63,7 +63,7 @@ const Sidebar = () => {
         {/* Logout */}
         <div className="mt-6  pt-4">
           <button
-            onClick={() => signOut()}
+          //  onClick={() => signOut()}
             className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-lg bg-rose-100 text-rose-700 hover:bg-rose-200 transition"
           >
             <IoIosLogOut size={20} />

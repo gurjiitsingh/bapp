@@ -5,22 +5,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { emailZ, TemailZ } from "@/lib/types/addressType";
 import { IoClose } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react";
-//import { useSearchParams } from "next/navigation";
-//import {  searchAddressEmail } from "@/app/(universal)/action/address/dbOperations";
+//import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-// import { resolve } from "path";
-
-//import CartContext from "@/store/CartContext";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 const ProccedWithEmail = () => {
-  //const { cartData } = useContext(CartContext);
+ 
   const { emailFormToggle, setCustomerEmailG, setCustomerAddressIsComplete } =
     UseSiteContext();
-  // const {  sideBarToggle } = UseSiteContext();
-  const { data: session } = useSession();
-  // const [addressFound, setAddressFound] = useState(false);
+  
+  //const { data: session } = useSession();
+ 
   const router = useRouter();
 
   // chageDeliveryType("pickup")
@@ -39,9 +34,9 @@ const ProccedWithEmail = () => {
     resolver: zodResolver(emailZ),
   });
   //const userEmail = session?.user?.email as string;
-  if (session !== null) {
-    //  setValue("email", userEmail);
-  }
+  // if (session !== null) {
+  //   //  setValue("email", userEmail);
+  // }
 
   async function onSubmit(data: TemailZ) {
     // const formData = new FormData();

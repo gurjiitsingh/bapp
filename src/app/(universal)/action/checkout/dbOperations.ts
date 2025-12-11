@@ -12,7 +12,7 @@ import {
   getDocs,
   query,
   where,
-} from "@firebase/firestore";
+} from "firebase/firestore";
 
 export async function addCustomerAddress(formData: FormData) {
   const recievedData = Object.fromEntries(formData.entries());

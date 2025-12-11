@@ -12,9 +12,9 @@ import {
   // searchAddressByUserId,
 } from "@/app/(universal)/action/address/dbOperations";
 import { FaCheck } from "react-icons/fa";
-import { useSession } from "next-auth/react";
+//import { useSession } from "next-auth/react";
 
-//import { searchUserById } from "@/app/(universal)/action/user/dbOperation";
+
 import { createNewOrderCustomerAddress } from "@/app/(universal)/action/orders/dbOperations";
 import { purchaseDataT } from "@/lib/types/cartDataType";
 import { fetchdeliveryByZip } from "@/app/(universal)/action/delivery/dbOperation";
@@ -44,7 +44,7 @@ const { TEXT } = useLanguage();
     emailFormToggle,
   } = UseSiteContext();
 
-  const { data: session } = useSession();
+  //const { data: session } = useSession();
 
   useEffect(() => {
    
@@ -54,8 +54,8 @@ const { TEXT } = useLanguage();
     if (deliveryType === null) {
       chageDeliveryType("pickup");
     }
-  }, [session, customerEmail]);
-
+ // }, [session, customerEmail]);
+}, [ customerEmail]);
   useEffect(() => {
     setCustomerAddressIsComplete(false);
     setValue("password", "123456");

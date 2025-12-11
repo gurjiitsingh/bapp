@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { signOut } from "next-auth/react";
+//import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, JSX } from "react";
 import { useLanguage } from "@/store/LanguageContext";
@@ -70,7 +70,7 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
 };
 
 const Sidebar = () => {
-  const { TEXT, BRANDING } = useLanguage() || {
+  const { BRANDING } = useLanguage() || {
     BRANDING: {
       sidebar: {
         home: "Home",
@@ -175,7 +175,7 @@ const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
         {/* Logout */}
         <div className="mt-6 pt-4">
           <button
-            onClick={() => signOut()}
+          //  onClick={() => signOut()}
             className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
           >
             <IoIosLogOut size={20} />

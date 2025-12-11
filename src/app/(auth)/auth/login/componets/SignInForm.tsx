@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { FormEvent } from 'react';
-import { signIn } from 'next-auth/react';
+//import { signIn } from 'next-auth/react';
 
 const SignIn = () => {
   async function submitHandler(event: FormEvent<HTMLFormElement>) {
@@ -19,8 +19,8 @@ const SignIn = () => {
       callbackUrl: '/admin',
     };
 
-    const response = await signIn('credentials', loginData);
-    console.log('Login response:', response);
+   // const response = await signIn('credentials', loginData);
+   // console.log('Login response:', response);
   }
 
   return (

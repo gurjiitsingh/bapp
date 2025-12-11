@@ -1,8 +1,8 @@
-import { ISODateString } from "next-auth";
+//import { ISODateString } from "next-auth";
 
 export type CustomSessionType = {
     user?: CustomUserType;
-    expires: ISODateString;
+   // expires: ISODateString;
   };
   
   export type CustomUserType = {

@@ -8,22 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { signOut, useSession } from "next-auth/react";
+//import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-
-// Dynamically import the icon to avoid SSR mismatch
-// let FaRegUser: any = null;
-// if (typeof window !== "undefined") {
-//   FaRegUser = require("react-icons/fa").FaRegUser;
-// }
 
 const FaRegUser = dynamic(() => import("react-icons/fa").then((mod) => mod.FaRegUser), {
   ssr: false,
 });
 
 const LinkDropdown = () => {
-  const { data: session, status } = useSession();
+ // const { data: session, status } = useSession();
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -32,10 +26,10 @@ const LinkDropdown = () => {
 
   if (!hasMounted || status === "loading") return null;
 
-  const role = session?.user?.role;
+  //const role = session?.user?.role;
 
   return (<>
-  {typeof window !== 'undefined' && <DropdownMenu>
+  {/* {typeof window !== 'undefined' && <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center text-slate-400 hover:text-red-600 transition">
         {FaRegUser && <FaRegUser className="text-xl" />}
       </DropdownMenuTrigger>
@@ -88,7 +82,7 @@ const LinkDropdown = () => {
           </>
         )}
       </DropdownMenuContent>
-    </DropdownMenu>}
+    </DropdownMenu>} */}
     </>
   );
 };
