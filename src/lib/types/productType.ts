@@ -21,6 +21,10 @@ export type ProductType = {
   // NEW FIELDS
   taxRate: number | undefined;
   taxType: 'inclusive' | 'exclusive' | undefined;
+
+  parentId?: string;
+  hasVariants?: boolean;
+  type?: 'parent' | 'variant';
 };
 
 export type ProductBase = {
@@ -46,7 +50,9 @@ export type ProductBase = {
 
 export const newPorductSchema = z.object({
   id: z.string().optional(),
-
+parentId: z.string().optional(),
+ hasVariants: z.boolean().optional(),
+  type: z.enum(["parent", "variant"]).optional(),
   // Mandatory
   name: z.string().min(4, { message: "Product name is required" }),
 
@@ -124,6 +130,9 @@ export type TnewProductSchema = z.infer<typeof newPorductSchema>;
 
 export const editPorductSchema = z.object({
   id: z.string().optional(),
+parentId: z.string().optional(),
+ hasVariants: z.boolean().optional(),
+  type: z.enum(["parent", "variant"]).optional(),
 
   name: z.string().min(4, { message: "Product name is required" }),
 

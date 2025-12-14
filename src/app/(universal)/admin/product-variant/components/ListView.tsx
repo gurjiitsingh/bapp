@@ -17,6 +17,10 @@ export default function ListView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const parentId = searchParams.get("id") || "";
+  const categoryId = searchParams.get("categoryId") || "";
+  const productCat = searchParams.get("productCat") || "";
+
   // ✅ URL state
   const urlCategory = searchParams.get("category") || "";
   const urlSearch = searchParams.get("search") || "";
@@ -28,32 +32,30 @@ export default function ListView() {
   const [loading, setLoading] = useState(true);
 
   // ✅ Fetch product + category only once
-useEffect(() => {
-  async function loadData() {
-    try {
-      const [productsRes, categoriesRes] = await Promise.all([
-        fetch("/api/products"),
-        fetch("/api/categories"),
-      ]);
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [productsRes, categoriesRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/categories"),
+        ]);
 
-      const productsJson = await productsRes.json();
-      const categoriesJson = await categoriesRes.json();
+        const productsJson = await productsRes.json();
+        const categoriesJson = await categoriesRes.json();
 
+        setProducts(productsJson ?? []);
+        setCategories(categoriesJson ?? []);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+        setProducts([]);
+        setCategories([]);
+      }
 
-      setProducts(productsJson?? []);
-      setCategories(categoriesJson ?? []);
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      setProducts([]);
-      setCategories([]);
+      setLoading(false);
     }
 
-    setLoading(false);
-  }
-
-  loadData();
-}, []); // ✅ run once
-
+    loadData();
+  }, []); // ✅ run once
 
   // ✅ Filter when URL state or products change
   // useEffect(() => {
@@ -72,30 +74,31 @@ useEffect(() => {
   //   setFiltered(list);
   // }, [urlCategory, urlSearch, products]);
 
-
-
   useEffect(() => {
-  let list = [...products];
+    let list = [...products];
 
-   list = list.filter((p) => p.type === "parent");
-  if (urlCategory) {
-    list = list.filter((p) => p.categoryId === urlCategory);
-  }
+    // ⭐ only variants
+    list = list.filter((p) => p.parentId === parentId);
+    // console.log("list------------", list[0])
 
-  if (urlSearch) {
-    list = list.filter((p) =>
-      p.name.toLowerCase().includes(urlSearch.toLowerCase())
+    if (urlCategory) {
+      list = list.filter((p) => p.categoryId === urlCategory);
+    }
+
+    if (urlSearch) {
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(urlSearch.toLowerCase())
+      );
+    }
+
+    // ⭐ Sort by sortOrder (undefined → 0)
+    list = list.sort(
+      (a: ProductType, b: ProductType) =>
+        (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
     );
-  }
-
-  // ⭐ Sort by sortOrder (undefined → 0)
-  list = list.sort(
-    (a: ProductType, b: ProductType) =>
-      (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-  );
-
-  setFiltered(list);
-}, [urlCategory, urlSearch, products]);
+   
+    setFiltered(list);
+  }, [urlCategory, urlSearch, products]);
 
   // ✅ Update URL without refreshing
   function updateURL(key: string, value: string) {
@@ -106,14 +109,27 @@ useEffect(() => {
 
     router.push("?" + params.toString());
   }
-
+// bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-sm font-medium
   if (loading) return <p>Loading...</p>;
-
+const goToAddVariant = () => {
+  router.push(
+    `/admin/product-variant/form?id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
+  );}
   return (
     <div className="mt-2">
+{parentId && (
+      <div className="flex justify-start mb-3">
+        <button
+          onClick={goToAddVariant}
+          className="bg-[#313131] text-sm text-white px-4 py-2 rounded-lg"
+        >
+          + Add Variant
+        </button>
+      </div>
+    )}
+      
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-4">
-
         {/* ✅ Category Filter */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium mb-1">Category</label>

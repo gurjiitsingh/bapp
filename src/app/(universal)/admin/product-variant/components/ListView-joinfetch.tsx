@@ -11,7 +11,6 @@ import {
 
 import TableRows from "./TableRows";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ProductType } from "@/lib/types/productType";
 
 export default function ListView() {
   const router = useRouter();
@@ -27,77 +26,39 @@ export default function ListView() {
   const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch product + category only once
-useEffect(() => {
-  async function loadData() {
-    try {
-      const [productsRes, categoriesRes] = await Promise.all([
-        fetch("/api/products"),
-        fetch("/api/categories"),
-      ]);
+  // ✅ Fetch initial data only once
+  useEffect(() => {
+    async function loadData() {
+      const res = await fetch("/api/products/initialData");
+      const json = await res.json();
 
-      const productsJson = await productsRes.json();
-      const categoriesJson = await categoriesRes.json();
+      if (!json.error) {
+        setCategories(json.categories);
+        setProducts(json.products);
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, []);
 
+  // ✅ Apply filters when URL changes
+  useEffect(() => {
+    let list = [...products];
 
-      setProducts(productsJson?? []);
-      setCategories(categoriesJson ?? []);
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      setProducts([]);
-      setCategories([]);
+    if (urlCategory) {
+      list = list.filter((p) => p.categoryId === urlCategory);
     }
 
-    setLoading(false);
-  }
+    if (urlSearch) {
+      list = list.filter((p) =>
+        p.name.toLowerCase().includes(urlSearch.toLowerCase())
+      );
+    }
 
-  loadData();
-}, []); // ✅ run once
+    setFiltered(list);
+  }, [urlCategory, urlSearch, products]);
 
-
-  // ✅ Filter when URL state or products change
-  // useEffect(() => {
-  //   let list = [...products];
-
-  //   if (urlCategory) {
-  //     list = list.filter((p) => p.categoryId === urlCategory);
-  //   }
-
-  //   if (urlSearch) {
-  //     list = list.filter((p) =>
-  //       p.name.toLowerCase().includes(urlSearch.toLowerCase())
-  //     );
-  //   }
-
-  //   setFiltered(list);
-  // }, [urlCategory, urlSearch, products]);
-
-
-
-  useEffect(() => {
-  let list = [...products];
-
-   list = list.filter((p) => p.type === "parent");
-  if (urlCategory) {
-    list = list.filter((p) => p.categoryId === urlCategory);
-  }
-
-  if (urlSearch) {
-    list = list.filter((p) =>
-      p.name.toLowerCase().includes(urlSearch.toLowerCase())
-    );
-  }
-
-  // ⭐ Sort by sortOrder (undefined → 0)
-  list = list.sort(
-    (a: ProductType, b: ProductType) =>
-      (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-  );
-
-  setFiltered(list);
-}, [urlCategory, urlSearch, products]);
-
-  // ✅ Update URL without refreshing
+  // ✅ Update URL (client side, no refresh)
   function updateURL(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -156,7 +117,7 @@ useEffect(() => {
               <TableHead>Price</TableHead>
               <TableHead>Discount</TableHead>
               <TableHead>Qty</TableHead>
-              <TableHead>Tax</TableHead>
+              <TableHead>GST</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Desc</TableHead>
               <TableHead>Action</TableHead>

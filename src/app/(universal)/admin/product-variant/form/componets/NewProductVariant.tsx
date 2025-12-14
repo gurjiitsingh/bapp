@@ -8,11 +8,17 @@ import { newPorductSchema, TnewProductSchema } from "@/lib/types/productType";
 import { categoryType } from "@/lib/types/categoryType";
 import { resizeImage } from "@/utils/resizeImage";
 import { addNewProduct } from "@/app/(universal)/action/products/dbOperation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const Page = () => {
+const NewProductVariant = () => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const searchParams = useSearchParams();
+  const parentId = searchParams.get("id") || "";
+  const categoryId = searchParams.get("categoryId") || "";
+  console.log("categoryId--------------", categoryId)
+  const productCat = searchParams.get("productCat") || "";
+const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -59,15 +65,13 @@ const Page = () => {
       //  taxRate: 0, // ✅ default tax 0%
     },
   });
-  const selectedCategoryId = watch("categoryId");
+  // const selectedCategoryId = watch("categoryId");
 
   // Auto-set taxRate when category changes
   useEffect(() => {
-    if (!selectedCategoryId) return;
+    // if (!selectedCategoryId) return;
 
-    const selectedCat = categoryData.find(
-      (cat) => cat.id === selectedCategoryId
-    );
+    const selectedCat = categoryData.find((cat) => cat.id === categoryId);
 
     if (selectedCat) {
       setValue(
@@ -76,15 +80,29 @@ const Page = () => {
       );
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
-  }, [selectedCategoryId, categoryData, setValue]);
+
+    setValue("parentId", parentId);
+    setValue("categoryId", categoryId);
+  }, [categoryData, setValue, categoryId]);
+
+ 
+
   async function onsubmit(data: TnewProductSchema) {
+     console.log("parentId------------", data)
     setIsSubmitting(true);
     const formData = new FormData();
 
+    const result1 = newPorductSchema.safeParse(data);
+
+if (!result1.success) {
+  console.log(result1.error.flatten());
+}
+
     formData.append("name", data.name);
+    formData.append("parentId", data.parentId || "");
+    formData.append("hasVariants", "false");
+    formData.append("type", "variant");
     formData.append("price", String(data.price ?? 0));
-    formData.append("hasVariants", "true");
-    formData.append("type", "parent");
     formData.append("discountPrice", String(data.discountPrice ?? 0));
     formData.append("stockQty", String(data.stockQty ?? -1));
     formData.append("sortOrder", String(data.sortOrder ?? 0));
@@ -131,9 +149,30 @@ const Page = () => {
     }
   }
 
+
+  const goToVariant = () => {
+  router.push(
+    `/admin/product-variant?id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
+  );}
+
   return (
+    <div className="flex flex-col gap-3">
+{parentId && (
+      <div className="flex justify-start mb-3">
+        <button
+          onClick={goToVariant}
+          className="bg-[#313131] text-sm text-white px-4 py-2 rounded-lg"
+        >
+          All Variant
+        </button>
+      </div>
+    )}
+
+   
     <form
-      onSubmit={handleSubmit(onsubmit)}
+      onSubmit={handleSubmit(onsubmit, (errors) => {
+    console.log("FORM ERRORS ❌", errors);
+  })}
       className="w-full max-w-7xl mx-auto p-5"
     >
       <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
@@ -146,10 +185,12 @@ const Page = () => {
             <h2 className="font-semibold text-lg text-gray-800">
               Product Details
             </h2>
-
+            <input {...register("parentId")} hidden />
+            <input {...register("categoryId")} hidden />
+            {/* <input {...register("parentId")} hidden /> */}
             <div className="flex flex-col gap-1">
               <label className="label-style">
-                Product Name<span className="text-red-500">*</span>
+                Name<span className="text-red-500">*</span>
               </label>
               <input
                 {...register("name")}
@@ -159,7 +200,7 @@ const Page = () => {
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 
-            <div className="flex flex-col gap-1">
+            {/* <div className="flex flex-col gap-1">
               <label className="label-style">Category</label>
               <select {...register("categoryId")} className="input-style py-1">
                 <option value="">Select Category</option>
@@ -172,7 +213,7 @@ const Page = () => {
               <p className="text-xs text-destructive">
                 {errors.categoryId?.message}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Price Info */}
@@ -393,7 +434,8 @@ const Page = () => {
         </div>
       </div>
     </form>
+     </div>
   );
 };
 
-export default Page;
+export default NewProductVariant;

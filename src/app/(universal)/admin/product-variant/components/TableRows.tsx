@@ -16,8 +16,14 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { useLanguage } from "@/store/LanguageContext";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 function TableRows({ product }: { product: ProductType }) {
+
+   const searchParams = useSearchParams();
+  const parentId = searchParams.get("id") || "";
+  const categoryId = searchParams.get("categoryId") || "";
+  const productCat = searchParams.get("productCat") || "";
   const { settings } = UseSiteContext();
   const { TEXT } = useLanguage();
   const [isFeatured, setIsFeatured] = useState(product.isFeatured);
@@ -175,8 +181,8 @@ function TableRows({ product }: { product: ProductType }) {
           {/* ✏️ Edit */}
           <Link
             href={{
-              pathname: "/admin/products/editform",
-              query: { id: product.id },
+              pathname: "/admin/product-variant/editform",
+              query: { id: product.id,categoryId:product.categoryId,productCat:product.productCat },
             }}
           >
             <Button
@@ -188,11 +194,10 @@ function TableRows({ product }: { product: ProductType }) {
           </Link>
 
           {/* 🧩 Variants */}
-          <Link
+          {/* <Link
             href={{
-              pathname: "/admin/product-variant",
-                query: { id: product.id,categoryId:product.categoryId,productCat:product.productCat },
-          
+              pathname: "/admin/productsaddon",
+              query: { id: product.id },
             }}
           >
             <Button
@@ -201,7 +206,7 @@ function TableRows({ product }: { product: ProductType }) {
             >
               {TEXT.button_variants || "Variants"}
             </Button>
-          </Link>
+          </Link> */}
 
           {/* 🗑 Delete */}
           <Button

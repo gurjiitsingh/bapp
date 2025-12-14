@@ -39,6 +39,9 @@ export const fetchProducts = cache(async (): Promise<ProductType[]> => {
         stockQty: data.stockQty ?? 0,
         discountPrice: data.discountPrice ?? 0,
         categoryId: data.categoryId ?? "",
+        parentId: data.parentId ?? "",
+        hasVariants: data.hasVariants ?? false,
+        type: data.type ?? "parent",
         productCat: data.productCat ?? "",
         flavors: data.flavors ?? false,
         status: data.status ?? "draft",
@@ -64,12 +67,19 @@ export const fetchProducts = cache(async (): Promise<ProductType[]> => {
 
 export async function addNewProduct(formData: FormData) {
   try {
+    const rawHasVariants = formData.get("hasVariants");
+
+    // FINAL, SAFE conversion
+    const hasVariants = rawHasVariants === "true";
+    const type = formData.get("type") as string;
+    const parentId = formData.get("parentId") as string;
     const featured_img = formData.get("isFeatured") === "true";
     const name = formData.get("name") as string;
     const price = formData.get("price") as string;
     const discountPrice = formData.get("discountPrice") as string;
     const sortOrder = formData.get("sortOrder") as string;
     const categoryId = formData.get("categoryId") as string;
+    
     const productDesc = formData.get("productDesc") as string;
     const image = formData.get("image");
     const status = formData.get("status") as
@@ -122,11 +132,13 @@ export async function addNewProduct(formData: FormData) {
       }
     }
 
+    
     // ✅ Fetch category name
     let productCat = "Uncategorized";
     try {
       const categories = await fetchCategories();
       const matchedCategory = categories.find((cat) => cat.id === categoryId);
+      console.log("matched cate--------", matchedCategory);
       if (matchedCategory) productCat = matchedCategory.name;
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -140,6 +152,9 @@ export async function addNewProduct(formData: FormData) {
       stockQty,
       sortOrder: sortOrderN,
       categoryId,
+      parentId,
+      hasVariants,
+      type,
       productCat,
       productDesc,
       image: image ? imageUrl : null,
@@ -155,11 +170,11 @@ export async function addNewProduct(formData: FormData) {
     };
 
     // ✅ Save to Firestore
-    console.log("product -----------------------", data);
+    
     const docRef = await adminDb.collection("products").add(data);
 
-    revalidateTag("products", "default-cache");
-    revalidateTag("featured-products", "default-cache");
+    revalidateTag("products", "max");
+    revalidateTag("featured-products", "max");
 
     // ✅ ✅ ✅ REVALIDATE ALL PRODUCT PAGES
     revalidatePath("/"); // storefront home
@@ -331,8 +346,8 @@ export async function editProduct(formData: FormData) {
 
   try {
     await productRef.update(productData);
-    revalidateTag("products", "default-cache");
-    revalidateTag("featured-products", "default-cache");
+    revalidateTag("products", "max");
+    revalidateTag("featured-products", "max");
     return { message: "✅ Product updated successfully" };
   } catch (error) {
     console.error("❌ Failed to update product:", error);
@@ -362,14 +377,14 @@ export async function deleteProduct(id: string, oldImageUrl: string) {
       } catch (error) {
         console.error("Error deleting image:", error);
         // ⚠️ Still revalidate, but return warning
-        revalidateTag("products", "default-cache");
+        revalidateTag("products", "max");
         return { errors: "Product deleted, but failed to delete image." };
       }
     }
 
     // ✅ NOW revalidate cache
-    revalidateTag("products", "default-cache");
-    revalidateTag("featured-products", "default-cache");
+    revalidateTag("products", "max");
+    revalidateTag("featured-products", "max");
 
     return { message: "Product and image deleted successfully." };
   } catch (error) {
@@ -661,7 +676,7 @@ export async function toggleFeatured(productId: string, isFeatured: boolean) {
     const productRef = adminDb.collection("products").doc(productId);
     await productRef.update({ isFeatured });
 
-    revalidateTag("featured-products", "default-cache");
+    revalidateTag("featured-products", "max");
     return {
       success: true,
       message: `Product ${

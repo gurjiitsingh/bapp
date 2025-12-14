@@ -48,7 +48,7 @@ export async function deleteCategory(id: string, oldImageUrl: string) {
 
   try {
     const deleteResult = await deleteImage(image_public_id);
-      revalidateTag("categories", "default-cache");
+      revalidateTag("categories", "max");
     console.log("image delete data", deleteResult);
   } catch (error) {
     console.log(error);
@@ -103,7 +103,7 @@ export async function addNewCategory(formData: FormData) {
     console.log("Document written with ID: ", docRef.id);
 
     // ✅ Instantly clear "categories" cached data
-     revalidateTag("categories", "default-cache");
+     revalidateTag("categories", "max");
 
     return { message: { success: "Category Created" } };
   } catch (e) {
@@ -208,7 +208,7 @@ export async function editCategory(formData: FormData) {
     await adminDb.collection("category").doc(id).set(categoryUpdateData);
 
     // ✅ REVALIDATE TAG SO /api/categories UPDATES IMMEDIATELY
-     revalidateTag("categories", "default-cache");
+     revalidateTag("categories", "max");
 
     return { message: { success: "Category updated" } };
   } catch (error) {
