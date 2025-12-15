@@ -37,9 +37,9 @@ const ListView = () => {
           <TableHeader>
             <TableRow className="bg-gray-100 dark:bg-zinc-800 text-slate-700 dark:text-white">
               <TableHead className="hidden md:table-cell">Zip Code</TableHead>
-              <TableHead className="hidden md:table-cell">Cost (€)</TableHead>
-              <TableHead>Min Spend (€)</TableHead>
-              <TableHead>Distance (km)</TableHead>
+              <TableHead className="hidden md:table-cell">Cost </TableHead>
+              <TableHead>Min Spend </TableHead>
+              <TableHead>Distance </TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
             </TableRow>
