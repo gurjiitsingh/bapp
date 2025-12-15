@@ -15,7 +15,7 @@ export default function ProductCardHorizontical({
   allAddOns,
 }: {
   product: ProductType;
-  variants: ProductType[];     // ✅ NEW
+  variants: ProductType[]; // ✅ NEW
   allAddOns: addOnType[];
 }) {
   const { settings } = UseSiteContext();
@@ -24,7 +24,7 @@ export default function ProductCardHorizontical({
   const productVariants = useMemo(() => {
     if (!product.hasVariants) return [];
     return variants
-      .filter(v => v.parentId === product.id)
+      .filter((v) => v.parentId === product.id)
       .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
   }, [product.id, product.hasVariants, variants]);
 
@@ -62,6 +62,8 @@ export default function ProductCardHorizontical({
     taxType: product.taxType,
   };
 
+  
+
   // ---------------- UI ----------------
   return (
     <div className="flex flex-col gap-2 bg-white w-full md:w-[49%] rounded-2xl shadow-sm p-3">
@@ -81,9 +83,7 @@ export default function ProductCardHorizontical({
 
         <div className="flex-1">
           <h3 className="font-semibold">{product.name}</h3>
-          <p className="text-sm text-gray-500">
-            {product.productDesc}
-          </p>
+          <p className="text-sm text-gray-500">{product.productDesc}</p>
 
           {!product.hasVariants && (
             <div className="flex justify-between mt-2">
@@ -108,7 +108,7 @@ export default function ProductCardHorizontical({
       {/* ✅ VARIANTS LIST */}
       {product.hasVariants && productVariants.length > 0 && (
         <div className="mt-2 space-y-2">
-          {productVariants.map(variant => (
+          {productVariants.map((variant) => (
             <div
               key={variant.id}
               className="flex justify-between items-center bg-slate-50 rounded-lg p-2"
@@ -126,10 +126,18 @@ export default function ProductCardHorizontical({
 
               <CartButtonAdd
                 cartProduct={{
-                  ...cartProduct,
-                  id: variant.id,
+                   id: variant.id,
                   price: variant.price ?? 0,
-                  name: variant.name,
+                  name: product.name +" "+ variant.name,
+                  quantity: 1,
+                  stockQty: variant.stockQty,
+                  image: product.image,
+                  categoryId: variant.categoryId,
+                  productCat: variant.productCat!,
+                  taxRate: variant.taxRate,
+                  taxType: variant.taxType,
+
+               
                 }}
               />
             </div>
