@@ -138,8 +138,7 @@ export async function addNewProduct(formData: FormData) {
     try {
       const categories = await fetchCategories();
       const matchedCategory = categories.find((cat) => cat.id === categoryId);
-      console.log("matched cate--------", matchedCategory);
-      if (matchedCategory) productCat = matchedCategory.name;
+     if (matchedCategory) productCat = matchedCategory.name;
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
@@ -180,6 +179,10 @@ export async function addNewProduct(formData: FormData) {
     revalidatePath("/"); // storefront home
     revalidatePath("/products"); // storefront products page
     revalidatePath("/admin/products"); // admin product list
+
+    if(type=='variant'){
+      updateProductType(parentId,'parent', true)
+    }
 
     return {
       success: true,
@@ -729,4 +732,35 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
   };
 
   await adminDb.collection("products").add(productData);
+}
+
+
+
+
+type TypeT = 'parent' | 'variant';
+
+export async function updateProductType(
+  id: string,
+  type: ProductType,
+  hasVariants: boolean
+) {
+  try {
+    const productRef = adminDb.collection('products').doc(id);
+    const productSnap = await productRef.get();
+
+    if (!productSnap.exists) {
+      return { errors: 'Product not found' };
+    }
+
+    await productRef.update({
+      type,
+      hasVariants,
+      updatedAt: new Date(),
+    });
+
+    return { message: '✅ Product updated successfully' };
+  } catch (error) {
+    console.error('❌ Failed to update product:', error);
+    return { errors: 'Failed to update product' };
+  }
 }
