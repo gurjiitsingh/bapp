@@ -741,7 +741,7 @@ type TypeT = 'parent' | 'variant';
 
 export async function updateProductType(
   id: string,
-  type: ProductType,
+  type: TypeT,
   hasVariants: boolean
 ) {
   try {
