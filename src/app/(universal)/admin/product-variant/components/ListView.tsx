@@ -20,7 +20,8 @@ export default function ListView() {
   const parentId = searchParams.get("id") || "";
   const categoryId = searchParams.get("categoryId") || "";
   const productCat = searchParams.get("productCat") || "";
-
+const categoryBase = searchParams.get("categoryBase") || "";
+const nameBase = searchParams.get("nameBase") || "";
   // ✅ URL state
   const urlCategory = searchParams.get("category") || "";
   const urlSearch = searchParams.get("search") || "";
@@ -113,8 +114,11 @@ export default function ListView() {
   if (loading) return <p>Loading...</p>;
 const goToAddVariant = () => {
   router.push(
-    `/admin/product-variant/form?id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
+    `/admin/product-variant/form?nameBase=${nameBase}&categoryBase=${categoryBase}&id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
   );}
+
+         
+
   return (
     <div className="mt-2">
 {parentId && (
@@ -160,7 +164,7 @@ const goToAddVariant = () => {
         </div>
       </div>
 
-      <h3 className="text-2xl mb-4 font-semibold">Products</h3>
+      <h3 className="text-2xl mb-4 font-semibold">Products:<span className="text-xl text-slate-400"> {nameBase}</span> Category: <span className="text-xl text-slate-400">{categoryBase}</span></h3>
 
       <div className="bg-slate-50 rounded-lg p-1 overflow-x-auto">
         <Table>

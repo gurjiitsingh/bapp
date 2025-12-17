@@ -54,7 +54,7 @@ parentId: z.string().optional(),
  hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
   // Mandatory
-  name: z.string().min(4, { message: "Product name is required" }),
+  name: z.string().min(1, { message: "Product name is required" }),
 
   price: z
     .union([z.string(), z.number()])
@@ -134,7 +134,7 @@ parentId: z.string().optional(),
  hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
 
-  name: z.string().min(4, { message: "Product name is required" }),
+  name: z.string().min(1, { message: "Product name is required" }),
 
   price: z
     .string()

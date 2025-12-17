@@ -16,8 +16,9 @@ const NewProductVariant = () => {
   const searchParams = useSearchParams();
   const parentId = searchParams.get("id") || "";
   const categoryId = searchParams.get("categoryId") || "";
-  console.log("categoryId--------------", categoryId)
-  const productCat = searchParams.get("productCat") || "";
+    const productCat = searchParams.get("productCat") || "";
+    const categoryBase = searchParams.get("categoryBase") || "";
+const nameBase = searchParams.get("nameBase") || "";
 const router = useRouter();
   useEffect(() => {
     const fetchData = async () => {
@@ -88,7 +89,7 @@ const router = useRouter();
  
 
   async function onsubmit(data: TnewProductSchema) {
-     console.log("parentId------------", data)
+  
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -98,7 +99,9 @@ if (!result1.success) {
   console.log(result1.error.flatten());
 }
 
-    formData.append("name", data.name);
+const varaint_name = nameBase + " " + data.name
+
+    formData.append("name", varaint_name);
     formData.append("parentId", data.parentId || "");
     formData.append("hasVariants", "false");
     formData.append("type", "variant");
@@ -152,7 +155,7 @@ if (!result1.success) {
 
   const goToVariant = () => {
   router.push(
-    `/admin/product-variant?id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
+    `/admin/product-variant?nameBase=${nameBase}&categoryBase=${categoryBase}&id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
   );}
 
   return (
@@ -175,8 +178,10 @@ if (!result1.success) {
   })}
       className="w-full max-w-7xl mx-auto p-5"
     >
-      <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
+      <h1 className="text-lg font-semibold mb-4">Create Product Variant</h1>
+       <h3 className="text-sm mb-4 font-semibold"> Category: <span className="text-md text-slate-400">{categoryBase}</span></h3>
 
+  <h3 className="text-md mb-4 font-semibold">Products:<span className="text-md text-slate-400"> {nameBase}</span> </h3>
       <div className="flex flex-col lg:flex-row gap-5">
         {/* LEFT COLUMN */}
         <div className="flex-1 flex flex-col gap-5">
@@ -192,11 +197,14 @@ if (!result1.success) {
               <label className="label-style">
                 Name<span className="text-red-500">*</span>
               </label>
+              <span className="text-green-600">
+ {nameBase} -
+              
               <input
                 {...register("name")}
                 className="input-style py-1"
-                placeholder="Enter product name"
-              />
+                placeholder="Sub name:eg. S,M,L (Not full name)"
+              /></span>
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 

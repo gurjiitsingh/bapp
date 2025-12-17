@@ -191,7 +191,7 @@ function TableRows({ product }: { product: ProductType }) {
           <Link
             href={{
               pathname: "/admin/product-variant",
-                query: { id: product.id,categoryId:product.categoryId,productCat:product.productCat },
+                query: { nameBase:product.name,categoryBase:product.productCat,id: product.id,categoryId:product.categoryId,productCat:product.productCat },
           
             }}
           >
