@@ -85,7 +85,7 @@ export default function ProductCardHorizontical({
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="bg-white w-full xl:w-[49%] rounded-2xl shadow-sm p-3">
+    <div className="bg-white w-full xl:w-[49%] rounded-2xl shadow-sm p-1">
       {/* SINGLE ROW – HEIGHT NEVER CHANGES */}
       <div className="flex items-center gap-1 flex-nowrap overflow-x-auto">
      
@@ -97,12 +97,12 @@ export default function ProductCardHorizontical({
               key={variant.id}
               className="
             w-[90px]
-            h-[80px]
+            h-[90px]
             flex-shrink-0
             rounded-xl
             border
             border-slate-100
-            bg-slate-50
+            bg-white
             flex
             flex-col
             items-center
@@ -112,12 +112,12 @@ export default function ProductCardHorizontical({
           "
             >
               {/* NAME */}
-              <span className="text-xs font-semibold leading-tight">
+              <span className="text-xs text-gray-600 leading-tight">
                 {variant.name}
               </span>
 
               {/* PRICE */}
-              <span className="text-xs font-bold text-gray-700">
+              <span className="text-xs font-bold text-gray-600">
                 {formatCurrencyNumber(
                   variant.price ?? 0,
                   settings.currency as string,
@@ -149,12 +149,12 @@ export default function ProductCardHorizontical({
           <div
             className="
       w-[90px]
-      h-[80px]
+      h-[90px]
       flex-shrink-0
       rounded-xl
       border
       border-slate-100
-      bg-slate-50
+      bg-white
       flex
       flex-col
       items-center
@@ -164,12 +164,12 @@ export default function ProductCardHorizontical({
     "
           >
             {/* PRODUCT NAME */}
-            <span className="text-xs font-semibold leading-tight line-clamp-2">
+            <span className="text-xs text-gray-600 leading-tight line-clamp-2">
               {product.name}
             </span>
 
             {/* PRICE */}
-            <span className="text-xs font-bold text-gray-700">
+            <span className="text-xs font-bold text-gray-600">
               {formatCurrencyNumber(
                 product.price ?? 0,
                 settings.currency as string,
@@ -201,8 +201,8 @@ export default function ProductCardHorizontical({
             <Image
               src={product.image}
               alt={product.name}
-              width={80}
-              height={80}
+              width={90}
+              height={90}
               className="object-cover"
             />
           )}

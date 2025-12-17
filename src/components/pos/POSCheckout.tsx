@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
-import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart";  // ✅ ADDED
+import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";  // ✅ ADDED
 import PaymentSelector from "@/app/(universal)/(purchase)/checkout/components/PaymentSelector";
 import {
   CartItem,

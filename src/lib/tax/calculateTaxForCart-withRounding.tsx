@@ -17,7 +17,7 @@ export async function calculateTaxForCart(cartItems: CartItem[]) {
     let finalPrice = price;
 
     if (isExclusive) {
-      taxAmount = price * (taxRate / 100); // ❌ no rounding
+      taxAmount = price * (taxRate / 100);   // no rounding
       finalPrice = price + taxAmount;
     } else {
       taxAmount = price - price / (1 + taxRate / 100);
@@ -29,16 +29,30 @@ export async function calculateTaxForCart(cartItems: CartItem[]) {
 
     return {
       ...item,
-      taxAmount,     // keep raw (for display format later)
+      taxAmount,
       taxTotal,
       finalPrice,
       finalTotal: finalPrice * qty,
     };
   });
 
+  // 🔹 totals before rounding
+  const grossTotal = subtotal + totalTax;
+
+  // 🔹 ROUND TO NEAREST ₹0.05
+  const roundedTotal =
+    Math.round(grossTotal / 0.05) * 0.05;
+
+  const roundingDifference = Number(
+    (roundedTotal - grossTotal).toFixed(2)
+  );
+
   return {
     subtotal: Number(subtotal.toFixed(2)),
-    totalTax: Number(totalTax.toFixed(2)), // ✅ round once
+    totalTax: Number(totalTax.toFixed(2)),
+    grossTotal: Number(grossTotal.toFixed(2)),   // before rounding
+    roundingDifference,                           // show on invoice
+    payableTotal: Number(roundedTotal.toFixed(2)),
     products,
   };
 }

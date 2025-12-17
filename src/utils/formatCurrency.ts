@@ -18,6 +18,7 @@ export function formatCurrencyNumber(
 ): string {
   const defaultCurrency = process.env.NEXT_PUBLIC_DEFAULT_CURRENCY ;
   const defaultLocale = process.env.NEXT_PUBLIC_DEFAULT_LOCALE ;
+  
 
   const cur = currency ?? defaultCurrency;
   const loc = locale ?? defaultLocale;

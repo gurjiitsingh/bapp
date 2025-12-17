@@ -64,8 +64,8 @@ const CartButtonAdd = ({ cartProduct }: { cartProduct: cartProductType }) => {
             w-[56px] h-7
             text-xs font-semibold
             rounded-lg
-            bg-gray-100
-            text-gray-600
+            bg-red-500
+            text-white
             hover:bg-gray-200
           "
         >

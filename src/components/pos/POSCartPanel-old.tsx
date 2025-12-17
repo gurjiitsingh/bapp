@@ -32,9 +32,8 @@ export default function POSCartPanel({
       >
         {/* Mobile / Tablet Header */}
         <div className="lg:hidden flex justify-between items-center p-3 border-b">
-          
-
-          <button
+       
+           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-800 transition"
             aria-label="Close cart"
@@ -42,6 +41,8 @@ export default function POSCartPanel({
             <IoClose size={22} />
           </button>
           <h2 className="font-semibold">Cart</h2>
+
+      
         </div>
 
         <POSCartContent />

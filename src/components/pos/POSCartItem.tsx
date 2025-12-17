@@ -9,6 +9,8 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { CartItemWithTax, cartProductType } from "@/lib/types/cartDataType";
 
 const POSCartItem = ({ item }: { item: cartProductType }) => {
+
+  
   const { addProductToCart, decCartProduct, removeCartProduct } =
     useContext(CartContext);
 
@@ -70,7 +72,7 @@ const POSCartItem = ({ item }: { item: cartProductType }) => {
         <div className="flex justify-between items-center mt-1">
           <div className="flex items-center bg-gray-100 rounded-full px-2 py-1 gap-2">
             <button
-              onClick={() => decCartProduct(item)}
+              onClick={() => removeCartProduct(item)}
               className="p-1 bg-white rounded-full shadow hover:bg-gray-200"
             >
               <IoMdRemove size={16} />
@@ -94,12 +96,12 @@ const POSCartItem = ({ item }: { item: cartProductType }) => {
         </div>
 
         {/* Remove */}
-        <button
+        {/* <button
           onClick={() => removeCartProduct(item)}
           className="text-xs text-gray-400 hover:text-red-500 mt-1"
         >
           Remove
-        </button>
+        </button> */}
       </div>
     </div>
   );

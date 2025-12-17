@@ -15,7 +15,7 @@ import { ProductType } from "@/lib/types/productType";
 import admin from "firebase-admin";
 import { checkStockAvailability } from "@/lib/firestore/checkStockAvailability";
 import { convertProductsToCartItems } from "@/lib/cart/convertProductsToCartItems";
-import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart";
+import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";
 import { OrderProductT } from "@/lib/types/orderType";
 const TAX_IMPLEMENT = process.env.TAX_IMPLEMENT === "true";
 
