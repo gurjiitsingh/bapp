@@ -21,13 +21,11 @@ export default function Products() {
     UseSiteContext();
 
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [variant, setVariant] = useState<ProductType[]>([]);
   const [allProducts, setAllProductsLocal] = useState<ProductType[]>([]);
   const [addOns, setAddOns] = useState<addOnType[]>([]);
   const [categoryId, setCategoryId] = useState("");
 
-  const cardType = process.env.NEXT_PUBLIC_PRODUCT_POS_CARD_TYPE;
-  
+  const cardType = process.env.NEXT_PUBLIC_PRODUCT_CARD_TYPE;
 
   // ✅ DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
 
@@ -35,11 +33,9 @@ export default function Products() {
     switch (cardType) {
       case "1":
         return dynamic(() => import("../level-2/ProductCard-h1"));
-      case "11":
+         case "11":
         return dynamic(() => import("../level-2/ProductCard-h1_1"));
-      case "111":
-        return dynamic(() => import("../level-2/ProductCard-h1_1_1"));
-      case "16":
+          case "16":
         return dynamic(() => import("../level-2/ProductCardPOS-h1_6"));
       case "13":
         return dynamic(() => import("../level-2/ProductCard-h1_3"));
@@ -66,22 +62,21 @@ export default function Products() {
         return dynamic(() => import("../level-2/ProductCard-h6"));
       case "7":
         return dynamic(() => import("../level-2/ProductCard-v7"));
-        case "501":
-        return dynamic(() => import("../level-2/ProductCard-hp_501"));
-        default:
-        return dynamic(() => import("../level-2/ProductCard-hp_501"));
+      default:
+        return dynamic(() => import("../level-2/ProductCard-h1"));
     }
   }, [cardType]);
 
   // ✅ Set initial category (runs only when settings OR global id changes)
 
-  useEffect(() => {
-    if (!settings?.display_category && !productCategoryIdG) return;
 
-    const fallback = settings.display_category ?? "";
+useEffect(() => {
+  if (!settings?.display_category && !productCategoryIdG) return;
 
-    setCategoryId(String(productCategoryIdG || fallback));
-  }, [settings, productCategoryIdG]);
+  const fallback = settings.display_category ?? "";
+
+  setCategoryId(String(productCategoryIdG || fallback));
+}, [settings, productCategoryIdG]);
 
   // ✅ Fetch ONCE (no remount loop now)
   useEffect(() => {
@@ -92,6 +87,7 @@ export default function Products() {
         const res = await fetch("/api/products");
         //  const data = await res.json();
         const data: ProductType[] = await res.json(); // ✅ define type here
+        console.log("Fetched products ✅");
 
         const published = data.filter(
           (p: ProductType) => p.status === "published"
@@ -104,11 +100,9 @@ export default function Products() {
 
         if (!isMounted) return;
 
-        const parents = sorted.filter((p) => p.type === "parent");
-        const variants = sorted.filter((p) => p.type === "variant");
-        setAllProductsLocal(parents);
-        setAllProduct(parents); // ✅ context update (won’t remount now)
-        setVariant(variants);
+        setAllProductsLocal(sorted);
+        setAllProduct(sorted); // ✅ context update (won’t remount now)
+        // setAddOns(data);
 
         setProducts(
           categoryId
@@ -154,16 +148,13 @@ export default function Products() {
   let containerClass = "";
   switch (cardType) {
     case "1":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5 ";
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5 ";
       break;
     case "11":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-2 md:gap-2";
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-2 md:gap-2";
       break;
     case "12":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
       break;
     case "2":
     case "3":
@@ -171,31 +162,22 @@ export default function Products() {
         "flex flex-col md:flex-row justify-between md:flex-wrap gap-3 md:gap-5 justify-center";
       break;
     case "4":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
+      containerClass = "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
       break;
     case "5":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-3 lg:grid-cols-4 gap-3";
+      containerClass = "grid grid-cols-2 justify-between sm:grid-cols-3 lg:grid-cols-4 gap-3";
       break;
     case "6":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
       break;
     case "7":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
+      containerClass = "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
       break;
-    case "16":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-1 md:gap-1";
-      break;
-     case "501":
-      containerClass = "flex flex-col justify-between xl:flex-row xl:flex-wrap gap-1 xl:gap-1";
+        case "16":
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-1 md:gap-1";
       break;
     default:
-      containerClass = "flex flex-col justify-between xl:flex-row xl:flex-wrap gap-1 xl:gap-1";
-      
+      containerClass = "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
   }
 
   return (
@@ -206,7 +188,6 @@ export default function Products() {
             <Card
               key={product.id ?? `${product.name}-${i}`}
               product={product}
-              variants={variant} // ✅ PASS ALL VARIANTS
               allAddOns={addOns}
             />
           ))}

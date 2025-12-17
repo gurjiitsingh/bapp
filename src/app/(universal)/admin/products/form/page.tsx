@@ -83,7 +83,7 @@ const Page = () => {
 
     formData.append("name", data.name);
     formData.append("price", String(data.price ?? 0));
-    formData.append("hasVariants", "true");
+    formData.append("hasVariants", "false");
     formData.append("type", "parent");
     formData.append("discountPrice", String(data.discountPrice ?? 0));
     formData.append("stockQty", String(data.stockQty ?? -1));
