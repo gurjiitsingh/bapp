@@ -111,7 +111,7 @@ const cartItems: CartItem[] = convertProductsToCartItemsPOS(cartData);
 
       const posOrder = {
         userId: "POS",
-        customerName: "POS Customer",
+        customerName: "POS",
         email: "pos@local",
         cartData,
         itemTotal,
