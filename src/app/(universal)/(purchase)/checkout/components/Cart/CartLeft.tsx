@@ -394,7 +394,7 @@ useEffect(() => {
       pickUpDiscountPercentL,
 
        
-        finalGrandTotal: 87,
+     
         flatCouponDiscount:0,
       // FLAGS
       noOffers,

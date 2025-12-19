@@ -71,6 +71,7 @@ const loadOrders = async (next = false, back = false) => {
               <TableHead>Coupon</TableHead>
               <TableHead>Discount %</TableHead>
               <TableHead>Flat Discount</TableHead>
+               <TableHead>Printed</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>

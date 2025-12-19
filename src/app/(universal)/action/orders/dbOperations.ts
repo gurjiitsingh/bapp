@@ -66,16 +66,6 @@ export async function createNewOrderCustomerAddress(
   return { addressAddedId, UserAddedId, customerName };
 }
 
-
-
-
-
-
-
-
-
-
-
 const SHOULD_MAINTAIN_STOCK =
   process.env.NEXT_PUBLIC_MAINTAIN_STOCK === "true" ||
   process.env.NEXT_PUBLIC_MAINTAIN_STOCK === "1";
@@ -92,7 +82,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
     paymentType,
 
     // pricing inputs
-    itemTotal,                     // item total BEFORE tax & discount (from client, validated)
+    itemTotal, // item total BEFORE tax & discount (from client, validated)
     deliveryCost,
 
     // discounts
@@ -105,11 +95,9 @@ export async function createNewOrder(purchaseData: orderDataType) {
     totalDiscountG,
 
     noOffers,
-    cartData,                      // cartProductType[]
+    cartData, // cartProductType[]
     source = "WEB",
   } = purchaseData;
-
-  console.log("purchaseData-------------", purchaseData)
 
   // =====================================================
   // 1️⃣ STOCK CHECK (BEFORE ANY CALCULATION)
@@ -125,8 +113,9 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // 2️⃣ TAX CALCULATION (SERVER = SOURCE OF TRUTH)
   // =====================================================
   // cartData is already cartProductType[]
-  const { products: cartWithTax, totalTax } =
-    await calculateTaxForCart(cartData);
+  const { products: cartWithTax, totalTax } = await calculateTaxForCart(
+    cartData
+  );
 
   // =====================================================
   // 3️⃣ TOTALS CALCULATION (SERVER = SOURCE OF TRUTH)
@@ -151,14 +140,17 @@ export async function createNewOrder(purchaseData: orderDataType) {
     timeZone: "Europe/Berlin",
   });
 
+  const timeNow = new Date().toLocaleString("en-IN", {
+  dateStyle: "medium",
+  timeStyle: "medium",
+  timeZone: "Asia/Kolkata",
+});
+
   // =====================================================
   // 5️⃣ GENERATE SERIAL NUMBER (srno)
   // =====================================================
   const collectionRef = adminDb.collection("orderMaster");
-  const snapshot = await collectionRef
-    .orderBy("srno", "desc")
-    .limit(1)
-    .get();
+  const snapshot = await collectionRef.orderBy("srno", "desc").limit(1).get();
 
   let new_srno = 1;
   if (!snapshot.empty) {
@@ -169,15 +161,14 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // =====================================================
   // 6️⃣ ORDER STATUS
   // =====================================================
-  const orderStatus =
-    paymentType === "cod" ? "COMPLETED" : "PENDING";
+  const orderStatus = paymentType === "cod" ? "COMPLETED" : "PENDING";
 
   // =====================================================
   // 7️⃣ ORDER MASTER DATA (CLEAN + LEGACY)
   // =====================================================
   const orderMasterData: orderMasterDataT = {
     // BASIC
-    id:"klkj",
+    id: "klkj",
     customerName,
     email,
     userId,
@@ -185,7 +176,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
 
     srno: new_srno,
     timeId: "",
-    time: nowGerman,
+    time: timeNow,
 
     paymentType,
     status: orderStatus,
@@ -201,14 +192,13 @@ export async function createNewOrder(purchaseData: orderDataType) {
     couponDiscountPercentL,
     pickUpDiscountPercentL,
 
-    totalTax,                         // raw tax before discount
-    endTotalG: totals.grandTotal!,    // legacy mapping
-    finalGrandTotal: totals.grandTotal!,
+    taxBeforeDiscount: totals.taxBeforeDiscount, // GST on full subtotal
+    taxAfterDiscount: totals.taxAfterDiscount, // GST after discount
+    totalTax: totals.taxAfterDiscount, // final GST charged
 
-    // CLEAN TOTALS (NEW)
+     // CLEAN TOTALS (NEW)
     discountTotal: totals.discountTotal,
-    taxBeforeDiscount: totalTax,
-    taxAfterDiscount: totals.taxAfterDiscount,
+
     subTotal: totals.subTotal,
     deliveryFee: deliveryCost,
     grandTotal: totals.grandTotal,
@@ -222,10 +212,13 @@ export async function createNewOrder(purchaseData: orderDataType) {
 
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
     createdAtUTC: nowUTC,
+
+    //CAN BE REMOVED Rendunt
+    endTotalG: totals.grandTotal!, // legacy mapping
+    finalGrandTotal: totals.grandTotal!,
   };
 
-
-  console.log("orderMasterData test -----------------", orderMasterData)
+  console.log("orderMasterData test -----------------", orderMasterData);
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER
   // =====================================================
@@ -283,7 +276,6 @@ export async function createNewOrder(purchaseData: orderDataType) {
   };
 }
 
-
 /**
  * Save or update customer info in Firestore
  * @param name - Customer's full name
@@ -305,8 +297,6 @@ export async function marketingData({
   email: string;
   noOfferEmails: boolean;
 }) {
- 
-
   // Get current German time
   // const now = new Date();
   // const germanDateStr = now.toLocaleString("en-DE", {
@@ -351,17 +341,14 @@ export async function addProductDraft(
     name: element.name,
     price: element.price,
     quantity: element.quantity,
-    itemSubtotal:element.itemSubtotal,
+    itemSubtotal: element.itemSubtotal,
     orderMasterId,
     userId: userAddedId,
-     taxAmount: element.taxAmount,   // per one item
-  taxTotal: element.taxTotal,    // tax * quantity
-  finalPrice: element.finalPrice,  // price + tax
-  finalTotal: element.finalTotal,  // finalPrice * quantity
+    taxAmount: element.taxAmount, // per one item
+    taxTotal: element.taxTotal, // tax * quantity
+    finalPrice: element.finalPrice, // price + tax
+    finalTotal: element.finalTotal, // finalPrice * quantity
   };
-
- 
-  
 
   try {
     const docRef = await adminDb.collection("orderProducts").add(product);
@@ -771,166 +758,3 @@ export async function decreaseProductStockFromOrder(orderMasterId: string) {
     return { success: false, message: "Error updating stock." };
   }
 }
-
-// const ORDERS_PER_PAGE = 10;
-
-// export async function fetchOrdersMaster1(cursorId: string | null = null) {
-//   const collectionRef = collection(adminDb, "orderMaster");
-
-//   let q;
-//   if (cursorId) {
-//     const cursorDoc = await getDoc(doc(collectionRef, cursorId));
-//     if (cursorDoc.exists()) {
-//       q = query(
-//         collectionRef,
-//         orderBy("createdAt", "desc"),
-//         startAfter(cursorDoc),
-//         limit(ORDERS_PER_PAGE)
-//       );
-//     } else {
-//       throw new Error("Cursor document not found");
-//     }
-//   } else {
-//     q = query(collectionRef, orderBy("createdAt", "desc"), limit(ORDERS_PER_PAGE));
-//   }
-
-//   const snapshot = await getDocs(q);
-
-//   const orders: orderMasterDataT[] = snapshot.docs.map((doc) => {
-//     const data = doc.data();
-//     const date = data.createdAt?.toDate?.();
-//     const formattedDate = date?.toLocaleString("en-GB", {
-//       year: "numeric",
-//       month: "long",
-//       day: "2-digit",
-//       hour: "2-digit",
-//       minute: "2-digit",
-//     });
-
-//     return {
-//       id: doc.id,
-//       customerName: data.customerName || "",
-//       email: data.email || "",
-//       paymentType: data.paymentType || "",
-//       status: data.status || "",
-//       time: formattedDate || "",
-//       couponCode: data.couponCode || "",
-//       userId: data.userId || "",
-//       addressId: data.addressId || "",
-//       endTotalG: data.endTotalG || 0,
-//       itemTotal: data.itemTotal || 0,
-//       totalDiscountG: data.totalDiscountG || 0,
-//       flatDiscount: data.flatDiscount || 0,
-//       srno: data.srno || 0,
-//       timeId: data.timeId || "",
-//       deliveryCost: data.deliveryCost || 0,
-//       calculatedPickUpDiscountL: data.calculatedPickUpDiscountL || 0,
-//       calCouponDiscount: data.calCouponDiscount || 0,
-//       couponDiscountPercentL: data.couponDiscountPercentL || 0,
-//       pickUpDiscountPercentL: data.pickUpDiscountPercentL || 0,
-//       createdAt: data.createdAt,
-//     } as orderMasterDataT;
-//   });
-
-//   return {
-//     orders,
-//     firstDocId: snapshot.docs[0]?.id || null,
-//     lastDocId: snapshot.docs[snapshot.docs.length - 1]?.id || null,
-//   };
-// }
-
-// export async function addOrder(element) {
-//   try {
-//     const docRef = await addDoc(collection(adminDb, "orderProducts"), element);
-//     console.log("Document written with ID: ", docRef.id);
-//     // Clear the form
-//   } catch (e) {
-//     console.error("Error adding document: ", e);
-//   }
-// }
-
-// export async function fetchOrders(){
-
-//  // const result = await db.select().from(product);
-//   const result = await getDocs(collection(adminDb, "product"))
-// //  console.log(result.docs)
-
-// let data;
-// data = [];
-//   result.forEach((doc) => {
-//     data.push({id:doc.id, ...doc.data()});
-//   });
-//  // console.log(data)
-//   return data;
-// }
-
-// export async function fetchOrdersPaginated1({ afterId, pageSize = 10 }: FetchOrdersOptions) {
-//   const collectionRef = collection(adminDb, 'orderMaster');
-//   let q;
-
-//   if (afterId) {
-//     const docRef = await getDoc(doc(adminDb, 'orderMaster', afterId));
-//     q = query(collectionRef, orderBy('createdAt', 'desc'), startAfter(docRef), limit(pageSize));
-//   } else {
-//     q = query(collectionRef, orderBy('createdAt', 'desc'), limit(pageSize));
-//   }
-
-//   const snapshot = await getDocs(q);
-
-//   const orders = snapshot.docs.map((doc) => {
-
-//     const data = doc.data();
-//     const date = data.createdAt?.toDate?.();
-//     const formattedDate = date?.toLocaleString('en-GB', {
-//       year: 'numeric',
-//       month: 'long',
-//       day: '2-digit',
-//       hour: '2-digit',
-//       minute: '2-digit',
-//     });
-
-//     return {
-//       id: doc.id,
-//       customerName: data.customerName || '',
-//       email: data.email || '',
-//       paymentType: data.paymentType || '',
-//       status: data.status || '',
-//       time: data.time || '',
-//       couponCode: data.couponCode || '',
-//       userId: data.userId || '',
-//       addressId: data.addressId || '',
-//       endTotalG: data.endTotalG || 0,
-//       itemTotal: data.itemTotal || 0,
-//       totalDiscountG: data.totalDiscountG || 0,
-//       flatDiscount: data.flatDiscount || 0,
-//       srno: data.srno || 0,
-//       timeId: data.timeId || '',
-//       deliveryCost: data.deliveryCost || 0,
-//       calculatedPickUpDiscountL: data.calculatedPickUpDiscountL || 0,
-//       calCouponDiscount: data.calCouponDiscount || 0,
-//       couponDiscountPercentL: data.couponDiscountPercentL || 0,
-//       pickUpDiscountPercentL: data.pickUpDiscountPercentL || 0,
-//       createdAt: data.createdAt?.toDate?.().toISOString() || '',
-//     } as orderMasterDataT;
-//   });
-
-//   const lastDoc = snapshot.docs[snapshot.docs.length - 1];
-//   return { orders, lastId: lastDoc?.id || null };
-// }
-
-// export async function fetchOrdersMaster(): Promise<orderMasterDataT[]> {
-//   const data = [] as orderMasterDataT[];
-//   //  const q = query(collection(adminadminDb, "orderMaster"));
-//   //  const querySnapshot = await getDocs(q);
-
-//   const collectionRef = collection(adminadminDb, "orderMaster");
-
-//   const targetQuery = query(collectionRef, orderBy("srno", "desc"), limit(20));
-//   const querySnapshot = await getDocs(targetQuery);
-
-//   querySnapshot.forEach((doc) => {
-//     const pData = { id: doc.id, ...doc.data() } as orderMasterDataT;
-//     data.push(pData);
-//   });
-//   return data;
-// }

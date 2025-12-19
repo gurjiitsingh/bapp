@@ -45,11 +45,11 @@ function TableRows({ order }: { order: orderMasterDataT }) {
               masterId: order.id,
               userId: order.userId,
               addressId: order.addressId,
-            },
+            }
           }}
           className="border border-gray-500 hover:bg-amber-300 dark:bg-amber-900 dark:hover:bg-amber-700 text-amber-800 dark:text-white px-3 py-1 rounded-full text-xs font-semibold transition"
         >
-          #{order.srno}
+          #{order.srno}eeee
         </Link>
          <Link
           href={{
@@ -111,7 +111,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
       </TableCell>
 
       <TableCell className="text-sm text-gray-600">{flatDiscount}</TableCell>
-
+  <TableCell className="text-sm text-gray-600">{order.printed}</TableCell>
       <TableCell>
         <button
           onClick={() => handleDelete(order.id)}

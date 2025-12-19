@@ -13,7 +13,8 @@ import { OrderProductT } from "@/lib/types/orderType";
 import { orderMasterDataT } from "@/lib/types/orderMasterType";
 import { formatCurrencyNumber } from '@/utils/formatCurrency';
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-
+  import { Timestamp } from "firebase/firestore";
+import { formatFirestoreDateToIST } from "@/utils/date";
 const OrderDetail = () => {
   const searchParams = useSearchParams();
   // console.log(
@@ -126,7 +127,16 @@ if (addressId === "POS_ORDER") {
     (settings.locale ) as string
   );
 
-  
+
+
+
+
+const dateTime = formatFirestoreDateToIST(
+  orderMasterData?.createdAt as string
+);
+
+
+
 
   return (
     <div className="flex flex-col gap-4 bg-white px-3 flex-1 mb-12">
@@ -143,7 +153,10 @@ if (addressId === "POS_ORDER") {
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Date:</div>{" "}
-            <div className="">{orderMasterData?.time}</div>
+            <div className="">
+              {/* {orderMasterData?.time} */}
+              {dateTime}
+              </div>
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Status:</div>{" "}

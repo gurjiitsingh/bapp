@@ -111,8 +111,8 @@ export type orderDataType = {
   // REQUIRED LEGACY TOTALS
   // -----------------------------
   endTotalG?: number;          // legacy grand total
-  totalDiscountG?: number;
-  flatDiscount?: number;
+  totalDiscountG: number;
+  flatDiscount: number;
 
   // -----------------------------
   // ORDER INFO
@@ -156,7 +156,7 @@ export type orderDataType = {
   printed?: boolean;
 
   //remove in future
-  finalGrandTotal:number;
+  finalGrandTotal?:number;
 };
 
 
