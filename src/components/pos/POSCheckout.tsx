@@ -1,97 +1,119 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
-import { useCartContext } from "@/store/CartContext";
-import { UseSiteContext } from "@/SiteContext/SiteContext";
-import { createNewOrder } from "@/app/(universal)/action/orders/dbOperations";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+
+import { useCartContext } from "@/store/CartContext";
+import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { useLanguage } from "@/store/LanguageContext";
+
+import { createNewOrder } from "@/app/(universal)/action/orders/dbOperations";
+
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
-import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";  // ✅ ADDED
-import PaymentSelector from "@/app/(universal)/(purchase)/checkout/components/PaymentSelector";
-import {
-  CartItem,
- 
-  orderDataType,
+import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";
+import { calculateOrderTotals } from "@/lib/orderAmount/calculateOrderTotals";
 
-} from "@/lib/types/cartDataType";
-import {  convertProductsToCartItemsPOS } from "@/lib/cart/convertProductsToCartItems";
+import PaymentSelector from "@/app/(universal)/(purchase)/checkout/components/PaymentSelector";
+
+import { CartItem, orderDataType } from "@/lib/types/cartDataType";
+import { convertProductsToCartItemsPOS } from "@/lib/cart/convertProductsToCartItems";
+
+// =====================================================
+// POS CHECKOUT
+// =====================================================
 
 export default function POSCheckout() {
   const router = useRouter();
   const { TEXT } = useLanguage();
+
   const { cartData, setEndTotalG } = useCartContext();
   const { settings, paymentType } = UseSiteContext();
 
+  // -------------------------
+  // LOCAL STATE
+  // -------------------------
   const [itemTotal, setItemTotal] = useState(0);
-  const [itemTotalFormatted, setItemTotalFormatted] = useState("");
   const [taxTotal, setTaxTotal] = useState(0);
+
+  const [itemTotalFormatted, setItemTotalFormatted] = useState("");
   const [finalTotalFormatted, setFinalTotalFormatted] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
 
-  // -------------------------
-  // CALCULATE SUBTOTAL + TAX with YOUR LIB FUNCTION
-  // -------------------------
-useEffect(() => {
-  if (!cartData || cartData.length === 0) return;
-//const cartItems: CartItem[] = convertProductsToCartItemsPOS(cartData);
-const cartItems: CartItem[] = convertProductsToCartItemsPOS(cartData);
+  // 🆕 STORE CONVERTED CART ITEMS (ORDER-SAFE)
+ 
 
-// CartItem = {
-//   id: ;
-//   name: ;
-//   price: ;
-//   quantity: ;
-//   stockQty: ;
+  // =====================================================
+  // CALCULATE TOTALS (SINGLE SOURCE OF TRUTH)
+  // =====================================================
+  useEffect(() => {
+    if (!cartData || cartData.length === 0) return;
 
-//   // category + tax info copied from product
-//   categoryId: ;
-//   productCat: ;
-//   taxRate:;
-//   taxType: ;
-//   image: ;
-//    taxAmount: ;   // per one item
-//   taxTotal: ;    // tax * quantity
-//   finalPrice:;  // price + tax
-//   finalTotal: ;  // finalPrice * quantity
-// }
+  
 
+    async function calculateTotals() {
+      // -------------------------
+      // 1️⃣ TAX PER PRODUCT
+      // -------------------------
+      const { totalTax, products } = await calculateTaxForCart(cartData);
 
-  async function calculateTotals() {
-    // 🔥 Get tax-calculated products
-    const { totalTax, products } = await calculateTaxForCart(cartItems);
-
-    // 🔥 Subtotal BEFORE tax
-    const subtotal = products.reduce(
-      (sum, p) => sum + Number(p.price) * Number(p.quantity),
-      0
-    );
-
-    setItemTotal(Number(subtotal.toFixed(2)));
-    setTaxTotal(Number(totalTax.toFixed(2)));
-
-    const netTotal = subtotal + totalTax;
-    setEndTotalG(Number(netTotal.toFixed(2)));
-
-    if (settings?.currency && settings?.locale) {
-      setItemTotalFormatted(
-        formatCurrencyNumber(subtotal, settings.currency as string, settings.locale as string)
+      // -------------------------
+      // 2️⃣ ITEM TOTAL (NO TAX)
+      // -------------------------
+      const itemTotalInitial = products.reduce(
+        (sum, p) => sum + Number(p.price) * Number(p.quantity),
+        0
       );
-      setFinalTotalFormatted(
-        formatCurrencyNumber(netTotal, settings.currency as string, settings.locale as string)
-      );
+
+      // -------------------------
+      // 3️⃣ FINAL TOTALS (STANDARD)
+      // -------------------------
+      const totals = calculateOrderTotals({
+        itemTotal: itemTotalInitial,
+        flatDiscount: 0,
+        couponDiscount: 0,
+        pickupDiscount: 0,
+        taxBeforeDiscount: totalTax,
+        deliveryFee: 0,
+      });
+
+      // -------------------------
+      // 4️⃣ SAVE STATE
+      // -------------------------
+      setItemTotal(Number(itemTotalInitial.toFixed(2)));
+      setTaxTotal(Number(totals.taxAfterDiscount!.toFixed(2)));
+      setEndTotalG(Number(totals.grandTotal!.toFixed(2)));
+
+      // -------------------------
+      // 5️⃣ FORMAT FOR UI
+      // -------------------------
+      if (settings?.currency && settings?.locale) {
+        setItemTotalFormatted(
+          formatCurrencyNumber(
+            itemTotalInitial,
+            settings.currency as string,
+            settings.locale as string
+          )
+        );
+
+        setFinalTotalFormatted(
+          formatCurrencyNumber(
+            totals.grandTotal!,
+            settings.currency as string,
+            settings.locale as string
+          )
+        );
+      }
     }
-  }
 
-  calculateTotals();
-}, [cartData, settings]);
+    calculateTotals();
+  }, [cartData, settings, setEndTotalG]);
 
-
-
-  // -------------------------
-  // POS ORDER CREATION
-  // -------------------------
+  // =====================================================
+  // CREATE POS ORDER
+  // =====================================================
   async function createPOSOrder() {
     try {
       setIsLoading(true);
@@ -106,31 +128,65 @@ const cartItems: CartItem[] = convertProductsToCartItemsPOS(cartData);
         return;
       }
 
-      // Final price from state
-      const endTotal = itemTotal + taxTotal;
+      // -------------------------
+      // FINAL TOTALS (REUSE LOGIC)
+      // -------------------------
+      const totals = calculateOrderTotals({
+        itemTotal,
+        flatDiscount: 0,
+        couponDiscount: 0,
+        pickupDiscount: 0,
+        taxBeforeDiscount: taxTotal,
+        deliveryFee: 0,
+      });
 
-      const posOrder = {
+      // -------------------------
+      // ORDER PAYLOAD
+      // -------------------------
+      const posOrder: orderDataType = {
         userId: "POS",
         customerName: "POS",
         email: "pos@local",
-        cartData,
+
+        // CART SNAPSHOT
+        cartData: cartData,
+
+        // -------- CLEAN TOTALS --------
         itemTotal,
-        endTotalG: endTotal,
+        discountTotal: totals.discountTotal,
+        taxTotal: totals.taxAfterDiscount,
+        subTotal: totals.subTotal,
+        grandTotal: totals.grandTotal,
+
+        // -------- LEGACY (KEEP) --------
+        endTotalG: totals.grandTotal!,
+        finalGrandTotal: totals.grandTotal!,
+
+        // -------- DISCOUNTS --------
         totalDiscountG: 0,
+        flatDiscount: 0,
+        calCouponDiscount: 0,
+
+        // ✅ REQUIRED BUT ZERO FOR POS
+        flatCouponDiscount: 0,
+        noOffers: true,
+
+        calculatedPickUpDiscountL: 0,
+
         addressId: "POS_ORDER",
         paymentType,
         deliveryCost: 0,
-        calculatedPickUpDiscountL: 0,
-        flatDiscount: 0,
-        calCouponDiscount: 0,
+
         couponDiscountPercentL: 0,
         couponCode: "NA",
         pickUpDiscountPercentL: 0,
-        noOffers: true,
-      } as orderDataType;
 
-
-      
+        // -------- SYSTEM --------
+        source: "POS",
+        orderStatus: "NEW",
+        paymentStatus: "PAID",
+        printed: false,
+      };
 
       const orderResult = await createNewOrder(posOrder);
 
@@ -139,28 +195,36 @@ const cartItems: CartItem[] = convertProductsToCartItemsPOS(cartData);
         return;
       }
 
-      const orderId = orderResult.orderId;
-
-      router.push(`/pos/complete?paymentType=${paymentType}&orderMasterId=${orderId}&deliveryType=pickup`);
+      router.push(
+        `/pos/complete?paymentType=${paymentType}&orderMasterId=${orderResult.orderId}&deliveryType=pickup`
+      );
     } catch (err) {
       console.error(err);
+      toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
     }
   }
 
+  // =====================================================
+  // UI
+  // =====================================================
   return (
     <div className="bg-white border rounded-2xl p-5 flex flex-col gap-4 w-full">
       <h2 className="text-xl font-semibold border-b pb-3">POS Checkout</h2>
- <PaymentSelector />
+
+      <PaymentSelector />
+
       <div className="flex justify-between text-md font-semibold">
-        <span>Subtotal</span>
+        <span>Item Total</span>
         <span>{itemTotalFormatted}</span>
       </div>
 
       <div className="flex justify-between text-md font-semibold">
         <span>Tax</span>
-        <span>{settings?.currency} {taxTotal.toFixed(2)}</span>
+        <span>
+          {settings?.currency} {taxTotal.toFixed(2)}
+        </span>
       </div>
 
       <div className="flex justify-between text-lg font-bold border-t pt-3">

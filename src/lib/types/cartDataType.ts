@@ -1,7 +1,11 @@
 import { ProductType } from "./productType";
 
+
+
+
+
 export type cartProductType = {
-  id: string | undefined;
+  id: string ;
   price: number;
   quantity: number;
   stockQty: number | null;
@@ -11,6 +15,10 @@ export type cartProductType = {
   image: string;
   taxRate: number | undefined;
   taxType: "inclusive" | "exclusive" | undefined;
+
+// variantId?: string;
+// variantName?: string;
+// notes?: string;
 };
 
 export type newOrderConditionType = {
@@ -34,6 +42,7 @@ export type CartItem = {
 };
 
 export type CartItemWithTax = CartItem & {
+  itemSubtotal:number;
   taxAmount: number;   // per one item
   taxTotal: number;    // tax * quantity
   finalPrice: number;  // price + tax
@@ -86,22 +95,91 @@ export type purchaseDataT = {
 };
 
 export type orderDataType = {
-  userId: string | undefined;
+  // -----------------------------
+  // BASIC INFO
+  // -----------------------------
+  userId: string ;
   customerName: string;
   email: string;
-  cartData: ProductType[];
-  endTotalG: number;
-  totalDiscountG: number;
-  flatDiscount: number;
+
+  // -----------------------------
+  // CART SNAPSHOT (REQUIRED)
+  // -----------------------------
+  cartData: cartProductType[];
+
+  // -----------------------------
+  // REQUIRED LEGACY TOTALS
+  // -----------------------------
+  endTotalG?: number;          // legacy grand total
+  totalDiscountG?: number;
+  flatDiscount?: number;
+
+  // -----------------------------
+  // ORDER INFO
+  // -----------------------------
   addressId: string;
   paymentType: string;
+
   itemTotal: number;
   deliveryCost: number;
+
+  // -----------------------------
+  // ✅ NEW CLEAN TOTALS (OPTIONAL)
+  // -----------------------------
+  discountTotal?: number;     // sum of all discounts
+  taxTotal?: number;          // tax after discount
+  subTotal?: number;          // itemTotal - discountTotal
+  grandTotal?: number;        // final payable amount
+
+  // -----------------------------
+  // DISCOUNTS (LEGACY + CLEAN)
+  // -----------------------------
   calCouponDiscount: number;
   flatCouponDiscount: number;
   couponDiscountPercentL: number;
   couponCode: string | undefined;
+
   pickUpDiscountPercentL: number;
   calculatedPickUpDiscountL: number;
+
+  // -----------------------------
+  // FLAGS
+  // -----------------------------
   noOffers: boolean;
+
+  // -----------------------------
+  // ✅ SYSTEM / SOURCE (OPTIONAL)
+  // -----------------------------
+  source?: "POS" | "WEB";
+  orderStatus?: "NEW" | "ACCEPTED" | "COMPLETED" | "CANCELLED";
+  paymentStatus?: "PAID" | "UNPAID" | "FAILED";
+  printed?: boolean;
+
+  //remove in future
+  finalGrandTotal:number;
 };
+
+
+
+// export type OrderProductType = {
+//   id: string;
+//   orderMasterId: string;
+
+//   name: string;
+//   price: number;
+//   quantity: number;
+
+//   taxRate: number;
+//   taxType: "inclusive" | "exclusive";
+//   taxAmount: number;
+//   taxTotal: number;
+
+//   finalPrice: number;
+//   finalTotal: number;
+
+//   categoryId: string;
+//   productCat: string;
+//   image: string;
+
+//   status: string;
+// };

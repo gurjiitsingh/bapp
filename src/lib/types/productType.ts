@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export type ProductType = {
-  id: string | undefined;
+  id: string ;
   name: string;
   price: number;
   stockQty: number;

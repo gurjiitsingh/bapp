@@ -26,6 +26,11 @@ const ProductList: React.FC<ProductListProps> = ({ item }) => {
     (settings.currency || "EUR") as string,
     (settings.locale || "de-DE") as string
   );
+    const itemSubtotal_formated = formatCurrencyNumber(
+      Number(item.itemSubtotal) ?? 0,
+      (settings.currency || "EUR") as string,
+      (settings.locale || "de-DE") as string
+    );
      const itemTax_formated = formatCurrencyNumber(
       Number(item.taxAmount) ?? 0,
       (settings.currency || "EUR") as string,
@@ -61,15 +66,21 @@ const ProductList: React.FC<ProductListProps> = ({ item }) => {
           <div className="text-sm w-[40%] flex items-start">{item.name}</div>
           <div className="flex gap-2 w-[60%]">
             
+               <div className="text-[1rem] w-[33%] flex items-start justify-end">
+              {item.quantity}
+            </div>
             <div className="text-[1rem] w-[33%] flex items-start justify-end">
               {itemPrice_formated}
             </div>
+
+   <div className="text-[1rem] w-[33%] flex items-start justify-end">
+              {itemSubtotal_formated}
+            </div>
+
               <div className="text-[1rem] w-[33%] flex items-start justify-end">
               {itemTax_formated}
             </div>
-            <div className="text-[1rem] w-[33%] flex items-start justify-end">
-              {item.quantity}
-            </div>
+         
             <div className="text-[1rem] w-[33%] flex items-start justify-end">
               {/* {total_FORMATED} */}
               {finalTotal_tax_formated}

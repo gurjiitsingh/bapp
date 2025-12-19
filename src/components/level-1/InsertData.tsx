@@ -7,7 +7,7 @@ import React from 'react'
 export default function InsertData({baseProductName,addOnData}:{baseProductName:string,addOnData:addOnType}) {
    const ProductName = baseProductName +" "+ addOnData.name;
     const cartProduct:cartProductType ={
-          id:addOnData.id,
+          id:addOnData.id as string,
           quantity:1,
           price:addOnData.price,
           stockQty:null,

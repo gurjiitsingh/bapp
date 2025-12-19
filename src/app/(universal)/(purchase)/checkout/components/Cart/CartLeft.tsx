@@ -273,167 +273,175 @@ useEffect(() => {
 
   
 
-  async function proceedToOrder() {
-    setIsLoading(true);
-    try {
-      let canCompleteOrder = false;
-      let allReadyAlerted = false;
-      //  toast.error(`Hello, ${deliveryType}`)
+ async function proceedToOrder() {
+  setIsLoading(true);
 
-      if (paymentType === "" || paymentType === undefined) {
-        canCompleteOrder = true;
-        toast.error(TEXT.error_select_payment_type);
+  try {
+    // =====================================================
+    // 1️⃣ BASIC VALIDATIONS
+    // =====================================================
 
-        allReadyAlerted = true;
-        return;
-      }
-
-      if (!customerAddressIsComplete) {
-        toast.error(TEXT.error_select_address);
-        allReadyAlerted = true;
-        return;
-      }
-
-     
-
-      if (deliveryType === "delivery") {
-        if (!deliveryDis || deliveryDis.price === null) {
-          setIsLoading(false);
-          toast.error(TEXT.error_address_not_deliverable);
-          return; // ⛔ stop
-        }
-
-        // convert to number
-        const price = Number(deliveryDis.price);
-
-        if (isNaN(price)) {
-          setIsLoading(false);
-          toast.error(TEXT.error_address_not_deliverable);
-          return;
-        }
-      }
-
-      if (couponDisc?.minSpend && itemTotal < couponDisc.minSpend) {
-        canCompleteOrder = true;
-        if (!allReadyAlerted) {
-          toast.error(
-            `${TEXT.error_min_purchase_coupon} : ${couponDisc?.minSpend} ${TEXT.error_min_purchase_suffix}`
-          );
-
-          allReadyAlerted = true;
-        }
-        return;
-      }
-
-      if (orderAmountIsLowForDelivery && deliveryType !== "pickup") {
-        canCompleteOrder = true;
-        if (!allReadyAlerted) {
-          toast.error(
-            `${TEXT.error_min_order_delivery} € ${deliveryDis?.minSpend}`
-          );
-
-          allReadyAlerted = true;
-        }
-        return;
-      }
-
-      if (canCompleteOrder) {
-        //  toast.error(`cancelorder, is canceling order because ${canCompleteOrder}`)
-        return;
-      } else {
-        //  toast.error(`cancelorder ${canCompleteOrder} , so it not cancle order`)
-      }
-
-      const AddressId =
-        JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
-      // const order_user_Id = JSON.parse(
-      //   localStorage.getItem("order_user_Id") || ""
-      // );
-      const order_user_Id = localStorage.getItem("order_user_Id") ?? null;
-      const customer_name = JSON.parse(
-        localStorage.getItem("customer_name") || ""
-      );
-
-      const customer_email = JSON.parse(
-        localStorage.getItem("customer_email") || ""
-      );
-      const couponCode = "KJKKS"; // couponDisc?.code?.trim() ? couponDisc.code : "NA";
-
-      if (typeof deliveryCost !== "number" || Number.isNaN(deliveryCost)) {
-        toast.error(TEXT.error_unexpected_total);
-
-        return;
-      }
-
-      if (typeof endTotalG !== "number" || Number.isNaN(endTotalG)) {
-        toast.error(TEXT.error_unexpected_total);
-
-        return;
-      }
-
-      const purchaseData = {
-        userId: order_user_Id,
-        customerName: customer_name,
-        email: customer_email,
-        cartData,
-        endTotalG,
-        totalDiscountG,
-        addressId: AddressId,
-        paymentType,
-        itemTotal,
-        deliveryCost,
-        calculatedPickUpDiscountL,
-        flatDiscount: flatCouponDiscount,
-        calCouponDiscount,
-        couponDiscountPercentL,
-        couponCode: couponDisc?.code?.trim() ? couponDisc.code : "NA", //couponCode: couponDisc?.code ?? "NA",
-        pickUpDiscountPercentL,
-        noOffers,
-      } as orderDataType;
-
-      if (cartData.length !== 0) {
-        //  toast.error(`cart length is more than 0,order started, ${cartData.length}`)
-        //    const orderMasterId = await createNewOrder(purchaseData);
-
-        const orderResult = await createNewOrder(purchaseData);
-
-        if (!orderResult.success) {
-          // 🚫 Stock not available or failed validation
-          toast.error(orderResult.message || "Unable to create order.");
-          setIsLoading(false);
-          return; // stop further actions
-        }
-
-        const orderMasterId = orderResult.orderId;
-        if (!orderMasterId) {
-          toast.error("Unexpected error: missing order ID.");
-          setIsLoading(false);
-          return;
-        }
-
-        if (paymentType === "stripe") {
-          router.push(
-            `/stripe?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}&customerNote=${"this is cusomer note"}&couponCode=${couponCode}&couponDiscount=${calCouponDiscount}`
-          );
-        } else if (paymentType === "paypal") {
-          router.push(
-            `/pay?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}&customerNote=${"this is cusomer note"}&couponCode=${couponCode}&couponDiscount=${calCouponDiscount}`
-          );
-        } else if (paymentType === "cod") {
-          router.push(
-            `/complete?paymentType=Barzahlung&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}&customerNote=${"this is cusomer note"}&couponCode=${couponCode}&couponDiscount=${calCouponDiscount}`
-          );
-        }
-      } else {
-        toast.error(TEXT.error_empty_cart);
-      }
-    } catch (error) {
-      console.error("Order submission error:", error);
-    } finally {
-      //  Always re-enable the button
-      setIsLoading(false);
+    if (!paymentType) {
+      toast.error(TEXT.error_select_payment_type);
+      return;
     }
+
+    if (!customerAddressIsComplete) {
+      toast.error(TEXT.error_select_address);
+      return;
+    }
+
+    // =====================================================
+    // 2️⃣ DELIVERY VALIDATION
+    // =====================================================
+
+    if (deliveryType === "delivery") {
+      if (!deliveryDis || deliveryDis.price == null) {
+        toast.error(TEXT.error_address_not_deliverable);
+        return;
+      }
+
+      const price = Number(deliveryDis.price);
+      if (Number.isNaN(price)) {
+        toast.error(TEXT.error_address_not_deliverable);
+        return;
+      }
+    }
+
+    // =====================================================
+    // 3️⃣ COUPON / MINIMUM ORDER VALIDATION
+    // =====================================================
+
+    if (couponDisc?.minSpend && itemTotal < couponDisc.minSpend) {
+      toast.error(
+        `${TEXT.error_min_purchase_coupon} : ${couponDisc.minSpend} ${TEXT.error_min_purchase_suffix}`
+      );
+      return;
+    }
+
+    if (orderAmountIsLowForDelivery && deliveryType !== "pickup") {
+      toast.error(
+        `${TEXT.error_min_order_delivery} € ${deliveryDis?.minSpend}`
+      );
+      return;
+    }
+
+    // =====================================================
+    // 4️⃣ READ CUSTOMER DATA
+    // =====================================================
+
+    const addressId =
+      JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
+
+    const userId = localStorage.getItem("order_user_Id") as string;
+
+    const customerName =
+      JSON.parse(localStorage.getItem("customer_name") || '""') || "";
+
+    const email =
+      JSON.parse(localStorage.getItem("customer_email") || '""') || "";
+
+    // =====================================================
+    // 5️⃣ FINAL SAFETY CHECKS
+    // =====================================================
+
+    if (typeof deliveryCost !== "number" || Number.isNaN(deliveryCost)) {
+      toast.error(TEXT.error_unexpected_total);
+      return;
+    }
+
+    if (typeof endTotalG !== "number" || Number.isNaN(endTotalG)) {
+      toast.error(TEXT.error_unexpected_total);
+      return;
+    }
+
+    if (!cartData || cartData.length === 0) {
+      toast.error(TEXT.error_empty_cart);
+      return;
+    }
+
+    // =====================================================
+    // 6️⃣ BUILD ORDER (INTENT ONLY – SERVER DECIDES STATE)
+    // =====================================================
+
+    const purchaseData: orderDataType = {
+      // BASIC
+      userId,
+      customerName,
+      email,
+
+      // CART SNAPSHOT
+      cartData,
+
+      // TOTALS (client-side preview, server recalculates)
+      itemTotal,
+      endTotalG,
+      totalDiscountG,
+
+      // ADDRESS / DELIVERY
+      addressId,
+      deliveryCost,
+
+      // PAYMENT
+      paymentType,
+
+      // DISCOUNTS
+      flatDiscount: flatCouponDiscount,
+      calCouponDiscount,
+      calculatedPickUpDiscountL,
+      couponDiscountPercentL,
+      couponCode: couponDisc?.code?.trim() || "NA",
+      pickUpDiscountPercentL,
+
+       
+        finalGrandTotal: 87,
+        flatCouponDiscount:0,
+      // FLAGS
+      noOffers,
+
+      // 🔑 VERY IMPORTANT
+      source: "WEB",
+    };
+
+    // =====================================================
+    // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
+    // =====================================================
+
+    const orderResult = await createNewOrder(purchaseData);
+
+    if (!orderResult.success || !orderResult.orderId) {
+      toast.error(orderResult.message || "Unable to create order.");
+      return;
+    }
+
+    const orderMasterId = orderResult.orderId;
+
+    // =====================================================
+    // 8️⃣ REDIRECT BASED ON PAYMENT TYPE
+    // =====================================================
+
+    if (paymentType === "stripe") {
+      router.push(
+        `/stripe?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+      );
+    } else if (paymentType === "paypal") {
+      router.push(
+        `/pay?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+      );
+    } else if (paymentType === "cod") {
+      router.push(
+        `/complete?paymentType=Barzahlung&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+      );
+    }
+
+  } catch (error) {
+    console.error("Order submission error:", error);
+    toast.error("Something went wrong while placing the order.");
+  } finally {
+    setIsLoading(false);
   }
+}
+
 
   return (
     <div className="flex flex-col gap-4 w-full ">

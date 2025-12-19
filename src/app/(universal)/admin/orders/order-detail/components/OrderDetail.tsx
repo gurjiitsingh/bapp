@@ -76,7 +76,7 @@ if (addressId === "POS_ORDER") {
   useEffect(() => {
     // console.log("addre ins use efferxt-----", customerAddress);
   }, [customerAddress]);
-  const endTotalG = orderMasterData?.endTotalG;
+  const subTotal = orderMasterData?.subTotal;
    
     
   const totalTax = formatCurrencyNumber(
@@ -85,8 +85,8 @@ if (addressId === "POS_ORDER") {
     (settings.locale ) as string
   );
 
-  const finalGrandTotal = formatCurrencyNumber(
-    Number(orderMasterData?.finalGrandTotal ?? 0),
+  const grandTotal = formatCurrencyNumber(
+    Number(orderMasterData?.grandTotal ?? 0),
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -96,8 +96,8 @@ if (addressId === "POS_ORDER") {
     (settings.currency ) as string,
     (settings.locale ) as string
   );
-    const endTotalGS = formatCurrencyNumber(
-    Number(endTotalG?.toFixed(2)) ?? 0,
+    const subTotalS = formatCurrencyNumber(
+    Number(subTotal?.toFixed(2)) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -154,7 +154,7 @@ if (addressId === "POS_ORDER") {
          
  <div className="flex gap-2">
             <div className="font-semibold">Total Payable:</div>{" "}
-            <div className="">{finalGrandTotal}</div>
+            <div className="">{grandTotal}</div>
           </div>
          
         </div>
@@ -194,7 +194,7 @@ if (addressId === "POS_ORDER") {
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Subtotal:</div>{" "}
-            <div className="">{endTotalGS}</div>
+            <div className="">{subTotalS}</div>
           </div>
    <div className="flex gap-2">
             <div className="font-semibold">Tax:</div>{" "}
@@ -202,7 +202,7 @@ if (addressId === "POS_ORDER") {
           </div>
  <div className="flex gap-2">
             <div className="font-semibold">Grand Total:</div>{" "}
-            <div className="">{finalGrandTotal}</div>
+            <div className="">{grandTotal}</div>
           </div>
 
         </div>

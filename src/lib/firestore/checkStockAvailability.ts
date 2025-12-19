@@ -1,5 +1,5 @@
 import { adminDb } from "@/lib/firebaseAdmin";
-import { ProductType } from "../types/productType";
+import { cartProductType } from "@/lib/types/cartDataType";
 
 
 type StockCheckResult = {
@@ -7,16 +7,17 @@ type StockCheckResult = {
   message?: string;
 };
 
+
+
 export async function checkStockAvailability(
-  cartData: ProductType[]
+  cartData: cartProductType[]
 ): Promise<StockCheckResult> {
   const insufficient: string[] = [];
-
-  
 
   for (const item of cartData) {
     if (!item.id || !item.quantity) continue;
 
+    // 🔍 Always read stock from DB (single source of truth)
     const ref = adminDb.collection("products").doc(item.id);
     const snap = await ref.get();
 
@@ -25,11 +26,13 @@ export async function checkStockAvailability(
       continue;
     }
 
-    const data = snap.data() as ProductType;
+    const data = snap.data() as { stockQty?: number };
     const stockQty = data?.stockQty ?? 0;
 
     if (item.quantity > stockQty) {
-      insufficient.push(`${item.name} (Only ${stockQty} left)`);
+      insufficient.push(
+        `${item.name} (Only ${stockQty} left)`
+      );
     }
   }
 
@@ -42,3 +45,4 @@ export async function checkStockAvailability(
 
   return { success: true };
 }
+

@@ -1,12 +1,13 @@
-import { CartItem } from "../types/cartDataType";
+import {  cartProductType } from "../types/cartDataType";
 
-export async function calculateTaxForCart(cartItems: CartItem[]) {
+export async function calculateTaxForCart(cartItems: cartProductType[]) {
   let subtotal = 0;
   let totalTax = 0;
 
   const products = cartItems.map((item) => {
     const price = Number(item.price);
     const qty = Number(item.quantity);
+    const itemSubtotal = price * qty; 
     const taxRate = item.taxRate ?? 0;
     const isExclusive = item.taxType === "exclusive";
 
@@ -29,6 +30,7 @@ export async function calculateTaxForCart(cartItems: CartItem[]) {
 
     return {
       ...item,
+      itemSubtotal,
       taxAmount,
       taxTotal,
       finalPrice,
