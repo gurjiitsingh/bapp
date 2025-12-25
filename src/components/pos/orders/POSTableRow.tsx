@@ -24,14 +24,22 @@ export default function POSTableRow({ order }: { order: orderMasterDataT }) {
     }
   }
 
+
+console.log("orders--------", order)
   return (
     <TableRow className="hover:bg-green-50 transition">
       <TableCell>
         <div className="flex gap-1">
         <Link
-        //  href={`/pos/order-detail?orderId=${order.id}`}
-        href={``}
-          className="p-1 py-1 border rounded-full text-sm font-semibold"
+         href={{
+            pathname: `/pos/orders/order-detail`,
+            query: {
+              masterId: order.id,
+              userId: order.userId,
+              addressId: order.addressId,
+            }}}
+       // href={`/pos/orders/order-detail?orderId=${order.id}`}
+          className="p-1 py-1 flex items-center border rounded-full text-sm font-semibold"
         >
           #{order.srno}
         </Link>
@@ -40,13 +48,16 @@ export default function POSTableRow({ order }: { order: orderMasterDataT }) {
       
         <Link
           href={`/pos/print?orderId=${order.id}`}
-          className="p-2 w-full rounded-full  hover:bg-gray-300 transition"
+          className="p-2 w-10 rounded-full  hover:bg-gray-300 transition"
         >
-          <MdPrint size={28} />
+          <MdPrint size={20} />
+        
         </Link>
-    
+        <div className="flex items-center">
+      {order.source}</div>
 </div>
       </TableCell>
+      
 
       <TableCell>{order.customerName || "Walk-in"}</TableCell>
 
@@ -70,7 +81,7 @@ export default function POSTableRow({ order }: { order: orderMasterDataT }) {
 
       <TableCell>{order.paymentType}</TableCell>
 
-     
+      <TableCell>{order.printed ? "Yes": "No"}</TableCell>
 
       {/* Delete */}
       <TableCell>

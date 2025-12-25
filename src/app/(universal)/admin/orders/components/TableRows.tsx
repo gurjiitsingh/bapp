@@ -11,6 +11,7 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { formatDateUTC } from "@/utils/formatDateUTC";
 
 function TableRows({ order }: { order: orderMasterDataT }) {
+ 
   const { TEXT } = useLanguage();
   const { settings } = UseSiteContext();
   const flatDiscount = formatCurrencyNumber(

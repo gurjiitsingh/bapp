@@ -96,7 +96,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
 
     noOffers,
     cartData, // cartProductType[]
-    source = "WEB",
+    source ,
   } = purchaseData;
 
   // =====================================================
@@ -197,6 +197,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
     totalTax: totals.taxAfterDiscount, // final GST charged
 
      // CLEAN TOTALS (NEW)
+     productsCount: cartData.length,
     discountTotal: totals.discountTotal,
 
     subTotal: totals.subTotal,
@@ -407,31 +408,63 @@ export async function fetchOrdersPaginated({
     //     : null;
     // const createdAtISO = dateObj?.toISOString() || data.createdAtUTC || "";
 
-    return {
-      id: doc.id,
-      customerName: data.customerName || "",
-      email: data.email || "",
-      paymentType: data.paymentType || "",
-      status: data.status || "",
-      couponCode: data.couponCode || "",
-      userId: data.userId || "",
-      addressId: data.addressId || "",
-      endTotalG: data.endTotalG || 0,
-      itemTotal: data.itemTotal || 0,
-      totalDiscountG: data.totalDiscountG || 0,
-      flatDiscount: data.flatDiscount || 0,
-      srno: data.srno || 0,
-      timeId: data.timeId || "",
-      deliveryCost: data.deliveryCost || 0,
-      calculatedPickUpDiscountL: data.calculatedPickUpDiscountL || 0,
-      calCouponDiscount: data.calCouponDiscount || 0,
-      couponDiscountPercentL: data.couponDiscountPercentL || 0,
-      pickUpDiscountPercentL: data.pickUpDiscountPercentL || 0,
-      createdAt: data.createdAt?.toDate?.().toISOString() || "",
-      totalTax: data.totalTax || 0,
-      createdAtUTC: data.createdAtUTC || "", // ✅ Add support
-      time: data.time || "",
-    } as orderMasterDataT;
+return {
+  id: doc.id,
+
+  // 🧾 Customer Info
+  customerName: data.customerName || "",
+  email: data.email || "",
+  userId: data.userId || "",
+  addressId: data.addressId || "",
+
+  // 🕒 Order Info
+  srno: data.srno || 0,
+  timeId: data.timeId || "",
+  time: data.time || "",
+  createdAt: data.createdAt?.toDate?.().toISOString?.() || data.createdAt || "",
+  createdAtUTC: data.createdAtUTC || "",
+
+  // 💳 Payment Info
+  paymentType: data.paymentType || "",
+  paymentStatus: data.paymentStatus || "PENDING",
+
+  // 📦 Status
+  status: data.status || "",
+  orderStatus: data.orderStatus || "NEW",
+
+  // 💰 Item & Discount Totals
+  itemTotal: data.itemTotal || 0,                        // legacy (before discount & tax)
+  totalDiscountG: data.totalDiscountG || 0,              // legacy
+  flatDiscount: data.flatDiscount || 0,
+  calculatedPickUpDiscountL: data.calculatedPickUpDiscountL || 0,
+  calCouponDiscount: data.calCouponDiscount || 0,
+  couponDiscountPercentL: data.couponDiscountPercentL || 0,
+  pickUpDiscountPercentL: data.pickUpDiscountPercentL || 0,
+  couponCode: data.couponCode || "",
+
+  // 🚚 Delivery / Fees
+  deliveryCost: data.deliveryCost || 0,
+  deliveryFee: data.deliveryFee || data.deliveryCost || 0,
+
+  // 🧮 Tax & Totals (new clean structure)
+  totalTax: data.totalTax || 0,                           // legacy
+  endTotalG: data.endTotalG || 0,                         // legacy
+  finalGrandTotal: data.finalGrandTotal || 0,             // legacy
+  discountTotal: data.discountTotal || data.totalDiscountG || 0,
+  taxBeforeDiscount: data.taxBeforeDiscount || 0,
+  taxAfterDiscount: data.taxAfterDiscount || data.totalTax || 0,
+  subTotal: data.subTotal || data.itemTotal || 0,
+  grandTotal: data.grandTotal || data.finalGrandTotal || data.endTotalG || 0,
+
+  // 🔖 Meta / Automation
+  source: data.source || "POS",
+  printed: data.printed || false,
+  acknowledged: data.acknowledged || false,
+
+  // 📝 Notes
+  notes: data.notes || "",
+} as orderMasterDataT;
+
   });
 
   const lastDoc = snapshot.docs[snapshot.docs.length - 1];
