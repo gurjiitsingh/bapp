@@ -96,7 +96,15 @@ export type orderMasterDataT = {
   notes?: string;                     // kitchen or customer notes
 
 
-  
+  // =====================================================
+  // ✅ CUSTOM – NEW FIELDS FOR TABLE & SCHEDULE
+  // =====================================================
+
+  /** Table number (for dine-in orders) */
+  tableNo?: string | number;
+
+  /** Whether the order is scheduled for later */
+  orderScheduled?: boolean;
 };
 
 
