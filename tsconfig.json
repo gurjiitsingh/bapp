@@ -39,7 +39,7 @@
     "src/components/Bargermenu/Menu.tsx",
     "src/app/(universal)/admin/orders-old/order-detail/components/productList.js",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/app/(universal)/action/schedule/saveDaySchedule", "src/app/(universal)/action/schedule/saveDaySchedule"  ],
   "exclude": [
     "node_modules"
   ]
