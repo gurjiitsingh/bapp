@@ -1,6 +1,7 @@
 'use client'
 
 
+import OpeningHours from "@/components/level-1/OpeningHours";
 // components/ContactInfo.tsx
 import { FaMapMarkedAlt, FaPhoneAlt, FaEnvelope, FaCalendarAlt } from "react-icons/fa";
 
@@ -40,7 +41,7 @@ export default function ContactInfo() {
           <h3 className="uppercase text-sm tracking-wider font-semibold mb-2">Hours</h3>
           <div className="text-sm space-y-1">
            
-            <p> <br />10AM to 10PM</p>
+           <OpeningHours />
            
           </div>
         </div>

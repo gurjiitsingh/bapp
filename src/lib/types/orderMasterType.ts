@@ -105,6 +105,8 @@ export type orderMasterDataT = {
 
   /** Whether the order is scheduled for later */
   orderScheduled?: boolean;
+
+  productsCount?: number;
 };
 
 

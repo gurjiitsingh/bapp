@@ -41,6 +41,7 @@ type SidebarFlagKey =
   | "SHOW_COUPON"
   | "SHOW_DELIVERY"
   | "SHOW_USERS"
+  | "SHOW_TIMMING"
   | "SHOW_SETTING"
   | "SHOW_DATA_BACKUP";
 
@@ -65,6 +66,7 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_COUPON: process.env.NEXT_PUBLIC_SHOW_COUPON === "1",
   SHOW_DELIVERY: process.env.NEXT_PUBLIC_SHOW_DELIVERY === "1",
   SHOW_USERS: process.env.NEXT_PUBLIC_SHOW_USERS === "1",
+   SHOW_TIMMING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
   SHOW_SETTING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
   SHOW_DATA_BACKUP: process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP === "1",
 };
@@ -85,6 +87,7 @@ const Sidebar = () => {
         coupon: "Coupon",
         delivery: "Delivery",
         users: "Users",
+        dayschedule:"Timing",
         setting: "Setting",
         data_backup: "Data Backup",
         logout: "Logout",
@@ -128,7 +131,9 @@ const Sidebar = () => {
     { key: "SHOW_COUPON", name: BRANDING.sidebar.coupon, link: "/admin/coupon", icon: <MdLocalOffer /> },
     { key: "SHOW_DELIVERY", name: BRANDING.sidebar.delivery, link: "/admin/delivery", icon: <TbTruckDelivery /> },
     { key: "SHOW_USERS", name: BRANDING.sidebar.users, link: "/admin/users", icon: <FaUsers /> },
-    { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
+     { key: "SHOW_TIMMING", name: BRANDING.sidebar.dayschedule, link: "/admin/day-schedule/form", icon: <MdSettings /> },
+     { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
+   
     { key: "SHOW_DATA_BACKUP", name: BRANDING.sidebar.data_backup, link: "/admin/data-backup", icon: <MdOutlineBackup /> },
   ];
 
