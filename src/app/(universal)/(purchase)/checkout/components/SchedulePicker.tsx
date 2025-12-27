@@ -26,20 +26,21 @@ export default function SchedulePicker({
 
   const formatISO = (d: Date) => d.toISOString().split("T")[0];
 
-  // ✅ Only Today → Next 6 days
   const getDays = () => {
     return Array.from({ length: 7 }).map((_, i) => {
       const d = new Date();
-      d.setDate(today.getDate() + i);
+      d.setDate(today.getDate() + i - 1);
 
       let label = formatWeekday(d);
-      if (i === 0) label = "Today";
-      if (i === 1) label = "Tomorrow";
+      if (i === 0) label = "Yesterday";
+      if (i === 1) label = "Today";
+      if (i === 2) label = "Tomorrow";
 
       return {
         label,
         date: formatDate(d),
         value: formatISO(d),
+        isPast: d < new Date(new Date().setHours(0, 0, 0, 0)),
       };
     });
   };
@@ -62,7 +63,6 @@ export default function SchedulePicker({
 
     let start = open;
 
-    // If today, prevent past time selection
     if (selectedDate === formatISO(today)) {
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       start = Math.max(open, Math.ceil(nowMinutes / 15) * 15);
@@ -72,7 +72,6 @@ export default function SchedulePicker({
     for (let i = start; i < close; i += 15) {
       slots.push(toTime(i));
     }
-
     return slots;
   };
 
@@ -96,6 +95,7 @@ export default function SchedulePicker({
         {days.map((d) => (
           <button
             key={d.value}
+            disabled={d.isPast}
             onClick={() => setSelectedDate(d.value)}
             className={`px-3 py-2 rounded-lg text-sm text-center border min-w-[90px]
               ${
@@ -103,6 +103,7 @@ export default function SchedulePicker({
                   ? "bg-green-100 border-green-400 text-green-800"
                   : "bg-white border-gray-200 text-gray-600"
               }
+              ${d.isPast ? "opacity-40 cursor-not-allowed" : ""}
             `}
           >
             <div className="font-medium">{d.label}</div>

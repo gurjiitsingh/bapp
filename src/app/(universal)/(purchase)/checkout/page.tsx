@@ -34,11 +34,12 @@ const [scheduledAt, setScheduledAt] = useState<string | null>(null);
     {/* Next Step */}
    
 
-      {orderType === "instant" && (
-        <div className="p-4 bg-green-50 rounded-lg mt-4">
-          🚀 Order will be prepared immediately
-        </div>
-      )}
+    {orderType === "instant" && (
+  <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
+    Your order will be prepared in 30–45 minutes.
+  </div>
+)}
+
 
       {orderType === "schedule" && (
   <SchedulePicker onChange={setScheduledAt} />

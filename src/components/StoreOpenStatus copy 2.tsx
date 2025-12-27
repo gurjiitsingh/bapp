@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getStoreSchedule } from "@/app/actions/getStoreSchedule";
+
 
 export default function StoreOpenStatus() {
   const [status, setStatus] = useState<{
