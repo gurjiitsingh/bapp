@@ -76,6 +76,8 @@ import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 
 export async function createNewOrder(purchaseData: orderDataType) {
+
+  console.log("data from client --------------",purchaseData)
   const {
     addressId,
     userId,
@@ -102,6 +104,13 @@ export async function createNewOrder(purchaseData: orderDataType) {
     source,
     scheduledAt,
   } = purchaseData;
+
+
+  // 🔒 Normalize userId (defensive programming)
+  // const safeUserId =
+  //   typeof userId === "string"
+  //     ? userId.replace(/^"+|"+$/g, "")
+  //     : userId;
 
   // =====================================================
   // 1️⃣ STOCK CHECK (BEFORE ANY CALCULATION)
@@ -242,7 +251,7 @@ const orderMasterData: orderMasterDataT = {
   scheduledAt: scheduledTimestamp,
   isScheduled: Boolean(scheduledTimestamp),
 };
-
+console.log("data to be saved server --------------",orderMasterData)
 
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER

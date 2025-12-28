@@ -60,13 +60,7 @@ export default function CartLeft() {
   } = useCartContext();
 
 
-  if (scheduledAt) {
-  const d = new Date(scheduledAt);
-  if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
-    toast.error("Scheduled time must be in the future");
-    return;
-  }
-}
+
 
 
 
@@ -214,9 +208,10 @@ useEffect(() => {
         }
       }
     } else if (couponDisc?.discount) {
-      toast.error(
-        `Minmun purchase amount for discount is € ${couponDisc.minSpend} , Remove coupon or add more item to cart`
-      );
+      // i remove next code it may cause , i already used in function , this can lead every time reder toast
+      // toast.error(
+      //   `Minmun purchase amount for discount is € ${couponDisc.minSpend} , Remove coupon or add more item to cart`
+      // );
     } else {
       setCalCouponDisscount(0);
       setcouponDiscountPercentL(0);
@@ -265,6 +260,11 @@ useEffect(() => {
   setEndTotalComma(netPayCU);
 }, [endTotalG, settings?.currency, settings?.locale]);
 
+// if (orderType === "schedule" && !scheduledAt) {
+//   toast.error("Please select scheduled time");
+//   return;
+// }
+
   useEffect(() => {
     if (deliveryType === "delivery") {
       if (
@@ -284,9 +284,27 @@ useEffect(() => {
     }
   }, [deliveryType, deliveryDis?.minSpend, itemTotal, deliveryDis?.price]);
 
-  
+  useEffect(() => {
+  if (!scheduledAt) return;
+
+  const d = new Date(scheduledAt);
+  if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
+    toast.error("Scheduled time must be in the future");
+  }
+}, [scheduledAt]);
+
 
  async function proceedToOrder() {
+
+  if (isLoading) return;
+  if (scheduledAt) {
+    const d = new Date(scheduledAt);
+    if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
+      toast.error("Scheduled time must be in the future");
+      return;
+    }
+  }
+
   setIsLoading(true);
 
   try {
@@ -422,7 +440,7 @@ try {
       noOffers,
 
       // 🔑 VERY IMPORTANT
-      source: "WEB",
+      source: "WEB" as const,
       scheduledAt,
     };
 
