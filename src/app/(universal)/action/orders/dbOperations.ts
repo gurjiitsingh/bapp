@@ -73,6 +73,7 @@ const SHOULD_MAINTAIN_STOCK =
 import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";
 import { calculateOrderTotals } from "@/lib/orderAmount/calculateOrderTotals";
 import { toTimestamp } from "@/utils/toTimestamp";
+import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 
 export async function createNewOrder(purchaseData: orderDataType) {
   const {
@@ -101,8 +102,6 @@ export async function createNewOrder(purchaseData: orderDataType) {
     source,
     scheduledAt,
   } = purchaseData;
-
-  console.log("order data--------------", scheduledAt);
 
   // =====================================================
   // 1️⃣ STOCK CHECK (BEFORE ANY CALCULATION)
@@ -171,58 +170,80 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // =====================================================
   // 7️⃣ ORDER MASTER DATA (CLEAN + LEGACY)
   // =====================================================
-  const orderMasterData: orderMasterDataT = {
-    // BASIC
-    id: "klkj",
-    customerName,
-    email,
-    userId,
-    addressId,
-    tableNo,
-    srno: new_srno,
-    paymentType,
-    status: orderStatus,
+  const scheduledTimestamp = toAdminTimestamp(scheduledAt) ;
 
-    // LEGACY FIELDS (KEEP)
-    itemTotal,
-    deliveryCost,
-    totalDiscountG,
-    flatDiscount,
-    calculatedPickUpDiscountL,
-    calCouponDiscount,
-    couponCode,
-    couponDiscountPercentL,
-    pickUpDiscountPercentL,
-
-    taxBeforeDiscount: totals.taxBeforeDiscount, // GST on full subtotal
-    taxAfterDiscount: totals.taxAfterDiscount, // GST after discount
-    totalTax: totals.taxAfterDiscount, // final GST charged
-
-    // CLEAN TOTALS (NEW)
-    productsCount: cartData.length,
-    discountTotal: totals.discountTotal,
-
-    subTotal: totals.subTotal,
-    deliveryFee: deliveryCost,
-    grandTotal: totals.grandTotal,
-
-    // AUTOMATION
-    source,
-    orderStatus: "NEW",
-    paymentStatus: "PAID",
-    printed: false,
-    acknowledged: false,
-
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-
-    //CAN BE REMOVED Rendunt
-    endTotalG: totals.grandTotal!, // legacy mapping
-    finalGrandTotal: totals.grandTotal!,
-    scheduledAt: scheduledAt ? toTimestamp(scheduledAt) : null,
-    isScheduled: scheduledAt ? true : false,
+  if (scheduledTimestamp && scheduledTimestamp.toMillis() < Date.now()) {
+  return {
+    success: false,
+    message: "Scheduled time is in the past",
   };
+}
 
-  console.log("orderMasterData test -----------------", orderMasterData);
+const MIN_BUFFER_MS = 15 * 60 * 1000;
+
+if (
+  scheduledTimestamp &&
+  scheduledTimestamp.toMillis() < Date.now() + MIN_BUFFER_MS
+) {
+  return {
+    success: false,
+    message: "Please select a time at least 15 minutes from now",
+  };
+}
+const orderMasterData: orderMasterDataT = {
+  // BASIC
+  id: "temp_id",
+  customerName,
+  email,
+  userId,
+  addressId,
+  tableNo,
+  srno: new_srno,
+  paymentType,
+  status: orderStatus,
+
+  // LEGACY
+  itemTotal,
+  deliveryCost,
+  totalDiscountG,
+  flatDiscount,
+  calculatedPickUpDiscountL,
+  calCouponDiscount,
+  couponCode,
+  couponDiscountPercentL,
+  pickUpDiscountPercentL,
+
+  // TAX
+  taxBeforeDiscount: totals.taxBeforeDiscount,
+  taxAfterDiscount: totals.taxAfterDiscount,
+  totalTax: totals.taxAfterDiscount,
+
+  // TOTALS
+  productsCount: cartData.length,
+  discountTotal: totals.discountTotal,
+  subTotal: totals.subTotal,
+  deliveryFee: deliveryCost,
+  grandTotal: totals.grandTotal,
+
+  // AUTOMATION
+  source,
+  orderStatus: scheduledTimestamp ? "SCHEDULED" : "NEW",
+  paymentStatus: "PAID",
+  printed: false,
+  acknowledged: false,
+
+  createdAt: admin.firestore.FieldValue.serverTimestamp(),
+
+  // LEGACY TOTALS
+  endTotalG: totals.grandTotal!,
+  finalGrandTotal: totals.grandTotal!,
+
+  // ✅ SCHEDULING (SAFE)
+  scheduledAt: scheduledTimestamp,
+  isScheduled: Boolean(scheduledTimestamp),
+};
+
+
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER
   // =====================================================
@@ -395,13 +416,15 @@ export async function fetchOrdersPaginated({
   const orders = snapshot.docs.map((doc) => {
     const data = doc.data();
     const date = data.createdAt?.toDate?.();
-    const formattedDate = date?.toLocaleString("en-GB", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    // const formattedDate = date?.toLocaleString("en-GB", {
+    //   year: "numeric",
+    //   month: "long",
+    //   day: "2-digit",
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    // });
+
+    //  const deliveryTime = data.scheduledAt?.toDate?.();
 
     //     const dateObj =
     //     typeof data.createdAt === "object" && data.createdAt?.toDate
@@ -426,8 +449,9 @@ export async function fetchOrdersPaginated({
       createdAt:
         data.createdAt?.toDate?.().toISOString?.() || data.createdAt || "",
       createdAtUTC: data.createdAtUTC || "",
-       isScheduled: data.isScheduled,
-      scheduledAt: data.scheduledAt ?? null,
+      isScheduled: data.isScheduled,
+      scheduledAt:
+        data.scheduledAt?.toDate?.().toISOString?.() || data.scheduledAt || "",
 
       // 💳 Payment Info
       paymentType: data.paymentType || "",
@@ -469,7 +493,6 @@ export async function fetchOrdersPaginated({
 
       // 📝 Notes
       notes: data.notes || "",
-     
     } as orderMasterDataT;
   });
 

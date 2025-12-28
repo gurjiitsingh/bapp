@@ -1,7 +1,7 @@
 
 
 import { Timestamp, FieldValue } from "firebase/firestore";
-
+import admin from 'firebase-admin';
 
 export type orderMasterDataT = {
   // =====================================================
@@ -23,7 +23,7 @@ export type orderMasterDataT = {
   isScheduled?: boolean;
 
   /** Scheduled execution time (if scheduled order) */
-  scheduledAt: Timestamp | null ;
+  scheduledAt: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
 
   couponCode?: string;
   couponDiscountPercentL: number;

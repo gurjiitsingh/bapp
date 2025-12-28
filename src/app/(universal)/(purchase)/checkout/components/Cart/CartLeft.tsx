@@ -59,6 +59,17 @@ export default function CartLeft() {
     scheduledAt,
   } = useCartContext();
 
+
+  if (scheduledAt) {
+  const d = new Date(scheduledAt);
+  if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
+    toast.error("Scheduled time must be in the future");
+    return;
+  }
+}
+
+
+
   const [pickupDiscountPersent, setPickupDiscountPersent] = useState(0);
 
   useEffect(() => {
@@ -332,8 +343,17 @@ useEffect(() => {
     // 4️⃣ READ CUSTOMER DATA
     // =====================================================
 
-    const addressId =
-      JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
+    // const addressId =
+    //   JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
+
+
+      let addressId = "";
+try {
+  addressId = JSON.parse(localStorage.getItem("customer_address_Id") ?? "null") || "";
+} catch {
+  addressId = "";
+}
+
 
     const userId = localStorage.getItem("order_user_Id") as string;
 
@@ -371,7 +391,7 @@ useEffect(() => {
       userId,
       customerName,
       email,
-tableNo:0,
+      tableNo:0,
       // CART SNAPSHOT
       cartData,
 
@@ -410,10 +430,14 @@ tableNo:0,
     // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
     // =====================================================
 
+    
+
     const orderResult = await createNewOrder(purchaseData);
 
+    
     if (!orderResult.success || !orderResult.orderId) {
-      toast.error(orderResult.message || "Unable to create order.");
+     // 
+     toast.error("Unable to create order.");
       return;
     }
 

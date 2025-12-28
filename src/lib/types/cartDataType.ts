@@ -163,7 +163,7 @@ tableNo:number;
   
     /** Scheduled execution time (if scheduled order) */
     //scheduledAt?: Timestamp;
-    scheduledAt: string | null;
+    scheduledAt: string ;
 };
 
 

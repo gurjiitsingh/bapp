@@ -79,11 +79,26 @@ const { setScheduledAt } = useCartContext();
 
   
 
-  useEffect(() => {
+//   useEffect(() => {
+//   if (selectedDate && selectedTime) {
+//     const value = `${selectedDate} ${selectedTime}`;
+//     onChange(value);
+//     setScheduledAt(value); // ✅ SAVE TO GLOBAL CART
+//   }
+// }, [selectedDate, selectedTime]);
+
+useEffect(() => {
   if (selectedDate && selectedTime) {
-    const value = `${selectedDate} ${selectedTime}`;
-    onChange(value);
-    setScheduledAt(value); // ✅ SAVE TO GLOBAL CART
+    // selectedDate = "2025-12-28"
+    // selectedTime = "11:15"
+
+    const localDateTime = `${selectedDate}T${selectedTime}:00`;
+
+    // Convert local time → ISO
+    const iso = new Date(localDateTime).toISOString();
+
+    onChange(iso);
+    setScheduledAt(iso); // ✅ STORE ISO STRING
   }
 }, [selectedDate, selectedTime]);
 
@@ -134,12 +149,12 @@ const { setScheduledAt } = useCartContext();
         </select>
       </div>
 
-      <button
+      {/* <button
         disabled={!selectedDate || !selectedTime}
         className="w-full bg-green-100 hover:bg-green-200 text-gray-700 font-medium py-2 rounded-lg"
       >
         Confirm Schedule
-      </button>
+      </button> */}
     </div>
   );
 }

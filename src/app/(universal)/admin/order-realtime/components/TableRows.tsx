@@ -9,6 +9,8 @@ import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { formatDateUTC } from "@/utils/formatDateUTC";
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+import { Timestamp } from "firebase/firestore";
 
 function TableRows({ order }: { order: orderMasterDataT }) {
   const { TEXT } = useLanguage();
@@ -72,13 +74,20 @@ function TableRows({ order }: { order: orderMasterDataT }) {
 
       <TableCell className="text-gray-600 dark:text-zinc-400 text-sm">
         {/* {order.time} */}
-        {formatDateUTC(
-    order.createdAtUTC,
-    String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
-  ) || order.time}
+        {formatDateTimeStamp(
+          order.createdAt as Timestamp,
+          String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+        ) }
 {/* {formatDateUTC(order.createdAtUTC, settings.locale as string || "de-DE")} */}
       </TableCell>
+  <TableCell className="text-gray-600 dark:text-zinc-400 text-sm">
+        {/* {order.time} */}
+        {formatDateTimeStamp(
+          order.scheduledAt as Timestamp,
+          String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+        ) }
 
+      </TableCell>
 
       <TableCell>
         <span

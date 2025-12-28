@@ -15,6 +15,7 @@ import { formatCurrencyNumber } from '@/utils/formatCurrency';
 import { UseSiteContext } from "@/SiteContext/SiteContext";
   import { Timestamp } from "firebase/firestore";
 import { formatFirestoreDateToIST } from "@/utils/date";
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
 const OrderDetail = () => {
   const searchParams = useSearchParams();
   // console.log(
@@ -131,11 +132,10 @@ if (addressId === "POS_ORDER") {
 
 
 
-const dateTime = formatFirestoreDateToIST(
-  orderMasterData?.createdAt as string
-);
-
-
+ const dateTime = formatDateTimeStamp(
+    orderMasterData?.createdAt as Timestamp,
+    String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+  ) 
 
 
   return (

@@ -23,7 +23,7 @@ interface CartContextType {
   setEndTotalG: (c: number) => void;
   totalDiscountG: number;
   setTotalDiscountG: (c: number) => void;
-  scheduledAt: string | null;
+  scheduledAt: string ;
 setScheduledAt: (value: string | null) => void;
   
 }
