@@ -49,7 +49,7 @@ export default function PrintOrderPage() {
 
   const endTotal = formatCurrency(Number(orderMasterData?.endTotalG ?? 0));
   const totalTax = formatCurrency(Number(orderMasterData?.totalTax ?? 0));
-  const finalGrandTotal = formatCurrency(Number(orderMasterData?.finalGrandTotal ?? 0));
+  const grandTotal = formatCurrency(Number(orderMasterData?.grandTotal ?? 0));
   const itemTotal = formatCurrency(Number(orderMasterData?.itemTotal ?? 0));
   const deliveryCost = formatCurrency(Number(orderMasterData?.deliveryCost ?? 0));
   const pickUpDiscount = formatCurrency(Number(orderMasterData?.calculatedPickUpDiscountL ?? 0));
@@ -104,7 +104,7 @@ export default function PrintOrderPage() {
         <p>Coupon Flat: {flatDiscount}</p>
         <p>Coupon %: {couponDiscount}</p>
         <p className="font-bold border-t border-black pt-1 mt-1">
-          Grand Total: {finalGrandTotal}
+          Grand Total: {grandTotal}
         </p>
       </div>
 
