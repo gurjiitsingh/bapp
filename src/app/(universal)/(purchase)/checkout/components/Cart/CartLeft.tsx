@@ -28,6 +28,7 @@ export default function CartLeft() {
     settings,
   } = UseSiteContext();
 
+
   const router = useRouter();
 
   const [addCoupon, setAddCoupon] = useState(false);
@@ -55,6 +56,7 @@ export default function CartLeft() {
     setTotalDiscountG,
     endTotalG,
     totalDiscountG,
+    scheduledAt,
   } = useCartContext();
 
   const [pickupDiscountPersent, setPickupDiscountPersent] = useState(0);
@@ -369,7 +371,7 @@ useEffect(() => {
       userId,
       customerName,
       email,
-
+tableNo:0,
       // CART SNAPSHOT
       cartData,
 
@@ -401,6 +403,7 @@ useEffect(() => {
 
       // 🔑 VERY IMPORTANT
       source: "WEB",
+      scheduledAt,
     };
 
     // =====================================================

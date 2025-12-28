@@ -101,7 +101,7 @@ export type orderDataType = {
   userId: string ;
   customerName: string;
   email: string;
-
+tableNo:number;
   // -----------------------------
   // CART SNAPSHOT (REQUIRED)
   // -----------------------------
@@ -157,6 +157,13 @@ export type orderDataType = {
 
   //remove in future
   finalGrandTotal?:number;
+
+  /** Whether order is scheduled for later */
+    isScheduled?: boolean;
+  
+    /** Scheduled execution time (if scheduled order) */
+    //scheduledAt?: Timestamp;
+    scheduledAt: string | null;
 };
 
 

@@ -12,7 +12,8 @@ export type orderMasterDataT = {
   customerName: string;
   email: string;
   addressId: string;
-
+  srno:number;
+  tableNo:number;
   // =====================================================
   // ORDER TIMING
   // =====================================================
@@ -22,8 +23,16 @@ export type orderMasterDataT = {
   isScheduled?: boolean;
 
   /** Scheduled execution time (if scheduled order) */
-  scheduledAt?: Timestamp;
+  scheduledAt: Timestamp | null ;
 
+  couponCode?: string;
+  couponDiscountPercentL: number;
+  pickUpDiscountPercentL: number;
+
+    /** Delivery fee (clean naming) */
+  deliveryFee?: number;
+
+  finalGrandTotal?:number;
   // =====================================================
   // ORDER AMOUNTS
   // =====================================================
@@ -58,7 +67,8 @@ export type orderMasterDataT = {
     | "CANCELLED";
 
   paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
-
+  status: string; 
+ paymentType: string;
   // =====================================================
   // SOURCE & META
   // =====================================================

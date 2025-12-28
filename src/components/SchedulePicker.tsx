@@ -1,5 +1,6 @@
 "use client";
 
+import { useCartContext } from "@/store/CartContext";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -15,7 +16,7 @@ export default function SchedulePicker({
 }: Props) {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
-
+const { setScheduledAt } = useCartContext();
   const today = new Date();
 
   const formatDate = (d: Date) =>
@@ -76,11 +77,15 @@ export default function SchedulePicker({
     return slots;
   };
 
+  
+
   useEffect(() => {
-    if (selectedDate && selectedTime) {
-      onChange(`${selectedDate} ${selectedTime}`);
-    }
-  }, [selectedDate, selectedTime]);
+  if (selectedDate && selectedTime) {
+    const value = `${selectedDate} ${selectedTime}`;
+    onChange(value);
+    setScheduledAt(value); // ✅ SAVE TO GLOBAL CART
+  }
+}, [selectedDate, selectedTime]);
 
   const days = getDays();
   const slots = selectedDate ? getSlots() : [];

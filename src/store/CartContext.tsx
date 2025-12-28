@@ -23,6 +23,8 @@ interface CartContextType {
   setEndTotalG: (c: number) => void;
   totalDiscountG: number;
   setTotalDiscountG: (c: number) => void;
+  scheduledAt: string | null;
+setScheduledAt: (value: string | null) => void;
   
 }
 
@@ -43,7 +45,7 @@ const CartContext = createContext<CartContextType>({
     addressLine1: "",
     addressLine2: "",
     userId: "",
-  },
+     },
  
   addAddress: (a:addressT) => {return a},
   // getAddress:()=>{},
@@ -55,6 +57,8 @@ const CartContext = createContext<CartContextType>({
   emptyCart: () => {},
   totalDiscountG: 0,
   setTotalDiscountG: () => {},
+   scheduledAt: null,
+setScheduledAt: () => {},
 });
 
 export const useCartContext = () => {

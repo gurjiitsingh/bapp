@@ -32,7 +32,8 @@ export const CartProvider: React.FC<Props> = ({
   const [productTotalCost, setProductTotalCost] = useState<number>(0);
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
   const [  totalDiscountG, setTotalDiscountL] = useState<number>(0);
- 
+ const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+
   useEffect(() => {
 
      if (typeof window !== "undefined") {
@@ -304,6 +305,9 @@ setEndTotalL(t)
         emptyCart,
         totalDiscountG,
   setTotalDiscountG,
+
+  scheduledAt,
+    setScheduledAt,
       }}
     >
       {children}
