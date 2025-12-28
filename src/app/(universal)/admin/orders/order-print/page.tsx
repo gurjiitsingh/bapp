@@ -12,7 +12,9 @@ import { OrderProductT } from "@/lib/types/orderType";
 import { orderMasterDataT } from "@/lib/types/orderMasterType";
 import { addressResT } from "@/lib/types/addressType";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
-
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
 export default function PrintOrderPage() {
   const searchParams = useSearchParams();
   const masterOrderId = searchParams.get("masterId") as string;
@@ -20,7 +22,8 @@ export default function PrintOrderPage() {
 
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
   const [customerAddress, setCustomerAddress] = useState<addressResT>();
-  const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+   const [orderMasterData, setOrderMasterData] =
+    useState<orderMasterDataSafeT | null>(null);
   const { settings } = UseSiteContext();
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function PrintOrderPage() {
 
   const handlePrint = () => window.print();
 
-  const endTotal = formatCurrency(Number(orderMasterData?.endTotalG ?? 0));
+  const endTotal = formatCurrency(Number(orderMasterData?.subTotal ?? 0));
   const totalTax = formatCurrency(Number(orderMasterData?.totalTax ?? 0));
   const grandTotal = formatCurrency(Number(orderMasterData?.grandTotal ?? 0));
   const itemTotal = formatCurrency(Number(orderMasterData?.itemTotal ?? 0));
@@ -62,7 +65,7 @@ export default function PrintOrderPage() {
       <div className="text-center border-b border-black pb-2 mb-2">
         <h1 className="text-lg font-bold">ORDER RECEIPT</h1>
         <p>Order No: {orderMasterData?.srno}</p>
-        <p>Date: {orderMasterData?.time}</p>
+        {/* <p>Date: {orderMasterData?.time}</p> */}
       </div>
 
       {/* Customer Info */}

@@ -13,7 +13,7 @@ import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
 import { Timestamp } from "firebase/firestore";
 
 function TableRows({ order }: { order: orderMasterDataT }) {
-  console.log("order.orderType-------------", order.orderType)
+ 
  
   const { TEXT } = useLanguage();
   const { settings } = UseSiteContext();

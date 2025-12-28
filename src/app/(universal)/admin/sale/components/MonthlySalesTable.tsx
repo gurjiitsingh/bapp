@@ -49,7 +49,7 @@ export default function MonthlySalesTable() {
      snapshot.docs.forEach((doc) => {
   const data = doc.data() as orderMasterDataT;
   const createdAt = (data.createdAt as Timestamp)?.toDate();
-  const endTotalG = data.endTotalG || 0;
+  const grandTotal = data.grandTotal || 0;
 
   if (!createdAt || data.status !== 'Completed') return; // ✅ Filter only completed orders
 
@@ -65,7 +65,7 @@ export default function MonthlySalesTable() {
     };
   }
 
-  salesMap[monthKey].totalSales += endTotalG;
+  salesMap[monthKey].totalSales += grandTotal;
   salesMap[monthKey].orderCount += 1;
 });
 

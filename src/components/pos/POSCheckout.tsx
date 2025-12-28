@@ -159,8 +159,8 @@ export default function POSCheckout() {
         grandTotal: totals.grandTotal,
 
         // -------- LEGACY (KEEP) --------
-        endTotalG: totals.grandTotal!,
-        finalGrandTotal: totals.grandTotal!,
+      
+       
 
         // -------- DISCOUNTS --------
         totalDiscountG: 0,

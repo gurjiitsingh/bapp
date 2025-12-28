@@ -11,14 +11,17 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { OrderProductT } from "@/lib/types/orderType";
 import { orderMasterDataT } from "@/lib/types/orderMasterType";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
 
 export default function POSPrintOrderPage() {
   const searchParams = useSearchParams();
   const masterOrderId = searchParams.get("orderId") as string;
 
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
-  const [orderMasterData, setOrderMasterData] =
-    useState<orderMasterDataT | null>(null);
+   const [orderMasterData, setOrderMasterData] =
+    useState<orderMasterDataSafeT | null>(null);
 
   const { settings } = UseSiteContext();
 
@@ -31,8 +34,7 @@ export default function POSPrintOrderPage() {
         fetchOrderMasterById(masterOrderId),
       ]);
 
-      console.log("products---------------------", products)
-       console.log("orderMaster---------------------", orderMaster)
+    
       setOrderProducts(products);
       setOrderMasterData(orderMaster);
     }
@@ -56,7 +58,7 @@ export default function POSPrintOrderPage() {
 
   const totalTax = formatMoney(Number(orderMasterData?.totalTax ?? 0));
   const itemTotal = formatMoney(Number(orderMasterData?.itemTotal ?? 0));
-  const grandTotal = formatMoney(Number(orderMasterData?.finalGrandTotal ?? 0));
+  const grandTotal = formatMoney(Number(orderMasterData?.grandTotal ?? 0));
 
   return (
     <div className="p-3 bg-white text-black font-mono text-[12px] print:p-0">
@@ -64,7 +66,7 @@ export default function POSPrintOrderPage() {
       <div className="text-center border-b border-black pb-2 mb-2">
         <h1 className="font-bold text-[16px]">RECEIPT</h1>
         <p>Order #{orderMasterData?.srno}</p>
-        <p>{orderMasterData?.time}</p>
+        {/* <p>{orderMasterData?.time}</p> */}
       </div>
 
       {/* ITEMS */}

@@ -1,7 +1,5 @@
-
-
 import { Timestamp, FieldValue } from "firebase/firestore";
-import admin from 'firebase-admin';
+import admin from "firebase-admin";
 
 export type orderMasterDataT = {
   // =====================================================
@@ -12,8 +10,8 @@ export type orderMasterDataT = {
   customerName: string;
   email: string;
   addressId: string;
-  srno:number;
-  tableNo: string | null;     // Only for DINE_IN
+  srno: number;
+  tableNo: string | null; // Only for DINE_IN
   orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
   // =====================================================
   // ORDER TIMING
@@ -30,10 +28,10 @@ export type orderMasterDataT = {
   couponDiscountPercentL: number;
   pickUpDiscountPercentL: number;
 
-    /** Delivery fee (clean naming) */
+  /** Delivery fee (clean naming) */
   deliveryFee?: number;
 
-  finalGrandTotal?:number;
+  // finalGrandTotal?:number;
   // =====================================================
   // ORDER AMOUNTS
   // =====================================================
@@ -46,7 +44,7 @@ export type orderMasterDataT = {
   calCouponDiscount: number;
 
   totalTax?: number;
-  endTotalG: number;
+  //endTotalG: number;
 
   // Clean calculated fields
   discountTotal?: number;
@@ -68,8 +66,8 @@ export type orderMasterDataT = {
     | "CANCELLED";
 
   paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
-  status: string; 
- paymentType: string;
+  status: string;
+  paymentType: string;
   // =====================================================
   // SOURCE & META
   // =====================================================
@@ -83,8 +81,6 @@ export type orderMasterDataT = {
   printed?: boolean;
   acknowledged?: boolean;
 };
-
-
 
 export type TOrderMaster = {
   id: string;

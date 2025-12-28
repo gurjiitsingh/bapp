@@ -24,7 +24,7 @@ interface CartContextType {
   setEndTotalG: (c: number) => void;
   totalDiscountG: number;
   setTotalDiscountG: (c: number) => void;
-  scheduledAt: string;
+  scheduledAt: string | null;
   setScheduledAt: (value: string | null) => void;
   orderType: OrderType;
   setOrderType: (t: OrderType) => void;
@@ -36,10 +36,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType>({
   counter: 0,
-  endTotalG: 0,
-  setEndTotalG: () => {},
   productTotalCost: 0,
   cartData: [],
+
   address: {
     name: "",
     mobNo: "",
@@ -51,24 +50,31 @@ const CartContext = createContext<CartContextType>({
     userId: "",
   },
 
-  addAddress: (a: addressT) => {
-    return a;
-  },
-  // getAddress:()=>{},
+  addAddress: () => {},
   addProduct: () => {},
-  addProductToCart: (p: cartProductType) => {
-    return p;
-  },
+  addProductToCart: () => {},
   decCartProduct: () => {},
   decCartProductAll: () => {},
   removeCartProduct: () => {},
   emptyCart: () => {},
+
+  endTotalG: 0,
+  setEndTotalG: () => {},
+
   totalDiscountG: 0,
   setTotalDiscountG: () => {},
+
+  // ✅ scheduling
   scheduledAt: null,
   setScheduledAt: () => {},
-});
 
+  // ✅ MISSING ONES — NOW ADDED
+  orderType: "DELIVERY", // sensible default
+  setOrderType: () => {},
+
+  tableNo: null,
+  setTableNo: () => {},
+});
 export const useCartContext = () => {
   const context = useContext(CartContext);
   if (!context) {

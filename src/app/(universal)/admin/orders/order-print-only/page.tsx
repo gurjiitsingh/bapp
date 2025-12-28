@@ -12,7 +12,9 @@ import { OrderProductT } from "@/lib/types/orderType";
 import { orderMasterDataT } from "@/lib/types/orderMasterType";
 import { addressResT } from "@/lib/types/addressType";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
-
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
 export default function PrintOrderPage() {
   const searchParams = useSearchParams();
   const masterOrderId = searchParams.get("masterId") as string;
@@ -20,7 +22,9 @@ export default function PrintOrderPage() {
 
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
   const [customerAddress, setCustomerAddress] = useState<addressResT>();
-  const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+  //const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+    const [orderMasterData, setOrderMasterData] =
+    useState<orderMasterDataSafeT | null>(null);
   const { settings } = UseSiteContext();
 
   useEffect(() => {
@@ -53,7 +57,7 @@ export default function PrintOrderPage() {
       (settings.locale || "de-DE") as string
     );
 
-  const endTotal = formatCurrency(Number(orderMasterData?.endTotalG ?? 0));
+  const grandTotal = formatCurrency(Number(orderMasterData?.grandTotal ?? 0));
   const itemTotal = formatCurrency(Number(orderMasterData?.itemTotal ?? 0));
   const deliveryCost = formatCurrency(Number(orderMasterData?.deliveryCost ?? 0));
   const pickUpDiscount = formatCurrency(Number(orderMasterData?.calculatedPickUpDiscountL ?? 0));
@@ -66,7 +70,7 @@ export default function PrintOrderPage() {
       <div className="text-center border-b border-black pb-2 mb-2">
         <h1 className="text-lg font-bold">ORDER RECEIPT</h1>
         <p>Order No: {orderMasterData?.srno}</p>
-        <p>Date: {orderMasterData?.time}</p>
+        {/* <p>Date: {orderMasterData?.time}</p> */}
       </div>
 
       {/* Customer Info */}
@@ -108,7 +112,7 @@ export default function PrintOrderPage() {
         <p>Coupon Flat: {flatDiscount}</p>
         <p>Coupon %: {couponDiscount}</p>
         <p className="font-bold border-t border-black pt-1 mt-1">
-          Grand Total: {endTotal}
+          Grand Total: {grandTotal}
         </p>
       </div>
 

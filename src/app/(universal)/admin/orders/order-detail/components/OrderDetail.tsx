@@ -16,6 +16,11 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
   import { Timestamp } from "firebase/firestore";
 import { formatFirestoreDateToIST } from "@/utils/date";
 import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
+
 const OrderDetail = () => {
   const searchParams = useSearchParams();
   // console.log(
@@ -27,7 +32,8 @@ const OrderDetail = () => {
   const masterOrderId = searchParams.get("masterId") as string;
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
   const [customerAddress, setCustomerAddress] = useState<addressResT>();
-  const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+  const [orderMasterData, setOrderMasterData] =
+  useState<orderMasterDataSafeT | null>(null);
 
   const { settings } = UseSiteContext();
 
@@ -133,7 +139,7 @@ if (addressId === "POS_ORDER") {
 
 
  const dateTime = formatDateTimeStamp(
-    orderMasterData?.createdAt as Timestamp,
+    orderMasterData?.createdAt as string,
     String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
   ) 
 

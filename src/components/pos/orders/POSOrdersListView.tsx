@@ -65,6 +65,7 @@ export default function POSOrdersListView() {
               <TableHead>Order</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Time</TableHead>
+               <TableHead>Delivery/Picup</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Payment</TableHead>

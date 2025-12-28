@@ -28,7 +28,6 @@ export default function CartLeft() {
     settings,
   } = UseSiteContext();
 
-
   const router = useRouter();
 
   const [addCoupon, setAddCoupon] = useState(false);
@@ -58,21 +57,15 @@ export default function CartLeft() {
     totalDiscountG,
     scheduledAt,
     setOrderType,
-     setTableNo,
+    setTableNo,
     orderType,
     tableNo,
-    
   } = useCartContext();
 
-
-
-
-useEffect(() => {
-  setOrderType("DELIVERY");
-  setTableNo(null);
-}, []);
-
-
+  useEffect(() => {
+    setOrderType("DELIVERY");
+    setTableNo(null);
+  }, []);
 
   const [pickupDiscountPersent, setPickupDiscountPersent] = useState(0);
 
@@ -82,64 +75,56 @@ useEffect(() => {
     }
   }, [settings?.pickup_discount]);
 
+  useEffect(() => {
+    if (!cartData || cartData.length === 0) return;
 
-  
-  
-useEffect(() => {
-  if (!cartData || cartData.length === 0) return;
+    let total = 0;
+    let filteredTotal = 0;
 
-  let total = 0;
-  let filteredTotal = 0;
+    cartData.forEach((item: cartProductType) => {
+      const quantity = Number(item.quantity) || 0;
+      const price = parseFloat(item.price as any) || 0;
+      const itemTotal = quantity * price;
+      total += itemTotal;
 
-  cartData.forEach((item: cartProductType) => {
-    const quantity = Number(item.quantity) || 0;
-    const price = parseFloat(item.price as any) || 0;
-    const itemTotal = quantity * price;
-    total += itemTotal;
+      if (disablePickupCatDiscountIds?.includes(item.categoryId)) {
+        filteredTotal += itemTotal;
+      }
+    });
 
-    if (disablePickupCatDiscountIds?.includes(item.categoryId)) {
-      filteredTotal += itemTotal;
+    const roundedTotal = parseFloat(total.toFixed(2));
+    setitemTotal(roundedTotal);
+
+    // 🧾 Calculate pickup discount (independent of settings)
+    const pickupDiscountAmount = calculateDiscount(
+      filteredTotal,
+      pickupDiscountPersent
+    );
+    setFilteredCategoryDiscount(pickupDiscountAmount);
+
+    function calculateDiscount(
+      total: number,
+      percent: number | string | undefined | null
+    ): number {
+      const safeTotal = typeof total === "number" ? total : 0;
+      const safePercent = Number(percent);
+      if (isNaN(safePercent) || safePercent <= 0) return 0;
+      return parseFloat(((safeTotal * safePercent) / 100).toFixed(2));
     }
-  });
+  }, [cartData, pickupDiscountPersent, disablePickupCatDiscountIds]);
 
-  const roundedTotal = parseFloat(total.toFixed(2));
-  setitemTotal(roundedTotal);
+  useEffect(() => {
+    if (!settings?.currency || !settings?.locale) return;
+    if (itemTotal <= 0) return;
 
-  // 🧾 Calculate pickup discount (independent of settings)
-  const pickupDiscountAmount = calculateDiscount(
-    filteredTotal,
-    pickupDiscountPersent
-  );
-  setFilteredCategoryDiscount(pickupDiscountAmount);
+    const roundedTotalCU = formatCurrencyNumber(
+      itemTotal,
+      settings.currency as string,
+      settings.locale as string
+    );
+    setitemTotalComa(roundedTotalCU);
+  }, [itemTotal, settings?.currency, settings?.locale]);
 
-  function calculateDiscount(
-    total: number,
-    percent: number | string | undefined | null
-  ): number {
-    const safeTotal = typeof total === "number" ? total : 0;
-    const safePercent = Number(percent);
-    if (isNaN(safePercent) || safePercent <= 0) return 0;
-    return parseFloat(((safeTotal * safePercent) / 100).toFixed(2));
-  }
-}, [cartData, pickupDiscountPersent, disablePickupCatDiscountIds]);
-
-
- useEffect(() => {
-  if (!settings?.currency || !settings?.locale) return;
-  if (itemTotal <= 0) return;
-
-  const roundedTotalCU = formatCurrencyNumber(
-    itemTotal,
-    settings.currency as string,
-    settings.locale as string
-  );
-  setitemTotalComa(roundedTotalCU);
-
-  
-}, [itemTotal, settings?.currency, settings?.locale]);
-
-  
-  
   useEffect(() => {
     if (itemTotal <= 0) return;
 
@@ -228,52 +213,52 @@ useEffect(() => {
     }
   }, [couponDisc, itemTotal, cartData, deliveryType]);
 
- useEffect(() => {
-  if (itemTotal <= 0) return;
+  useEffect(() => {
+    if (itemTotal <= 0) return;
 
-  // 💰 Compute numeric total
-  const netPay =
-    itemTotal +
-    deliveryCost -
-    calculatedPickUpDiscountL -
-    calCouponDiscount -
-    flatCouponDiscount;
+    // 💰 Compute numeric total
+    const netPay =
+      itemTotal +
+      deliveryCost -
+      calculatedPickUpDiscountL -
+      calCouponDiscount -
+      flatCouponDiscount;
 
-  const netDiscount = couponDiscountPercentL + pickUpDiscountPercentL;
+    const netDiscount = couponDiscountPercentL + pickUpDiscountPercentL;
 
-  // Update numeric states
-  setEndTotalG(parseFloat(netPay.toFixed(2)));
-  setTotalDiscountG(parseFloat(netDiscount.toFixed(2)));
+    // Update numeric states
+    setEndTotalG(parseFloat(netPay.toFixed(2)));
+    setTotalDiscountG(parseFloat(netDiscount.toFixed(2)));
 
-  // Also update delivery cost in context
-  setDeliveryCost(deliveryCost);
-}, [
-  deliveryCost,
-  calCouponDiscount,
-  itemTotal,
-  flatCouponDiscount,
-  couponDiscountPercentL,
-  pickUpDiscountPercentL,
-  calculatedPickUpDiscountL,
-]);
+    // Also update delivery cost in context
+    setDeliveryCost(deliveryCost);
+  }, [
+    deliveryCost,
+    calCouponDiscount,
+    itemTotal,
+    flatCouponDiscount,
+    couponDiscountPercentL,
+    pickUpDiscountPercentL,
+    calculatedPickUpDiscountL,
+  ]);
 
-useEffect(() => {
-  if (!settings?.currency || !settings?.locale) return;
-  if (!endTotalG || isNaN(endTotalG)) return;
+  useEffect(() => {
+    if (!settings?.currency || !settings?.locale) return;
+    if (!endTotalG || isNaN(endTotalG)) return;
 
-  const netPayCU = formatCurrencyNumber(
-    endTotalG,
-    settings.currency as string,
-    settings.locale as string
-  );
+    const netPayCU = formatCurrencyNumber(
+      endTotalG,
+      settings.currency as string,
+      settings.locale as string
+    );
 
-  setEndTotalComma(netPayCU);
-}, [endTotalG, settings?.currency, settings?.locale]);
+    setEndTotalComma(netPayCU);
+  }, [endTotalG, settings?.currency, settings?.locale]);
 
-// if (orderType === "schedule" && !scheduledAt) {
-//   toast.error("Please select scheduled time");
-//   return;
-// }
+  // if (orderType === "schedule" && !scheduledAt) {
+  //   toast.error("Please select scheduled time");
+  //   return;
+  // }
 
   useEffect(() => {
     if (deliveryType === "delivery") {
@@ -295,210 +280,203 @@ useEffect(() => {
   }, [deliveryType, deliveryDis?.minSpend, itemTotal, deliveryDis?.price]);
 
   useEffect(() => {
-  if (!scheduledAt) return;
+    if (!scheduledAt) return;
 
-  const d = new Date(scheduledAt);
-  if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
-    toast.error("Scheduled time must be in the future");
-  }
-}, [scheduledAt]);
-
-
- async function proceedToOrder() {
-
-  if (isLoading) return;
-  if (scheduledAt) {
     const d = new Date(scheduledAt);
     if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
       toast.error("Scheduled time must be in the future");
-      return;
     }
-  }
+  }, [scheduledAt]);
 
-  setIsLoading(true);
-
-  try {
-    // =====================================================
-    // 1️⃣ BASIC VALIDATIONS
-    // =====================================================
-
-    if (!paymentType) {
-      toast.error(TEXT.error_select_payment_type);
-      return;
-    }
-
-    if (!customerAddressIsComplete) {
-      toast.error(TEXT.error_select_address);
-      return;
-    }
-
-    // =====================================================
-    // 2️⃣ DELIVERY VALIDATION
-    // =====================================================
-
-    if (deliveryType === "delivery") {
-      if (!deliveryDis || deliveryDis.price == null) {
-        toast.error(TEXT.error_address_not_deliverable);
-        return;
-      }
-
-      const price = Number(deliveryDis.price);
-      if (Number.isNaN(price)) {
-        toast.error(TEXT.error_address_not_deliverable);
+  async function proceedToOrder() {
+    if (isLoading) return;
+    if (scheduledAt) {
+      const d = new Date(scheduledAt);
+      if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
+        toast.error("Scheduled time must be in the future");
         return;
       }
     }
 
-    // =====================================================
-    // 3️⃣ COUPON / MINIMUM ORDER VALIDATION
-    // =====================================================
+    setIsLoading(true);
 
-    if (couponDisc?.minSpend && itemTotal < couponDisc.minSpend) {
-      toast.error(
-        `${TEXT.error_min_purchase_coupon} : ${couponDisc.minSpend} ${TEXT.error_min_purchase_suffix}`
-      );
-      return;
-    }
+    try {
+      // =====================================================
+      // 1️⃣ BASIC VALIDATIONS
+      // =====================================================
 
-    if (orderAmountIsLowForDelivery && deliveryType !== "pickup") {
-      toast.error(
-        `${TEXT.error_min_order_delivery} € ${deliveryDis?.minSpend}`
-      );
-      return;
-    }
+      if (!paymentType) {
+        toast.error(TEXT.error_select_payment_type);
+        return;
+      }
 
-    // =====================================================
-    // 4️⃣ READ CUSTOMER DATA
-    // =====================================================
+      if (!customerAddressIsComplete) {
+        toast.error(TEXT.error_select_address);
+        return;
+      }
 
-    // const addressId =
-    //   JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
+      // =====================================================
+      // 2️⃣ DELIVERY VALIDATION
+      // =====================================================
 
+      if (deliveryType === "delivery") {
+        if (!deliveryDis || deliveryDis.price == null) {
+          toast.error(TEXT.error_address_not_deliverable);
+          return;
+        }
+
+        const price = Number(deliveryDis.price);
+        if (Number.isNaN(price)) {
+          toast.error(TEXT.error_address_not_deliverable);
+          return;
+        }
+      }
+
+      // =====================================================
+      // 3️⃣ COUPON / MINIMUM ORDER VALIDATION
+      // =====================================================
+
+      if (couponDisc?.minSpend && itemTotal < couponDisc.minSpend) {
+        toast.error(
+          `${TEXT.error_min_purchase_coupon} : ${couponDisc.minSpend} ${TEXT.error_min_purchase_suffix}`
+        );
+        return;
+      }
+
+      if (orderAmountIsLowForDelivery && deliveryType !== "pickup") {
+        toast.error(
+          `${TEXT.error_min_order_delivery} € ${deliveryDis?.minSpend}`
+        );
+        return;
+      }
+
+      // =====================================================
+      // 4️⃣ READ CUSTOMER DATA
+      // =====================================================
+
+      // const addressId =
+      //   JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
 
       let addressId = "";
-try {
-  addressId = JSON.parse(localStorage.getItem("customer_address_Id") ?? "null") || "";
-} catch {
-  addressId = "";
-}
+      try {
+        addressId =
+          JSON.parse(localStorage.getItem("customer_address_Id") ?? "null") ||
+          "";
+      } catch {
+        addressId = "";
+      }
 
+      const userId = localStorage.getItem("order_user_Id") as string;
 
-    const userId = localStorage.getItem("order_user_Id") as string;
+      const customerName =
+        JSON.parse(localStorage.getItem("customer_name") || '""') || "";
 
-    const customerName =
-      JSON.parse(localStorage.getItem("customer_name") || '""') || "";
+      const email =
+        JSON.parse(localStorage.getItem("customer_email") || '""') || "";
 
-    const email =
-      JSON.parse(localStorage.getItem("customer_email") || '""') || "";
+      // =====================================================
+      // 5️⃣ FINAL SAFETY CHECKS
+      // =====================================================
 
-    // =====================================================
-    // 5️⃣ FINAL SAFETY CHECKS
-    // =====================================================
+      if (typeof deliveryCost !== "number" || Number.isNaN(deliveryCost)) {
+        toast.error(TEXT.error_unexpected_total);
+        return;
+      }
 
-    if (typeof deliveryCost !== "number" || Number.isNaN(deliveryCost)) {
-      toast.error(TEXT.error_unexpected_total);
-      return;
+      if (typeof endTotalG !== "number" || Number.isNaN(endTotalG)) {
+        toast.error(TEXT.error_unexpected_total);
+        return;
+      }
+
+      if (!cartData || cartData.length === 0) {
+        toast.error(TEXT.error_empty_cart);
+        return;
+      }
+
+      // =====================================================
+      // 6️⃣ BUILD ORDER (INTENT ONLY – SERVER DECIDES STATE)
+      // =====================================================
+
+      const purchaseData: orderDataType = {
+        // BASIC
+        userId,
+        customerName,
+        email,
+        orderType: "ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
+        tableNo: tableNo === "DINE_IN" ? tableNo : null,
+        source: "WEB" as const,
+        // CART SNAPSHOT
+        cartData,
+
+        // TOTALS (client-side preview, server recalculates)
+        itemTotal,
+
+        totalDiscountG,
+
+        // ADDRESS / DELIVERY
+        addressId,
+        deliveryCost,
+
+        // PAYMENT
+        paymentType,
+
+        // DISCOUNTS
+        flatDiscount: flatCouponDiscount,
+        calCouponDiscount,
+        calculatedPickUpDiscountL,
+        couponDiscountPercentL,
+        couponCode: couponDisc?.code?.trim() || "NA",
+        pickUpDiscountPercentL,
+
+        flatCouponDiscount: 0,
+        // FLAGS
+        noOffers,
+
+        // 🔑 VERY IMPORTANT
+
+        scheduledAt,
+      };
+
+      // =====================================================
+      // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
+      // =====================================================
+
+      // console.log("purchaseData-----------", purchaseData);
+
+      const orderResult = await createNewOrder(purchaseData);
+
+      if (!orderResult.success || !orderResult.orderId) {
+        //
+        toast.error("Unable to create order.");
+        return;
+      }
+
+      const orderMasterId = orderResult.orderId;
+
+      // =====================================================
+      // 8️⃣ REDIRECT BASED ON PAYMENT TYPE
+      // =====================================================
+
+      if (paymentType === "stripe") {
+        router.push(
+          `/stripe?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+        );
+      } else if (paymentType === "paypal") {
+        router.push(
+          `/pay?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+        );
+      } else if (paymentType === "cod") {
+        router.push(
+          `/complete?paymentType=Barzahlung&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
+        );
+      }
+    } catch (error) {
+      console.error("Order submission error:", error);
+      toast.error("Something went wrong while placing the order.");
+    } finally {
+      setIsLoading(false);
     }
-
-    if (typeof endTotalG !== "number" || Number.isNaN(endTotalG)) {
-      toast.error(TEXT.error_unexpected_total);
-      return;
-    }
-
-    if (!cartData || cartData.length === 0) {
-      toast.error(TEXT.error_empty_cart);
-      return;
-    }
-
-    // =====================================================
-    // 6️⃣ BUILD ORDER (INTENT ONLY – SERVER DECIDES STATE)
-    // =====================================================
-
-    const purchaseData: orderDataType = {
-      // BASIC
-      userId,
-      customerName,
-      email,
-      orderType:"ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
-  tableNo: tableNo === "DINE_IN" ? tableNo : null,
-       source: "WEB" as const,
-      // CART SNAPSHOT
-      cartData,
-
-      // TOTALS (client-side preview, server recalculates)
-      itemTotal,
-      endTotalG,
-      totalDiscountG,
-
-      // ADDRESS / DELIVERY
-      addressId,
-      deliveryCost,
-
-      // PAYMENT
-      paymentType,
-
-      // DISCOUNTS
-      flatDiscount: flatCouponDiscount,
-      calCouponDiscount,
-      calculatedPickUpDiscountL,
-      couponDiscountPercentL,
-      couponCode: couponDisc?.code?.trim() || "NA",
-      pickUpDiscountPercentL,
-
-       
-     
-        flatCouponDiscount:0,
-      // FLAGS
-      noOffers,
-
-      // 🔑 VERY IMPORTANT
-     
-      scheduledAt,
-    };
-
-    // =====================================================
-    // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
-    // =====================================================
-
-    console.log("purchaseData-----------", purchaseData)
-
-    const orderResult = await createNewOrder(purchaseData);
-
-    
-    if (!orderResult.success || !orderResult.orderId) {
-     // 
-     toast.error("Unable to create order.");
-      return;
-    }
-
-    const orderMasterId = orderResult.orderId;
-
-    // =====================================================
-    // 8️⃣ REDIRECT BASED ON PAYMENT TYPE
-    // =====================================================
-
-    if (paymentType === "stripe") {
-      router.push(
-        `/stripe?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
-      );
-    } else if (paymentType === "paypal") {
-      router.push(
-        `/pay?orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
-      );
-    } else if (paymentType === "cod") {
-      router.push(
-        `/complete?paymentType=Barzahlung&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}`
-      );
-    }
-
-  } catch (error) {
-    console.error("Order submission error:", error);
-    toast.error("Something went wrong while placing the order.");
-  } finally {
-    setIsLoading(false);
   }
-}
-
 
   return (
     <div className="flex flex-col gap-4 w-full ">

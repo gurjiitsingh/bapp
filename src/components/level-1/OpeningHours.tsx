@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
 
-type DaySchedule = {
+export type DaySchedule = {
   day: string;
   isOpen: boolean;
   fullDay: boolean;
@@ -11,6 +11,7 @@ type DaySchedule = {
   amClose: string;
   pmOpen: string;
   pmClose: string;
+  updatedAt: string | null;
 };
 
 const DAY_ORDER = [

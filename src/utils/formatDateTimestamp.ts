@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export function formatDateTimeStamp(
-  date:  Timestamp ,
+  date: string | number | Timestamp | undefined,
   locale: string = "en-GB"
 ): string {
   if (!date) return "";

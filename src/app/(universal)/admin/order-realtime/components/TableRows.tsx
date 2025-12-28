@@ -20,8 +20,8 @@ function TableRows({ order }: { order: orderMasterDataT }) {
     (settings.currency || "EUR") as string,
     (settings.locale || "de-DE") as string
   );
-  const endTotalG = formatCurrencyNumber(
-    Number(order.endTotalG) ?? 0,
+  const grandTotal = formatCurrencyNumber(
+    Number(order.grandTotal) ?? 0,
     (settings.currency || "EUR") as string,
     (settings.locale || "de-DE") as string
   );
@@ -104,7 +104,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
       </TableCell>
 
       <TableCell className="font-medium text-gray-900 dark:text-zinc-100">
-        {endTotalG}
+        {grandTotal}
       </TableCell>
 
       <TableCell className="text-sm text-gray-600 dark:text-zinc-400">

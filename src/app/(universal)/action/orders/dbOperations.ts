@@ -76,15 +76,13 @@ import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 
 export async function createNewOrder(purchaseData: orderDataType) {
-
-  console.log("data from client --------------",purchaseData)
   const {
     addressId,
     userId,
     customerName,
     email,
-     orderType,
-  tableNo,
+    orderType,
+    tableNo,
     paymentType,
 
     // pricing inputs
@@ -105,7 +103,6 @@ export async function createNewOrder(purchaseData: orderDataType) {
     source,
     scheduledAt,
   } = purchaseData;
-
 
   // 🔒 Normalize userId (defensive programming)
   // const safeUserId =
@@ -180,83 +177,80 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // =====================================================
   // 7️⃣ ORDER MASTER DATA (CLEAN + LEGACY)
   // =====================================================
-  const scheduledTimestamp = toAdminTimestamp(scheduledAt) ;
+  const scheduledTimestamp = toAdminTimestamp(scheduledAt);
 
   if (scheduledTimestamp && scheduledTimestamp.toMillis() < Date.now()) {
-  return {
-    success: false,
-    message: "Scheduled time is in the past",
+    return {
+      success: false,
+      message: "Scheduled time is in the past",
+    };
+  }
+
+  const MIN_BUFFER_MS = 30 * 60 * 1000;
+
+  if (
+    scheduledTimestamp &&
+    scheduledTimestamp.toMillis() < Date.now() + MIN_BUFFER_MS
+  ) {
+    return {
+      success: false,
+      message: "Please select a time at least 15 minutes from now",
+    };
+  }
+
+  const orderMasterData: orderMasterDataT = {
+    // BASIC
+    id: "temp_id",
+    customerName,
+    email,
+    userId,
+    addressId,
+    tableNo,
+    orderType,
+    srno: new_srno,
+    paymentType,
+    status: orderStatus,
+
+    // LEGACY
+    itemTotal,
+    deliveryCost,
+    totalDiscountG,
+    flatDiscount,
+    calculatedPickUpDiscountL,
+    calCouponDiscount,
+    couponCode,
+    couponDiscountPercentL,
+    pickUpDiscountPercentL,
+
+    // TAX
+    taxBeforeDiscount: totals.taxBeforeDiscount,
+    taxAfterDiscount: totals.taxAfterDiscount,
+    totalTax: totals.taxAfterDiscount,
+
+    // TOTALS
+    productsCount: cartData.length,
+    discountTotal: totals.discountTotal,
+    subTotal: totals.subTotal,
+    deliveryFee: deliveryCost,
+    grandTotal: totals.grandTotal,
+
+    // AUTOMATION
+    source,
+    orderStatus: scheduledTimestamp ? "SCHEDULED" : "NEW",
+    paymentStatus: "PAID",
+    printed: false,
+    acknowledged: false,
+
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+
+    // LEGACY TOTALS
+   
+
+    // ✅ SCHEDULING (SAFE)
+    scheduledAt: scheduledTimestamp,
+    isScheduled: Boolean(scheduledTimestamp),
   };
-}
-
-const MIN_BUFFER_MS = 30 * 60 * 1000;
-
-if (
-  scheduledTimestamp &&
-  scheduledTimestamp.toMillis() < Date.now() + MIN_BUFFER_MS
-) {
-  return {
-    success: false,
-    message: "Please select a time at least 15 minutes from now",
-  };
-}
-
-
-
-const orderMasterData: orderMasterDataT = {
-  // BASIC
-  id: "temp_id",
-  customerName,
-  email,
-  userId,
-  addressId,
-  tableNo,
-  orderType,
-  srno: new_srno,
-  paymentType,
-  status: orderStatus,
-
-  // LEGACY
-  itemTotal,
-  deliveryCost,
-  totalDiscountG,
-  flatDiscount,
-  calculatedPickUpDiscountL,
-  calCouponDiscount,
-  couponCode,
-  couponDiscountPercentL,
-  pickUpDiscountPercentL,
-
-  // TAX
-  taxBeforeDiscount: totals.taxBeforeDiscount,
-  taxAfterDiscount: totals.taxAfterDiscount,
-  totalTax: totals.taxAfterDiscount,
-
-  // TOTALS
-  productsCount: cartData.length,
-  discountTotal: totals.discountTotal,
-  subTotal: totals.subTotal,
-  deliveryFee: deliveryCost,
-  grandTotal: totals.grandTotal,
-
-  // AUTOMATION
-  source,
-  orderStatus: scheduledTimestamp ? "SCHEDULED" : "NEW",
-  paymentStatus: "PAID",
-  printed: false,
-  acknowledged: false,
-
-  createdAt: admin.firestore.FieldValue.serverTimestamp(),
-
-  // LEGACY TOTALS
-  endTotalG: totals.grandTotal!,
-  finalGrandTotal: totals.grandTotal!,
-
-  // ✅ SCHEDULING (SAFE)
-  scheduledAt: scheduledTimestamp,
-  isScheduled: Boolean(scheduledTimestamp),
-};
-console.log("data to be saved server --------------",orderMasterData)
+  console.log("data to be saved server --------------", orderMasterData);
 
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER
@@ -398,7 +392,7 @@ export async function addProductDraft(
 }
 
 export async function addOrderToMaster(element: orderMasterDataT) {
-  console.log("element-----------", element)
+  console.log("element-----------", element);
   try {
     const docRef = await adminDb.collection("orderMaster").add(element);
     return docRef.id;
@@ -461,7 +455,7 @@ export async function fetchOrdersPaginated({
       // 🕒 Order Info
       srno: data.srno || 0,
       tableNo: data.tableNo,
-      orderType:data.orderType,
+      orderType: data.orderType,
       createdAt:
         data.createdAt?.toDate?.().toISOString?.() || data.createdAt || "",
       createdAtUTC: data.createdAtUTC || "",
@@ -476,7 +470,6 @@ export async function fetchOrdersPaginated({
       // 📦 Status
       status: data.status || "",
       orderStatus: data.orderStatus || "NEW",
-
 
       // 💰 Item & Discount Totals
       itemTotal: data.itemTotal || 0, // legacy (before discount & tax)
