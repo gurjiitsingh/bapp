@@ -13,7 +13,8 @@ export type orderMasterDataT = {
   email: string;
   addressId: string;
   srno:number;
-  tableNo:number;
+  tableNo: string | null;     // Only for DINE_IN
+  orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
   // =====================================================
   // ORDER TIMING
   // =====================================================

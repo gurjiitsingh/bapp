@@ -101,7 +101,8 @@ export type orderDataType = {
   userId: string ;
   customerName: string;
   email: string;
-tableNo:number;
+  tableNo: string | null;     // Only for DINE_IN
+  orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
   // -----------------------------
   // CART SNAPSHOT (REQUIRED)
   // -----------------------------

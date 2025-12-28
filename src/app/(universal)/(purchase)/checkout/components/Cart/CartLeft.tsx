@@ -57,10 +57,20 @@ export default function CartLeft() {
     endTotalG,
     totalDiscountG,
     scheduledAt,
+    setOrderType,
+     setTableNo,
+    orderType,
+    tableNo,
+    
   } = useCartContext();
 
 
 
+
+useEffect(() => {
+  setOrderType("DELIVERY");
+  setTableNo(null);
+}, []);
 
 
 
@@ -409,7 +419,9 @@ try {
       userId,
       customerName,
       email,
-      tableNo:0,
+      orderType:"ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
+  tableNo: tableNo === "DINE_IN" ? tableNo : null,
+       source: "WEB" as const,
       // CART SNAPSHOT
       cartData,
 
@@ -440,7 +452,7 @@ try {
       noOffers,
 
       // 🔑 VERY IMPORTANT
-      source: "WEB" as const,
+     
       scheduledAt,
     };
 
@@ -448,7 +460,7 @@ try {
     // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
     // =====================================================
 
-    
+    console.log("purchaseData-----------", purchaseData)
 
     const orderResult = await createNewOrder(purchaseData);
 

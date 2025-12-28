@@ -2,19 +2,20 @@ import { createContext, useContext } from "react";
 //import { cartProductType } from  '@/lib/types/cartProductType'
 //import { cartProductTypeT } from "@/lib/types/cartProductTypeype";
 
-
 import { addressT } from "@/lib/types/addressType";
 import { cartProductType } from "@/lib/types/cartDataType";
+type OrderType = "DINE_IN" | "TAKEAWAY" | "DELIVERY";
+
 interface CartContextType {
   counter: number;
   productTotalCost: number;
   cartData: cartProductType[];
   address: addressT;
-  addAddress: (a:addressT) => void;
+  addAddress: (a: addressT) => void;
 
   //getAddress:()=>{};
   addProduct: (c: cartProductType) => void;
-  addProductToCart: (c: cartProductType ) => void;
+  addProductToCart: (c: cartProductType) => void;
   decCartProduct: (c: cartProductType) => void;
   decCartProductAll: (c: cartProductType) => void;
   removeCartProduct: (c: cartProductType | undefined) => void;
@@ -23,9 +24,12 @@ interface CartContextType {
   setEndTotalG: (c: number) => void;
   totalDiscountG: number;
   setTotalDiscountG: (c: number) => void;
-  scheduledAt: string ;
-setScheduledAt: (value: string | null) => void;
-  
+  scheduledAt: string;
+  setScheduledAt: (value: string | null) => void;
+  orderType: OrderType;
+  setOrderType: (t: OrderType) => void;
+  tableNo: string | null;
+  setTableNo: (t: string | null) => void;
 }
 
 //const CartContext = createContext<CartContextType | null>(null);
@@ -45,20 +49,24 @@ const CartContext = createContext<CartContextType>({
     addressLine1: "",
     addressLine2: "",
     userId: "",
-     },
- 
-  addAddress: (a:addressT) => {return a},
+  },
+
+  addAddress: (a: addressT) => {
+    return a;
+  },
   // getAddress:()=>{},
   addProduct: () => {},
-  addProductToCart: (p:cartProductType) => {return p},
+  addProductToCart: (p: cartProductType) => {
+    return p;
+  },
   decCartProduct: () => {},
   decCartProductAll: () => {},
   removeCartProduct: () => {},
   emptyCart: () => {},
   totalDiscountG: 0,
   setTotalDiscountG: () => {},
-   scheduledAt: null,
-setScheduledAt: () => {},
+  scheduledAt: null,
+  setScheduledAt: () => {},
 });
 
 export const useCartContext = () => {

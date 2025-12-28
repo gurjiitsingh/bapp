@@ -83,7 +83,8 @@ export async function createNewOrder(purchaseData: orderDataType) {
     userId,
     customerName,
     email,
-    tableNo,
+     orderType,
+  tableNo,
     paymentType,
 
     // pricing inputs
@@ -199,6 +200,7 @@ if (
     message: "Please select a time at least 15 minutes from now",
   };
 }
+console.log("orderType-----------",orderType)
 const orderMasterData: orderMasterDataT = {
   // BASIC
   id: "temp_id",
@@ -207,6 +209,7 @@ const orderMasterData: orderMasterDataT = {
   userId,
   addressId,
   tableNo,
+  orderType,
   srno: new_srno,
   paymentType,
   status: orderStatus,
@@ -455,6 +458,7 @@ export async function fetchOrdersPaginated({
       // 🕒 Order Info
       srno: data.srno || 0,
       tableNo: data.tableNo,
+      orderType:data.orderType,
       createdAt:
         data.createdAt?.toDate?.().toISOString?.() || data.createdAt || "",
       createdAtUTC: data.createdAtUTC || "",
@@ -469,6 +473,7 @@ export async function fetchOrdersPaginated({
       // 📦 Status
       status: data.status || "",
       orderStatus: data.orderStatus || "NEW",
+
 
       // 💰 Item & Discount Totals
       itemTotal: data.itemTotal || 0, // legacy (before discount & tax)
