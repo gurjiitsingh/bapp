@@ -28,7 +28,8 @@ export default function POSCheckout() {
   const router = useRouter();
   const { TEXT } = useLanguage();
 
-  const { cartData, setEndTotalG } = useCartContext();
+  const { cartData, setEndTotalG, orderType, tableNo } = useCartContext();
+
   const { settings, paymentType } = UseSiteContext();
 
   // -------------------------
@@ -43,15 +44,12 @@ export default function POSCheckout() {
   const [isLoading, setIsLoading] = useState(false);
 
   // 🆕 STORE CONVERTED CART ITEMS (ORDER-SAFE)
- 
 
   // =====================================================
   // CALCULATE TOTALS (SINGLE SOURCE OF TRUTH)
   // =====================================================
   useEffect(() => {
     if (!cartData || cartData.length === 0) return;
-
-  
 
     async function calculateTotals() {
       // -------------------------
@@ -147,7 +145,9 @@ export default function POSCheckout() {
         userId: "POS",
         customerName: "POS",
         email: "pos@local",
-
+        scheduledAt: "",
+        orderType,
+        tableNo,
         // CART SNAPSHOT
         cartData: cartData,
 

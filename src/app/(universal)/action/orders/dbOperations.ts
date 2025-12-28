@@ -189,7 +189,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
   };
 }
 
-const MIN_BUFFER_MS = 15 * 60 * 1000;
+const MIN_BUFFER_MS = 30 * 60 * 1000;
 
 if (
   scheduledTimestamp &&
@@ -200,7 +200,9 @@ if (
     message: "Please select a time at least 15 minutes from now",
   };
 }
-console.log("orderType-----------",orderType)
+
+
+
 const orderMasterData: orderMasterDataT = {
   // BASIC
   id: "temp_id",
@@ -396,6 +398,7 @@ export async function addProductDraft(
 }
 
 export async function addOrderToMaster(element: orderMasterDataT) {
+  console.log("element-----------", element)
   try {
     const docRef = await adminDb.collection("orderMaster").add(element);
     return docRef.id;

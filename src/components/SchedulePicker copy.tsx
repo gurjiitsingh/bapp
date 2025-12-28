@@ -14,7 +14,6 @@ export default function SchedulePicker({
   openTime = "11:00",
   closeTime = "23:00",
 }: Props) {
-  const MIN_BUFFER_MINUTES = 30;
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
 const { setScheduledAt } = useCartContext();
@@ -57,30 +56,26 @@ const { setScheduledAt } = useCartContext();
       "0"
     )}`;
 
- const getSlots = () => {
-  const open = toMinutes(openTime);
-  const close = toMinutes(closeTime);
-  const now = new Date();
+  const getSlots = () => {
+    const open = toMinutes(openTime);
+    const close = toMinutes(closeTime);
+    const now = new Date();
 
-  let start = open;
+    let start = open;
 
-  // If today → enforce minimum buffer
-  if (selectedDate === formatISO(today)) {
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    const buffered = nowMinutes + MIN_BUFFER_MINUTES;
+    // If today, prevent past time selection
+    if (selectedDate === formatISO(today)) {
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      start = Math.max(open, Math.ceil(nowMinutes / 15) * 15);
+    }
 
-    // round UP to nearest 15 min slot
-    start = Math.max(open, Math.ceil(buffered / 15) * 15);
-  }
+    const slots: string[] = [];
+    for (let i = start; i < close; i += 15) {
+      slots.push(toTime(i));
+    }
 
-  const slots: string[] = [];
-  for (let i = start; i < close; i += 15) {
-    slots.push(toTime(i));
-  }
-
-  return slots;
-};
-
+    return slots;
+  };
 
   
 
@@ -154,12 +149,12 @@ useEffect(() => {
         </select>
       </div>
 
-     {/* ✅ BUFFER MESSAGE */}
-  {selectedDate === formatISO(today) && (
-    <p className="text-xs text-gray-500 mt-1">
-      Orders must be scheduled at least {MIN_BUFFER_MINUTES} minutes in advance
-    </p>
-  )}
+      {/* <button
+        disabled={!selectedDate || !selectedTime}
+        className="w-full bg-green-100 hover:bg-green-200 text-gray-700 font-medium py-2 rounded-lg"
+      >
+        Confirm Schedule
+      </button> */}
     </div>
   );
 }
