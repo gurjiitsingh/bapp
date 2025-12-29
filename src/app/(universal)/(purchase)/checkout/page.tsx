@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 
 import Address from "./components/Address";
 import CartLeft from "./components/Cart/CartLeft";
@@ -8,6 +8,9 @@ import PaymentSelector from "./components/PaymentSelector";
 import StoreOpenStatus from "@/components/StoreOpenStatus";
 import OrderTypeSelector from "@/components/OrderTypeSelector";
 import SchedulePicker from "@/components/SchedulePicker";
+import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
+
+
 const checkout = () => {
   // const { data: session } = useSession();
   const [isStoreOpen, setIsStoreOpen] = useState(false);
@@ -15,6 +18,38 @@ const checkout = () => {
     null
   );
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+
+const [daySchedule, setDaySchedule] = useState<{
+  open: string;
+  close: string;
+} | null>(null);
+
+
+
+useEffect(() => {
+  if (orderType === "schedule") {
+    setDaySchedule({
+      open: "11:00",
+      close: "22:00",
+    });
+  }
+}, [orderType]);
+
+
+
+
+// inside your component
+ const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([]);
+
+  // ✅ Fetch weekly schedule on mount
+  useEffect(() => {
+    async function fetchSchedule() {
+      const data = await getSchedule(); // Firestore fetch
+      setWeeklySchedule(data);
+    }
+    fetchSchedule();
+  }, []);
+
 
   return (
     // <SessionProvider>
@@ -41,9 +76,15 @@ const checkout = () => {
               </div>
             )}
 
-            {orderType === "schedule" && (
-              <SchedulePicker onChange={setScheduledAt} />
-            )}
+     
+
+
+{orderType === "schedule" && (
+  <SchedulePicker
+    onChange={setScheduledAt}
+    schedule={weeklySchedule} // fetch this from Firestore using getSchedule()
+  />
+)}
 
             <PaymentSelector />
             <Address />

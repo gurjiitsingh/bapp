@@ -1,50 +1,30 @@
 "use client";
 
-import { useCartContext } from "@/store/CartContext";
 import { useEffect, useState } from "react";
+import { useCartContext } from "@/store/CartContext";
+
+export type DaySchedule = {
+  day: string;
+  isOpen: boolean;
+  amOpen: string;
+  amClose: string;
+};
 
 type Props = {
   onChange: (dateTime: string) => void;
-  openTime?: string;
-  closeTime?: string;
+  schedule: DaySchedule[]; // pass weekly schedule
 };
 
-export default function SchedulePicker({
-  onChange,
-  openTime = "11:00",
-  closeTime = "23:00",
-}: Props) {
+export default function SchedulePicker({ onChange, schedule }: Props) {
+  const { setScheduledAt } = useCartContext();
+
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+
   const MIN_BUFFER_MINUTES = 30;
-  const [selectedDate, setSelectedDate] = useState<string>("");
-  const [selectedTime, setSelectedTime] = useState<string>("");
-const { setScheduledAt } = useCartContext();
   const today = new Date();
 
-  const formatDate = (d: Date) =>
-    d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
-
-  const formatWeekday = (d: Date) =>
-    d.toLocaleDateString("en-GB", { weekday: "long" });
-
   const formatISO = (d: Date) => d.toISOString().split("T")[0];
-
-  // ✅ Only Today → Next 6 days
-  const getDays = () => {
-    return Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(today.getDate() + i);
-
-      let label = formatWeekday(d);
-      if (i === 0) label = "Today";
-      if (i === 1) label = "Tomorrow";
-
-      return {
-        label,
-        date: formatDate(d),
-        value: formatISO(d),
-      };
-    });
-  };
 
   const toMinutes = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -57,109 +37,99 @@ const { setScheduledAt } = useCartContext();
       "0"
     )}`;
 
- const getSlots = () => {
-  const open = toMinutes(openTime);
-  const close = toMinutes(closeTime);
-  const now = new Date();
+  // ✅ Generate next 7 days
+  const getNext7Days = () =>
+    Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(today.getDate() + i);
+      return {
+        label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "long" }),
+        value: formatISO(d),
+      };
+    });
 
-  let start = open;
+  // ✅ Get open/close for selected date
+  const getOpenClose = () => {
+    if (!selectedDate) return { open: "11:00", close: "22:00" }; // fallback
 
-  // If today → enforce minimum buffer
-  if (selectedDate === formatISO(today)) {
-    const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    const buffered = nowMinutes + MIN_BUFFER_MINUTES;
+    const dayName = new Date(selectedDate).toLocaleDateString("en-US", {
+      weekday: "long",
+    }).toLowerCase();
 
-    // round UP to nearest 15 min slot
-    start = Math.max(open, Math.ceil(buffered / 15) * 15);
-  }
+    const day = schedule.find((d) => d.day === dayName);
+    if (!day || !day.isOpen) return { open: "", close: "" }; // store closed
 
-  const slots: string[] = [];
-  for (let i = start; i < close; i += 15) {
-    slots.push(toTime(i));
-  }
+    return { open: day.amOpen, close: day.amClose };
+  };
 
-  return slots;
-};
+  // ✅ Generate 30-min slots
+  const getSlots = () => {
+    const { open, close } = getOpenClose();
+    if (!open || !close) return [];
 
+    let start = toMinutes(open);
+    const end = toMinutes(close);
 
-  
+    if (selectedDate === formatISO(today)) {
+      const nowMinutes = today.getHours() * 60 + today.getMinutes();
+      start = Math.max(start, Math.ceil((nowMinutes + MIN_BUFFER_MINUTES) / 30) * 30);
+    }
 
-//   useEffect(() => {
-//   if (selectedDate && selectedTime) {
-//     const value = `${selectedDate} ${selectedTime}`;
-//     onChange(value);
-//     setScheduledAt(value); // ✅ SAVE TO GLOBAL CART
-//   }
-// }, [selectedDate, selectedTime]);
+    const slots: string[] = [];
+    for (let i = start; i < end; i += 30) {
+      slots.push(toTime(i));
+    }
+    return slots;
+  };
 
-useEffect(() => {
-  if (selectedDate && selectedTime) {
-    // selectedDate = "2025-12-28"
-    // selectedTime = "11:15"
+  // ✅ Save selected date & time
+  useEffect(() => {
+    if (selectedDate && selectedTime) {
+      const iso = new Date(`${selectedDate}T${selectedTime}:00`).toISOString();
+      onChange(iso);
+      setScheduledAt(iso);
+    }
+  }, [selectedDate, selectedTime]);
 
-    const localDateTime = `${selectedDate}T${selectedTime}:00`;
-
-    // Convert local time → ISO
-    const iso = new Date(localDateTime).toISOString();
-
-    onChange(iso);
-    setScheduledAt(iso); // ✅ STORE ISO STRING
-  }
-}, [selectedDate, selectedTime]);
-
-  const days = getDays();
+  const days = getNext7Days();
   const slots = selectedDate ? getSlots() : [];
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-gray-700">
-        Select day & time
-      </h3>
+      <h3 className="text-sm font-semibold text-gray-700">Select day & time</h3>
 
       {/* DAY SELECTOR */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      <div className="flex gap-2 overflow-x-auto">
         {days.map((d) => (
           <button
             key={d.value}
             onClick={() => setSelectedDate(d.value)}
-            className={`px-3 py-2 rounded-lg text-sm text-center border min-w-[90px]
-              ${
-                selectedDate === d.value
-                  ? "bg-green-100 border-green-400 text-green-800"
-                  : "bg-white border-gray-200 text-gray-600"
-              }
-            `}
+            className={`px-3 py-2 rounded-lg border text-sm ${
+              selectedDate === d.value
+                ? "bg-green-100 border-green-400 text-green-800"
+                : "bg-white border-gray-200 text-gray-600"
+            }`}
           >
-            <div className="font-medium">{d.label}</div>
-            <div className="text-xs text-gray-500">{d.date}</div>
+            {d.label}
           </button>
         ))}
       </div>
 
-      {/* TIME */}
-      <div className="flex flex-col gap-1">
-        <label className="text-sm text-gray-600">Time</label>
-        <select
-          className="border border-gray-200 rounded-md px-3 py-2 text-sm"
-          value={selectedTime}
-          disabled={!selectedDate}
-          onChange={(e) => setSelectedTime(e.target.value)}
-        >
-          {!selectedDate && <option>Select day first</option>}
-          {slots.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-      </div>
-
-     {/* ✅ BUFFER MESSAGE */}
-  {selectedDate === formatISO(today) && (
-    <p className="text-xs text-gray-500 mt-1">
-      Orders must be scheduled at least {MIN_BUFFER_MINUTES} minutes in advance
-    </p>
-  )}
+      {/* TIME SELECTOR */}
+      <select
+        className="border rounded-md px-3 py-2 text-sm w-full"
+        value={selectedTime}
+        disabled={!selectedDate || slots.length === 0}
+        onChange={(e) => setSelectedTime(e.target.value)}
+      >
+        {!selectedDate && <option>Select day first</option>}
+        {slots.length === 0 && selectedDate && <option>Store closed</option>}
+        {slots.map((t) => (
+          <option key={t} value={t}>
+            {t}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
