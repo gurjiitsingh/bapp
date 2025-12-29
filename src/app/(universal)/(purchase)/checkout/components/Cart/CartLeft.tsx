@@ -15,7 +15,16 @@ import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import SetDeliveryType from "./SetDeliveryType";
 
-export default function CartLeft() {
+type CartLeftProps = {
+  //orderType: "delivery" | "pickup" | "dine_in" | "schedule" | string |;
+  isStoreOpen?: boolean;
+  // scheduledAt?: string | null;
+};
+
+
+export default function CartLeft({
+  isStoreOpen
+  }: CartLeftProps) {
   const { TEXT } = useLanguage();
   const {
     couponDisc,
@@ -297,6 +306,14 @@ export default function CartLeft() {
         return;
       }
     }
+console.log("scheduledAt---",scheduledAt,isStoreOpen)
+     if ( !isStoreOpen && !scheduledAt) {
+    
+     
+        toast.error("Now store is close, slecet differen time when store open");
+        return;
+    
+    } 
 
     setIsLoading(true);
 

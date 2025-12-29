@@ -10,7 +10,6 @@ import OrderTypeSelector from "@/components/OrderTypeSelector";
 import SchedulePicker from "@/components/SchedulePicker";
 import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
 
-
 const checkout = () => {
   // const { data: session } = useSession();
   const [isStoreOpen, setIsStoreOpen] = useState(false);
@@ -19,27 +18,42 @@ const checkout = () => {
   );
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
 
-const [daySchedule, setDaySchedule] = useState<{
-  open: string;
-  close: string;
-} | null>(null);
+  const [daySchedule, setDaySchedule] = useState<{
+    open: string;
+    close: string;
+  } | null>(null);
 
+  useEffect(() => {
+    if (orderType === "schedule") {
+      setDaySchedule({
+        open: "11:00",
+        close: "22:00",
+      });
+    }
+  }, [orderType]);
 
+  
 
-useEffect(() => {
-  if (orderType === "schedule") {
-    setDaySchedule({
-      open: "11:00",
-      close: "22:00",
-    });
+  // 🔹 Load weekly schedule once
+  useEffect(() => {
+    async function load() {
+      const data = await getSchedule();
+      setWeeklySchedule(data);
+    }
+    load();
+  }, []);
+
+  // 🔹 If store is closed → force schedule
+ useEffect(() => {
+  if (!isStoreOpen) {
+    setOrderType("schedule"); // force schedule if store closed
+  } else {
+    setOrderType(null); // allow user to choose (default = instant)
   }
-}, [orderType]);
+}, [isStoreOpen]);
 
-
-
-
-// inside your component
- const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([]);
+  // inside your component
+  const [weeklySchedule, setWeeklySchedule] = useState<DaySchedule[]>([]);
 
   // ✅ Fetch weekly schedule on mount
   useEffect(() => {
@@ -49,7 +63,6 @@ useEffect(() => {
     }
     fetchSchedule();
   }, []);
-
 
   return (
     // <SessionProvider>
@@ -76,15 +89,12 @@ useEffect(() => {
               </div>
             )}
 
-     
-
-
-{orderType === "schedule" && (
-  <SchedulePicker
-    onChange={setScheduledAt}
-    schedule={weeklySchedule} // fetch this from Firestore using getSchedule()
-  />
-)}
+            {orderType === "schedule" && (
+              <SchedulePicker
+                onChange={setScheduledAt}
+                schedule={weeklySchedule} // fetch this from Firestore using getSchedule()
+              />
+            )}
 
             <PaymentSelector />
             <Address />
@@ -92,7 +102,7 @@ useEffect(() => {
 
           {/* </div> */}
 
-          <CartLeft />
+          <CartLeft  isStoreOpen={isStoreOpen} />
         </div>
       </div>
     </Suspense>
