@@ -15,16 +15,16 @@ import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import SetDeliveryType from "./SetDeliveryType";
 
-type CartLeftProps = {
+type OrderSummaryProps = {
   //orderType: "delivery" | "pickup" | "dine_in" | "schedule" | string |;
   isStoreOpen?: boolean;
   // scheduledAt?: string | null;
 };
 
 
-export default function CartLeft({
+export default function OrderSummary({
   isStoreOpen
-  }: CartLeftProps) {
+  }: OrderSummaryProps) {
   const { TEXT } = useLanguage();
   const {
     couponDisc,

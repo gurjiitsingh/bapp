@@ -2,13 +2,16 @@
 import React, { Suspense, useEffect, useState } from "react";
 
 import Address from "./components/Address";
-import CartLeft from "./components/Cart/CartLeft";
+
 //import { SessionProvider } from "next-auth/react";
 import PaymentSelector from "./components/PaymentSelector";
 import StoreOpenStatus from "@/components/StoreOpenStatus";
 import OrderTypeSelector from "@/components/OrderTypeSelector";
 import SchedulePicker from "@/components/SchedulePicker";
 import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
+import OrderSummary from "./components/Cart/OrderSummary";
+import AddressWrapper from "@/components/checkout/address/AddressWrapper";
+import "@/css/style.css";
 
 const checkout = () => {
   // const { data: session } = useSession();
@@ -97,12 +100,13 @@ const checkout = () => {
             )}
 
             <PaymentSelector />
-            <Address />
+            {/* <Address /> */}
+            <AddressWrapper country="IN" />
           </div>
 
           {/* </div> */}
 
-          <CartLeft  isStoreOpen={isStoreOpen} />
+          <OrderSummary  isStoreOpen={isStoreOpen} />
         </div>
       </div>
     </Suspense>

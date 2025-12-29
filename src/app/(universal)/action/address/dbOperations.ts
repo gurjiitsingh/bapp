@@ -179,3 +179,49 @@ export async function addCustomerAddressDirect(formData: FormData) {
 
   return recordId;
 }
+
+
+export async function addCustomerAddressDirectPrimaryMOB(
+  formData: FormData
+): Promise<string | null> {
+
+  const receivedData = {
+    email: formData.get("email")?.toString() || "",
+    firstName: formData.get("firstName")?.toString() || "",
+    lastName: formData.get("lastName")?.toString() || "",
+    userId: formData.get("userId")?.toString() || "",
+    mobNo: formData.get("mobNo")?.toString() || "",
+    password: formData.get("password")?.toString() || "",
+    addressLine1: formData.get("addressLine1")?.toString() || "",
+    addressLine2: formData.get("addressLine2")?.toString() || "",
+    city: formData.get("city")?.toString() || "",
+    state: formData.get("state")?.toString() || "",
+    zipCode: formData.get("zipCode")?.toString() || "",
+  };
+
+  // 🛡 Validate (ZIP optional)
+  const result = addressSchimaCheckout.safeParse(receivedData);
+  if (!result.success || !receivedData.mobNo) return null;
+
+  // 🔍 1️⃣ Search address by mobile number
+  const querySnapshot = await adminDb
+    .collection("address")
+    .where("mobNo", "==", receivedData.mobNo)
+    .limit(1)
+    .get();
+
+  const recordId = querySnapshot.docs[0]?.id;
+
+  // 📦 2️⃣ If address exists → return existing id
+  if (recordId) return recordId;
+
+  // ✍️ 3️⃣ Otherwise create new
+  const addressData = {
+    ...receivedData,
+    createdAt: FieldValue.serverTimestamp(),
+  };
+
+  const docRef = await adminDb.collection("address").add(addressData);
+
+  return docRef.id;
+}

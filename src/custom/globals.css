@@ -404,3 +404,14 @@ button:disabled {
   @apply opacity-70 cursor-not-allowed bg-gradient-to-r from-gray-400 to-gray-500;
 }
 
+
+
+.input-light {
+  @apply w-full rounded-md border border-gray-200 bg-white px-3 py-2 
+  text-sm text-gray-800 placeholder-gray-400 
+  focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300;
+}
+
+.label-light {
+  @apply text-xs text-gray-600 font-medium;
+}
