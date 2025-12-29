@@ -3,7 +3,10 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 import { Timestamp } from "firebase/firestore";
 import { addUserDirect, addUserDirectPrimaryMOB } from "../user/dbOperation";
-import { addCustomerAddressDirect, addCustomerAddressDirectPrimaryMOB } from "../address/dbOperations";
+import {
+  addCustomerAddressDirect,
+  addCustomerAddressDirectPrimaryMOB,
+} from "../address/dbOperations";
 import { TOrderMaster, orderMasterDataT } from "@/lib/types/orderMasterType";
 import {
   CartItem,
@@ -69,26 +72,27 @@ export async function createNewOrderCustomerAddress(
 export async function createNewOrderCustomerAddressSMALL(
   purchaseData: purchaseDataT
 ) {
-
-  
   const { address } = purchaseData;
   const { email = "", lastName, firstName, mobNo } = address;
 
   const password = "123456";
   const username = `${firstName}${lastName}`;
 
+  const finalEmail =
+  email && email.trim() !== ""
+    ? email
+    : `${mobNo}@mail.com`;
+
   // --- Create user ---
   const formUser = new FormData();
   formUser.append("username", username);
-  formUser.append("email", email);
+  formUser.append("email", finalEmail);
   formUser.append("password", password);
   formUser.append("confirmPassword", password);
-formUser.append("mobNo", mobNo);
-formUser.append("firstName", firstName);
-formUser.append("lastName", lastName);
-   
+  formUser.append("mobNo", mobNo);
+  formUser.append("firstName", firstName);
+  formUser.append("lastName", lastName);
 
-  console.log("t-----------------")
   const UserAddedId = (await addUserDirectPrimaryMOB(formUser)) as string;
 
   // --- Add address ---
@@ -96,24 +100,22 @@ formUser.append("lastName", lastName);
   formAddress.append("firstName", firstName);
   formAddress.append("lastName", lastName);
   formAddress.append("userId", UserAddedId);
-  formAddress.append("email", email);
+  formAddress.append("email", finalEmail);
   formAddress.append("mobNo", address.mobNo);
   formAddress.append("password", password);
   formAddress.append("addressLine1", address.addressLine1 ?? "");
   formAddress.append("addressLine2", address.addressLine2 ?? "");
-  formAddress.append("city", address.city ?? "Jalandhar");
+  formAddress.append("city", address.city ?? "");
   formAddress.append("state", address.state ?? "Punjab");
-  formAddress.append("zipCode", address.zipCode ?? "");
+  formAddress.append("zipCode", address.zipCode ?? "123");
 
+  
   const addressAddedId = await addCustomerAddressDirectPrimaryMOB(formAddress);
 
   const customerName = `${firstName} ${lastName}`;
 
   return { addressAddedId, UserAddedId, customerName };
 }
-
-
-
 
 const SHOULD_MAINTAIN_STOCK =
   process.env.NEXT_PUBLIC_MAINTAIN_STOCK === "true" ||
@@ -293,13 +295,12 @@ export async function createNewOrder(purchaseData: orderDataType) {
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
 
     // LEGACY TOTALS
-   
 
     // ✅ SCHEDULING (SAFE)
     scheduledAt: scheduledTimestamp,
     isScheduled: Boolean(scheduledTimestamp),
   };
-  console.log("data to be saved server --------------", orderMasterData);
+  //console.log("data to be saved server --------------", orderMasterData);
 
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER
@@ -441,7 +442,7 @@ export async function addProductDraft(
 }
 
 export async function addOrderToMaster(element: orderMasterDataT) {
-  console.log("element-----------", element);
+ // console.log("element-----------", element);
   try {
     const docRef = await adminDb.collection("orderMaster").add(element);
     return docRef.id;

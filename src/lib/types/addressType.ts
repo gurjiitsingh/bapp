@@ -18,13 +18,13 @@ export const addressCheckoutSMALL = z.object({
 //   }),
 mobNo: z
   .string()
-  .transform(v => 
+  .transform(v =>
     v
-      .replace(/\D/g, "")   // keep digits only
-      .replace(/^0+/, "")   // remove 0 prefixes
-      .replace(/^91/, "")   // remove +91 prefix if typed
+      .replace(/\D/g, "")
+      .replace(/^0+/, "")
+      .replace(/^91/, "")
   )
-  .refine(v => /^[6-9]\d{9}$/.test(v), {
+  .refine(v => v === "" || /^[6-9]\d{9}$/.test(v), {
     message: "Enter valid 10-digit Indian mobile number",
   }),
  addressLine1: z.string().min(2, "Village / Locality / Town  is required"), // Village / Locality / Town

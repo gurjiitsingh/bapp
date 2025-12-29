@@ -306,7 +306,7 @@ export default function OrderSummary({
         return;
       }
     }
-console.log("scheduledAt---",scheduledAt,isStoreOpen)
+
      if ( !isStoreOpen && !scheduledAt) {
     
      

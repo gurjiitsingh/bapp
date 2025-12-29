@@ -37,11 +37,12 @@ const OrderDetail = () => {
 
   const { settings } = UseSiteContext();
 
- 
+   console.log("maserer id-----------", masterOrderId);
+       console.log("addressId-----------", addressId);
 
   useEffect(() => {
     async function getOrderProducts() {
-      // console.log("maserer id-----------", masterOrderId);
+    
       const orderProductList = await fetchOrderProductsByOrderMasterId(
         masterOrderId
       );

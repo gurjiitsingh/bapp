@@ -71,12 +71,12 @@ export async function addUserDirectPrimaryMOB(
   const mobNo = (formData.get("mobNo") || "") as string;
 
   let username = (formData.get("username") || undefined) as string | undefined;
- console.log("user data----",email,password,firstName,lastName,mobNo)
+
   if (!mobNo) {
     console.error("Mobile number is required");
     return undefined;
   }
-
+ console.log("user data----",email,password,firstName,lastName,mobNo)
   // 🔍 1️⃣ Search existing user by mobile
   const existing = await adminDb
     .collection("user")
@@ -114,7 +114,7 @@ export async function addUserDirectPrimaryMOB(
       }).format(new Date()),
       createdAt: FieldValue.serverTimestamp(),
     };
-console.log("newUser-----------", newUser)
+
     const docRef = await adminDb.collection("user").add(newUser);
 
     return docRef.id;

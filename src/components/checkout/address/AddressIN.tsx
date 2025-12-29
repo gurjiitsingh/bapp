@@ -12,9 +12,16 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { useLanguage } from "@/store/LanguageContext";
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { findAddressByMob } from "@/app/(universal)/action/address/dbOperations";
+import { useState } from "react";
+import { fetchLocations } from "@/app/(universal)/action/location/dbOperation";
 
 export default function AddressIN() {
   //const { setCustomerAddress } = useCartContext();
+
+  const [locations, setLocations] = useState<any[]>([]);
+const [suggestions, setSuggestions] = useState<any[]>([]);
+const [showSuggestions, setShowSuggestions] = useState(false);
 
   const { TEXT } = useLanguage();
   const {
@@ -45,14 +52,42 @@ export default function AddressIN() {
     // setValue("password", "123456");
     // setValue("city", "abc");
   }, []);
+  useEffect(() => {
+  async function loadLocations() {
+    const result = await fetchLocations();
+    setLocations(result);
+  }
 
-  //   async function handleZipcodeChange(e: React.ChangeEvent<HTMLInputElement>) {
-  //     const zipname: string = e.target.value;
-  //     if (zipname.length > 4) {
-  //       const result = await fetchdeliveryByZip(zipname);
-  //       setdeliveryDis(result);
-  //     }
-  //   }
+  loadLocations();
+}, []);
+
+function handleLocationInput(value: string) {
+  const term = value.trim().toLowerCase();
+
+  if (!term || term.length < 2) {
+    setSuggestions([]);
+    setShowSuggestions(false);
+    return;
+  }
+
+  const filtered = locations.filter(loc =>
+    loc.name.toLowerCase().includes(term)
+  );
+
+  setSuggestions(filtered.slice(0, 6)); // max 6
+  setShowSuggestions(true);
+}
+
+function selectLocation(loc: any) {
+  setValue("addressLine1", loc.name);
+  setValue("city", loc.city || "Jalandhar");
+  setValue("state", loc.state || "Punjab");
+
+  localStorage.setItem("delivery_location", JSON.stringify(loc));
+
+  setSuggestions([]);
+  setShowSuggestions(false);
+}
 
   function changeEmailHandler() {
     // emailFormToggle(true);
@@ -149,6 +184,34 @@ export default function AddressIN() {
   }
 }
 
+async function handleMobSearch(input: string) {
+  let mob = input
+    .replace(/\D/g, "")   // digits only
+    .replace(/^0+/, "")   // remove 0 prefix
+    .replace(/^91/, "");  // remove +91
+
+  if (mob.length !== 10) return;
+
+  const result = await findAddressByMob(mob);
+
+  if (result) {
+    setValue("firstName", result.firstName);
+    setValue("lastName", result.lastName);
+    setValue("email", result.email ?? "");
+    setValue("addressLine1", result.addressLine1 ?? "");
+    setValue("addressLine2", result.addressLine2 ?? "");
+    setValue("city", result.city ?? "Jalandhar");
+    setValue("state", result.state ?? "Punjab");
+    setValue("zipCode", result.zipCode ?? "");
+    setValue("userId", result.userId ?? "");
+
+    console.log("USER FOUND ✔ Autofilled");
+  } else {
+    console.log("NO ADDRESS FOUND — new user");
+  }
+}
+
+
   return (
     <div className="w-full bg-white border border-gray-200 rounded-xl p-4">
       <h2 className="text-sm font-semibold text-gray-700 mb-4">
@@ -172,11 +235,60 @@ export default function AddressIN() {
             <label className="label-light">
               Mobile Number <span className="text-red-500">*</span>
             </label>
-            <input
+            {/* <input
               {...register("mobNo")}
               className="input-light"
               placeholder="10 digit mobile number"
-            />
+            /> */}
+<input
+  {...register("mobNo")}
+  className="input-light"
+  placeholder="10 digit mobile number"
+  inputMode="numeric"
+  autoComplete="tel"
+  onChange={async (e) => {
+    let digits = e.target.value
+      .replace(/\D/g, "")
+      .replace(/^0+/, "")
+      .replace(/^91/, "");
+
+    // update RHF field value
+    setValue("mobNo", digits, { shouldValidate: true });
+
+    if (digits.length === 10) {
+      await handleMobSearch(digits);
+    }
+  }}
+  onBlur={async (e) => {
+    let digits = e.target.value
+      .replace(/\D/g, "")
+      .replace(/^0+/, "")
+      .replace(/^91/, "");
+
+    setValue("mobNo", digits, { shouldValidate: true });
+
+    if (digits.length === 10) {
+      await handleMobSearch(digits);
+    }
+  }}
+  onKeyDown={async (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      let digits = e.currentTarget.value
+        .replace(/\D/g, "")
+        .replace(/^0+/, "")
+        .replace(/^91/, "");
+
+      setValue("mobNo", digits, { shouldValidate: true });
+
+      if (digits.length === 10) {
+        await handleMobSearch(digits);
+      }
+    }
+  }}
+/>
+
           </div>
 
           {/* Name */}
@@ -193,12 +305,37 @@ export default function AddressIN() {
           </div>
 
           {/* Village / Locality */}
-          <div>
-            <label className="label-light">
-              Village / Locality / Town <span className="text-red-500">*</span>
-            </label>
-            <input {...register("addressLine1")} className="input-light" />
-          </div>
+         <div className="relative">
+  <label className="label-light">
+    Village / Locality / Town <span className="text-red-500">*</span>
+  </label>
+
+  <input
+    {...register("addressLine1")}
+    className="input-light"
+    onChange={(e) => handleLocationInput(e.target.value)}
+    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+    onFocus={(e) => handleLocationInput(e.target.value)}
+  />
+
+  {showSuggestions && suggestions.length > 0 && (
+    <ul className="absolute z-20 bg-white border rounded-md w-full shadow-md max-h-48 overflow-y-auto mt-1">
+      {suggestions.map((loc) => (
+        <li
+          key={loc.id}
+          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+          onClick={() => selectLocation(loc)}
+        >
+          <span className="font-medium">{loc.name}</span>
+          {loc.city ? (
+            <span className="text-gray-500"> — {loc.city}</span>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
 
           {/* City + State */}
           <div className="grid grid-cols-2 gap-3">

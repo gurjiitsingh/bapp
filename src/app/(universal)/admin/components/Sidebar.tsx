@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-//import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, JSX } from "react";
 import { useLanguage } from "@/store/LanguageContext";
@@ -16,6 +15,7 @@ import {
   MdSettings,
   MdOutlineCrisisAlert,
   MdOutlineBackup,
+  MdAccessTime,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { BsCardList } from "react-icons/bs";
@@ -25,8 +25,6 @@ import { IoClose } from "react-icons/io5";
 import { FaClipboardList } from "react-icons/fa6";
 
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-
-
 
 type SidebarFlagKey =
   | "SHOW_HOME"
@@ -40,18 +38,19 @@ type SidebarFlagKey =
   | "SHOW_VARIANTS"
   | "SHOW_COUPON"
   | "SHOW_DELIVERY"
+  | "SHOW_LOCATIONS"
   | "SHOW_USERS"
   | "SHOW_TIMMING"
   | "SHOW_SETTING"
   | "SHOW_DATA_BACKUP";
 
-  type Titem = {
-  key: SidebarFlagKey;  // ✅ exact string union
+
+type Titem = {
+  key: SidebarFlagKey;
   name: string;
   link: string;
   icon: JSX.Element;
 };
-
 
 export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_HOME: process.env.NEXT_PUBLIC_SHOW_HOME === "1",
@@ -65,11 +64,17 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_VARIANTS: process.env.NEXT_PUBLIC_SHOW_VARIANTS === "1",
   SHOW_COUPON: process.env.NEXT_PUBLIC_SHOW_COUPON === "1",
   SHOW_DELIVERY: process.env.NEXT_PUBLIC_SHOW_DELIVERY === "1",
+  SHOW_LOCATIONS: process.env.NEXT_PUBLIC_SHOW_LOCATIONS === "1",
   SHOW_USERS: process.env.NEXT_PUBLIC_SHOW_USERS === "1",
-   SHOW_TIMMING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
+
+  // 👇 FIXED — give it its own flag
+  SHOW_TIMMING: process.env.NEXT_PUBLIC_SHOW_TIMMING === "1",
+
   SHOW_SETTING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
   SHOW_DATA_BACKUP: process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP === "1",
 };
+
+console.log("process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP", process.env.NEXT_PUBLIC_SHOW_TIMMING)
 
 const Sidebar = () => {
   const { BRANDING } = useLanguage() || {
@@ -87,7 +92,7 @@ const Sidebar = () => {
         coupon: "Coupon",
         delivery: "Delivery",
         users: "Users",
-        dayschedule:"Timing",
+        dayschedule: "Opening Timing",   // 👈 UPDATED LABEL
         setting: "Setting",
         data_backup: "Data Backup",
         logout: "Logout",
@@ -105,54 +110,49 @@ const Sidebar = () => {
       name: BRANDING.sidebar.orders_realtime,
       link: "/admin/order-realtime",
       icon: <MdOutlineCrisisAlert />,
-    },  { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
-     { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
-   
+    },
+    { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
+    { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
+
     {
       key: "SHOW_RESERVATIONS",
       name: BRANDING.sidebar.reservations,
       link: "/admin/reservations",
       icon: <BsCardList />,
     },
-   { key: "SHOW_SALE", name: BRANDING.sidebar.sale, link: "/admin/sale", icon: <FaClipboardList /> },
+
+    { key: "SHOW_SALE", name: BRANDING.sidebar.sale, link: "/admin/sale", icon: <FaClipboardList /> },
+
     {
       key: "SHOW_PICKUP_DISCOUNT",
       name: BRANDING.sidebar.pickup_discount,
       link: "/admin/pickupdiscount/pickup-discount",
       icon: <MdLocalOffer />,
     },
-   
+
     {
       key: "SHOW_VARIANTS",
       name: BRANDING.sidebar.variants,
       link: "/admin/flavorsProductG",
       icon: <MdRestaurantMenu />,
     },
+
     { key: "SHOW_COUPON", name: BRANDING.sidebar.coupon, link: "/admin/coupon", icon: <MdLocalOffer /> },
+
     { key: "SHOW_DELIVERY", name: BRANDING.sidebar.delivery, link: "/admin/delivery", icon: <TbTruckDelivery /> },
+
+    { key: "SHOW_LOCATIONS", name: "Locations", link: "/admin/locations", icon: <TbTruckDelivery /> }, // 👈 NEW LINK
+
     { key: "SHOW_USERS", name: BRANDING.sidebar.users, link: "/admin/users", icon: <FaUsers /> },
-     { key: "SHOW_TIMMING", name: BRANDING.sidebar.dayschedule, link: "/admin/day-schedule/form", icon: <MdSettings /> },
-     { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
-   
+
+    { key: "SHOW_TIMMING", name: "Opening Timing", link: "/admin/day-schedule/form",   icon: <MdAccessTime />  },
+
+    { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
+
     { key: "SHOW_DATA_BACKUP", name: BRANDING.sidebar.data_backup, link: "/admin/data-backup", icon: <MdOutlineBackup /> },
   ];
 
-  // Filter logic:
-  // - If NEXT_PUBLIC_<KEY> === "0" -> hide
-  // - Otherwise (undefined or "1" or any other) -> show (default visible)
-
-
-const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
-
-  // debug (optional) — remove in production
-  useEffect(() => {
-  
-      menuList.reduce((acc, it) => {
-        acc[it.key] = process.env[`NEXT_PUBLIC_${it.key}`];
-        return acc;
-      }, {} as Record<string, string | undefined>)
-    
-  }, []);
+  const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
 
   return (
     <>
@@ -180,7 +180,6 @@ const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
         {/* Logout */}
         <div className="mt-6 pt-4">
           <button
-          //  onClick={() => signOut()}
             className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
           >
             <IoIosLogOut size={20} />

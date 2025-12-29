@@ -90,6 +90,38 @@ export async function searchAddressEmail(email: string): Promise<addressResType 
   };
 }
 
+export async function findAddressByMob(
+  mobNo: string
+): Promise<addressResType | null> {
+
+  const querySnapshot = await adminDb
+    .collection("address")
+    .where("mobNo", "==", mobNo)
+    .limit(1)
+    .get();
+
+  if (querySnapshot.empty) return null;
+
+  const doc = querySnapshot.docs[0];
+  const docData = doc.data();
+
+  return {
+    id: doc.id,
+    addressLine1: docData.addressLine1 || "",
+    addressLine2: docData.addressLine2 || "",
+    city: docData.city || "",
+    state: docData.state || "",
+    zipCode: docData.zipCode || "",
+    email: docData.email || "",
+    firstName: docData.firstName || "",
+    lastName: docData.lastName || "",
+    mobNo: docData.mobNo || "",
+    userId: docData.userId || "",
+    createdAt: docData.createdAt?.toDate().toISOString() || "",
+  };
+}
+
+
 // ✅ Get address by ID (returns with ID)
 export async function searchAddressByAddressId(id: string): Promise<addressWithId> {
   const docSnap = await adminDb.collection("address").doc(id).get();
@@ -186,7 +218,7 @@ export async function addCustomerAddressDirectPrimaryMOB(
 ): Promise<string | null> {
 
   const receivedData = {
-    email: formData.get("email")?.toString() || "",
+    email: formData.get("email")?.toString() || "dummy@maill.com",
     firstName: formData.get("firstName")?.toString() || "",
     lastName: formData.get("lastName")?.toString() || "",
     userId: formData.get("userId")?.toString() || "",
@@ -220,7 +252,7 @@ export async function addCustomerAddressDirectPrimaryMOB(
     ...receivedData,
     createdAt: FieldValue.serverTimestamp(),
   };
-
+console.log("in address----------------",addressData)
   const docRef = await adminDb.collection("address").add(addressData);
 
   return docRef.id;
