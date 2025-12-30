@@ -6,7 +6,7 @@ import {
   getDocs,
   orderBy,
   query,
-  Timestamp
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebaseConfig';
 import { orderMasterDataT } from '@/lib/types/orderMasterType';
@@ -17,78 +17,70 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  CartesianGrid
+  CartesianGrid,
 } from 'recharts';
 import TableRows from './TableRows';
 
-
-
-type MonthlySales = {
-  month: string;
+type DailySales = {
+  date: string;
   totalSales: number;
   orderCount: number;
 };
- 
 
-export default function MonthlySalesTable() {
-  const [monthlySales, setMonthlySales] = useState<MonthlySales[]>([]);
+export default function DailySalesTable() {
+  const [dailySales, setDailySales] = useState<DailySales[]>([]);
   const [loading, setLoading] = useState(true);
 
-  
-
   useEffect(() => {
-    fetchMonthlySales();
+    fetchDailySales();
   }, []);
 
-  const fetchMonthlySales = async () => {
+  const fetchDailySales = async () => {
     try {
       const ref = collection(db, 'orderMaster');
       const q = query(ref, orderBy('createdAt', 'desc'));
       const snapshot = await getDocs(q);
 
-      const salesMap: Record<string, MonthlySales> = {};
+      const salesMap: Record<string, DailySales> = {};
 
-     snapshot.docs.forEach((doc) => {
-  const data = doc.data() as orderMasterDataT;
-  const createdAt = (data.createdAt as Timestamp)?.toDate();
-  const grandTotal = data.grandTotal || 0;
+      snapshot.docs.forEach((doc) => {
+        const data = doc.data() as orderMasterDataT;
+        const createdAt = (data.createdAt as Timestamp)?.toDate();
+        const grandTotal = data.grandTotal || 0;
 
-  if (!createdAt || data.status !== 'Completed') return; // ✅ Filter only completed orders
+        if (!createdAt || data.status !== 'Completed') return;
 
-  const monthKey = `${createdAt.getFullYear()}-${(createdAt.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}`;
+        const dateKey = `${createdAt.getFullYear()}-${String(
+          createdAt.getMonth() + 1
+        ).padStart(2, '0')}-${String(createdAt.getDate()).padStart(2, '0')}`;
 
-  if (!salesMap[monthKey]) {
-    salesMap[monthKey] = {
-      month: monthKey,
-      totalSales: 0,
-      orderCount: 0,
-    };
-  }
+        if (!salesMap[dateKey]) {
+          salesMap[dateKey] = {
+            date: dateKey,
+            totalSales: 0,
+            orderCount: 0,
+          };
+        }
 
-  salesMap[monthKey].totalSales += grandTotal;
-  salesMap[monthKey].orderCount += 1;
-});
-
+        salesMap[dateKey].totalSales += grandTotal;
+        salesMap[dateKey].orderCount += 1;
+      });
 
       const sorted = Object.values(salesMap).sort((a, b) =>
-        a.month < b.month ? 1 : -1
+        a.date < b.date ? 1 : -1
       );
 
-      setMonthlySales(sorted);
+      setDailySales(sorted);
     } catch (error) {
-      console.error('Error fetching monthly sales:', error);
+      console.error('Error fetching daily sales:', error);
     }
 
     setLoading(false);
   };
 
- 
-
   return (
     <div className="p-4 w-full mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Monthly Sales Summary</h1>
+      <h1 className="text-2xl font-bold mb-6">Daily Sales Summary</h1>
 
       {loading ? (
         <p>Loading...</p>
@@ -97,12 +89,12 @@ export default function MonthlySalesTable() {
           {/* Chart */}
           <div className="w-full h-80 mb-10">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlySales} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+              <BarChart data={dailySales}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="totalSales" fill="#4CAF50" name="Total Sales (€)" />
+                <Bar dataKey="totalSales" fill="#4CAF50" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -111,18 +103,17 @@ export default function MonthlySalesTable() {
           <table className="min-w-full border border-gray-300 text-sm">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border px-4 py-2 text-left">Month1</th>
+                <th className="border px-4 py-2 text-left">Date</th>
                 <th className="border px-4 py-2 text-left">Total Orders</th>
-                <th className="border px-4 py-2 text-left">Total Sales </th>
+                <th className="border px-4 py-2 text-left">Total Sales</th>
               </tr>
             </thead>
             <tbody>
-             
-               {monthlySales.map((row, i) => (
+             {dailySales.map((row, i) => (
   <TableRows
     key={i}
     row={{
-      label: row.month,
+      label: row.date,
       orderCount: row.orderCount,
       totalSales: row.totalSales,
     }}
