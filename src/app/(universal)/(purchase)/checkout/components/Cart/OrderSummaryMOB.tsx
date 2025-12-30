@@ -499,7 +499,9 @@ export default function OrderSummaryMOB({
     <div className="flex flex-col gap-4 w-full ">
       <div className="flex flex-col bg-slate-50 p-5 h-full w-full gap-7 rounded-2xl">
         <div className="flex flex-col gap-2 items-center">
-          <h2 className="text-xl font-semibold border-b border-slate-200 py-3 w-full uppercase">
+          <h2 className="text-sm font-semibold text-gray-700 mb-4 w-full text-left"
+          // className="text-xl font-semibold border-b border-slate-200 py-3 w-full uppercase"
+          >
             {TEXT.cart_heading}
           </h2>
 
@@ -583,7 +585,7 @@ export default function OrderSummaryMOB({
         <button
           onClick={proceedToOrder}
           disabled={isLoading}
-          className="w-full px-4 py-2 font-bold rounded-xl text-[1.2rem] bg-amber-400 text-blue-900 hover:bg-amber-500 disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 font-bold rounded-xl text-[1.2rem] bg-red-500 text-blue-900 hover:bg-amber-500 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isLoading && (
             <svg

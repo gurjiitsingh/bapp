@@ -10,10 +10,10 @@ const PaymentSelectorPOS = () => {
   const [selected, setSelected] = useState<string>("");
 
   // Env flags
-  const showStripe = process.env.NEXT_PUBLIC_PAYMENT_STRIPE === "true";
-  const showPayPal = process.env.NEXT_PUBLIC_PAYMENT_PAYPAL === "true";
-  const showCOD = process.env.NEXT_PUBLIC_PAYMENT_COD === "true";
-
+  const showStripe = process.env.NEXT_PUBLIC_PAYMENT_STRIPE_POS === "true";
+  const showPayPal = process.env.NEXT_PUBLIC_PAYMENT_PAYPAL_POS === "true";
+  const showCOD = process.env.NEXT_PUBLIC_PAYMENT_COD_POS === "true";
+const showDigital = process.env.NEXT_PUBLIC_PAYMENT_DIGITAL_POS === "true";
   // ✅ Select Cash by default
   useEffect(() => {
     if (showCOD) {
@@ -66,7 +66,20 @@ const PaymentSelectorPOS = () => {
             </span>
           </div>
         )}
-
+        {/* Digital Payment */}
+        {showDigital && (
+          <div
+            className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition
+            ${selected === "digital" ? "border-amber-400 bg-amber-50" : "border-slate-300 hover:border-amber-300"}`}
+            onClick={() => handleSelect("digital")}
+          >
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
+              ${selected === "digital" ? "border-amber-400" : "border-gray-400"}`}>
+              {selected === "digital" && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full" />}
+            </div>
+            <span className="text-green-700 font-semibold">Digital Payment</span>
+          </div>
+        )}
         {/* Cash */}
         {showCOD && (
           <div
@@ -78,7 +91,7 @@ const PaymentSelectorPOS = () => {
               ${selected === "cod" ? "border-amber-400" : "border-gray-400"}`}>
               {selected === "cod" && <div className="w-2.5 h-2.5 bg-amber-400 rounded-full" />}
             </div>
-            <span className="text-slate-700 font-semibold">Cash</span>
+            <span className="text-slate-700 font-semibold">Pay with Cash</span>
           </div>
         )}
       </div>

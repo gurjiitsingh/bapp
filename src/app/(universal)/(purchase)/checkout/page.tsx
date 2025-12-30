@@ -101,9 +101,10 @@ const checkout = () => {
               />
             )}
 
-            <PaymentSelector />
+        
             {/* <Address /> */}
             <AddressWrapper country="IN" />
+                <PaymentSelector />
           </div>
 
           {/* </div> */}

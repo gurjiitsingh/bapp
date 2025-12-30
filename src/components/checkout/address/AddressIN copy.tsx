@@ -19,7 +19,6 @@ import {
   getLocationByName,
 } from "@/app/(universal)/action/location/dbOperation";
 import { FaCheck } from "react-icons/fa";
-import toast from "react-hot-toast";
 
 export default function AddressIN() {
   //const { setCustomerAddress } = useCartContext();
@@ -177,23 +176,15 @@ function handleVillageTownCostCheck(value: string) {
     formData.append("state", data.state ?? "Punjab");
     formData.append("zipCode", data.zipCode ?? "");
 
-
-    
-
     // ZIP NOT REQUIRED ANYMORE
     // setCustomerAddressIsComplete(true);
     let addressIsComplete = true;
 
-    // if (deliveryType === "delivery" && data.addressLine1 === "") {
-    //   addressIsComplete = false;
-    //   alert("Please fill you Village / Town / locality");
-    //   //Please enter the postcode for delivery or choose pickup
-    // }
-
     if (deliveryType === "delivery" && data.addressLine1 === "") {
-  addressIsComplete = false;
-  toast.error("Please fill your Village / Town / Locality");
-}
+      addressIsComplete = false;
+      alert("Please fill you Village / Town / locality");
+      //Please enter the postcode for delivery or choose pickup
+    }
     if (addressIsComplete) {
       setCustomerAddressIsComplete(true);
       const customAddress = {
@@ -347,9 +338,6 @@ function handleVillageTownCostCheck(value: string) {
                 }
               }}
             />
-             {errors.mobNo?.message && (
-    <span className="text-red-500 text-sm">{errors.mobNo?.message}</span>
-  )}
           </div>
 
           {/* Name */}
@@ -357,17 +345,11 @@ function handleVillageTownCostCheck(value: string) {
             <div>
               <label className="label-light">First Name *</label>
               <input {...register("firstName")} className="input-light" />
-              {errors.firstName?.message && (
-    <span className="text-red-500 text-sm">{errors.firstName?.message}</span>
-  )}
             </div>
 
             <div>
               <label className="label-light">Last Name *</label>
               <input {...register("lastName")} className="input-light" />
-               {errors.lastName?.message && (
-    <span className="text-red-500 text-sm">{errors.lastName?.message}</span>
-  )}
             </div>
           </div>
 
@@ -378,40 +360,24 @@ function handleVillageTownCostCheck(value: string) {
             </label>
 
 
-{(() => {
-  const {
-    onChange,
-    onBlur,
-    ref,
-    name,
-  } = register("addressLine1");
+<input
+  {...register("addressLine1")}
+  className="input-light"
+  placeholder="Village / Town"
+  autoComplete="off"
+  onChange={(e) => {
+    const value = e.target.value;
 
-  return (
-    <input
-      name={name}
-      ref={ref}
-      className="input-light"
-      placeholder="Village / Town"
-      autoComplete="off"
-      onChange={(e) => {
-        onChange(e); // ✅ REQUIRED: update RHF state
+    handleLocationInput(value);        // 🔍 suggestions
+    handleVillageTownCostCheck(value); // 🚚 delivery lookup
+  }}
 
-        const value = e.target.value;
-        handleLocationInput(value);        // 🔍 suggestions
-        handleVillageTownCostCheck(value); // 🚚 delivery lookup
-      }}
-      onFocus={(e) => handleLocationInput(e.target.value)}
-      onBlur={(e) => {
-        onBlur(e); // ✅ REQUIRED
-        setTimeout(() => setShowSuggestions(false), 200);
-      }}
-    />
-  );
-})()}
+  
+  onFocus={(e) => handleLocationInput(e.target.value)}
+  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+/>
 
- {errors.addressLine1?.message && (
-    <span className="text-red-500 text-sm">{errors.addressLine1?.message}</span>
-  )}
+
 
             {showSuggestions && suggestions.length > 0 && (
               <ul className="absolute z-20 bg-white border rounded-md w-full shadow-md max-h-48 overflow-y-auto mt-1">
@@ -506,7 +472,7 @@ function handleVillageTownCostCheck(value: string) {
         <div className="flex items-center gap-2 mt-4">
   <button
     type="submit"
-    className="w-fit px-5 py-2 text-gray-500 rounded-md bg-green-100 hover:bg-gray-200 transition"
+    className="w-fit py-2 text-gray-500 rounded-md bg-gray-300 hover:bg-gray-200 transition"
   >
     Use this address
   </button>

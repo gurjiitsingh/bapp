@@ -22,9 +22,10 @@ const PaymentSelector = () => {
 
   return (
     <div className="flex flex-col p-5 rounded-2xl border border-slate-300 bg-white">
-      <h3 className="text-xl font-semibold text-slate-600 pt-3 pb-4 uppercase">
+      {/* <h3 className="text-xl font-semibold text-slate-600 pt-3 pb-4 uppercase"> */}
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">
         {TEXT.payment_method_title || "Select Payment Method"}
-      </h3>
+      </h2>
 
       <div className="flex flex-col gap-4">
         {/* Stripe */}
