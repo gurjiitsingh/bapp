@@ -1,5 +1,5 @@
 //import { NextUIProvider } from '@nextui-org/react';
-import "@/custom/globals.css";
+import "@/app/globals.css";
 const AuthLayout = ({children}:{children:React.ReactNode}) => {
 
   return (

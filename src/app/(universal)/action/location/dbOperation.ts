@@ -64,6 +64,10 @@ export async function fetchLocations() {
     return {
       id: doc.id,
       name: data.name ?? "",
+
+      // ✅ ADD THIS
+      searchName: data.searchName ?? "",
+
       city: data.city ?? "",
       state: data.state ?? "",
       deliveryCost: Number(data.deliveryCost ?? 0),
@@ -73,12 +77,12 @@ export async function fetchLocations() {
           ? Number(data.deliveryDistance)
           : null,
       notes: data.notes ?? "",
-
-      // 👇 convert Timestamp → number (ms)
       createdAt: data.createdAt?.toMillis?.() ?? null,
     };
   });
 }
+
+
 
 
 

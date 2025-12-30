@@ -2,7 +2,7 @@
 
 import Header from "@/app/(universal)/admin/components/Header";
 import React from "react";
-import "@/custom/globals.css";
+import "@/app/globals.css";
 //import { Metadata } from "next";
 
 

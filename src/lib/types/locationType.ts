@@ -7,7 +7,7 @@ export const newLocationSchema = z.object({
 
   deliveryCost: z.coerce
     .number()
-    .min(1, "Delivery Cost is required"),
+    .min(0, "Delivery Cost is required"),
 
   minSpend: z.coerce
     .number()

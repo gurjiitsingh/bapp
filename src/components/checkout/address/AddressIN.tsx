@@ -55,85 +55,91 @@ export default function AddressIN() {
     // setValue("password", "123456");
     // setValue("city", "abc");
   }, []);
-  useEffect(() => {
-    async function loadLocations() {
-      const result = await fetchLocations();
-      setLocations(result);
+
+
+useEffect(() => {
+  let isMounted = true;
+
+  async function loadLocations() {
+    const result = await fetchLocations();
+
+    // normalize once to prevent crashes
+    const normalized = result.map((loc: any) => ({
+      ...loc,
+      searchName:
+        loc.searchName ??
+        loc.name?.toLowerCase().replace(/\s+/g, "") ??
+        "",
+    }));
+
+    if (isMounted) {
+      setLocations(normalized);
     }
-
-    loadLocations();
-  }, []);
-
-  function handleLocationInput(value: string) {
-    const term = value.trim().toLowerCase();
-
-    if (!term || term.length < 2) {
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-
-    const filtered = locations.filter((loc) =>
-      loc.name.toLowerCase().includes(term)
-    );
-
-    setSuggestions(filtered.slice(0, 6)); // max 6
-    setShowSuggestions(true);
   }
 
-  function selectLocation(loc: any) {
-    setValue("addressLine1", loc.name);
-    setValue("city", loc.city || "Jalandhar");
-    setValue("state", loc.state || "Punjab");
+  loadLocations();
 
-    localStorage.setItem("delivery_location", JSON.stringify(loc));
+  return () => {
+    isMounted = false;
+  };
+}, []);
 
+
+function handleLocationInput(value: string) {
+  const term = value.toLowerCase().replace(/\s+/g, "");
+
+  if (term.length < 2) {
     setSuggestions([]);
     setShowSuggestions(false);
+    return;
   }
 
-  async function handleVillageTownCostCheck(value: string) {
-    const clean = value.trim();
-    console.log("search term-------------", clean)
-    if (!clean || clean.length < 4) return;
+  const filtered = locations.filter(
+    (loc) => loc.searchName && loc.searchName.includes(term)
+  );
 
-    const result = await getLocationByName(clean);
+  setSuggestions(filtered.slice(0, 6));
+  setShowSuggestions(true);
+}
 
-    if (result) {
-      // Save delivery zone to Context
 
-    
-      setdeliveryDis({
-        deliveryCost: result.deliveryCost,
-        minSpend: result.minSpend,
-        deliveryDistance: result.deliveryDistance,
-        note: "sdf", //result.notes,
-        productCat: "NA",
-        id: result.id,
-        name: result.name,
-      });
 
-      // export type deliveryType = {
-      //   id: string | undefined;
-      //   name: string;
-      //   deliveryCost: string;
-      //   minSpend: number;
-      //   note: string;
-      //   productCat: string;
-      //   //image: string;
-      //   deliveryDistance: string;
-      //  // purchaseSession: string | null;
-      //  // quantity: number | null;
-      //  // status: string | null;
-      // };
 
-      console.log("DELIVERY ZONE FOUND ✔", result);
-    } else {
-      // No pricing match
-      setdeliveryDis(null);
-      console.log("NO MATCH — manual area");
-    }
+
+function normalizeLocation(value: string) {
+  return value.toLowerCase().replace(/\s+/g, "");
+}
+
+function handleVillageTownCostCheck(value: string) {
+  const clean = value.toLowerCase().replace(/\s+/g, "");
+
+  if (clean.length < 3) return;
+
+  const match = locations.find(
+    (loc) => loc.searchName && clean.startsWith(loc.searchName)
+  );
+
+  if (match) {
+    setdeliveryDis({
+      deliveryCost: match.deliveryCost,
+      minSpend: match.minSpend,
+      deliveryDistance: match.deliveryDistance,
+      note: match.notes ?? "",
+      productCat: "NA",
+      id: match.id,
+      name: match.name,
+    });
+
+    console.log("DELIVERY ZONE FOUND ✔", match.name);
+  } else {
+    setdeliveryDis(null);
+    console.log("NO MATCH — manual area");
   }
+}
+
+
+
+
 
   function changeEmailHandler() {
     // emailFormToggle(true);
@@ -143,6 +149,7 @@ export default function AddressIN() {
     register,
     handleSubmit,
     setValue,
+     watch,
     formState: { errors },
   } = useForm<TAddressCheckoutSMALL>({
     resolver: zodResolver(addressCheckoutSMALL),
@@ -152,6 +159,12 @@ export default function AddressIN() {
       state: "Punjab",
     },
   });
+
+
+
+
+
+
 
   async function onSubmit(data: TAddressCheckoutSMALL) {
     console.log("data--------", data);
@@ -351,38 +364,50 @@ export default function AddressIN() {
               Village / Locality / Town <span className="text-red-500">*</span>
             </label>
 
-            <input
-              {...register("addressLine1")}
-              className="input-light"
-              onChange={(e) => {
-                handleLocationInput(e.target.value); // suggestions
-                handleVillageTownCostCheck(e.target.value); // delivery lookup
-              }}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              onFocus={(e) => handleLocationInput(e.target.value)}
-            />
 
-            {/* <input
-    {...register("addressLine1")}
-    className="input-light"
-    onChange={(e) => handleLocationInput(e.target.value)}
-    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-    onFocus={(e) => handleLocationInput(e.target.value)}
-  /> */}
+<input
+  {...register("addressLine1")}
+  className="input-light"
+  placeholder="Village / Town"
+  autoComplete="off"
+  onChange={(e) => {
+    const value = e.target.value;
+
+    handleLocationInput(value);        // 🔍 suggestions
+    handleVillageTownCostCheck(value); // 🚚 delivery lookup
+  }}
+  onFocus={(e) => handleLocationInput(e.target.value)}
+  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+/>
+
+
 
             {showSuggestions && suggestions.length > 0 && (
               <ul className="absolute z-20 bg-white border rounded-md w-full shadow-md max-h-48 overflow-y-auto mt-1">
                 {suggestions.map((loc) => (
-                  <li
-                    key={loc.id}
-                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                    onClick={() => selectLocation(loc)}
-                  >
-                    <span className="font-medium">{loc.name}</span>
-                    {loc.city ? (
-                      <span className="text-gray-500"> — {loc.city}</span>
-                    ) : null}
-                  </li>
+<li
+  key={loc.id}
+  className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+  onClick={() => {
+    setValue("addressLine1", loc.name, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+
+    setValue("city", loc.city || "Jalandhar");
+    setValue("state", loc.state || "Punjab");
+
+    handleVillageTownCostCheck(loc.name); // ✅ FINAL lookup
+
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }}
+>
+  <span className="font-medium">{loc.name}</span>
+  {loc.city && <span className="text-gray-500"> — {loc.city}</span>}
+</li>
+
+
                 ))}
               </ul>
             )}

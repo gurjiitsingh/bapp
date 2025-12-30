@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "@/custom/globals.css";
+import "@/app/globals.css";
 import SiteLayout from "@/components/SiteLayout";
 import { Toaster } from "react-hot-toast";
 
