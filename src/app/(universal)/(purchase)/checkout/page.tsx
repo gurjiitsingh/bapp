@@ -12,6 +12,7 @@ import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
 import OrderSummary from "./components/Cart/OrderSummary";
 import AddressWrapper from "@/components/checkout/address/AddressWrapper";
 import "@/css/style.css";
+import OrderSummaryMOB from "./components/Cart/OrderSummaryMOB";
 
 const checkout = () => {
   // const { data: session } = useSession();
@@ -106,7 +107,7 @@ const checkout = () => {
 
           {/* </div> */}
 
-          <OrderSummary  isStoreOpen={isStoreOpen} />
+          <OrderSummaryMOB  isStoreOpen={isStoreOpen} />
         </div>
       </div>
     </Suspense>

@@ -10,10 +10,14 @@ import { FieldValue } from "firebase-admin/firestore";
 
 export async function addNewLocation(formData: FormData) {
   try {
+    const name = (formData.get("name") as string || "").trim();
+
+    // 🔥 NORMALIZED SEARCH FIELD
+    const searchName = name.toLowerCase().replace(/\s+/g, "");
+
     const deliveryCost = Number(formData.get("deliveryCost"));
     const minSpend = Number(formData.get("minSpend"));
 
-    // Optional: may be null / undefined
     const deliveryDistanceRaw = formData.get("deliveryDistance");
     const deliveryDistance =
       deliveryDistanceRaw !== null && deliveryDistanceRaw !== ""
@@ -21,13 +25,15 @@ export async function addNewLocation(formData: FormData) {
         : null;
 
     const docRef = await adminDb.collection("locations").add({
-      name: formData.get("name"),
+      name,
+      searchName,   // 👈 store normalized field
+
       city: formData.get("city"),
       state: formData.get("state"),
 
-      deliveryCost,    // number ✔
-      minSpend,        // number ✔
-      deliveryDistance, // number | null ✔
+      deliveryCost,
+      minSpend,
+      deliveryDistance,
 
       notes: formData.get("notes") ?? "",
 
@@ -40,6 +46,7 @@ export async function addNewLocation(formData: FormData) {
     return { errors: true };
   }
 }
+
 
 
 
@@ -96,6 +103,42 @@ export async function getLocationById(id: string): Promise<locationType | null> 
     deliveryCost: Number(data.deliveryCost),
     minSpend: Number(data.minSpend),
     deliveryDistance: data.deliveryDistance ?? null,
+    notes: data.notes ?? "",
+    createdAt: data.createdAt?.toMillis?.() ?? null,
+  };
+}
+
+export async function getLocationByName(
+  name: string
+): Promise<locationType | null> {
+
+  // 🔥 normalize input the same way you stored it
+  const searchKey = name.toLowerCase().replace(/\s+/g, "");
+
+  console.log("searchKey ----------", searchKey);
+
+  const snapshot = await adminDb
+    .collection("locations")
+    .where("searchName", "==", searchKey)
+    .limit(1)
+    .get();
+
+  if (snapshot.empty) return null;
+
+  const doc = snapshot.docs[0];
+  const data = doc.data();
+
+  return {
+    id: doc.id,
+    name: data.name,
+    city: data.city,
+    state: data.state,
+    deliveryCost: Number(data.deliveryCost),
+    minSpend: Number(data.minSpend),
+    deliveryDistance:
+      data.deliveryDistance !== undefined
+        ? Number(data.deliveryDistance)
+        : null,
     notes: data.notes ?? "",
     createdAt: data.createdAt?.toMillis?.() ?? null,
   };

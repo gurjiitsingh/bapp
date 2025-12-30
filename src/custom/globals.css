@@ -413,5 +413,5 @@ button:disabled {
 }
 
 .label-light {
-  @apply text-xs text-gray-600 font-medium;
+  @apply text-xs text-gray-600 font-medium ;
 }
