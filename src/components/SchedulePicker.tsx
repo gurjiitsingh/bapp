@@ -2,13 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useCartContext } from "@/store/CartContext";
+import { DaySchedule } from "@/lib/types/daySchedule";
 
-export type DaySchedule = {
-  day: string;
-  isOpen: boolean;
-  amOpen: string;
-  amClose: string;
-};
+
 
 type Props = {
   onChange: (dateTime: string) => void;

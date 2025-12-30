@@ -13,6 +13,7 @@ import OrderSummary from "./components/Cart/OrderSummary";
 import AddressWrapper from "@/components/checkout/address/AddressWrapper";
 import "@/css/style.css";
 import OrderSummaryMOB from "./components/Cart/OrderSummaryMOB";
+import { DaySchedule } from "@/lib/types/daySchedule";
 
 const checkout = () => {
   // const { data: session } = useSession();

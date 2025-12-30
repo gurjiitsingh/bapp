@@ -29,9 +29,11 @@ const PageComp = () => {
       setValue("name", deliveryData.name);
       setValue("deliveryDesc", deliveryData.deliveryDesc);
       setValue("minSpend", deliveryData.minSpend.toString());
-      setValue("price", deliveryData.price);
+     
+      setValue("price",deliveryData.price != null ? deliveryData.price.toString() : "");
       setValue("productCat", deliveryData.productCat);
-      setValue("deliveryDistance", deliveryData.deliveryDistance);
+      setValue("price",deliveryData.deliveryDistance != null ? deliveryData.deliveryDistance.toString() : "");
+    
     }
     prefetch();
   }, [id, setValue]);

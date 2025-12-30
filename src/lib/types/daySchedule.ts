@@ -36,3 +36,11 @@ export const dayScheduleSchema = z
   );
 
 export type DayScheduleType = z.infer<typeof dayScheduleSchema>;
+
+
+export type DaySchedule = {
+  day: string;
+  isOpen: boolean;
+  amOpen: string;
+  amClose: string;
+};
