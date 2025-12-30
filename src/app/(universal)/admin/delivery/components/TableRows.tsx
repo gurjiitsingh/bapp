@@ -25,7 +25,7 @@ function TableRows({ delivery }: { delivery: deliveryType }) {
   }
 
   const delivery_price = formatCurrencyNumber(
-      Number(delivery.price) ?? 0,
+      Number(delivery.deliveryCost) ?? 0,
       settings.currency as string,
       settings.locale as string
     );
@@ -42,7 +42,7 @@ function TableRows({ delivery }: { delivery: deliveryType }) {
       <TableCell>{delivery_price}</TableCell>
       <TableCell>{delivery_minSpend}</TableCell>
       <TableCell>{delivery.deliveryDistance}</TableCell>
-      <TableCell>{delivery.deliveryDesc}</TableCell>
+      <TableCell>{delivery.note}</TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-2">
           <Link

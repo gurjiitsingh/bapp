@@ -104,10 +104,10 @@ export default function AddressIN() {
 
     
       setdeliveryDis({
-        price: result.deliveryCost,
+        deliveryCost: result.deliveryCost,
         minSpend: result.minSpend,
         deliveryDistance: result.deliveryDistance,
-        deliveryDesc: "sdf", //result.notes,
+        note: "sdf", //result.notes,
         productCat: "NA",
         id: result.id,
         name: result.name,
@@ -116,9 +116,9 @@ export default function AddressIN() {
       // export type deliveryType = {
       //   id: string | undefined;
       //   name: string;
-      //   price: string;
+      //   deliveryCost: string;
       //   minSpend: number;
-      //   deliveryDesc: string;
+      //   note: string;
       //   productCat: string;
       //   //image: string;
       //   deliveryDistance: string;

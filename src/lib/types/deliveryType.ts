@@ -5,9 +5,9 @@ import { z } from "zod";
 export type deliveryType = {
   id: string | undefined;
   name: string;
-  price: number;
+  deliveryCost: number;
   minSpend: number;
-  deliveryDesc: string;
+  note: string;
   productCat: string;
   //image: string;
   deliveryDistance?: number | null ;
@@ -29,7 +29,7 @@ export const deliverySchema = z.object({
     .max(30, { message: "Delivery name is very long" }),
 
   // 💰 DELIVERY PRICE — store as NUMBER
-  price: z
+  deliveryCost: z
     .string()
     .trim()
     .refine(v => /^\d+(\.\d+)?$/.test(v), "Enter a valid delivery price")
@@ -64,7 +64,7 @@ export const deliverySchema = z.object({
     .min(1, { message: "Please select category" }),
 
   // Description
-  deliveryDesc: z
+  note: z
     .string()
     .trim()
     .min(1, { message: "Please enter delivery description" }),
@@ -87,11 +87,11 @@ export type TdeliverySchemaArr = TdeliverySchema[];
 export const newPorductSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(4, { message: "delivery name is required" }),
-  price: z
+  deliveryCost: z
     .string(),
    // .refine((value) => /^\d+$/.test(value), "Invalid delivery price"), // Refinement
   productCat: z.string().min(1, { message: "Please select category" }),
-  deliveryDesc: z
+  note: z
     .string().optional(),
    // .min(2, { message: "delivery description is required" }),
   minSpend: z.string().optional(),
@@ -117,11 +117,11 @@ export type TnewdeliverySchemaArr = TnewdeliverySchema[];
 export const editPorductSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(4, { message: "delivery name is required" }),
-  price: z
+  deliveryCost: z
     .string()
     .refine((value) => /^\d+$/.test(value), "Invalid delivery price"), // Refinement
   productCat: z.string().min(1, { message: "Please select category" }),
-  deliveryDesc: z
+  note: z
     .string()
     .min(2, { message: "delivery description is required" }),
   // offerType: z.string().optional(),

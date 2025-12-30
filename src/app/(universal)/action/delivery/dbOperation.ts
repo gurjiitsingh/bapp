@@ -1,18 +1,21 @@
 "use server";
 
-
 import { adminDb } from "@/lib/firebaseAdmin";
-import { deliveryType, newPorductSchema, editPorductSchema } from "@/lib/types/deliveryType";
+import {
+  deliveryType,
+  newPorductSchema,
+  editPorductSchema,
+} from "@/lib/types/deliveryType";
 import { formatPriceStringToNumber } from "@/utils/formatters";
-
+import DeliveryCost from "../../(purchase)/checkout/components/Cart/DeliveryCost";
 
 export async function addNewdelivery(formData: FormData) {
   const receivedData = {
     name: formData.get("name"),
-    price: formData.get("price"),
+    deliveryCost: formData.get("deliveryCost"),
     minSpend: formData.get("minSpend"),
     productCat: formData.get("productCat"),
-    deliveryDesc: formData.get("deliveryDesc"),
+    note: formData.get("note"),
     deliveryDistance: formData.get("deliveryDistance"),
   };
 
@@ -26,11 +29,12 @@ export async function addNewdelivery(formData: FormData) {
 
   const data = {
     name: receivedData.name,
-    price: formatPriceStringToNumber(receivedData.price),
+    deliveryCost: formatPriceStringToNumber(receivedData.deliveryCost),
     productCat: receivedData.productCat,
-    deliveryDesc: receivedData.deliveryDesc,
+    note: receivedData.note,
     minSpend: formatPriceStringToNumber(receivedData.minSpend),
-    deliveryDistance: receivedData.deliveryDistance,
+    
+    deliveryDistance: formatPriceStringToNumber(receivedData.deliveryDistance),
   };
 
   try {
@@ -52,9 +56,9 @@ export async function editdelivery(formData: FormData) {
   const id = formData.get("id") as string;
   const receivedData = {
     name: formData.get("name"),
-    price: formData.get("price"),
+    deliveryCost: formData.get("deliveryCost"),
     productCat: formData.get("productCat"),
-    deliveryDesc: formData.get("deliveryDesc"),
+    note: formData.get("note"),
     minSpend: formData.get("minSpend"),
     deliveryDistance: formData.get("deliveryDistance"),
   };
@@ -69,9 +73,9 @@ export async function editdelivery(formData: FormData) {
 
   const updateData = {
     name: receivedData.name,
-    price: formatPriceStringToNumber(receivedData.price),
+     DeliveryCost: formatPriceStringToNumber(receivedData.deliveryCost),
     productCat: receivedData.productCat,
-    deliveryDesc: receivedData.deliveryDesc,
+    note: receivedData.note,
     minSpend: formatPriceStringToNumber(receivedData.minSpend),
     deliveryDistance: receivedData.deliveryDistance,
   };
@@ -87,7 +91,9 @@ export async function editdelivery(formData: FormData) {
 
 export async function fetchdelivery(): Promise<deliveryType[]> {
   const snapshot = await adminDb.collection("delivery").get();
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as deliveryType));
+  return snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...doc.data() } as deliveryType)
+  );
 }
 
 export async function fetchdeliveryById(id: string): Promise<deliveryType> {
@@ -96,28 +102,29 @@ export async function fetchdeliveryById(id: string): Promise<deliveryType> {
   return { id: docSnap.id, ...docSnap.data() } as deliveryType;
 }
 
-export async function fetchdeliveryByZip(zipname: string): Promise<deliveryType | null> {
-  const querySnapshot = await adminDb.collection("delivery")
+export async function fetchdeliveryByZip(
+  zipname: string
+): Promise<deliveryType | null> {
+  const querySnapshot = await adminDb
+    .collection("delivery")
     .where("name", "==", zipname)
     .get();
 
-  
- if (querySnapshot.empty){
-     return null; // ❌ no delivery found
-//   return {
-//     id:'',
-//   name: '',
-//   price: '',
-//   productCat: '',
-//   deliveryDesc: '',
-//   deliveryDistance: '',
-//   minSpend: 1
-// }
- } //throw new Error("No delivery data found for the provided zip");
+  if (querySnapshot.empty) {
+    return null; // ❌ no delivery found
+    //   return {
+    //     id:'',
+    //   name: '',
+    //   price: '',
+    //   productCat: '',
+    //   note: '',
+    //   deliveryDistance: '',
+    //   minSpend: 1
+    // }
+  } //throw new Error("No delivery data found for the provided zip");
   return querySnapshot.docs[0].data() as deliveryType;
- // return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() } as deliveryType;
+  // return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() } as deliveryType;
 }
-
 
 // export async function fetchdeliveryByZip1(
 //   zipname: string

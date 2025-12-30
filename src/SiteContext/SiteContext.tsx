@@ -99,12 +99,12 @@ setProductToSearchQuery: (e: string) => e,
   deliveryDis: {
     id: "",
     name: "",
-    price: "",
+    deliveryCost: 0,
     minSpend: 0,
-    deliveryDesc: "",
+    note: "",
     productCat: "",
     //image: string;
-    deliveryDistance: "",
+    deliveryDistance: 0,
   },
   setdeliveryDis: (e) => {
     return e;

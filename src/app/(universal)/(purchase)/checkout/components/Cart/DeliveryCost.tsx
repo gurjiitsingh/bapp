@@ -7,7 +7,7 @@ export default function DeliveryCost() {
   const { TEXT } = useLanguage();
   const { settings, deliveryDis, deliveryType } = UseSiteContext();
 
-  const priceValue = Number(deliveryDis?.price);
+  const priceValue = Number(deliveryDis?.deliveryCost);
   const isDeliverable = !isNaN(priceValue);
 
   const delivery_price = isDeliverable

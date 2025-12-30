@@ -156,9 +156,9 @@ export default function OrderSummary({
       }
     } else if (
       deliveryType === "delivery" &&
-      deliveryDis?.price !== undefined
+      deliveryDis?.deliveryCost !== undefined
     ) {
-      setdeliveryCostL(+deliveryDis.price);
+      setdeliveryCostL(+deliveryDis.deliveryCost);
       setPickUpDiscountPercent(0);
       setCalculatedPickUpDiscount(0);
     }
@@ -280,13 +280,13 @@ export default function OrderSummary({
         seOrderAmountIsLowForDelivery(false);
       }
 
-      if (deliveryDis?.price !== undefined) {
-        setdeliveryCostL(+deliveryDis.price);
+      if (deliveryDis?.deliveryCost !== undefined) {
+        setdeliveryCostL(+deliveryDis.deliveryCost);
       }
     } else {
       setdeliveryCostL(0);
     }
-  }, [deliveryType, deliveryDis?.minSpend, itemTotal, deliveryDis?.price]);
+  }, [deliveryType, deliveryDis?.minSpend, itemTotal, deliveryDis?.deliveryCost]);
 
   useEffect(() => {
     if (!scheduledAt) return;
@@ -337,12 +337,12 @@ export default function OrderSummary({
       // =====================================================
 
       if (deliveryType === "delivery") {
-        if (!deliveryDis || deliveryDis.price == null) {
+        if (!deliveryDis || deliveryDis.deliveryCost == null) {
           toast.error(TEXT.error_address_not_deliverable);
           return;
         }
 
-        const price = Number(deliveryDis.price);
+        const price = Number(deliveryDis.deliveryCost);
         if (Number.isNaN(price)) {
           toast.error(TEXT.error_address_not_deliverable);
           return;
