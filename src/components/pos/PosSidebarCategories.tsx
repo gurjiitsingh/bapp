@@ -80,7 +80,7 @@ export default function PosSidebarCategories() {
           <button
             key={cat.id}
             onClick={() => setProductCategoryIdG(cat.id)}
-            className={`w-full text-left px-1 py-1 rounded-lg transition flex items-center gap-2
+            className={`w-full text-left px-1 py-1 rounded-lg transition flex  flex-col md:flex-row items-center gap-2
               ${active 
                 ? "bg-green-600 text-white font-semibold shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -97,7 +97,7 @@ export default function PosSidebarCategories() {
             </div>
 
             {/* Category Name */}
-            <span className="text-sm font-medium">{cat.name}</span>
+            <div className="text-xs  text-center md:text-left">{cat.name}</div>
           </button>
         );
       })}
