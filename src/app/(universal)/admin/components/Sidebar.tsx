@@ -23,7 +23,7 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { IoIosLogOut } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { FaClipboardList } from "react-icons/fa6";
-
+import { MdTableBar } from "react-icons/md";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 type SidebarFlagKey =
@@ -43,7 +43,8 @@ type SidebarFlagKey =
   | "SHOW_TIMMING"
   | "SHOW_SETTING"
   | "SHOW_DATA_BACKUP"
-  | "SHOW_OUTLET";   // ⭐ NEW
+  | "SHOW_OUTLET"   // ⭐ NEW
+   | "SHOW_TABLES"; 
 
 type Titem = {
   key: SidebarFlagKey;
@@ -75,7 +76,8 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_SETTING: flag(process.env.NEXT_PUBLIC_SHOW_SETTING),
   SHOW_DATA_BACKUP: flag(process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP),
 
-  SHOW_OUTLET: flag(process.env.NEXT_PUBLIC_SHOW_OUTLET),   // ⭐ NEW
+  SHOW_OUTLET: flag(process.env.NEXT_PUBLIC_SHOW_OUTLET),   
+  SHOW_TABLES: flag(process.env.NEXT_PUBLIC_SHOW_TABLES),
 };
 
 const Sidebar = () => {
@@ -145,6 +147,12 @@ const Sidebar = () => {
       link: "/admin/outlet",
       icon: <MdSettings />,
     },
+    {
+    key: "SHOW_TABLES",
+    name: "Tables",
+    link: "/admin/tables",
+    icon: <MdTableBar />, // ⭐ or another icon
+  },
 
     { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
 
