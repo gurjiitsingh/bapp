@@ -1,6 +1,7 @@
 // app/api/outlet/route.ts
+import { deleteOutlet } from "@/app/(universal)/action/outlet/dbOperation";
 import { NextResponse } from "next/server";
-import { deleteOutlet } from "@/app/(universal)/action/outlet/deleteOutlet";
+
 
 export async function DELETE(req: Request) {
   try {

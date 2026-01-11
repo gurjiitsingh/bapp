@@ -115,7 +115,7 @@ export type orderDataType = {
   // REQUIRED LEGACY TOTALS
   // -----------------------------
   totalDiscountG: number;
-  flatDiscount: number;
+  couponFlat: number;
 
   // -----------------------------
   // ORDER INFO
@@ -129,7 +129,7 @@ export type orderDataType = {
   deliveryAddressLine2?: string;   //  NEW
   deliveryCity?: string;           //  NEW
   deliveryState?: string;          //  NEW
-  deliveryPincode?: string;        //  NEW
+  deliveryZipcode?: string;        //  NEW
 
   // -----------------------------
   // PAYMENT
@@ -154,9 +154,9 @@ export type orderDataType = {
   // -----------------------------
   // DISCOUNTS (LEGACY + CLEAN)
   // -----------------------------
-  calCouponDiscount: number;
-  flatCouponDiscount: number;
-  couponDiscountPercentL: number;
+  calcouponPercent: number;
+  flatcouponPercent: number;
+  couponPercentPercentL: number;
   couponCode: string | undefined;
 
   pickUpDiscountPercentL: number;

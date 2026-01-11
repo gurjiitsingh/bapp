@@ -34,7 +34,7 @@ export type orderMasterDataT = {
   dAddressLine2?: string;
   dCity?: string;
   dState?: string;
-  dPincode?: string;
+  dZipcode?: string;
   dLandmark?: string;
 
   // =====================================================
@@ -62,7 +62,7 @@ export type orderMasterDataT = {
   discountTotal?: number; // FINAL discount
   subTotal?: number; // After discount, before tax
   taxBeforeDiscount?: number;
-  taxAfterDiscount?: number;
+  taxTotal?: number;
   deliveryFee?: number;
   grandTotal?: number; // FINAL payable
 
@@ -120,13 +120,13 @@ export type orderMasterDataT = {
   // =====================================================
 
   couponCode?: string;
-  couponDiscountPercentL?: number;
-  pickUpDiscountPercentL?: number;
+  //couponPercentPercentL?: number;
+  //pickUpDiscountPercentL?: number;
 
-  totalDiscountG?: number;
-  flatDiscount?: number;
-  calculatedPickUpDiscountL?: number;
-  calCouponDiscount?: number;
+  //totalDiscountG?: number;
+  couponFlat?: number;
+  pickUpDiscount?: number;
+  couponPercent?: number;
 };
 
 // export type orderMasterDataT = {
@@ -163,7 +163,7 @@ export type orderMasterDataT = {
 //   discountTotal?: number; // FINAL discount amount
 //   subTotal?: number; // After discount, before tax
 //   taxBeforeDiscount?: number;
-//   taxAfterDiscount?: number;
+//   taxTotal?: number;
 //   grandTotal?: number; // FINAL payable amount
 
 //   // ---------- Delivery ----------
@@ -210,14 +210,14 @@ export type orderMasterDataT = {
 
 //   /** Coupon system (percentage-based – legacy) */
 //   couponCode?: string;
-//   couponDiscountPercentL: number;
+//   couponPercentPercentL: number;
 //   pickUpDiscountPercentL: number;
 
 //   /** Old discount breakdowns */
 //   totalDiscountG: number;
-//   flatDiscount: number;
+//   couponFlat: number;
 //   calculatedPickUpDiscountL: number;
-//   calCouponDiscount: number;
+//   calcouponPercent: number;
 
 //   /** Old tax storage */
 //   //totalTax?: number;
@@ -247,7 +247,7 @@ export type orderMasterDataT = {
 //   scheduledAt: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
 
 //   couponCode?: string;
-//   couponDiscountPercentL: number;
+//   couponPercentPercentL: number;
 //   pickUpDiscountPercentL: number;
 
 //   /** Delivery fee (clean naming) */
@@ -261,9 +261,9 @@ export type orderMasterDataT = {
 //   deliveryFee: number;
 
 //   totalDiscountG: number;
-//   flatDiscount: number;
+//   couponFlat: number;
 //   calculatedPickUpDiscountL: number;
-//   calCouponDiscount: number;
+//   calcouponPercent: number;
 
 //   totalTax?: number;
 //   //endTotalG: number;
@@ -271,7 +271,7 @@ export type orderMasterDataT = {
 //   // Clean calculated fields
 //   discountTotal?: number;
 //   taxBeforeDiscount?: number;
-//   taxAfterDiscount?: number;
+//   taxTotal?: number;
 //   subTotal?: number;
 //   grandTotal?: number;
 

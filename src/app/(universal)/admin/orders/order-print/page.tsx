@@ -51,13 +51,13 @@ export default function PrintOrderPage() {
   const handlePrint = () => window.print();
 
   const endTotal = formatCurrency(Number(orderMasterData?.subTotal ?? 0));
-  const totalTax = formatCurrency(Number(orderMasterData?.taxAfterDiscount ?? 0));
+  const totalTax = formatCurrency(Number(orderMasterData?.taxTotal ?? 0));
   const grandTotal = formatCurrency(Number(orderMasterData?.grandTotal ?? 0));
   const itemTotal = formatCurrency(Number(orderMasterData?.itemTotal ?? 0));
   const deliveryFee = formatCurrency(Number(orderMasterData?.deliveryFee ?? 0));
-  const pickUpDiscount = formatCurrency(Number(orderMasterData?.calculatedPickUpDiscountL ?? 0));
-  const flatDiscount = formatCurrency(Number(orderMasterData?.flatDiscount ?? 0));
-  const couponDiscount = formatCurrency(Number(orderMasterData?.calCouponDiscount ?? 0));
+  const pickUpDiscount = formatCurrency(Number(orderMasterData?.pickUpDiscount ?? 0));
+  const couponFlat = formatCurrency(Number(orderMasterData?.couponFlat ?? 0));
+  const couponPercent = formatCurrency(Number(orderMasterData?.couponPercent ?? 0));
 
   return (
     <div className="p-2 bg-white text-black print:p-0 print:bg-white font-mono text-[12px]">
@@ -104,8 +104,8 @@ export default function PrintOrderPage() {
         <p>Item Total: {itemTotal}</p>
         <p>Delivery: {deliveryFee}</p>
         <p>Pickup Discount: {pickUpDiscount}</p>
-        <p>Coupon Flat: {flatDiscount}</p>
-        <p>Coupon %: {couponDiscount}</p>
+        <p>Coupon Flat: {couponFlat}</p>
+        <p>Coupon %: {couponPercent}</p>
         <p className="font-bold border-t border-black pt-1 mt-1">
           Grand Total: {grandTotal}
         </p>

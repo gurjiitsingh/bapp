@@ -28,25 +28,7 @@ export type ProductType = {
   type?: 'parent' | 'variant';
 };
 
-export type ProductBase = {
-  id: string;
-  name: string;
-  price: number;
-  discountPrice?: number;
-  categoryId: string;
-  productCat?: string;
-  baseProductId: string;
-  productDesc: string;
-  sortOrder: number;
-  image: string;
-  isFeatured: boolean;
-  purchaseSession: string | null;
-  stockQty: number;
-  flavors: boolean;
-  status: 'published' | 'draft' | 'out_of_stock';
-  taxRate?: number;
-  taxType?: 'inclusive' | 'exclusive';
-};
+
 
 
 
@@ -83,7 +65,9 @@ export const newProductSchema = z.object({
   // ✅ NEW STATUS FIELDS (CLEAN)
   // --------------------------
 
-  publishStatus: z.enum(["published", "draft"]),
+  publishStatus: z
+  .enum(["published", "draft"])
+  .default("published"),
 
   stockStatus: z
     .enum(["in_stock", "out_of_stock"])
@@ -209,9 +193,9 @@ export const editProductSchema = z.object({
   // ✅ NEW STATUS FIELDS (CLEAN)
   // --------------------------
 
-  publishStatus: z
-    .enum(["published", "draft"])
-    .optional(),
+publishStatus: z
+  .enum(["published", "draft"])
+  .default("published"),
 
   stockStatus: z
     .enum(["in_stock", "out_of_stock"])

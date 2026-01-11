@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 
-export default function CouponDiscount() {
+export default function couponPercent() {
   const { setCouponDisc, couponDisc } = UseSiteContext();
   const [couponSuccess, setCouponSuccess] = useState("");
 

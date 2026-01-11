@@ -56,7 +56,7 @@ export default function POSPrintOrderPage() {
       settings.locale as string
     );
 
-  const totalTax = formatMoney(Number(orderMasterData?.taxAfterDiscount ?? 0));
+  const totalTax = formatMoney(Number(orderMasterData?.taxTotal ?? 0));
   const itemTotal = formatMoney(Number(orderMasterData?.itemTotal ?? 0));
   const grandTotal = formatMoney(Number(orderMasterData?.grandTotal ?? 0));
 

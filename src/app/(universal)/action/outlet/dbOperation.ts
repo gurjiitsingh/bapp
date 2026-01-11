@@ -6,6 +6,7 @@ import { outletSchema } from "@/lib/types/outletType";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function saveOutlet(input: any) {
+  console.log("data---------------")
   const parsed = outletSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -19,47 +20,49 @@ export async function saveOutlet(input: any) {
   const data = parsed.data;
   const outletId = data.outletId;
 
-  const payload = {
-    ownerId: data.ownerId || null,
+  console.log("SAVE OUTLET", data);
 
-    // DISPLAY
+  const payload: any = {
     outletName: data.outletName,
-
-    // ADDRESS
     addressLine1: data.addressLine1,
-    addressLine2: data.addressLine2 || null,
-    addressLine3: data.addressLine3 || null,     // ⭐ NEW
     city: data.city,
-    state: data.state || null,
-    zipcode: data.zipcode || null,
-    country: data.country || "India",
-
-    // CONTACT
-    phone: data.phone || null,
-    phone2: data.phone2 || null,
-    email: data.email || null,                   // ⭐ already in schema
-    web: data.web || null,                       // ⭐ NEW
-
-    // TAX
-    taxType: data.taxType || null,
-    gstVatNumber: data.gstVatNumber || null,
-
-    // PRINTER
     printerWidth: Number(data.printerWidth),
-    footerNote: data.footerNote || null,
-
-    // STATUS
     isActive: data.isActive,
-
-    // META
     updatedAt: FieldValue.serverTimestamp(),
   };
 
+  // helper
+  function setOrDelete(key: string, value: any) {
+    if (value === "" || value === undefined || value === null) {
+      payload[key] = FieldValue.delete();
+    } else {
+      payload[key] = value;
+    }
+  }
+
+  // optional
+  setOrDelete("ownerId", data.ownerId);
+  setOrDelete("addressLine2", data.addressLine2);
+  setOrDelete("addressLine3", data.addressLine3);
+  setOrDelete("state", data.state);
+  setOrDelete("zipcode", data.zipcode);
+  setOrDelete("country", data.country);
+  setOrDelete("phone", data.phone);
+  setOrDelete("phone2", data.phone2);
+  setOrDelete("email", data.email);
+  setOrDelete("web", data.web);
+  setOrDelete("taxType", data.taxType);
+  setOrDelete("gstVatNumber", data.gstVatNumber);
+  setOrDelete("footerNote", data.footerNote);
+
   try {
     if (outletId) {
+      console.log("UPDATING", outletId, payload);
       await adminDb.collection("outlets").doc(outletId).update(payload);
       return { success: true, outletId };
     }
+
+    console.log("CREATING", payload);
 
     const docRef = await adminDb.collection("outlets").add({
       ...payload,
@@ -72,6 +75,7 @@ export async function saveOutlet(input: any) {
     return { errors: { general: "Firestore error" } };
   }
 }
+
 
 
 

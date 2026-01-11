@@ -72,8 +72,8 @@ export default function POSCheckout() {
       // -------------------------
       const totals = calculateOrderTotals({
         itemTotal: itemTotalInitial,
-        flatDiscount: 0,
-        couponDiscount: 0,
+        couponFlat: 0,
+        couponPercent: 0,
         pickupDiscount: 0,
         taxBeforeDiscount: totalTax,
         deliveryFee: 0,
@@ -83,7 +83,7 @@ export default function POSCheckout() {
       // 4️⃣ SAVE STATE
       // -------------------------
       setItemTotal(Number(itemTotalInitial.toFixed(2)));
-      setTaxTotal(Number(totals.taxAfterDiscount!.toFixed(2)));
+      setTaxTotal(Number(totals.taxTotal!.toFixed(2)));
       setEndTotalG(Number(totals.grandTotal!.toFixed(2)));
 
       // -------------------------
@@ -133,8 +133,8 @@ export default function POSCheckout() {
       // -------------------------
       const totals = calculateOrderTotals({
         itemTotal,
-        flatDiscount: 0,
-        couponDiscount: 0,
+        couponFlat: 0,
+        couponPercent: 0,
         pickupDiscount: 0,
         taxBeforeDiscount: taxTotal,
         deliveryFee: 0,
@@ -156,7 +156,7 @@ export default function POSCheckout() {
         // -------- CLEAN TOTALS --------
         itemTotal,
         discountTotal: totals.discountTotal,
-        taxTotal: totals.taxAfterDiscount,
+        taxTotal: totals.taxTotal,
         subTotal: totals.subTotal,
         grandTotal: totals.grandTotal,
 
@@ -166,11 +166,11 @@ export default function POSCheckout() {
 
         // -------- DISCOUNTS --------
         totalDiscountG: 0,
-        flatDiscount: 0,
-        calCouponDiscount: 0,
+        couponFlat: 0,
+        calcouponPercent: 0,
 
         //  REQUIRED BUT ZERO FOR POS
-        flatCouponDiscount: 0,
+        flatcouponPercent: 0,
         noOffers: true,
 
         calculatedPickUpDiscountL: 0,
@@ -179,7 +179,7 @@ export default function POSCheckout() {
         paymentType,
         deliveryFee: 0,
 
-        couponDiscountPercentL: 0,
+        couponPercentPercentL: 0,
         couponCode: "NA",
         pickUpDiscountPercentL: 0,
 

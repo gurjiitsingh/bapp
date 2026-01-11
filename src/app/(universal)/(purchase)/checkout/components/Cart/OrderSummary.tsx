@@ -47,9 +47,9 @@ export default function OrderSummary({
   const [calculatedPickUpDiscountL, setCalculatedPickUpDiscount] = useState(0);
   const [endTotalComma, setEndTotalComma] = useState("");
   const [deliveryFee, setdeliveryFeeL] = useState(0);
-  const [calCouponDiscount, setCalCouponDisscount] = useState(0);
-  const [flatCouponDiscount, setFlatCouponDisscount] = useState(0);
-  const [couponDiscountPercentL, setcouponDiscountPercentL] = useState(0);
+  const [calcouponPercent, setCalCouponDisscount] = useState(0);
+  const [flatcouponPercent, setFlatCouponDisscount] = useState(0);
+  const [couponPercentPercentL, setcouponPercentPercentL] = useState(0);
 
   const [orderAmountIsLowForDelivery, seOrderAmountIsLowForDelivery] =
     useState(false);
@@ -140,7 +140,7 @@ export default function OrderSummary({
 
     if (deliveryType === "pickup") {
       const pickupDiscount =
-        ((itemTotal - flatCouponDiscount - calCouponDiscount) *
+        ((itemTotal - flatcouponPercent - calcouponPercent) *
           pickupDiscountPersent) /
         100;
 
@@ -169,8 +169,8 @@ export default function OrderSummary({
     deliveryDis,
     pickupDiscountPersent,
     filteredCategoryDiscount,
-    flatCouponDiscount,
-    calCouponDiscount,
+    flatcouponPercent,
+    calcouponPercent,
   ]);
 
   useEffect(() => {
@@ -201,7 +201,7 @@ export default function OrderSummary({
           const price = +couponDisc.discount;
           setCalCouponDisscount(0);
           setFlatCouponDisscount(price);
-          setcouponDiscountPercentL(
+          setcouponPercentPercentL(
             parseFloat(((price / itemTotal) * 100).toFixed(2))
           );
         } else {
@@ -209,7 +209,7 @@ export default function OrderSummary({
           const totalDis = parseFloat(((itemTotal * percent) / 100).toFixed(2));
           setCalCouponDisscount(totalDis);
           setFlatCouponDisscount(0);
-          setcouponDiscountPercentL(percent);
+          setcouponPercentPercentL(percent);
         }
       }
     } else if (couponDisc?.discount) {
@@ -219,7 +219,7 @@ export default function OrderSummary({
       // );
     } else {
       setCalCouponDisscount(0);
-      setcouponDiscountPercentL(0);
+      setcouponPercentPercentL(0);
     }
   }, [couponDisc, itemTotal, cartData, deliveryType]);
 
@@ -231,10 +231,10 @@ export default function OrderSummary({
       itemTotal +
       deliveryFee -
       calculatedPickUpDiscountL -
-      calCouponDiscount -
-      flatCouponDiscount;
+      calcouponPercent -
+      flatcouponPercent;
 
-    const netDiscount = couponDiscountPercentL + pickUpDiscountPercentL;
+    const netDiscount = couponPercentPercentL + pickUpDiscountPercentL;
 
     // Update numeric states
     setEndTotalG(parseFloat(netPay.toFixed(2)));
@@ -244,10 +244,10 @@ export default function OrderSummary({
     setdeliveryFee(deliveryFee);
   }, [
     deliveryFee,
-    calCouponDiscount,
+    calcouponPercent,
     itemTotal,
-    flatCouponDiscount,
-    couponDiscountPercentL,
+    flatcouponPercent,
+    couponPercentPercentL,
     pickUpDiscountPercentL,
     calculatedPickUpDiscountL,
   ]);
@@ -439,14 +439,14 @@ export default function OrderSummary({
         paymentType,
 
         // DISCOUNTS
-        flatDiscount: flatCouponDiscount,
-        calCouponDiscount,
+        couponFlat: flatcouponPercent,
+        calcouponPercent,
         calculatedPickUpDiscountL,
-        couponDiscountPercentL,
+        couponPercentPercentL,
         couponCode: couponDisc?.code?.trim() || "NA",
         pickUpDiscountPercentL,
 
-        flatCouponDiscount: 0,
+        flatcouponPercent: 0,
         // FLAGS
         noOffers,
 
@@ -543,7 +543,7 @@ export default function OrderSummary({
           />
 
           {onlyItemsWithDisabledCouponCode &&
-            flatCouponDiscount + calCouponDiscount !== 0 && (
+            flatcouponPercent + calcouponPercent !== 0 && (
               <CouponDisc total={itemTotal} />
             )}
 

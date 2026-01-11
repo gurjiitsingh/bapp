@@ -123,6 +123,8 @@ import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 
 export async function createNewOrder(purchaseData: orderDataType) {
+
+  console.log("addreas full oredr masrer---------------",purchaseData)
   const {
     // -----------------------------
     // BASIC
@@ -143,7 +145,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
     deliveryAddressLine2, //  NEW
     deliveryCity,         //  NEW
     deliveryState,        //  NEW
-    deliveryPincode,      //  NEW
+    deliveryZipcode,      //  NEW
 
     // -----------------------------
     // PAYMENT
@@ -159,11 +161,11 @@ export async function createNewOrder(purchaseData: orderDataType) {
     // -----------------------------
     // DISCOUNTS (LEGACY + CLEAN)
     // -----------------------------
-    flatDiscount,
-    calCouponDiscount,
+    couponFlat,
+    calcouponPercent,
     calculatedPickUpDiscountL,
     couponCode,
-    couponDiscountPercentL,
+    couponPercentPercentL,
     pickUpDiscountPercentL,
     totalDiscountG,
 
@@ -210,8 +212,8 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // =====================================================
   const totals = calculateOrderTotals({
     itemTotal,
-    flatDiscount,
-    couponDiscount: calCouponDiscount,
+    couponFlat,
+    couponPercent: calcouponPercent,
     pickupDiscount: calculatedPickUpDiscountL,
     taxBeforeDiscount: totalTax,
     deliveryFee: deliveryFee,
@@ -301,7 +303,7 @@ const orderMasterData: orderMasterDataT = {
   dAddressLine2: deliveryAddressLine2 || "",
   dCity: deliveryCity || "Jalandhar",
   dState: deliveryState || "Punjab",
-  dPincode: deliveryPincode || "",
+  dZipcode: deliveryZipcode || "",
   dLandmark: "", //  optional default
 
   tableNo,
@@ -316,19 +318,19 @@ const orderMasterData: orderMasterDataT = {
   // =====================================================
   itemTotal,
   deliveryFee: deliveryFee,
-  totalDiscountG,
-  flatDiscount,
-  calculatedPickUpDiscountL,
-  calCouponDiscount,
+  //totalDiscountG,
+  
+  pickUpDiscount:calculatedPickUpDiscountL,
+  couponPercent:calcouponPercent?calcouponPercent:couponFlat,
   couponCode,
-  couponDiscountPercentL,
-  pickUpDiscountPercentL,
+  //couponPercentPercentL,
+  //pickUpDiscountPercentL,
 
   // =====================================================
   // TAX
   // =====================================================
   taxBeforeDiscount: totals.taxBeforeDiscount,
-  taxAfterDiscount: totals.taxAfterDiscount,
+  taxTotal: totals.taxTotal,
 
   // =====================================================
   // TOTALS (FINAL)
@@ -615,10 +617,10 @@ export async function fetchOrdersPaginated({
       // 💰 Item & Discount Totals
       itemTotal: data.itemTotal || 0, // legacy (before discount & tax)
       totalDiscountG: data.totalDiscountG || 0, // legacy
-      flatDiscount: data.flatDiscount || 0,
+      couponFlat: data.couponFlat || 0,
       calculatedPickUpDiscountL: data.calculatedPickUpDiscountL || 0,
-      calCouponDiscount: data.calCouponDiscount || 0,
-      couponDiscountPercentL: data.couponDiscountPercentL || 0,
+      calcouponPercent: data.calcouponPercent || 0,
+      couponPercentPercentL: data.couponPercentPercentL || 0,
       pickUpDiscountPercentL: data.pickUpDiscountPercentL || 0,
       couponCode: data.couponCode || "",
 
@@ -628,7 +630,7 @@ export async function fetchOrdersPaginated({
       // 🧮 Tax & Totals (new clean structure)
       discountTotal: data.discountTotal || data.totalDiscountG || 0,
       taxBeforeDiscount: data.taxBeforeDiscount || 0,
-      taxAfterDiscount: data.taxAfterDiscount || data.taxAfterDiscount || 0,
+      taxTotal: data.taxTotal || data.taxTotal || 0,
       subTotal: data.subTotal || data.itemTotal || 0,
       grandTotal:
         data.grandTotal || data.finalGrandTotal || data.endTotalG || 0,

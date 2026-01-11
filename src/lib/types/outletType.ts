@@ -22,16 +22,16 @@ export const outletSchema = z.object({
   addressLine1: z.string().min(1, "Address line 1 required"),
   addressLine2: z.string().optional(),
   addressLine3: z.string().optional(),          // ⭐ NEW
-  city: z.string().min(1),
-  state: z.string().min(1),
-  zipcode: z.string().min(4),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipcode: z.string().optional(),
   country: z.string().optional(),
 
   // CONTACT
   phone: z.string().optional(),
   phone2: z.string().optional(),
-  email: z.string().email().optional(),         // (already valid if exists)
-  web: z.string().url().optional(),             // ⭐ NEW
+  email: z.string().optional(),         // (already valid if exists)
+  web: z.string().optional(),             // ⭐ NEW
 
   // POS / PRINTER
   printerWidth: z.enum(["58", "80"]),
@@ -53,7 +53,7 @@ export type OutletType = {
   addressLine1: string;
   addressLine2?: string;
   addressLine3?: string;     // ⭐ NEW
-  city: string;
+  city?: string;
   state?: string;
   zipcode?: string;
   country?: string;
@@ -69,7 +69,7 @@ export type OutletType = {
   web?: string;              // ⭐ NEW
 
   // Printer / POS
-  printerWidth: 58 | 80;
+  printerWidth?: 58 | 80;
   printerName?: string;
   footerNote?: string;
 

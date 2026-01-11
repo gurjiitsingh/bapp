@@ -85,7 +85,7 @@ if (addressId === "POS_ORDER") {
    
     
   const totalTax = formatCurrencyNumber(
-    Number(orderMasterData?.taxAfterDiscount ?? 0),
+    Number(orderMasterData?.taxTotal ?? 0),
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -115,18 +115,18 @@ if (addressId === "POS_ORDER") {
 
 
     const calculatedPickUpDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.calculatedPickUpDiscountL) ?? 0,
+    Number(orderMasterData?.pickUpDiscount) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
-    const flatDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.flatDiscount) ?? 0,
+    const couponFlat = formatCurrencyNumber(
+    Number(orderMasterData?.couponFlat) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
 
-      const calCouponDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.calCouponDiscount) ?? 0,
+      const calcouponPercent = formatCurrencyNumber(
+    Number(orderMasterData?.couponPercent) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -202,12 +202,12 @@ const dateTime = formatFirestoreDateToIST(
 
           <div className="flex gap-2">
             <div className="font-semibold">Coupon Discount Flat:</div>{" "}
-            <div className=""> {flatDiscount}</div>
+            <div className=""> {couponFlat}</div>
           </div>
 
           <div className="flex gap-2">
             <div className="font-semibold">Coupon Discount percent:</div>{" "}
-            <div className=""> {calCouponDiscount}</div>
+            <div className=""> {calcouponPercent}</div>
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Subtotal:</div>{" "}

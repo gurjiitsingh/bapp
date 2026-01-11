@@ -46,6 +46,8 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
 
   //  Get open/close for selected date
   const getOpenClose = () => {
+
+    
     if (!selectedDate) return { open: "11:00", close: "22:00" }; // fallback
 
     const dayName = new Date(selectedDate).toLocaleDateString("en-US", {
@@ -59,24 +61,63 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
   };
 
   //  Generate 30-min slots
-  const getSlots = () => {
-    const { open, close } = getOpenClose();
-    if (!open || !close) return [];
+const getSlots = () => {
+  const SLOT_INTERVAL = 15; // minutes
+  const { open, close } = getOpenClose();
+  if (!open || !close) return [];
 
-    let start = toMinutes(open);
-    const end = toMinutes(close);
+  const openMinutes = toMinutes(open);
+  const closeMinutes = toMinutes(close);
 
-    if (selectedDate === formatISO(today)) {
-      const nowMinutes = today.getHours() * 60 + today.getMinutes();
-      start = Math.max(start, Math.ceil((nowMinutes + MIN_BUFFER_MINUTES) / 30) * 30);
-    }
+  let startMinutes = openMinutes;
 
-    const slots: string[] = [];
-    for (let i = start; i < end; i += 30) {
-      slots.push(toTime(i));
-    }
-    return slots;
-  };
+  const selected = new Date(selectedDate);
+  const isToday = selected.toDateString() === today.toDateString();
+
+  // 🟢 TODAY → now + 30 mins
+  if (isToday) {
+    const nowMinutes = today.getHours() * 60 + today.getMinutes();
+    startMinutes = Math.max(openMinutes, nowMinutes + MIN_BUFFER_MINUTES);
+  }
+
+  // 🟢 FUTURE DAY → open + 30 mins
+  if (!isToday) {
+    startMinutes = openMinutes + MIN_BUFFER_MINUTES;
+  }
+
+  // ⏱ round UP to next 15-min slot
+  startMinutes = Math.ceil(startMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+
+  const slots: string[] = [];
+  for (let m = startMinutes; m < closeMinutes; m += SLOT_INTERVAL) {
+    slots.push(toTime(m));
+  }
+
+  return slots;
+};
+
+
+  
+  // const getSlots = () => {
+  //   const { open, close } = getOpenClose();
+  //   if (!open || !close) return [];
+
+  //   let start = toMinutes(open);
+  //   const end = toMinutes(close);
+
+  //   if (selectedDate === formatISO(today)) {
+  //     const nowMinutes = today.getHours() * 60 + today.getMinutes();
+  //     start = Math.max(start, Math.ceil((nowMinutes + MIN_BUFFER_MINUTES) / 30) * 30);
+  //   }
+
+  //   const slots: string[] = [];
+  //   for (let i = start; i < end; i += 30) {
+  //     slots.push(toTime(i));
+  //   }
+  //   return slots;
+  // };
+
+
 
   //  Save selected date & time
   useEffect(() => {

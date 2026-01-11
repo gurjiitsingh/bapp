@@ -77,7 +77,7 @@ const Page = () => {
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
   }, [selectedCategoryId, categoryData, setValue]);
-  async function onsubmit(data: TnewProductSchema) {
+  async function onSubmit(data: TnewProductSchema) {
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -133,7 +133,9 @@ const Page = () => {
 
   return (
     <form
-      onSubmit={handleSubmit(onsubmit)}
+       onSubmit={handleSubmit(onSubmit, (errors) => {
+    console.log("FORM ERRORS ❌", errors);
+  })}
       className="w-full max-w-7xl mx-auto p-5"
     >
       <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
@@ -339,11 +341,14 @@ const Page = () => {
 
               <div>
                 <label className="label-style">Status</label>
-                <select {...register("publishStatus")} className="input-style py-1">
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                  <option value="out_of_stock">Out of Stock</option>
-                </select>
+              <select
+  {...register("publishStatus")}
+  defaultValue="published"
+  className="input-style py-1"
+>
+  <option value="published">Published</option>
+  <option value="draft">Draft</option>
+</select>
                 <p className="text-xs text-destructive">
                   {errors.publishStatus?.message}
                 </p>

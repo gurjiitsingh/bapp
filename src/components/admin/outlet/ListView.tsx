@@ -12,6 +12,8 @@ import {
 
 import { OutletType } from "@/lib/types/outletType";
 import OutletRow from "./OutletRow";
+import Link from "next/link";
+
 
 const OutletListView = () => {
   const [outlet, setOutlet] = useState<OutletType | null>(null);
@@ -37,10 +39,10 @@ const OutletListView = () => {
 
   return (
     <div className="mt-6">
-      <h3 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
-        🏪 Outlet
+      <h3 className="flex gap-3 items-center text-3xl font-bold text-gray-800 dark:text-white mb-6">
+     <span>Outlet</span>      <Link href='/admin/outlet/form'><button className="bg-[#313131] text-sm text-white px-4 py-2 rounded-lg">Create</button></Link>
+ 
       </h3>
-
       <div className="rounded-2xl shadow-md border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900">
         <Table>
          <TableHeader className="bg-gray-100 dark:bg-zinc-800">

@@ -17,8 +17,8 @@ function TableRows({ order }: { order: orderMasterDataT }) {
  
   const { TEXT } = useLanguage();
   const { settings } = UseSiteContext();
-  const flatDiscount = formatCurrencyNumber(
-    Number(order.flatDiscount) ?? 0,
+  const couponFlat = formatCurrencyNumber(
+    Number(order.couponFlat) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -127,10 +127,10 @@ function TableRows({ order }: { order: orderMasterDataT }) {
       </TableCell>
 
       <TableCell className="text-sm text-gray-600">
-        {order.totalDiscountG}%
+        {order.discountTotal}%
       </TableCell>
 
-      <TableCell className="text-sm text-gray-600">{flatDiscount}</TableCell>
+      <TableCell className="text-sm text-gray-600">{couponFlat}</TableCell>
   <TableCell className="text-sm text-gray-600">{order.printed}</TableCell>
       <TableCell>
         <button

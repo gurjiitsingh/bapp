@@ -4,7 +4,7 @@ import { useCartContext } from "@/store/CartContext";
 import { FaChevronDown } from "react-icons/fa";
 import CouponDiscForm from "./CouponDiscForm";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-import DeliveryFee from "@/components/checkout/DeliveryFee"
+import DeliveryFee from "@/components/checkout/DeliveryFee";
 import Pickup from "./Pickup";
 import CouponDisc from "./CouponDisc";
 import { cartProductType, orderDataType } from "@/lib/types/cartDataType";
@@ -43,9 +43,9 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
   const [calculatedPickUpDiscountL, setCalculatedPickUpDiscount] = useState(0);
   const [endTotalComma, setEndTotalComma] = useState("");
   const [deliveryFee, setdeliveryFeeL] = useState(0);
-  const [calCouponDiscount, setCalCouponDisscount] = useState(0);
-  const [flatCouponDiscount, setFlatCouponDisscount] = useState(0);
-  const [couponDiscountPercentL, setcouponDiscountPercentL] = useState(0);
+  const [calcouponPercent, setCalCouponDisscount] = useState(0);
+  const [flatcouponPercent, setFlatCouponDisscount] = useState(0);
+  const [couponPercentPercentL, setcouponPercentPercentL] = useState(0);
 
   const [orderAmountIsLowForDelivery, seOrderAmountIsLowForDelivery] =
     useState(false);
@@ -136,7 +136,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
 
     if (deliveryType === "pickup") {
       const pickupDiscount =
-        ((itemTotal - flatCouponDiscount - calCouponDiscount) *
+        ((itemTotal - flatcouponPercent - calcouponPercent) *
           pickupDiscountPersent) /
         100;
 
@@ -165,8 +165,8 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
     deliveryDis,
     pickupDiscountPersent,
     filteredCategoryDiscount,
-    flatCouponDiscount,
-    calCouponDiscount,
+    flatcouponPercent,
+    calcouponPercent,
   ]);
 
   useEffect(() => {
@@ -197,7 +197,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
           const price = +couponDisc.discount;
           setCalCouponDisscount(0);
           setFlatCouponDisscount(price);
-          setcouponDiscountPercentL(
+          setcouponPercentPercentL(
             parseFloat(((price / itemTotal) * 100).toFixed(2))
           );
         } else {
@@ -205,7 +205,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
           const totalDis = parseFloat(((itemTotal * percent) / 100).toFixed(2));
           setCalCouponDisscount(totalDis);
           setFlatCouponDisscount(0);
-          setcouponDiscountPercentL(percent);
+          setcouponPercentPercentL(percent);
         }
       }
     } else if (couponDisc?.discount) {
@@ -215,7 +215,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
       // );
     } else {
       setCalCouponDisscount(0);
-      setcouponDiscountPercentL(0);
+      setcouponPercentPercentL(0);
     }
   }, [couponDisc, itemTotal, cartData, deliveryType]);
 
@@ -227,10 +227,10 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
       itemTotal +
       deliveryFee -
       calculatedPickUpDiscountL -
-      calCouponDiscount -
-      flatCouponDiscount;
+      calcouponPercent -
+      flatcouponPercent;
 
-    const netDiscount = couponDiscountPercentL + pickUpDiscountPercentL;
+    const netDiscount = couponPercentPercentL + pickUpDiscountPercentL;
 
     // Update numeric states
     setEndTotalG(parseFloat(netPay.toFixed(2)));
@@ -240,10 +240,10 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
     setdeliveryFee(deliveryFee);
   }, [
     deliveryFee,
-    calCouponDiscount,
+    calcouponPercent,
     itemTotal,
-    flatCouponDiscount,
-    couponDiscountPercentL,
+    flatcouponPercent,
+    couponPercentPercentL,
     pickUpDiscountPercentL,
     calculatedPickUpDiscountL,
   ]);
@@ -387,16 +387,20 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
       const email =
         JSON.parse(localStorage.getItem("customer_email") || '""') || "";
 
-      const customerEmail = getLS("customer_email", "");
-      const customerName = getLS("customer_name", "");
-      const customerPhone = getLS("customer_mobNo", "");
+      const customerAddress = getLS("customer_address", "");
 
-      const addressLine1 = getLS("addressLine1", "");
-      const addressLine2 = getLS("addressLine2", "");
-      const city = getLS("city", "Jalandhar");
-      const state = getLS("state", "Punjab");
-      const zipCode = getLS("zipCode", "");
+      const customerEmail = customerAddress?.email ?? "";
+      const customerfirstName = customerAddress?.firstName ?? "";
+       const customerlastName = customerAddress?.lastName ?? "";
+      const customerPhone = customerAddress?.mobNo ?? "";
 
+      const addressLine1 = customerAddress?.addressLine1 ?? "";
+      const addressLine2 = customerAddress?.addressLine2 ?? "";
+      const city = customerAddress?.city ?? "";
+      const state = customerAddress?.state ?? "";
+      const zipCode = customerAddress?.zipCode ?? "";
+
+      const customerName = customerfirstName + " " + customerlastName;
       // =====================================================
       // 5️⃣ FINAL SAFETY CHECKS
       // =====================================================
@@ -420,71 +424,70 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
       // 6️⃣ BUILD ORDER (INTENT ONLY – SERVER DECIDES STATE)
       // =====================================================
 
-    const purchaseData: orderDataType = {
-  // ===============================
-  // BASIC
-  // ===============================
-  userId,
-  customerName,
-  customerPhone,          //  ADDED
-  email,
+      const purchaseData: orderDataType = {
+        // ===============================
+        // BASIC
+        // ===============================
+        userId,
+        customerName,
+        customerPhone, //  ADDED
+        email:customerEmail,
 
-  orderType: "ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE"
-  tableNo: orderType === "DINE_IN" ? tableNo : null,
-  source: "WEB" as const,
+        orderType: "ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE"
+        tableNo: orderType === "DINE_IN" ? tableNo : null,
+        source: "WEB" as const,
 
-  // ===============================
-  // CART SNAPSHOT
-  // ===============================
-  cartData,
+        // ===============================
+        // CART SNAPSHOT
+        // ===============================
+        cartData,
 
-  // ===============================
-  // TOTALS (client preview)
-  // ===============================
-  itemTotal,
-  totalDiscountG,
+        // ===============================
+        // TOTALS (client preview)
+        // ===============================
+        itemTotal,
+        totalDiscountG,
 
-  // ===============================
-  // ADDRESS / DELIVERY (FLAT)
-  // ===============================
-  addressId,
+        // ===============================
+        // ADDRESS / DELIVERY (FLAT)
+        // ===============================
+        addressId,
 
-  deliveryAddressLine1: addressLine1,   //  ADDED
-  deliveryAddressLine2: addressLine2,   //  ADDED
-  deliveryCity: city,                   //  ADDED
-  deliveryState: state,                 //  ADDED
-  deliveryPincode: zipCode,             //  ADDED
+        deliveryAddressLine1: addressLine1, //  ADDED
+        deliveryAddressLine2: addressLine2, //  ADDED
+        deliveryCity: city, //  ADDED
+        deliveryState: state, //  ADDED
+        deliveryZipcode: zipCode, //  ADDED
 
-  deliveryFee,
+        deliveryFee,
 
-  // ===============================
-  // PAYMENT
-  // ===============================
-  paymentType,
+        // ===============================
+        // PAYMENT
+        // ===============================
+        paymentType,
 
-  // ===============================
-  // DISCOUNTS
-  // ===============================
-  flatDiscount: flatCouponDiscount,
-  calCouponDiscount,
-  calculatedPickUpDiscountL,
-  couponDiscountPercentL,
-  couponCode: couponDisc?.code?.trim() || "NA",
-  pickUpDiscountPercentL,
+        // ===============================
+        // DISCOUNTS
+        // ===============================
+        couponFlat: flatcouponPercent,
+        calcouponPercent,
+        calculatedPickUpDiscountL,
+        couponPercentPercentL,
+        couponCode: couponDisc?.code?.trim() || "NA",
+        pickUpDiscountPercentL,
 
-  flatCouponDiscount: 0,
+        flatcouponPercent: 0,
 
-  // ===============================
-  // FLAGS
-  // ===============================
-  noOffers,
+        // ===============================
+        // FLAGS
+        // ===============================
+        noOffers,
 
-  // ===============================
-  // SCHEDULING
-  // ===============================
-  scheduledAt,
-};
-
+        // ===============================
+        // SCHEDULING
+        // ===============================
+        scheduledAt,
+      };
 
       // =====================================================
       // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
@@ -577,7 +580,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
           />
 
           {onlyItemsWithDisabledCouponCode &&
-            flatCouponDiscount + calCouponDiscount !== 0 && (
+            flatcouponPercent + calcouponPercent !== 0 && (
               <CouponDisc total={itemTotal} />
             )}
 

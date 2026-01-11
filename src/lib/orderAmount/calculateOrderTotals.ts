@@ -3,8 +3,8 @@ type CalcInput = {
   deliveryFee?: number;
 
   // discounts
-  flatDiscount?: number;
-  couponDiscount?: number;
+  couponFlat?: number;
+  couponPercent?: number;
   pickupDiscount?: number;
 
   // tax
@@ -15,8 +15,8 @@ export function calculateOrderTotals(input: CalcInput) {
   const {
     itemTotal,
     deliveryFee = 0,
-    flatDiscount = 0,
-    couponDiscount = 0,
+    couponFlat = 0,
+    couponPercent = 0,
     pickupDiscount = 0,
     taxBeforeDiscount,
   } = input;
@@ -25,7 +25,7 @@ export function calculateOrderTotals(input: CalcInput) {
   // 1️⃣ TOTAL DISCOUNT
   // -----------------------------
   const discountTotal =
-    flatDiscount + couponDiscount + pickupDiscount;
+    couponFlat + couponPercent + pickupDiscount;
 
   // Safety guard
   const safeItemTotal = Math.max(itemTotal, 0);
@@ -41,7 +41,7 @@ export function calculateOrderTotals(input: CalcInput) {
   // -----------------------------
   // 3️⃣ ADJUSTED TAX
   // -----------------------------
-  const taxAfterDiscount =
+  const taxTotal =
     taxBeforeDiscount * (1 - discountRatio);
 
   // -----------------------------
@@ -54,19 +54,19 @@ export function calculateOrderTotals(input: CalcInput) {
   // 5️⃣ GRAND TOTAL
   // -----------------------------
   const grandTotal =
-    subTotal + taxAfterDiscount + deliveryFee;
+    subTotal + taxTotal + deliveryFee;
 
   return {
     // clean fields (new)
     discountTotal,
     taxBeforeDiscount,
-    taxAfterDiscount,
+    taxTotal,
     subTotal,
     deliveryFee,
     grandTotal,
 
     // legacy compatibility (optional but recommended)
-    totalTax: taxAfterDiscount,
+    totalTax: taxTotal,
     endTotalG: grandTotal,
     finalGrandTotal: grandTotal,
   };

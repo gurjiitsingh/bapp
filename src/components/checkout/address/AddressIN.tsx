@@ -208,6 +208,8 @@ function handleVillageTownCostCheck(value: string) {
         state: data.state ?? "Punjab",
         zipCode: data.zipCode ?? "",
       };
+
+      console.log("cokies fill---------------------", customAddress)
       if (typeof window !== "undefined") {
         localStorage.setItem("customer_address", JSON.stringify(customAddress));
       }

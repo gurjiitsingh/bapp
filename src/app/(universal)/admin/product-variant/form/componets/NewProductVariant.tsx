@@ -88,7 +88,7 @@ const router = useRouter();
 
  
 
-  async function onsubmit(data: TnewProductSchema) {
+  async function onSubmit(data: TnewProductSchema) {
   
     setIsSubmitting(true);
     const formData = new FormData();
@@ -173,7 +173,7 @@ const varaint_name = nameBase + " " + data.name
 
    
     <form
-      onSubmit={handleSubmit(onsubmit, (errors) => {
+      onSubmit={handleSubmit(onSubmit, (errors) => {
     console.log("FORM ERRORS ❌", errors);
   })}
       className="w-full max-w-7xl mx-auto p-5"
@@ -391,7 +391,7 @@ const varaint_name = nameBase + " " + data.name
                 <select {...register("publishStatus")} className="input-style py-1">
                   <option value="published">Published</option>
                   <option value="draft">Draft</option>
-                  <option value="out_of_stock">Out of Stock</option>
+                 
                 </select>
                 <p className="text-xs text-destructive">
                   {errors.publishStatus?.message}

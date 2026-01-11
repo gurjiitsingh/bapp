@@ -12,7 +12,7 @@ export async function createNewOrderFile(
   deliveryType,
   customerNote,
   couponCode,
-  couponDiscount
+  couponPercent
 ) {
   const customAddress = JSON.parse(address);
   // console.log("cart data in create file -----------------",typeof(totalDiscountG),typeof(endTotalG));
@@ -124,7 +124,7 @@ export async function createNewOrderFile(
     myOrder.AddInfo.DeliveryType = deliveryType || "";
     // myOrder.AddInfo.CustomerNote = "sdsdfsdfsd";
     // myOrder.AddInfo.CouponCode =  "sdfs";
-    //myOrder.AddInfo.CouponDiscount = couponDiscount || 0;
+    //myOrder.AddInfo.couponPercent = couponPercent || 0;
     //  myOrder.AddInfo.CustomerID = "c56";
     //   myOrder.AddInfo.TableNumber = "tn";
 
