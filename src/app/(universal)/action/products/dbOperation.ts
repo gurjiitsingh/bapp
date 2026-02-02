@@ -56,7 +56,7 @@ export const fetchProducts = cache(async (): Promise<ProductType[]> => {
         purchaseSession: data.purchaseSession ?? null,
         quantity: data.quantity ?? null,
         updatedAt,
-
+        searchCode: data.searchCode ?? "",
         // tax fields
         taxRate: data.taxRate ?? undefined,
         taxType: data.taxType,
@@ -94,7 +94,7 @@ export async function addNewProduct(formData: FormData) {
     //  New tax fields
     const taxRateRaw = formData.get("taxRate") as string | null;
     const taxType = formData.get("taxType") as string | null;
-
+    const searchCode = formData.get("searchCode") as string | null;
     const stockQty = stockQtyRaw ? parseInt(stockQtyRaw, 10) : null;
     const priceF = parseFloat(price.replace(/,/g, ".")) || 0;
     const discountPriceF = parseFloat(discountPrice.replace(/,/g, ".")) || 0;
@@ -103,6 +103,7 @@ export async function addNewProduct(formData: FormData) {
 
     const receivedData = {
       name,
+      searchCode,
       price: priceF,
       discountPrice: discountPriceF,
       stockQty,
@@ -148,6 +149,7 @@ export async function addNewProduct(formData: FormData) {
     //  Prepare Firestore document
     const data = {
       name,
+      searchCode,
       price: priceF,
       discountPrice: discountPriceF,
       stockQty,
@@ -209,7 +211,7 @@ export async function editProduct(formData: FormData) {
   const oldImageUrl = formData.get("oldImageUrl") as string;
   const image = formData.get("image");
   const status = formData.get("status") || "published";
-
+  const searchCode = formData.get("searchCode") as string | null;
   //  isFeatured now correctly handled
   const isFeaturedRaw = formData.get("isFeatured");
   const isFeatured =
@@ -224,6 +226,7 @@ export async function editProduct(formData: FormData) {
   //  Validate received data
   const receivedData = {
     name,
+    searchCode,
     price: priceRaw,
     discountPrice: discountPriceRaw,
     stockQty: stockQtyS,
@@ -327,6 +330,7 @@ export async function editProduct(formData: FormData) {
   //  Build update data
   const productData: Record<string, any> = {
     name,
+    searchCode,
     price,
     discountPrice,
     stockQty: Number(stockQtyS),
@@ -592,7 +596,7 @@ export async function fetchProductById(
     }
 
     const data = docSnap.data();
- 
+
 
     const product: ProductType = {
       id: docSnap.id,
@@ -611,8 +615,8 @@ export async function fetchProductById(
       quantity: data?.quantity ?? null,
       flavors: data?.flavors ?? false,
       publishStatus: data?.publishStatus ?? "draft",
-        stockStatus: data?.stockStatus ?? "out_of_stock",
-
+      stockStatus: data?.stockStatus ?? "out_of_stock",
+      searchCode: data?.searchCode ?? "",
       //  New GST / Tax Fields (safe fallbacks)
       taxRate: data?.taxRate ?? null,
       taxType: data?.taxType ?? null,
@@ -685,9 +689,8 @@ export async function toggleFeatured(productId: string, isFeatured: boolean) {
     revalidateTag("featured-products", "max");
     return {
       success: true,
-      message: `Product ${
-        isFeatured ? "featured" : "unfeatured"
-      } successfully.`,
+      message: `Product ${isFeatured ? "featured" : "unfeatured"
+        } successfully.`,
     };
   } catch (error) {
     console.error("Error toggling featured status:", error);
@@ -703,7 +706,7 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     throw new Error("Missing required fields: name or price");
   }
 
- 
+
 
   const productData: Omit<ProductType, "id"> = {
     name: data.name,
@@ -725,7 +728,8 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
         : null,
     flavors: String(data.flavors).toLowerCase() === "true" ? true : false,
     publishStatus: data?.publishStatus ?? "draft",
-        stockStatus: data.stockStatus ?? "out_of_stock",
+    stockStatus: data.stockStatus ?? "out_of_stock",
+    searchCode: data?.searchCode ?? "",
     // status:
     //   data.publishStatus === "published" ||
     //   data.publishStatus === "draft" ||

@@ -6,7 +6,7 @@ import { outletSchema } from "@/lib/types/outletType";
 import { FieldValue } from "firebase-admin/firestore";
 
 export async function saveOutlet(input: any) {
-  console.log("data---------------")
+  
   const parsed = outletSchema.safeParse(input);
 
   if (!parsed.success) {
@@ -54,6 +54,7 @@ export async function saveOutlet(input: any) {
   setOrDelete("taxType", data.taxType);
   setOrDelete("gstVatNumber", data.gstVatNumber);
   setOrDelete("footerNote", data.footerNote);
+  setOrDelete("defaultCurrency", data.footerNote);
 
   try {
     if (outletId) {

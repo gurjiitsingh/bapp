@@ -150,6 +150,7 @@ useEffect(() => {
         <Table>
           <TableHeader className="bg-gray-100 dark:bg-zinc-800">
             <TableRow>
+               <TableHead>Search Code</TableHead>
               <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>

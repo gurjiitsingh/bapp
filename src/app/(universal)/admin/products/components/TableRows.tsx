@@ -86,6 +86,13 @@ function TableRows({ product }: { product: ProductType }) {
       key={product.id}
       className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-800 transition rounded-xl"
     >
+      <TableCell className="text-sm font-medium text-gray-700">
+  {product.searchCode ? (
+    <span>{product.searchCode}</span>
+  ) : (
+    <span className="text-gray-400 italic">—</span>
+  )}
+</TableCell>
       {/* 🖼 Product Image */}
       <TableCell>
         <div className="px-3 py-1 text-center min-w-[100px]">

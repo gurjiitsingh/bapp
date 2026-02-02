@@ -22,6 +22,7 @@ const Outlet = () => {
     defaultValues: {
       printerWidth: "80",
       isActive: true,
+      defaultCurrency: "₹",
     },
   });
 
@@ -183,6 +184,17 @@ const Outlet = () => {
         <input type="checkbox" {...register("isActive")} />
         Active Outlet
       </label>
+
+      <select {...register("defaultCurrency")} className="input-style">
+  <option value="₹">INR - ₹</option>
+  <option value="$">USD - $</option>
+  <option value="CAD$">CAD - CAD$</option>
+  <option value="€">EUR - €</option>
+  <option value="£">GBP - £</option>
+  <option value="¥">JPY - ¥</option>
+  <option value="AUD$">AUD - AUD$</option>
+</select>
+<p className="text-xs text-red-500">{errors.defaultCurrency?.message}</p>
 
       <Button disabled={loading} className="btn-save w-full">
         {loading ? "Saving..." : "Save Outlet"}

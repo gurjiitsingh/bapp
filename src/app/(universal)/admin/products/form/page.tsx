@@ -90,10 +90,11 @@ const Page = () => {
     formData.append("sortOrder", String(data.sortOrder ?? 0));
     formData.append("categoryId", data.categoryId || "");
     formData.append("productDesc", data.productDesc || "");
-    formData.append("status",data.publishStatus || "published");
+    formData.append("status", data.publishStatus || "published");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
     formData.append("taxType", data.taxType as string);
+    formData.append("searchCode", data.searchCode || "");
     if (data.image && data.image[0]) {
       try {
         const resizedImage = await resizeImage(data.image[0], 400);
@@ -133,9 +134,9 @@ const Page = () => {
 
   return (
     <form
-       onSubmit={handleSubmit(onSubmit, (errors) => {
-    console.log("FORM ERRORS ❌", errors);
-  })}
+      onSubmit={handleSubmit(onSubmit, (errors) => {
+        console.log("FORM ERRORS ❌", errors);
+      })}
       className="w-full max-w-7xl mx-auto p-5"
     >
       <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
@@ -161,7 +162,42 @@ const Page = () => {
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 
-            <div className="flex flex-col gap-1">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              
+
+
+
+                <div className="flex flex-col gap-1">
+                  <label className="label-style">Category</label>
+                  <select {...register("categoryId")} className="input-style py-1">
+                    <option value="">Select Category</option>
+                    {categoryData.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-destructive">
+                    {errors.categoryId?.message}
+                  </p>
+                </div>
+
+
+             
+
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Search Code / SKU</label>
+                <input
+                  {...register("searchCode")}
+                  className="input-style py-1"
+                  placeholder="Enter SKU, barcode, or short code"
+                />
+                <p className="text-xs text-destructive">{errors.searchCode?.message}</p>
+              </div>
+            </div>
+
+            {/* <div className="flex flex-col gap-1">
               <label className="label-style">Category</label>
               <select {...register("categoryId")} className="input-style py-1">
                 <option value="">Select Category</option>
@@ -174,7 +210,7 @@ const Page = () => {
               <p className="text-xs text-destructive">
                 {errors.categoryId?.message}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Price Info */}
@@ -341,14 +377,14 @@ const Page = () => {
 
               <div>
                 <label className="label-style">Status</label>
-              <select
-  {...register("publishStatus")}
-  defaultValue="published"
-  className="input-style py-1"
->
-  <option value="published">Published</option>
-  <option value="draft">Draft</option>
-</select>
+                <select
+                  {...register("publishStatus")}
+                  defaultValue="published"
+                  className="input-style py-1"
+                >
+                  <option value="published">Published</option>
+                  <option value="draft">Draft</option>
+                </select>
                 <p className="text-xs text-destructive">
                   {errors.publishStatus?.message}
                 </p>
@@ -372,9 +408,9 @@ const Page = () => {
               <div>
                 <label className="label-style">Tax Type</label>
                 <select {...register("taxType")} className="input-style py-1">
-                 
+
                   <option value="exclusive">Exclusive (Added on total)</option>
-                   <option value="inclusive">
+                  <option value="inclusive">
                     Inclusive (Deducted from total)
                   </option>
                 </select>
@@ -389,9 +425,8 @@ const Page = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className={`btn-save w-full mt-2 ${
-                isSubmitting ? "opacity-80" : ""
-              }`}
+              className={`btn-save w-full mt-2 ${isSubmitting ? "opacity-80" : ""
+                }`}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>

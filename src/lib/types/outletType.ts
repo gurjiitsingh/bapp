@@ -39,6 +39,7 @@ export const outletSchema = z.object({
 
   // STATUS
   isActive: z.boolean(),
+  defaultCurrency: z.string().min(1, "Currency is required"),
 });
 
 
@@ -79,5 +80,6 @@ export type OutletType = {
   // Metadata
   createdAt?: any;
   updatedAt?: any;
+  defaultCurrency?: string;
 };
 

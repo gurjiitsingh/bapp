@@ -19,6 +19,7 @@ export type ProductType = {
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
 
+  searchCode?: string | null;   // barcode / short code / SKU (nullable)
   // NEW FIELDS
   taxRate: number | undefined;
   taxType: 'inclusive' | 'exclusive' | undefined;
@@ -37,7 +38,7 @@ export const newProductSchema = z.object({
   parentId: z.string().optional(),
   hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
-
+searchCode: z.string().max(50).optional(),
   // --------------------------
   // MANDATORY
   // --------------------------
@@ -136,7 +137,7 @@ export const editProductSchema = z.object({
   parentId: z.string().optional(),
   hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
-
+searchCode: z.string().max(50).optional(),
   // --------------------------
   // REQUIRED
   // --------------------------

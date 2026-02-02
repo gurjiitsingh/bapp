@@ -47,6 +47,7 @@ const EditProduct = () => {
       setValue("isFeatured", data.isFeatured);
       setValue("taxRate", data.taxRate?.toString() ?? "");
       setValue("taxType", data.taxType ?? "inclusive");
+       setValue("searchCode", data.searchCode ?? "0");
     }
 
     async function loadCategories() {
@@ -73,7 +74,8 @@ const EditProduct = () => {
     formData.append("status",data.publishStatus ?? "published");
     formData.append("oldImageUrl", data.oldImageUrl ?? "");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
-
+ formData.append("searchCode", data.searchCode ?? "");
+    
     // Tax fields
     formData.append("taxRate", data.taxRate ?? "");
     formData.append("taxType", data.taxType ?? "inclusive");
@@ -124,7 +126,41 @@ const EditProduct = () => {
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 
-            <div className="flex flex-col gap-1">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              
+
+
+
+                <div className="flex flex-col gap-1">
+                  <label className="label-style">Category</label>
+                  <select {...register("categoryId")} className="input-style py-1">
+                    <option value="">Select Category</option>
+                    {categoryData.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-destructive">
+                    {errors.categoryId?.message}
+                  </p>
+                </div>
+
+
+             
+
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Search Code / SKU</label>
+                <input
+                  {...register("searchCode")}
+                  className="input-style py-1"
+                  placeholder="Enter SKU, barcode, or short code"
+                />
+                <p className="text-xs text-destructive">{errors.searchCode?.message}</p>
+              </div>
+            </div>
+
+            {/* <div className="flex flex-col gap-1">
               <label className="label-style">Category</label>
               <select {...register("categoryId")} className="input-style py-1">
                 <option value="0">Do not change Category</option>
@@ -137,7 +173,7 @@ const EditProduct = () => {
               <p className="text-xs text-destructive">
                 {errors.categoryId?.message}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Price Section */}
