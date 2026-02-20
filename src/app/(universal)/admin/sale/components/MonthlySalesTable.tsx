@@ -22,6 +22,27 @@ import {
 import TableRows from './TableRows';
 
 
+function getCreatedAtDate(value: any): Date | null {
+  if (!value) return null;
+
+  // Firestore Timestamp
+  if (value instanceof Timestamp) {
+    return value.toDate();
+  }
+
+  // Serialized timestamp
+  if (value?.seconds) {
+    return new Date(value.seconds * 1000);
+  }
+
+  // POS long
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+
+  return null;
+}
+
 
 type MonthlySales = {
   month: string;
@@ -48,12 +69,12 @@ export default function MonthlySalesTable() {
 
       const salesMap: Record<string, MonthlySales> = {};
 
-     snapshot.docs.forEach((doc) => {
+snapshot.docs.forEach((doc) => {
   const data = doc.data() as orderMasterDataT;
-  const createdAt = (data.createdAt as Timestamp)?.toDate();
+  const createdAt = getCreatedAtDate(data.createdAt);
   const grandTotal = data.grandTotal || 0;
 
-  if (!createdAt ||data.orderStatus !== 'COMPLETED') return; //  Filter only completed orders
+  if (!createdAt || data.orderStatus !== 'COMPLETED') return;
 
   const monthKey = `${createdAt.getFullYear()}-${(createdAt.getMonth() + 1)
     .toString()
@@ -70,6 +91,7 @@ export default function MonthlySalesTable() {
   salesMap[monthKey].totalSales += grandTotal;
   salesMap[monthKey].orderCount += 1;
 });
+
 
 
       const sorted = Object.values(salesMap).sort((a, b) =>

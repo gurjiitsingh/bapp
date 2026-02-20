@@ -308,7 +308,7 @@ const orderMasterData: orderMasterDataT = {
 
   tableNo,
   orderType,
-  paymentType,
+  paymentMode:"CASH",
 
   ownerId: "temp_OW_ID",     // 🔑 Restaurant owner
   outletId: "temp_Oulet_ID", // 🔑 Outlet / Branch
@@ -607,7 +607,7 @@ export async function fetchOrdersPaginated({
         data.scheduledAt?.toDate?.().toISOString?.() || data.scheduledAt || "",
 
       // 💳 Payment Info
-      paymentType: data.paymentType || "",
+      paymentMode: data.paymentType || "",
       paymentStatus: data.paymentStatus || "NEW",
 
       // 📦 Status

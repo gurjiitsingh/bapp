@@ -50,6 +50,7 @@ export type orderMasterDataT = {
 
   createdAt: Timestamp | FieldValue;
   updatedAt?: Timestamp | FieldValue;
+  closedAt?: Timestamp | FieldValue | null;
 
   isScheduled?: boolean;
   scheduledAt?: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
@@ -70,10 +71,37 @@ export type orderMasterDataT = {
   //  PAYMENT
   // =====================================================
 
-  paymentType: string; // CASH | CARD | UPI | ONLINE
-  paymentProvider?: string; // STRIPE | PAYPAL | RAZORPAY
-  paymentMethod?: string; // VISA | GPAY | PHONEPE
-  paymentStatus?: "PAID" | "NEW" | "FAILED" | "REFUNDED";
+  // paymentType: string; // CASH | CARD | UPI | ONLINE
+  // paymentProvider?: string; // STRIPE | PAYPAL | RAZORPAY
+  // paymentMethod?: string; // VISA | GPAY | PHONEPE
+  // paymentStatus?: "PAID" | "NEW" | "FAILED" | "REFUNDED";
+
+  // =====================================================
+//  PAYMENT
+// =====================================================
+
+paymentMode: 
+  | "CASH"
+  | "CARD"
+  | "UPI"
+  | "ONLINE"
+  | "CREDIT"
+  | "MIXED";
+
+paymentProvider?: string; 
+paymentMethod?: string;
+
+paymentStatus?: 
+  | "NEW"
+  | "PAID"
+  | "PARTIAL"
+  | "CREDIT"
+  | "FAILED"
+  | "REFUNDED";
+
+paidAmount?: number;  
+dueAmount?: number;
+
 
   // =====================================================
   //  ORDER STATE
@@ -129,180 +157,6 @@ export type orderMasterDataT = {
   couponPercent?: number;
 };
 
-// export type orderMasterDataT = {
-//   // =====================================================
-//   //  STANDARD SYSTEM FIELDS (NEW & OFFICIAL)
-//   // 👉 USE THESE EVERYWHERE GOING FORWARD
-//   // =====================================================
-
-//   // ---------- Core Identifiers ----------
-//   id: string;
-//   userId: string;
-//  srno: number;
-
-//   // ---------- Customer ----------
-//   customerName: string;
-//   customerPhone: string; //  NEW (IMPORTANT)
-//   customerCountryCode?: string; // Optional
-//   email: string;
-//   addressId: string;
-
-//   // ---------- Order Type ----------
-//   orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
-//   tableNo: string | null; // Only for DINE_IN
-
-//   // ---------- Timing ----------
-//   createdAt: Timestamp | FieldValue;
-//   updatedAt?: Timestamp | FieldValue;
-
-//   isScheduled?: boolean;
-//   scheduledAt?: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
-
-//   // ---------- Amounts (FINAL & CLEAN) ----------
-//   itemTotal: number; // Before discount & tax
-//   discountTotal?: number; // FINAL discount amount
-//   subTotal?: number; // After discount, before tax
-//   taxBeforeDiscount?: number;
-//   taxTotal?: number;
-//   grandTotal?: number; // FINAL payable amount
-
-//   // ---------- Delivery ----------
-//   deliveryFee?: number;
-
-//   // ---------- Payment ----------
-//   paymentType: string;
-//   paymentStatus?: "NEW" | "PAID" | "FAILED" | "REFUNDED";
-
-//   // ---------- Order State ----------
-//   orderStatus?:
-//     | "NEW"
-//     | "SCHEDULED"
-//     | "ACCEPTED"
-//     | "PREPARING"
-//     | "READY"
-//     | "COMPLETED"
-//     | "CANCELLED";
-
-//   // ---------- Source & Meta ----------
-//   source?: "WEB" | "POS" | "APP";
-//   productsCount?: number;
-//   notes?: string;
-
-//   // ---------- Sync / Offline ----------
-//   syncStatus?: "NEW" | "SYNCED" | "FAILED";
-//   lastSyncedAt?: Timestamp | FieldValue;
-
-//   // ---------- Automation ----------
-//   printed?: boolean;
-//   acknowledged?: boolean;
-
-//   // =====================================================
-//   // ⚠️ LEGACY SYSTEM FIELDS (OLD / NON-STANDARD)
-//   // 🚫 DO NOT USE FOR NEW LOGIC
-//   // 👉 KEPT ONLY FOR BACKWARD COMPATIBILITY
-//   // =====================================================
-
-//   /** Old generic status field (DO NOT USE) */
-//   //status: string;
-
-//   /** Old delivery naming */
-//   //deliveryFee: number;
-
-//   /** Coupon system (percentage-based – legacy) */
-//   couponCode?: string;
-//   couponPercentPercentL: number;
-//   pickUpDiscountPercentL: number;
-
-//   /** Old discount breakdowns */
-//   totalDiscountG: number;
-//   couponFlat: number;
-//   calculatedPickUpDiscountL: number;
-//   calcouponPercent: number;
-
-//   /** Old tax storage */
-//   //totalTax?: number;
-// };
-
-// export type orderMasterDataT = {
-//   // =====================================================
-//   // CORE IDENTIFIERS
-//   // =====================================================
-//   id: string;
-//   userId: string;
-//   customerName: string;
-//   email: string;
-//   addressId: string;
-//  srno: number;
-//   tableNo: string | null; // Only for DINE_IN
-//   orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
-//   // =====================================================
-//   // ORDER TIMING
-//   // =====================================================
-//   createdAt: Timestamp | FieldValue;
-
-//   /** Whether order is scheduled for later */
-//   isScheduled?: boolean;
-
-//   /** Scheduled execution time (if scheduled order) */
-//   scheduledAt: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
-
-//   couponCode?: string;
-//   couponPercentPercentL: number;
-//   pickUpDiscountPercentL: number;
-
-//   /** Delivery fee (clean naming) */
-//   deliveryFee?: number;
-
-//   // finalGrandTotal?:number;
-//   // =====================================================
-//   // ORDER AMOUNTS
-//   // =====================================================
-//   itemTotal: number;
-//   deliveryFee: number;
-
-//   totalDiscountG: number;
-//   couponFlat: number;
-//   calculatedPickUpDiscountL: number;
-//   calcouponPercent: number;
-
-//   totalTax?: number;
-//   //endTotalG: number;
-
-//   // Clean calculated fields
-//   discountTotal?: number;
-//   taxBeforeDiscount?: number;
-//   taxTotal?: number;
-//   subTotal?: number;
-//   grandTotal?: number;
-
-//   // =====================================================
-//   // ORDER STATE
-//   // =====================================================
-//   orderStatus?:
-//     | "NEW"
-//     | "SCHEDULED"
-//     | "ACCEPTED"
-//     | "PREPARING"
-//     | "READY"
-//     | "COMPLETED"
-//     | "CANCELLED";
-
-//   paymentStatus?: "NEW" | "PAID" | "FAILED" | "REFUNDED";
-//   status: string;
-//   paymentType: string;
-//   // =====================================================
-//   // SOURCE & META
-//   // =====================================================
-//   source?: "WEB" | "POS" | "APP";
-//   productsCount?: number;
-//   notes?: string;
-
-//   // =====================================================
-//   // AUTOMATION FLAGS
-//   // =====================================================
-//   printed?: boolean;
-//   acknowledged?: boolean;
-// };
 
 export type TOrderMaster = {
   id: string;

@@ -27,6 +27,28 @@ type DailySales = {
   orderCount: number;
 };
 
+function getCreatedAtDate(value: any): Date | null {
+  if (!value) return null;
+
+  // Firestore Timestamp
+  if (value instanceof Timestamp) {
+    return value.toDate();
+  }
+
+  // Firestore serialized timestamp (rare case)
+  if (value?.seconds) {
+    return new Date(value.seconds * 1000);
+  }
+
+  // Long / number (from POS)
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+
+  return null;
+}
+
+
 export default function DailySalesTable() {
   const [dailySales, setDailySales] = useState<DailySales[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +67,7 @@ export default function DailySalesTable() {
 
       snapshot.docs.forEach((doc) => {
         const data = doc.data() as orderMasterDataT;
-        const createdAt = (data.createdAt as Timestamp)?.toDate();
+       const createdAt = getCreatedAtDate(data.createdAt);
         const grandTotal = data.grandTotal || 0;
 
         if (!createdAt ||data.orderStatus !== 'COMPLETED') return;

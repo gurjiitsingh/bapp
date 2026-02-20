@@ -92,7 +92,7 @@ export default function POSTableRow({ order }: { order: orderMasterDataT }) {
 
       <TableCell className="font-semibold">{grandTotal}</TableCell>
 
-      <TableCell>{order.paymentType}</TableCell>
+      <TableCell>{order.paymentMode}</TableCell>
 
       <TableCell>{order.printed ? "Yes": "No"}</TableCell>
 

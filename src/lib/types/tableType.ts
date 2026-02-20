@@ -21,11 +21,17 @@ export type tableDataT = {
   /** Number of guests currently seated (if any) */
   guestsCount?: number;
 
+  /** Table area (e.g. "Indoor", "Outdoor", "Rooftop", etc.) */
+  area?: string;
+
+  /** Sort order for display (lower number = higher priority) */
+  sortOrder?: number;
+
   /** When table was last updated */
   updatedAt: Timestamp | FieldValue;
 
   /** When table was created */
-   createdAt: Timestamp | FieldValue;
+  createdAt: Timestamp | FieldValue;
 
   /** Optional notes (special requests, reservation name, etc.) */
   notes?: string;

@@ -108,7 +108,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
       </TableCell>
 
       <TableCell className="text-sm text-gray-600 dark:text-zinc-400">
-        {order.paymentType}
+        {order.paymentMode}
       </TableCell>
 
       <TableCell className="text-sm text-gray-600 dark:text-zinc-400">

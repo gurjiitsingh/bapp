@@ -84,7 +84,7 @@ function TableRows({ product }: { product: ProductType }) {
   return (
     <TableRow
       key={product.id}
-      className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-800 transition rounded-xl"
+      className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition rounded-xl"
     >
       <TableCell className="text-sm font-medium text-gray-700">
   {product.searchCode ? (

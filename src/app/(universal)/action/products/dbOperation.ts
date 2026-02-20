@@ -402,6 +402,26 @@ export async function deleteProduct(id: string, oldImageUrl: string) {
   }
 }
 
+export async function deleteProductBulk(id: string) {
+  const docRef = adminDb.collection("products").doc(id);
+
+  try {
+    // Delete Firestore product only
+    await docRef.delete();
+    console.log("Product deleted from Firestore:", id);
+
+    // revalidate cache
+    revalidateTag("products", "max");
+    revalidateTag("featured-products", "max");
+
+    return { message: "Product deleted successfully." };
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    return { errors: "Failed to delete product." };
+  }
+}
+
+
 //* addition */
 export async function fetchAllProducts(): Promise<ProductType[]> {
   const snapshot = await adminDb.collection("products").get();
@@ -770,3 +790,83 @@ export async function updateProductType(
     return { errors: "Failed to update product" };
   }
 }
+
+
+
+
+/**
+ * Inline update for specific product fields (for editable table rows)
+ */
+
+
+
+export async function updateProductField(
+  productId: string,
+  updates: Partial<{
+    name: string;
+    searchCode: string;
+    categoryId: string;
+    price: number;
+    discountPrice: number;
+    taxRate: number;
+    taxType: "inclusive" | "exclusive";
+    stockQty: number;
+    sortOrder: number;
+  }>
+) {
+  try {
+    const productRef = adminDb.collection("products").doc(productId);
+    const productSnap = await productRef.get();
+
+    if (!productSnap.exists) {
+      return { success: false, error: "Product not found" };
+    }
+
+    const safeUpdates: Record<string, any> = {};
+
+    // ✅ Sanitize input
+    for (const key in updates) {
+      const val = updates[key as keyof typeof updates];
+      if (val === undefined || val === null) continue;
+
+      if (["name", "searchCode", "categoryId", "taxType"].includes(key)) {
+        safeUpdates[key] = val;
+        continue;
+      }
+
+      if (typeof val === "string" && !isNaN(Number(val))) {
+        safeUpdates[key] = parseFloat(val);
+      } else {
+        safeUpdates[key] = val;
+      }
+    }
+
+    // ✅ Fetch category name (like old form)
+    if (safeUpdates.categoryId) {
+      try {
+        const categories = await fetchCategories();
+        const matchedCategory = categories.find(
+          (cat) => cat.id === safeUpdates.categoryId
+        );
+        safeUpdates.productCat = matchedCategory?.name ?? "Uncategorized";
+      } catch (err) {
+        console.error("⚠️ Failed to fetch categories:", err);
+        safeUpdates.productCat = "Uncategorized";
+      }
+    }
+
+    safeUpdates.updatedAt = new Date().toISOString();
+
+    await productRef.update(safeUpdates);
+
+    console.log("✅ Product updated:", productId, safeUpdates);
+    return { success: true, message: "Product field updated successfully" };
+  } catch (error) {
+    console.error("❌ updateProductField error:", error);
+    return { success: false, error: "Failed to update product field" };
+  }
+}
+
+
+
+

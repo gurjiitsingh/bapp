@@ -74,28 +74,31 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
+useEffect(() => {
   let list = [...products];
 
-   list = list.filter((p) => p.type === "parent");
+  // Only parent products
+  list = list.filter((p) => p.type === "parent");
+
+  // Filter by category
   if (urlCategory) {
     list = list.filter((p) => p.categoryId === urlCategory);
   }
 
+  // Filter by search safely
   if (urlSearch) {
-    list = list.filter((p) =>
-      p.name.toLowerCase().includes(urlSearch.toLowerCase())
-    );
+    const search = urlSearch.toLowerCase();
+    list = list.filter((p) => (p.name ?? "").toString().toLowerCase().includes(search));
   }
 
-  // ⭐ Sort by sortOrder (undefined → 0)
+  // Sort by sortOrder
   list = list.sort(
-    (a: ProductType, b: ProductType) =>
-      (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    (a: ProductType, b: ProductType) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
   );
 
   setFiltered(list);
 }, [urlCategory, urlSearch, products]);
+
 
   //  Update URL without refreshing
   function updateURL(key: string, value: string) {
