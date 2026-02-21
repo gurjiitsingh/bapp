@@ -49,7 +49,9 @@ const OrderDetail = () => {
 
 let addressRes;
 
-if (addressId === "POS_ORDER") {
+
+
+if (addressId === "POS_ORDER" || addressId === "" ||  addressId === null  || addressId === " ") {
   addressRes = {
     id: "POS_ORDER",
     email: "pos@local",
@@ -64,8 +66,8 @@ if (addressId === "POS_ORDER") {
     zipCode: "-"
   };
 } else {
-  addressRes = await searchAddressByAddressId(addressId);
-}
+   addressRes = await searchAddressByAddressId(addressId);
+ }
 
 
 
@@ -75,11 +77,14 @@ if (addressId === "POS_ORDER") {
       setCustomerAddress(addressRes);
 
       const orderMaster = await fetchOrderMasterById(masterOrderId);
+      console.log("orderMaster--------------", orderMaster)
       setOrderMasterData(orderMaster);
      
     }
     getOrderProducts();
   }, []);
+
+
 
   useEffect(() => {
     // console.log("addre ins use efferxt-----", customerAddress);

@@ -772,11 +772,19 @@ export async function fetchOrderProductsByOrderMasterId(OrderMasterId: string) {
     .get();
 
   snapshot.forEach((doc) => {
-    data.push(doc.data() as OrderProductT);
+    const d = doc.data();
+
+    // 🔥 Convert Timestamp -> ISO String
+    if (d.createdAt && d.createdAt.toDate) {
+      d.createdAt = d.createdAt.toDate().toISOString();
+    }
+
+    data.push(d as OrderProductT);
   });
 
   return data;
 }
+
 
 /*********************** stock decrease ******************************* */
 
