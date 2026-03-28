@@ -93,10 +93,12 @@ const router = useRouter();
     setIsSubmitting(true);
     const formData = new FormData();
 
-    const result1 = newProductSchema.safeParse(data);
+const result1 = newProductSchema.safeParse(data);
 
 if (!result1.success) {
-  console.log(result1.error.flatten());
+  console.log("ZOD ERROR ❌", result1.error.flatten());
+  setIsSubmitting(false);
+  return; // 🔥 THIS WAS MISSING
 }
 
 const varaint_name = nameBase + " " + data.name
@@ -105,16 +107,21 @@ const varaint_name = nameBase + " " + data.name
     formData.append("parentId", data.parentId || "");
     formData.append("hasVariants", "false");
     formData.append("type", "variant");
-    formData.append("price", String(data.price ?? 0));
-    formData.append("discountPrice", String(data.discountPrice ?? 0));
-    formData.append("stockQty", String(data.stockQty ?? -1));
-    formData.append("sortOrder", String(data.sortOrder ?? 0));
+ 
+formData.append("price", String(Number(data.price) || 0));
+formData.append("discountPrice", String(Number(data.discountPrice) || 0));
+formData.append("stockQty", String(Number(data.stockQty) || 0));
+formData.append("sortOrder", String(Number(data.sortOrder) || 0));
+
+
     formData.append("categoryId", data.categoryId || "");
     formData.append("productDesc", data.productDesc || "");
     formData.append("status",data.publishStatus || "published");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
-    formData.append("taxType", data.taxType as string);
+    formData.append("taxType", data.taxType ?? "exclusive");
+
+    formData.append("searchCode", data.searchCode || "");
     if (data.image && data.image[0]) {
       try {
         const resizedImage = await resizeImage(data.image[0], 400);

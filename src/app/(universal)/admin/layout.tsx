@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="de" translate="no">
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
        
         {/* <ButtonProvider> */}
