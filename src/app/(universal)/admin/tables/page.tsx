@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getTables, saveTables } from "@/app/(universal)/action/tables/dbOperations";
+import { deleteTable, getTables, saveTables } from "@/app/(universal)/action/tables/dbOperations";
 import { tableDataT } from "@/lib/types/tableType";
 
 
@@ -12,6 +12,39 @@ export default function TableSetupForm() {
   const [area, setArea] = useState("Ground Floor");
   const [customArea, setCustomArea] = useState("");
   const [tablePrefix, setTablePrefix] = useState("Table");
+const [isEditMode, setIsEditMode] = useState(false);
+
+
+function handleEditArea(areaName: string, areaTables: tableDataT[]) {
+  if (!areaTables.length) return;
+
+  const firstName = areaTables[0].tableName || "Table";
+  const prefix = firstName.replace(/\s*\d+$/, "");
+
+  setArea(areaName);
+  setCustomArea(areaName);
+  setTablePrefix(prefix);
+  setTableCount(areaTables.length);
+
+  setIsEditMode(true); // ✅ ADD THIS
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+  async function handleDelete(tableId: string) {
+  const confirmDelete = confirm("Delete this table?");
+  if (!confirmDelete) return;
+
+  try {
+    await deleteTable(tableId);
+
+    // Refresh list
+    const data = await getTables();
+    setTables(data);
+
+  } catch (e) {
+    alert("❌ Failed to delete table");
+  }
+}
 
   useEffect(() => {
     async function loadData() {
@@ -38,6 +71,7 @@ export default function TableSetupForm() {
       const data = await getTables();
       setTables(data);
       setCustomArea("");
+      setIsEditMode(false);
     } else {
       alert("❌ Failed to create tables");
     }
@@ -51,10 +85,15 @@ export default function TableSetupForm() {
   }, {});
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Create Restaurant Tables</h1>
+    <div className="w-full mx-auto px-6 py-1">
+      <h1 className="text-2xl font-semibold mb-4">
+  {isEditMode ? "Edit Tables" : "Create Tables"}
+</h1>
 
-      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form
+  onSubmit={onSubmit}
+  className="flex flex-col gap-4 bg-white shadow-md rounded-xl p-5 border"
+>
         {/* Table Count */}
         <label className="font-medium text-sm">
           Number of Tables:
@@ -68,55 +107,69 @@ export default function TableSetupForm() {
         </label>
 
         {/* Table Prefix */}
-        <label className="font-medium text-sm">
-          Table Name Prefix:
-          <input
-            type="text"
-            className="border rounded-md px-3 py-2 ml-2"
-            value={tablePrefix}
-            onChange={(e) => setTablePrefix(e.target.value)}
-            placeholder="e.g. Table, Booth, Seat"
-          />
-        </label>
+         {/* Prefix */}
+  <label className="font-medium text-sm flex items-center gap-2">
+    Table Name Prefix:
+    <input
+      type="text"
+      className="border rounded-md px-3 py-2"
+      value={tablePrefix}
+      onChange={(e) => setTablePrefix(e.target.value)}
+      placeholder="e.g. Table, Booth, Seat"
+    />
+  </label>
 
-        {/* Area Selector */}
-        <label className="font-medium text-sm">
-          Select Area:
-          <select
-            className="border rounded-md px-3 py-2 ml-2"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-          >
-            <option>Restaurant</option>
-            <option>Bar</option>
-            <option>Party Hall</option>
-            <option>Basement Hall</option>
-            <option>Ground Floor</option>
-            <option>First Floor</option>
-            <option>Rooftop</option>
-            <option>Outdoor</option>
-          </select>
-        </label>
+  {/* Area + Custom */}
+  <div>
+  <label className="font-medium text-sm flex items-center gap-2 flex-wrap">
+    Select Title:
+    
+   <select
+  className="border rounded-md px-3 py-2"
+  value={area}
+  onChange={(e) => {
+    setArea(e.target.value);
+    setCustomArea(""); // ✅ clear custom when selecting
+  }}
+  disabled={customArea.trim() !== ""} // ✅ disable if custom filled
+>
+      <option>Restaurant</option>
+      <option>Bar</option>
+      <option>Party Hall</option>
+      <option>Basement Hall</option>
+      <option>Ground Floor</option>
+      <option>First Floor</option>
+      <option>Rooftop</option>
+      <option>Outdoor</option>
+    </select>
 
-        {/* Custom Area Input */}
-        <label className="font-medium text-sm">
-          Or Enter Custom Area:
-          <input
-            type="text"
-            className="border rounded-md px-3 py-2 ml-2"
-            value={customArea}
-            onChange={(e) => setCustomArea(e.target.value)}
-            placeholder="e.g. VIP Lounge, Terrace"
-          />
-        </label>
+    <span className="text-gray-500">or</span>
 
-        <Button type="submit" className="w-full">
-          Create Tables
-        </Button>
+   <input
+  type="text"
+  className="border rounded-md px-3 py-2"
+  value={customArea}
+  onChange={(e) => {
+    setCustomArea(e.target.value);
+  }}
+  placeholder="e.g. VIP Lounge, Terrace"
+/>
+  </label>
+
+</div>
+
+       
+
+       <Button
+  type="submit"
+  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow-md transition"
+>
+  Create/Edit Tables
+</Button>
       </form>
 
       {/* Table List */}
-      <div className="mt-8">
+      <div className="mt-4">
         <h2 className="text-lg font-semibold mb-2">Current Tables by Area</h2>
         {!tables.length && <p>No tables found yet.</p>}
 
@@ -128,23 +181,37 @@ export default function TableSetupForm() {
             );
             return (
               <div key={areaName} className="mb-6">
-                <h3 className="text-md font-semibold mb-2 text-blue-700">
-                  {areaName}
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="flex items-center justify-between mb-2">
+  <h3 className="text-md font-semibold text-blue-700">
+    {areaName}
+  </h3>
+
+  <button
+    onClick={() => handleEditArea(areaName, areaTables)}
+    className="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded"
+  >
+    Edit
+  </button>
+</div>
+         <div className="grid gap-2 place-items-center [grid-template-columns:repeat(auto-fill,minmax(100px,1fr))]">
                   {areaTables.map((t) => (
-                    <div
-                      key={t.id}
-                      className={`p-3 rounded-lg text-center text-sm border ${
-                        t.status === "AVAILABLE"
-                          ? "bg-green-50 border-green-300"
-                          : "bg-yellow-50 border-yellow-300"
-                      }`}
-                    >
-                      <p className="font-medium">{t.tableName}</p>
-                      <p className="text-xs text-gray-500">
-                        Sort: {t.sortOrder ?? "-"}
-                      </p>
+                  <div
+  key={t.id}
+  className={`relative w-[100px] h-[60px] flex flex-col justify-center items-center rounded-xl border shadow-sm hover:shadow-md transition ${
+    t.status === "AVAILABLE"
+      ? "bg-green-100 border-green-400"
+      : "bg-yellow-100 border-yellow-400"
+  }`}
+>
+  {/* ❌ Delete Button */}
+  <button
+    onClick={() => handleDelete(t.id)}
+    className="absolute top-1 right-1 bg-red-100 hover:bg-red-200 text-red-600 rounded-full px-1.5 text-[10px]"
+  >
+    ✕
+  </button>
+                    <p className="text-sm font-semibold">{t.tableName}</p>
+<p className="text-[10px] text-gray-600">{t.status}</p>
                     </div>
                   ))}
                 </div>
