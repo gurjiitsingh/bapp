@@ -1,39 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { MdDeleteForever } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { OutletType } from "@/lib/types/outletType";
-import { deleteOutlet } from "@/app/(universal)/action/outlet/dbOperation";
 
 function OutletRow({ outlet }: { outlet: OutletType }) {
-  const [loading, setLoading] = useState(false);
-
-  async function handleDelete() {
-    if (!outlet.outletId) return;
-
-    const confirmed = confirm(
-      "Are you sure? This will permanently delete outlet data."
-    );
-
-    if (!confirmed) return;
-
-    setLoading(true);
-    const result = await deleteOutlet(outlet.outletId);
-    setLoading(false);
-
-    if (result?.success) {
-      alert("Outlet deleted");
-      location.reload();
-    } else {
-      alert("Delete failed");
-      console.error(result?.errors);
-    }
-  }
-
   return (
     <TableRow className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-800 transition rounded-xl">
 
@@ -107,26 +80,14 @@ function OutletRow({ outlet }: { outlet: OutletType }) {
 
       {/* ACTIONS */}
       <TableCell>
-        <div className="flex gap-2">
-          <Link href={`/admin/outlet/form?outletId=${outlet.outletId}`}>
-            <Button
-              size="sm"
-              disabled={loading}
-              className="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1"
-            >
-              <CiEdit size={18} />
-            </Button>
-          </Link>
-
+        <Link href={`/admin/outlet/form?outletId=${outlet.outletId}`}>
           <Button
-            onClick={handleDelete}
             size="sm"
-            disabled={loading}
-            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1"
+            className="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1"
           >
-            {loading ? "…" : <MdDeleteForever size={18} />}
+            <CiEdit size={18} />
           </Button>
-        </div>
+        </Link>
       </TableCell>
     </TableRow>
   );

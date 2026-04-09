@@ -1,9 +1,12 @@
 "use server";
 
 
+import { countryConfig } from "@/lib/config/countryConfig";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { outletSchema } from "@/lib/types/outletType";
 import { FieldValue } from "firebase-admin/firestore";
+
+
 
 export async function saveOutlet(input: any) {
   
@@ -18,6 +21,13 @@ export async function saveOutlet(input: any) {
   }
 
   const data = parsed.data;
+
+  const config = countryConfig[data.countryCode];
+
+if (!config) {
+  return { errors: { countryCode: "Invalid country" } };
+}
+
   const outletId = data.outletId;
 
   console.log("SAVE OUTLET", data);
@@ -54,8 +64,15 @@ export async function saveOutlet(input: any) {
   setOrDelete("taxType", data.taxType);
   setOrDelete("gstVatNumber", data.gstVatNumber);
   setOrDelete("footerNote", data.footerNote);
-  setOrDelete("defaultCurrency", data.footerNote);
+ 
+payload.countryCode = data.countryCode;
+payload.countryName = config.name;
 
+payload.currencyCode = config.code;
+payload.currencySymbol = config.symbol; // fallback only
+payload.locale = config.locale;
+
+payload.defaultCurrency = config.symbol;
   try {
     if (outletId) {
       console.log("UPDATING", outletId, payload);

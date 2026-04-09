@@ -22,7 +22,7 @@ const Outlet = () => {
     defaultValues: {
       printerWidth: "80",
       isActive: true,
-      defaultCurrency: "₹",
+      countryCode: "DE", // ✅ FIXED
     },
   });
 
@@ -35,15 +35,16 @@ const Outlet = () => {
       const data = await res.json();
       if (data?.outletId) {
         setOutletId(data.outletId);
+
         reset({
           ...data,
           printerWidth: String(data.printerWidth),
+          countryCode: data.countryCode ?? "DE", // ✅ SAFE RESET
         });
       }
     }
     fetchOutlet();
   }, [reset]);
-
 
   async function onSubmit(data: ToutletSchema) {
     setLoading(true);
@@ -66,7 +67,7 @@ const Outlet = () => {
       setOutletId(result.outletId);
     } else {
       console.error(result.errors);
-      alert("Failed to save outlet");
+      alert(JSON.stringify(result.errors, null, 2));
     }
   }
 
@@ -110,7 +111,6 @@ const Outlet = () => {
         className="input-style"
       />
 
-      {/* ⭐ NEW FIELD */}
       <input
         {...register("addressLine3")}
         placeholder="Address Line 3"
@@ -136,9 +136,11 @@ const Outlet = () => {
           placeholder="Pincode"
           className="input-style"
         />
+
+        {/* ⚠️ OPTIONAL: keep if you still want manual country name */}
         <input
           {...register("country")}
-          placeholder="Country"
+          placeholder="Country (optional)"
           className="input-style"
         />
       </div>
@@ -155,14 +157,12 @@ const Outlet = () => {
         className="input-style"
       />
 
-      {/* ⭐ NEW FIELD */}
       <input
         {...register("email")}
         placeholder="Email"
         className="input-style"
       />
 
-      {/* ⭐ NEW FIELD */}
       <input
         {...register("web")}
         placeholder="Website URL"
@@ -185,16 +185,23 @@ const Outlet = () => {
         Active Outlet
       </label>
 
-      <select {...register("defaultCurrency")} className="input-style">
-  <option value="₹">INR - ₹</option>
-  <option value="$">USD - $</option>
-  <option value="CAD$">CAD - CAD$</option>
-  <option value="€">EUR - €</option>
-  <option value="£">GBP - £</option>
-  <option value="¥">JPY - ¥</option>
-  <option value="AUD$">AUD - AUD$</option>
-</select>
-<p className="text-xs text-red-500">{errors.defaultCurrency?.message}</p>
+      {/* ✅ COUNTRY SELECT (MAIN FIELD) */}
+      <select {...register("countryCode")} className="input-style">
+        <option value="DE">Germany</option>
+        <option value="IN">India</option>
+        <option value="US">USA</option>
+        <option value="CA">Canada</option>
+
+        <option value="ES">Spain</option>
+        <option value="AU">Australia</option>
+        <option value="GB">United Kingdom</option>
+        <option value="FR">France</option>
+        <option value="IT">Italy</option>
+      </select>
+
+      <p className="text-xs text-red-500">
+        {errors.countryCode?.message}
+      </p>
 
       <Button disabled={loading} className="btn-save w-full">
         {loading ? "Saving..." : "Save Outlet"}
