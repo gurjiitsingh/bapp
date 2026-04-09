@@ -14,10 +14,20 @@ export async function GET() {
     JSON.parse(JSON.stringify(p))
   );
 
+  const date = new Date().toISOString().split("T")[0];
+
+  // ✅ Read prefix from env
+  const prefix = process.env.FILE_PREFIX;
+
+  // ✅ Build filename
+  const fileName = prefix
+    ? `${prefix}-products-${date}.json`
+    : `products-${date}.json`;
+
   return new Response(JSON.stringify(cleaned, null, 2), {
     headers: {
       "Content-Type": "application/json",
-      "Content-Disposition": "attachment; filename=products-backup.json",
+      "Content-Disposition": `attachment; filename=${fileName}`,
     },
   });
 }

@@ -2,6 +2,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { categoryType } from "@/lib/types/categoryType";
 import { ProductType } from "@/lib/types/productType";
 import { writeFile } from "fs/promises";
 import path from "path";
@@ -49,4 +50,29 @@ export async function uploadProductsJSON(formData: FormData) {
   await batch.commit();
 
   return;
+}
+
+
+
+export async function uploadCategoriesJSON(formData: FormData) {
+  const file = formData.get("file") as File;
+
+  if (!file) throw new Error("No file uploaded");
+
+  const text = await file.text();
+  const categories: categoryType[] = JSON.parse(text);
+
+  const batch = adminDb.batch();
+
+  categories.forEach((category) => {
+    if (!category.id) return;
+
+    const ref = adminDb.collection("category").doc(category.id);
+
+    const { id, ...data } = category;
+
+    batch.set(ref, data); // overwrite (same as products)
+  });
+
+  await batch.commit();
 }
