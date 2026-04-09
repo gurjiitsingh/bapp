@@ -69,6 +69,7 @@ export const fetchProducts = cache(async (): Promise<ProductType[]> => {
 });
 
 export async function addNewProduct(formData: FormData) {
+  console.log("product save-------------")
   try {
     const rawHasVariants = formData.get("hasVariants");
 
@@ -172,6 +173,8 @@ export async function addNewProduct(formData: FormData) {
       createdAt: new Date().toISOString(),
     };
 
+    console.log("product data-------------", data)
+
     //  Save to Firestore
 
     const docRef = await adminDb.collection("products").add(data);
@@ -202,6 +205,7 @@ export async function addNewProduct(formData: FormData) {
 export async function editProduct(formData: FormData) {
   const id = formData.get("id") as string;
   const name = formData.get("name");
+  const type = formData.get("type") as string;
   const priceRaw = formData.get("price") as string;
   const discountPriceRaw = formData.get("discountPrice") as string;
   const stockQtyS = formData.get("stockQty") as string;
@@ -223,10 +227,15 @@ export async function editProduct(formData: FormData) {
   const taxRateRaw = formData.get("taxRate") as string | null;
   const taxType = (formData.get("taxType") as string | null) ?? null;
 
+
+console.log("product data-------------")
+const publishStatus = (formData.get("status") as string) || "published";
+  
+
   //  Validate received data
   const receivedData = {
     name,
-    searchCode,
+    //searchCode,
     price: priceRaw,
     discountPrice: discountPriceRaw,
     stockQty: stockQtyS,
@@ -234,17 +243,35 @@ export async function editProduct(formData: FormData) {
     categoryId,
     productDesc,
     image,
-    status,
+    publishStatus:"published",
   };
 
-  const result = editProductSchema.safeParse(receivedData);
-  if (!result.success) {
-    const zodErrors: Record<string, string> = {};
-    result.error.issues.forEach((issue) => {
-      zodErrors[issue.path[0]] = issue.message;
-    });
-    return { errors: zodErrors };
-  }
+const result = editProductSchema.safeParse(receivedData);
+
+if (!result.success) {
+  console.log("❌ ZOD VALIDATION FAILED");
+
+  // 🔍 Show full incoming data
+  console.log("📦 Received Data:", receivedData);
+
+  // 🔍 Show formatted errors (clean)
+  console.log("🧾 Flattened Errors:", result.error.flatten());
+
+  // 🔍 Show detailed issues (best for debugging)
+  result.error.issues.forEach((issue, index) => {
+    console.log(`🔴 Issue ${index + 1}:`);
+    console.log("Field:", issue.path.join("."));
+    console.log("Message:", issue.message);
+  //  console.log("Received Value:", issue.path.reduce((obj, key) => obj?.[key], receivedData));
+  });
+
+  const zodErrors: Record<string, string> = {};
+  result.error.issues.forEach((issue) => {
+    zodErrors[issue.path[0]] = issue.message;
+  });
+
+  return { errors: zodErrors };
+}
 
   // 🔹 Fetch existing product
 
@@ -330,6 +357,7 @@ export async function editProduct(formData: FormData) {
   //  Build update data
   const productData: Record<string, any> = {
     name,
+    type,
     searchCode,
     price,
     discountPrice,
@@ -345,6 +373,8 @@ export async function editProduct(formData: FormData) {
     taxRate,
     taxType: taxType ?? existingProduct?.taxType ?? null,
   };
+
+  console.log("product data-------------", productData)
 
   //  Only overwrite isFeatured if explicitly sent
   if (typeof isFeatured !== "undefined") {
@@ -399,6 +429,55 @@ export async function deleteProduct(id: string, oldImageUrl: string) {
   } catch (error) {
     console.error("Error deleting product from Firestore:", error);
     return { errors: "Failed to delete product." };
+  }
+}
+
+
+export async function deleteProductVariant(
+  id: string,
+  parentId: string,
+  imageUrl?: string
+) {
+  try {
+    const productRef = adminDb.collection("products").doc(id);
+
+    // 🔥 STEP 1: Delete variant
+    await productRef.delete();
+
+    // 🔥 STEP 2: Check if any variants still exist for this parent
+    const variantsSnap = await adminDb
+      .collection("products")
+      .where("parentId", "==", parentId)
+      .get();
+
+    // 🔥 STEP 3: If NO variants left → update parent
+    if (variantsSnap.empty) {
+      const parentRef = adminDb
+        .collection("products")
+        .doc(parentId);
+
+      await parentRef.update({
+        hasVariants: false,
+      });
+
+      console.log("✅ Parent updated: hasVariants = false");
+    }
+
+    // 🔥 OPTIONAL: delete image
+    if (imageUrl && !imageUrl.includes("/com.jpg")) {
+      try {
+        const parts = imageUrl.split("/");
+        const publicId = parts.slice(-2).join("/").split(".")[0];
+        await deleteImage(publicId);
+      } catch (err) {
+        console.error("Image delete failed:", err);
+      }
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Delete failed:", error);
+    return { errors: "Failed to delete product" };
   }
 }
 

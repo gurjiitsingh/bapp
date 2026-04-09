@@ -175,6 +175,17 @@ function TableRows({ product }: { product: ProductType }) {
       <TableCell className="whitespace-normal break-words max-w-[200px]">
         {product.productDesc}
       </TableCell>
+   <TableCell className="whitespace-normal break-words max-w-[200px]">
+  <span
+    className={`px-2 py-1 text-xs rounded-full ${
+      product.hasVariants
+        ? "bg-green-100 text-green-700"
+        : "bg-gray-100 text-gray-600"
+    }`}
+  >
+    {product.hasVariants ? "Has Variants" : "Simple"}
+  </span>
+</TableCell>
 
       {/* ⚙️ Actions */}
       <TableCell>
@@ -195,20 +206,29 @@ function TableRows({ product }: { product: ProductType }) {
           </Link>
 
           {/* 🧩 Variants */}
-          <Link
-            href={{
-              pathname: "/admin/product-variant",
-                query: { nameBase:product.name,categoryBase:product.productCat,id: product.id,categoryId:product.categoryId,productCat:product.productCat },
-          
-            }}
-          >
-            <Button
-              size="sm"
-              className="bg-amber-500 hover:bg-amber-600 text-white px-2 py-0 transition"
-            >
-              {TEXT.button_variants || "Variants"}
-            </Button>
-          </Link>
+        <Link
+  href={{
+    pathname: "/admin/product-variant",
+    query: {
+      nameBase: product.name,
+      categoryBase: product.productCat,
+      id: product.id,
+      categoryId: product.categoryId,
+      productCat: product.productCat,
+    },
+  }}
+>
+  <Button
+    size="sm"
+    className={`text-white px-2 py-0 transition ${
+      product.hasVariants
+        ? "bg-green-500 hover:bg-green-600"
+        : "bg-amber-500 hover:bg-amber-600"
+    }`}
+  >
+    {TEXT.button_variants || "Variants"}
+  </Button>
+</Link>
 
           {/* 🗑 Delete */}
           <Button

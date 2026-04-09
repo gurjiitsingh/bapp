@@ -81,6 +81,11 @@ const router = useRouter();
       );
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
+  if (!parentId || parentId.trim() === "") {
+    alert("⚠️ Parent Id required.\nGo back to Main product and initiate again.");
+    setIsSubmitting(false);
+    return;
+  }
 
     setValue("parentId", parentId);
     setValue("categoryId", categoryId);
@@ -93,6 +98,12 @@ const router = useRouter();
     setIsSubmitting(true);
     const formData = new FormData();
 
+      if (!data.parentId || data.parentId.trim() === "") {
+    alert("⚠️ Parent Id required.\nGo back to Main product and initiate again.");
+    setIsSubmitting(false);
+    return;
+  }
+
     const result1 = newProductSchema.safeParse(data);
 
 if (!result1.success) {
@@ -101,20 +112,25 @@ if (!result1.success) {
 
 const varaint_name = nameBase + " " + data.name
 
-    formData.append("name", varaint_name);
-    formData.append("parentId", data.parentId || "");
-    formData.append("hasVariants", "false");
-    formData.append("type", "variant");
-    formData.append("price", String(data.price ?? 0));
-    formData.append("discountPrice", String(data.discountPrice ?? 0));
-    formData.append("stockQty", String(data.stockQty ?? -1));
-    formData.append("sortOrder", String(data.sortOrder ?? 0));
-    formData.append("categoryId", data.categoryId || "");
-    formData.append("productDesc", data.productDesc || "");
-    formData.append("status",data.publishStatus || "published");
-    formData.append("isFeatured", data.isFeatured ? "true" : "false");
-    formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
-    formData.append("taxType", data.taxType as string);
+formData.append("name", varaint_name);
+formData.append("parentId", data.parentId || "");
+formData.append("hasVariants", "false");
+formData.append("type", "variant");
+formData.append("price", String(data.price ?? 0));
+formData.append("discountPrice", String(data.discountPrice ?? 0));
+formData.append("stockQty", String(data.stockQty ?? -1));
+formData.append("sortOrder", String(data.sortOrder ?? 0));
+
+// ✅ FIXES
+formData.append("categoryId", categoryId); // instead of data.categoryId
+formData.append("searchCode", ""); // or generate SKU if needed
+formData.append("taxType", data.taxType || "");
+
+// existing
+formData.append("productDesc", data.productDesc || "");
+formData.append("status", data.publishStatus || "published");
+formData.append("isFeatured", data.isFeatured ? "true" : "false");
+formData.append("taxRate", String(data.taxRate ?? 0));
     if (data.image && data.image[0]) {
       try {
         const resizedImage = await resizeImage(data.image[0], 400);
@@ -192,7 +208,7 @@ const varaint_name = nameBase + " " + data.name
             </h2>
             <input {...register("parentId")} hidden />
             <input {...register("categoryId")} hidden />
-            {/* <input {...register("parentId")} hidden /> */}
+          
             <div className="flex flex-col gap-1">
               <label className="label-style">
                 Name<span className="text-red-500">*</span>

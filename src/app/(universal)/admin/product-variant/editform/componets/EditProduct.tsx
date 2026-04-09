@@ -67,6 +67,7 @@ const EditProduct = () => {
 
     formData.append("id", data.id!);
     formData.append("name", data.name);
+    formData.append("searchCode", data.searchCode ?? "");
     formData.append("parentId", data.parentId || "");
     formData.append("hasVariants", "false");
     formData.append("type", "variant");
@@ -76,13 +77,15 @@ const EditProduct = () => {
     formData.append("categoryId", data.categoryId!);
     formData.append("sortOrder", data.sortOrder);
     formData.append("productDesc", data.productDesc ?? "");
-    formData.append("status",data.publishStatus ?? "published");
+    formData.append("publishStatus",data.publishStatus ?? "published");
     formData.append("oldImageUrl", data.oldImageUrl ?? "");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
-
+    formData.append("isFeatured", data.isFeatured ? "true" : "false");
     // Tax fields
     formData.append("taxRate", data.taxRate ?? "");
     formData.append("taxType", data.taxType ?? "inclusive");
+
+     formData.append("type", "variant");
 
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
@@ -93,7 +96,7 @@ const EditProduct = () => {
 
     if (!result?.errors) {
       //   alert(" Product updated successfully!");
-      router.push(`/admin/products?productId=${data.id}`);
+      router.push(`/admin/product-variant?productId=${data.id}`);
     } else {
       alert("❌ Something went wrong. Check console for details.");
       console.error(result.errors);
@@ -131,21 +134,31 @@ const EditProduct = () => {
               />
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
-
-            {/* <div className="flex flex-col gap-1">
-              <label className="label-style">Category</label>
-              <select {...register("categoryId")} className="input-style py-1">
-                <option value="0">Do not change Category</option>
-                {categoryData.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-destructive">
-                {errors.categoryId?.message}
-              </p>
-            </div> */}
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Category</label>
+                <select {...register("categoryId")} className="input-style py-1">
+                  <option value="">Select Category</option>
+                  {categoryData.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-destructive">
+                  {errors.categoryId?.message}
+                </p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Search Code / SKU</label>
+                <input
+                  {...register("searchCode")}
+                  className="input-style py-1"
+                  placeholder="Enter SKU, barcode, or short code"
+                />
+                <p className="text-xs text-destructive">{errors.searchCode?.message}</p>
+              </div>
+            </div>
           </div>
 
           {/* Price Section */}

@@ -41,13 +41,13 @@ const EditProduct = () => {
       setValue("price", data.price?.toString() ?? "0");
       setValue("discountPrice", data.discountPrice?.toString() ?? "0");
       setValue("stockQty", data.stockQty?.toString() ?? "0");
-      setValue("publishStatus",data.publishStatus ?? "published");
+      setValue("publishStatus", data.publishStatus ?? "published");
       setValue("sortOrder", data.sortOrder?.toString() ?? "0");
       setValue("categoryId", data.categoryId);
       setValue("isFeatured", data.isFeatured);
       setValue("taxRate", data.taxRate?.toString() ?? "");
       setValue("taxType", data.taxType ?? "inclusive");
-       setValue("searchCode", data.searchCode ?? "0");
+      setValue("searchCode", data.searchCode ?? "0");
     }
 
     async function loadCategories() {
@@ -71,11 +71,12 @@ const EditProduct = () => {
     formData.append("categoryId", data.categoryId!);
     formData.append("sortOrder", data.sortOrder);
     formData.append("productDesc", data.productDesc ?? "");
-    formData.append("status",data.publishStatus ?? "published");
+    formData.append("status", data.publishStatus ?? "published");
     formData.append("oldImageUrl", data.oldImageUrl ?? "");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
- formData.append("searchCode", data.searchCode ?? "");
-    
+    formData.append("searchCode", data.searchCode ?? "");
+    formData.append("type", "parent");
+
     // Tax fields
     formData.append("taxRate", data.taxRate ?? "");
     formData.append("taxType", data.taxType ?? "inclusive");
@@ -126,29 +127,21 @@ const EditProduct = () => {
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              
-
-
-
-                <div className="flex flex-col gap-1">
-                  <label className="label-style">Category</label>
-                  <select {...register("categoryId")} className="input-style py-1">
-                    <option value="">Select Category</option>
-                    {categoryData.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-destructive">
-                    {errors.categoryId?.message}
-                  </p>
-                </div>
-
-
-             
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Category</label>
+                <select {...register("categoryId")} className="input-style py-1">
+                  <option value="">Select Category</option>
+                  {categoryData.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-destructive">
+                  {errors.categoryId?.message}
+                </p>
+              </div>
               <div className="flex flex-col gap-1">
                 <label className="label-style">Search Code / SKU</label>
                 <input
@@ -159,21 +152,6 @@ const EditProduct = () => {
                 <p className="text-xs text-destructive">{errors.searchCode?.message}</p>
               </div>
             </div>
-
-            {/* <div className="flex flex-col gap-1">
-              <label className="label-style">Category</label>
-              <select {...register("categoryId")} className="input-style py-1">
-                <option value="0">Do not change Category</option>
-                {categoryData.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs text-destructive">
-                {errors.categoryId?.message}
-              </p>
-            </div> */}
           </div>
 
           {/* Price Section */}
@@ -296,9 +274,9 @@ const EditProduct = () => {
                   {...register("taxRate")}
                   className="input-style py-1"
                   placeholder="e.g. 5, 12, 18"
-                   onFocus={(e) => {
-    if (e.target.value) e.target.value = "";
-  }}
+                  onFocus={(e) => {
+                    if (e.target.value) e.target.value = "";
+                  }}
                 />
                 <p className="text-xs text-destructive">
                   {errors.taxRate?.message}
@@ -324,9 +302,8 @@ const EditProduct = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className={`btn-save w-full mt-2 ${
-                isSubmitting ? "opacity-80" : ""
-              }`}
+              className={`btn-save w-full mt-2 ${isSubmitting ? "opacity-80" : ""
+                }`}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>

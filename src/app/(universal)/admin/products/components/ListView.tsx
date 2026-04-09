@@ -163,6 +163,7 @@ useEffect(() => {
               <TableHead>Tax</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Desc</TableHead>
+               <TableHead>Variant</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
