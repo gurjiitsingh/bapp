@@ -120,7 +120,7 @@ export default function Catering() {
       <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-3">
         <p className="flex items-center gap-2">
           <FaPhoneAlt className="text-white text-lg" />
-          <span>05371 6266291</span>
+          <span>670 56 90 90</span>
         </p>
         <p className="flex items-center gap-2">
           <FaMobileAlt className="text-white text-lg" />
@@ -130,7 +130,7 @@ export default function Catering() {
       </div>
 
       <p className="flex justify-center items-center gap-2">
-        ✉️ info@masala-gf.de
+        ✉️ Bindujatt936@gmail.com
       </p>
     </div>
   </div>

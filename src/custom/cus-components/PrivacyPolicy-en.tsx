@@ -10,15 +10,15 @@ export default function PrivacyPolicy_en() {
     <div className="my-8 text-sm">
         🌍{' '}
         <Link  href="/privacy" className="text-blue-600 underline">
-          Zur deutschen Version wechseln
+          Cambiar a la versión en alemán
         </Link>
       </div>
       <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
 
       <p className="mb-4">
-        At <strong>Masala Taste of India</strong> (
-        <a href="https://www.masala-gf.de" className="text-blue-600 underline">
-          www.masala-gf.de
+        At <strong>Pizzeria Milano Segle</strong> (
+        <a href="https://www.pizzeria.com" className="text-blue-600 underline">
+          www.pizzeria.com
         </a>
         ), we take your privacy seriously. This page explains how we collect, use, and protect your personal data.
       </p>
@@ -65,8 +65,8 @@ export default function PrivacyPolicy_en() {
       </p>
       <p className="mb-4">
         📧{' '}
-        <a href="mailto:info@masala-gf.de" className="text-blue-600 underline">
-          info@masala-gf.de
+        <a href="mailto:info@pizzeria.com" className="text-blue-600 underline">
+          Bindujatt936@gmail.com
         </a>
       </p>
 
@@ -75,8 +75,8 @@ export default function PrivacyPolicy_en() {
         If you have any questions regarding this privacy policy, feel free to reach out to us:
         <br />
         📧{' '}
-        <a href="mailto:info@masala-gf.de" className="text-blue-600 underline">
-          info@masala-gf.de
+        <a href="mailto:Bindujatt936@gmail.com" className="text-blue-600 underline">
+          Bindujatt936@gmail.com
         </a>
       </p>
 

@@ -1,51 +1,71 @@
 import React from "react";
-import { FaMapMarkedAlt, FaPhoneAlt } from "react-icons/fa";
 
 export default function ContactUs() {
   return (
-    <div className="relative   py-26 px-2 md:p-0">
-      <div className="flex flex-col max-w-7xl mx-auto gap-1 md:flex-row my-24 justify-between">
+    <div className="relative container mx-auto py-5 p-1">
+      <div className="flex flex-col gap-8 md:flex-row my-24 justify-between">
         {/* Address Section */}
-        <div className="flex flex-col pb-12">
-          <h1 className="text-[#333] text-[3rem]">Grill Hut Junction</h1>
-          <div className="w-full  space-y-3 text-lg">
-         
-            
-                      <FaMapMarkedAlt className="w-8 h-8  mb-4 text-[#2b2e4a]" />
-                      <h3 className="uppercase text-sm tracking-wider font-semibold mb-2">Address</h3>
-                      
-                      <p className="text-sm">Grill Hut, Junction, </p>
-                        <p className="text-sm">G. T. Road, Bhogpur, </p>
-                        <p className="text-sm">Punjab 144201</p>
-                    </div>
-                    <div className="flex flex-col">
-                              <FaPhoneAlt className="w-8 h-8  my-4 text-[#2b2e4a]" />
-                              <h3 className="uppercase text-sm tracking-wider font-semibold mb-2">Phone</h3>
-                              <p className="text-sm"> 098766 70094</p>
-                            </div>
-         
+        <div className="flex flex-col">
+          <h1 className="text-[#333] text-[3rem]">Pizzeria Milano Segle</h1>
+          <div className="w-full md:w-[50%] space-y-3 text-lg">
+            <a
+              className="relative mb-5 block aspect-square w-20"
+              href="/de"
+            >
+              {/* <img
+                alt="pizzeria"
+                src="https://assets-prod-gillz.s3.eu-central-1.amazonaws.com/e251843b-6f27-458d-9d6f-0bc164920168/1731781573178_kxSGE1X.png"
+                width={80}
+                height={80}
+                className="object-contain"
+              /> */}
+            </a>
+            <a
+              className="flex items-center justify-start"
+              title="Calle de Segle XX 9 (08041) Guinardo 
+Barcelona   931416841  
+Horario 12.30 A 00.30 Miercoles A Lunes 
+Martes Estamos Cerrado"
+              href="http://maps.google.com/maps?q=52.4717066,10.5434431"
+              target="_blank"
+              rel="noreferrer"
+            >
+              📍 Calle de Segle XX 9 (08041) Guinardo 
+Barcelona   931416841  
+Horario 12.30 A 00.30 Miercoles A Lunes 
+Martes Estamos Cerrado
+            </a>
+            <a
+              className="flex items-center justify-start"
+              title="670 56 90 90"
+              href="tel:053716266291"
+              target="_blank"
+              rel="noreferrer"
+            >
+               670 56 90 90
+            </a>
+            <a
+              className="flex items-center justify-start"
+              title="Bindujatt936@gmail.com"
+              href="mailto:Bindujatt936@gmail.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+               Bindujatt936@gmail.com
+            </a>
+          </div>
         </div>
 
         {/* Google Map Section */}
-        <div className="google_map w-full md:w-[60%] ">
-          {/* <iframe
-            src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2430.4102913899947!2d10.540868176678202!3d52.47170657204857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNTLCsDI4JzE4LjEiTiAxMMKwMzInMzYuNCJF!5e0!3m2!1sen!2sin!4v1736146998436!5m2!1sen!2sin"
-            width="100%"
-            height="450"
-            style={{ border: 0 }}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe> */}
-
-
-
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3399.5954504037104!2d75.6419124!3d31.562715299999994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391bab4400000001%3A0xc237a042f8c2d3e0!2sGrill%20Hut%20Junction!5e0!3m2!1sen!2sin!4v1763782009403!5m2!1sen!2sin" 
-          width="100%" 
-          height="450" 
-          style={{ border: 0 }} 
-          loading="lazy" 
-          referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+        <div className="google_map w-full md:w-[50%]">
+         <iframe
+  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2991.7769972830206!2d2.1781470999999994!3d41.42235929999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a4bd2cecc1d093%3A0x19a41736bcc7bbb!2sCarrer%20del%20Segle%20XX%2C%209%2C%20Horta-Guinard%C3%B3%2C%2008041%20Barcelona%2C%20Spain!5e0!3m2!1sen!2sin!4v1774751413429!5m2!1sen!2sin"
+  width="100%"
+  height="450"
+  style={{ border: 0 }}
+  loading="lazy"
+  referrerPolicy="no-referrer-when-downgrade"
+></iframe>
         </div>
       </div>
     </div>

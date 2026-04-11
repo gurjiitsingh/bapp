@@ -90,7 +90,7 @@ export default function Footer() {
                 <Link href="/">
                   <img
                     className="h-24 md:h-24"
-                    src="/logo-10.png"
+                    src="/logo.png"
                     alt={fallbackText.logo_alt}
                   />
                 </Link>

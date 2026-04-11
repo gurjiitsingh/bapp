@@ -1,7 +1,19 @@
 "use client";
 
+/*
+========================================
+Hero Name: Spotlight Layered Hero
+Concept:
+- Full background image with spotlight lighting effect
+- Multiple gradient layers (radial + linear)
+- Focus center-left (like product spotlight)
+- Floating glow + depth illusion
+- Cinematic / premium food branding feel
+========================================
+*/
+
 import Image from "next/image";
-import { FaThumbsUp, FaShieldAlt, FaSmile } from "react-icons/fa";
+import { FaFire, FaStar } from "react-icons/fa";
 import { Chicle } from "next/font/google";
 import Link from "next/link";
 
@@ -10,117 +22,87 @@ const chicle = Chicle({
   weight: "400",
 });
 
-export default function HeroSectionCustom() {
+export default function HeroSectionSpotlight() {
   return (
-    <section className="relative w-full overflow-hidden">
-      
-      {/* ==========================
-          HERO IMAGE WITH LOGO
-      =========================== */}
-      <div className="relative w-full h-[50vh] md:h-[90vh] flex items-center justify-center">
+    <section className="relative w-full min-h-[95vh] overflow-hidden">
 
-        <Image
-          src="/images/hero-1.jpg"
-          alt="Restaurant background"
-          fill
-          className="object-cover"
-          priority
-        />
+      {/* Background Image */}
+      <Image
+        src="/images/hero-15.jpg"
+        alt="Food background"
+        fill
+        className="object-cover scale-110"
+        priority
+      />
 
-        {/* dark overlay (transparent right now) */}
-        <div className="absolute inset-0 bg-black/0 md:bg-black/0" />
+      {/* 🔥 Radial spotlight (center focus) */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(0,0,0,0.2),rgba(0,0,0,0.85))]" />
 
-        {/* LOGO inside container with padding */}
-        <div className="absolute bottom-[13rem] md:bottom-auto md:top-40 w-full">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex justify-center md:justify-start z-20">
-            <div
-              className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white flex items-center justify-center shadow-lg"
-              data-aos="fade-right"
-            >
-              <img
-                src="/logo-10.png"
-                alt="Logo"
-                className="w-20 h-20 md:w-24 md:h-24 object-contain"
-              />
-            </div>
+      {/* 🔥 Bottom depth layer */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+      {/*  Side gradient for readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-transparent to-black/40" />
+
+      {/*  Glow Accent */}
+      <div className="absolute top-32 left-10 w-72 h-72 bg-[#ea9244]/30 blur-3xl rounded-full" />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 min-h-[95vh] flex items-center">
+
+        <div className="max-w-2xl text-white">
+
+          {/* Tag */}
+          <div className="flex items-center gap-2 mb-4 text-[#ea9244] text-sm">
+            <FaFire />
+            Trending Now
           </div>
-        </div>
 
-        {/* curved transition bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-white rounded-t-[50%]" />
-      </div>
+          {/* Title */}
+          <h1
+            className={`${chicle.className} text-5xl md:text-7xl leading-tight mb-6`}
+          >
+            {/* Spice Up  
+            <br /> */}
+             Pizzeria Milano Segle
+          </h1>
 
-      {/* ==========================
-          TEXT + BUTTONS
-      =========================== */}
-      <div
-        className="
-        relative
-        bg-white
-        md:bg-transparent
-        md:absolute
-        md:inset-0
-        md:flex
-        md:items-center
-        md:justify-center
-      "
-      >
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex justify-center md:justify-start">
+          {/* Subtitle */}
+          <p className="text-white/80 text-sm md:text-base mb-8 max-w-lg">
+            From rich curries to sizzling delights — experience food
+            that excites every bite.
+          </p>
 
-          <div className="text-[#2b2b2b] md:text-white max-w-lg pb-6 mt-[-60px] md:mt-0">
+          {/* Buttons */}
+          <div className="flex flex-wrap gap-4">
 
-            {/* Title */}
-            <h2
-              className={`${chicle.className} text-4xl md:text-5xl my-3 text-[#ea9244] md:text-white`}
+            <Link
+              href="/#order_now"
+              className="bg-[#ea9244] hover:bg-[#ff7b00] text-white px-7 py-3 rounded-full text-sm font-semibold shadow-xl transition"
             >
-              Grill Hut Junction
-            </h2>
+              🍴 Order Now
+            </Link>
 
-            {/* Features */}
-            <ul className="space-y-2 text-base text-[12px]">
-              <li className="flex items-center justify-center md:justify-start gap-2 text-[#5e8147] md:text-white">
-                <FaThumbsUp className="text-[#5e8147] md:text-white" />
-                No platform fees
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-2 text-[#5e8147] md:text-white">
-                <FaShieldAlt className="text-[#5e8147] md:text-white" />
-                No payment fees
-              </li>
-              <li className="flex items-center justify-center md:justify-start gap-2 text-[#5e8147] md:text-white">
-                <FaSmile className="text-[#5e8147] md:text-white" />
-                1235{" "}
-                <a
-                  href="#"
-                  className="underline text-[#5e8147] md:text-white hover:text-green-400"
-                >
-                  Guest Recommendations
-                </a>
-              </li>
-            </ul>
-
-            {/* Buttons */}
-            <div className="flex flex-col md:flex-row justify-start gap-4 pt-4">
-              <Link
-                href="/#order_now"
-                rel="noopener noreferrer"
-                data-aos="fade-left"
-                className={`${chicle.className} bg-[#ea9244] border-white border-2 hover:bg-[#657f53] text-2xl text-white font-semibold px-6 py-1 rounded-xl transition text-center tracking-wide`}
-              >
-                🍴 ORDER MENU
-              </Link>
-
-              <Link
-                href="/menu"
-                rel="noopener noreferrer"
-                className={`${chicle.className} bg-white text-[#ea9244] text-2xl font-bold px-6 py-1 rounded-xl border border-[#ea9244] hover:bg-[#5e8147] hover:text-white transition text-center`}
-              >
-                Menu
-              </Link>
-            </div>
+            <Link
+              href="/menu"
+              className="border border-white/40 text-white px-7 py-3 rounded-full text-sm font-semibold hover:bg-white hover:text-black transition"
+            >
+              Explore Menu
+            </Link>
 
           </div>
         </div>
       </div>
+
+      {/* Floating Highlight Card */}
+      <div className="absolute bottom-10 right-6 md:right-16 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+        <FaStar className="text-yellow-500" />
+        <div className="text-sm">
+          <p className="font-semibold text-black">Top Rated Dish</p>
+          <p className="text-gray-600 text-xs">Loved by customers</p>
+        </div>
+      </div>
+
     </section>
   );
 }

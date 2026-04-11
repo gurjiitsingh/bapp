@@ -12,7 +12,7 @@ export default function Title() {
   return (
     <div className="flex gap-2 my-5">
       <div className="flex items-center">
-        <img src="/logo.webp" alt={TEXT.logo_alt} className="h-12 w-auto" />
+        <img src="/logo.png" alt={TEXT.logo_alt} className="h-12 w-auto" />
       </div>
       <div>
         <h1 className={`${sourGummy.className} rounded-2xl text-5xl w-full font-bold text-brand-heading`}>

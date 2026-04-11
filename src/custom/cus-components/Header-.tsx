@@ -19,7 +19,7 @@ export default function Header() {
         <div className=" p-2 rounded">
           <Link href={"/"}>
           <Image
-            src="/logo.webp"
+            src="/logo.png"
             alt="Logo"
             width={170}
              height={170}

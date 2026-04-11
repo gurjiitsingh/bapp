@@ -1,7 +1,7 @@
 export const SEO = {
-  title: "Grill Hut Junction – G. T. Road, Bhogpur, Punjab 144201",
+  title: "Pizzeria Milano Segle –  Carrer del Segle XX, 9, Horta-Guinardó, 08041 Barcelona, Spain",
   description:
-    "Authentic food at Grill Hut , G. T. Road, Bhogpur, Punjab 144201. Order online for delivery ",
+    "Authentic food at Pizzeria Milano Segle , Carrer del Segle XX, 9, Horta-Guinardó, 08041 Barcelona, Spain. Order online for delivery ",
 };
 
 
@@ -11,15 +11,15 @@ export const BRANDING = {
   offer_instruction: "",
   delivery_note: "Delivery is also available.",
   home_page_disclaimer:"",// "Food may differ from image.",
-  brand: "Grill Hut Junction",
+  brand: "Pizzeria Milano Segle",
   tag_line: "",
-  brand_name: "Grill Hut Junction ",
+  brand_name: "Pizzeria Milano Segle ",
    poweredBy: "Powered by",
     poweredByUrl: "http://www.gstadeveloper.com",
     copyright: {
       prefix: "Copyright ©",
       suffix: "All Rights Reserved by",
-      company: "Grill Hut Junction "
+      company: "Pizzeria Milano Segle "
     },
 
 
@@ -30,7 +30,7 @@ export const BRANDING = {
   copyright: {
     prefix: "Copyright ©",
     suffix: "All Rights Reserved by",
-    company: "Grill Hut Junction ",
+    company: "Pizzeria Milano Segle ",
   },
 },
 

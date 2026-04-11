@@ -13,13 +13,13 @@ export const BRANDING = {
   home_page_disclaimer:"",// "Food may differ from image.",
   brand: "Masala",
   tag_line: "Taste of India",
-  brand_name: "Masala Taste of India",
+  brand_name: "Pizzeria Milano Segle",
    poweredBy: "Powered by",
     poweredByUrl: "http://www.gstadeveloper.com",
     copyright: {
       prefix: "Copyright ©",
       suffix: "All Rights Reserved by",
-      company: "Masala Taste of India"
+      company: "Pizzeria Milano Segle"
     },
 
 
@@ -30,7 +30,7 @@ export const BRANDING = {
   copyright: {
     prefix: "Copyright ©",
     suffix: "All Rights Reserved by",
-    company: "Masala Taste of India",
+    company: "Pizzeria Milano Segle",
   },
 },
 

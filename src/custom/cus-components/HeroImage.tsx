@@ -93,7 +93,7 @@ export default function HeroSection() {
             </div>
             <div className="text-left">
               {/* <p className="text-sm font-medium">Contact Us</p> */}
-              <p className="font-bold">05371 6266291</p>
+              <p className="font-bold">670 56 90 90</p>
             </div>
           </div>
 </div>
