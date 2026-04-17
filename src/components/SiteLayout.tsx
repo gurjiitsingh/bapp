@@ -7,7 +7,7 @@ import { BargerMenu } from "@/components/Bargermenu/Menu";
 import { Providers } from "@/app/Providers";
 import dynamic from "next/dynamic";
 
-// ✅ Conditionally import CartBottom based on .env (completely excluded if disabled)
+//  Conditionally import CartBottom based on .env (completely excluded if disabled)
 const isCartEnabled = process.env.NEXT_PUBLIC_CART_BOTTOM_ENABLED === "true";
 const CartBottom = isCartEnabled
   ? dynamic(() => import("@/components/CartBottom/CartBottom"), { ssr: false })
@@ -33,7 +33,7 @@ export default function SiteLayout({
       {/* Footer */}
       <Footer />
 
-      {/* ✅ Cart button — only renders if enabled in .env */}
+      {/*  Cart button — only renders if enabled in .env */}
       {isCartEnabled && CartBottom && (
         <div className="fixed bottom-8 right-4 z-50 w-fit">
           <CartBottom />

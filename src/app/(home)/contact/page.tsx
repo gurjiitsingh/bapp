@@ -1,5 +1,6 @@
-import ContactUs from "@/custom/cus-components/ContactUs";
+import ContactUsWrapper from "@/components/ContactUsWrapper";
+
 
 export default function Page() {
-  return <ContactUs />;
+  return <ContactUsWrapper />;
 }

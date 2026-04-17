@@ -17,8 +17,8 @@ setProductToSearchQuery: (e: string) => void;
   setNewOrderCondition: (e: boolean) => void;
   open: boolean;
   deliveryType: string;
-  deliveryCost: number;
-  setDeliveryCost: (e: number) => void;
+  deliveryFee: number;
+  setdeliveryFee: (e: number) => void;
   sideBarToggle: (e: boolean) => void;
   openBargerMenu: boolean;
   bargerMenuToggle: (e: boolean) => void;
@@ -63,8 +63,8 @@ setProductToSearchQuery: (e: string) => e,
   setNewOrderCondition: (e: boolean) => {
     return e;
   },
-  deliveryCost: 0,
-  setDeliveryCost: (e) => {
+  deliveryFee: 0,
+  setdeliveryFee: (e) => {
     return e;
   },
   open: false,
@@ -99,12 +99,12 @@ setProductToSearchQuery: (e: string) => e,
   deliveryDis: {
     id: "",
     name: "",
-    price: "",
+    deliveryFee: 0,
     minSpend: 0,
-    deliveryDesc: "",
+    note: "",
     productCat: "",
     //image: string;
-    deliveryDistance: "",
+    deliveryDistance: 0,
   },
   setdeliveryDis: (e) => {
     return e;

@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-//import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, JSX } from "react";
 import { useLanguage } from "@/store/LanguageContext";
-
+import { signOut } from "next-auth/react";
 import { GoHome } from "react-icons/go";
 import {
   MdDashboard,
@@ -16,6 +15,7 @@ import {
   MdSettings,
   MdOutlineCrisisAlert,
   MdOutlineBackup,
+  MdAccessTime,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { BsCardList } from "react-icons/bs";
@@ -23,10 +23,8 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { IoIosLogOut } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 import { FaClipboardList } from "react-icons/fa6";
-
+import { MdTableBar } from "react-icons/md";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-
-
 
 type SidebarFlagKey =
   | "SHOW_HOME"
@@ -40,35 +38,46 @@ type SidebarFlagKey =
   | "SHOW_VARIANTS"
   | "SHOW_COUPON"
   | "SHOW_DELIVERY"
+  | "SHOW_LOCATIONS"
   | "SHOW_USERS"
   | "SHOW_TIMMING"
   | "SHOW_SETTING"
-  | "SHOW_DATA_BACKUP";
+  | "SHOW_DATA_BACKUP"
+  | "SHOW_OUTLET"   // ⭐ NEW
+   | "SHOW_TABLES"; 
 
-  type Titem = {
-  key: SidebarFlagKey;  // ✅ exact string union
+type Titem = {
+  key: SidebarFlagKey;
   name: string;
   link: string;
   icon: JSX.Element;
 };
 
+// ⭐ DEFAULT TRUE — ONLY HIDE IF env = "0"
+function flag(env?: string) {
+  return env !== "0";
+}
 
 export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
-  SHOW_HOME: process.env.NEXT_PUBLIC_SHOW_HOME === "1",
-  SHOW_ORDERS: process.env.NEXT_PUBLIC_SHOW_ORDERS === "1",
-  SHOW_ORDERS_REALTIME: process.env.NEXT_PUBLIC_SHOW_ORDERS_REALTIME === "1",
-  SHOW_SALE: process.env.NEXT_PUBLIC_SHOW_SALE === "1",
-  SHOW_RESERVATIONS: process.env.NEXT_PUBLIC_SHOW_RESERVATIONS === "1",
-  SHOW_CATEGORIES: process.env.NEXT_PUBLIC_SHOW_CATEGORIES === "1",
-  SHOW_PICKUP_DISCOUNT: process.env.NEXT_PUBLIC_SHOW_PICKUP_DISCOUNT === "1",
-  SHOW_PRODUCTS: process.env.NEXT_PUBLIC_SHOW_PRODUCTS === "1",
-  SHOW_VARIANTS: process.env.NEXT_PUBLIC_SHOW_VARIANTS === "1",
-  SHOW_COUPON: process.env.NEXT_PUBLIC_SHOW_COUPON === "1",
-  SHOW_DELIVERY: process.env.NEXT_PUBLIC_SHOW_DELIVERY === "1",
-  SHOW_USERS: process.env.NEXT_PUBLIC_SHOW_USERS === "1",
-   SHOW_TIMMING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
-  SHOW_SETTING: process.env.NEXT_PUBLIC_SHOW_SETTING === "1",
-  SHOW_DATA_BACKUP: process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP === "1",
+  SHOW_HOME: flag(process.env.NEXT_PUBLIC_SHOW_HOME),
+  SHOW_ORDERS: flag(process.env.NEXT_PUBLIC_SHOW_ORDERS),
+  SHOW_ORDERS_REALTIME: flag(process.env.NEXT_PUBLIC_SHOW_ORDERS_REALTIME),
+  SHOW_SALE: flag(process.env.NEXT_PUBLIC_SHOW_SALE),
+  SHOW_RESERVATIONS: flag(process.env.NEXT_PUBLIC_SHOW_RESERVATIONS),
+  SHOW_CATEGORIES: flag(process.env.NEXT_PUBLIC_SHOW_CATEGORIES),
+  SHOW_PICKUP_DISCOUNT: flag(process.env.NEXT_PUBLIC_SHOW_PICKUP_DISCOUNT),
+  SHOW_PRODUCTS: flag(process.env.NEXT_PUBLIC_SHOW_PRODUCTS),
+  SHOW_VARIANTS: flag(process.env.NEXT_PUBLIC_SHOW_VARIANTS),
+  SHOW_COUPON: flag(process.env.NEXT_PUBLIC_SHOW_COUPON),
+  SHOW_DELIVERY: flag(process.env.NEXT_PUBLIC_SHOW_DELIVERY),
+  SHOW_LOCATIONS: flag(process.env.NEXT_PUBLIC_SHOW_LOCATIONS),
+  SHOW_USERS: flag(process.env.NEXT_PUBLIC_SHOW_USERS),
+  SHOW_TIMMING: flag(process.env.NEXT_PUBLIC_SHOW_TIMMING),
+  SHOW_SETTING: flag(process.env.NEXT_PUBLIC_SHOW_SETTING),
+  SHOW_DATA_BACKUP: flag(process.env.NEXT_PUBLIC_SHOW_DATA_BACKUP),
+
+  SHOW_OUTLET: flag(process.env.NEXT_PUBLIC_SHOW_OUTLET),   
+  SHOW_TABLES: flag(process.env.NEXT_PUBLIC_SHOW_TABLES),
 };
 
 const Sidebar = () => {
@@ -87,7 +96,7 @@ const Sidebar = () => {
         coupon: "Coupon",
         delivery: "Delivery",
         users: "Users",
-        dayschedule:"Timing",
+        dayschedule: "Opening Timing",
         setting: "Setting",
         data_backup: "Data Backup",
         logout: "Logout",
@@ -105,58 +114,55 @@ const Sidebar = () => {
       name: BRANDING.sidebar.orders_realtime,
       link: "/admin/order-realtime",
       icon: <MdOutlineCrisisAlert />,
-    },  { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
-     { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
-   
-    {
-      key: "SHOW_RESERVATIONS",
-      name: BRANDING.sidebar.reservations,
-      link: "/admin/reservations",
-      icon: <BsCardList />,
     },
-   { key: "SHOW_SALE", name: BRANDING.sidebar.sale, link: "/admin/sale", icon: <FaClipboardList /> },
+    { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
+    { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
+
+    { key: "SHOW_RESERVATIONS", name: BRANDING.sidebar.reservations, link: "/admin/reservations", icon: <BsCardList /> },
+
+    { key: "SHOW_SALE", name: BRANDING.sidebar.sale, link: "/admin/sale", icon: <FaClipboardList /> },
+
     {
       key: "SHOW_PICKUP_DISCOUNT",
       name: BRANDING.sidebar.pickup_discount,
       link: "/admin/pickupdiscount/pickup-discount",
       icon: <MdLocalOffer />,
     },
-   
-    {
-      key: "SHOW_VARIANTS",
-      name: BRANDING.sidebar.variants,
-      link: "/admin/flavorsProductG",
-      icon: <MdRestaurantMenu />,
-    },
+
+    { key: "SHOW_VARIANTS", name: BRANDING.sidebar.variants, link: "/admin/flavorsProductG", icon: <MdRestaurantMenu /> },
+
     { key: "SHOW_COUPON", name: BRANDING.sidebar.coupon, link: "/admin/coupon", icon: <MdLocalOffer /> },
+
     { key: "SHOW_DELIVERY", name: BRANDING.sidebar.delivery, link: "/admin/delivery", icon: <TbTruckDelivery /> },
+
+    { key: "SHOW_LOCATIONS", name: "Locations", link: "/admin/locations", icon: <TbTruckDelivery /> },
+
     { key: "SHOW_USERS", name: BRANDING.sidebar.users, link: "/admin/users", icon: <FaUsers /> },
-     { key: "SHOW_TIMMING", name: BRANDING.sidebar.dayschedule, link: "/admin/day-schedule/form", icon: <MdSettings /> },
-     { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
-   
+
+    { key: "SHOW_TIMMING", name: "Opening Timing", link: "/admin/day-schedule/form", icon: <MdAccessTime /> },
+
+    {
+      key: "SHOW_OUTLET",
+      name: "Outlet",
+      link: "/admin/outlet",
+      icon: <MdSettings />,
+    },
+    {
+    key: "SHOW_TABLES",
+    name: "Tables",
+    link: "/admin/tables",
+    icon: <MdTableBar />, // ⭐ or another icon
+  },
+
+    { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
+
     { key: "SHOW_DATA_BACKUP", name: BRANDING.sidebar.data_backup, link: "/admin/data-backup", icon: <MdOutlineBackup /> },
   ];
 
-  // Filter logic:
-  // - If NEXT_PUBLIC_<KEY> === "0" -> hide
-  // - Otherwise (undefined or "1" or any other) -> show (default visible)
-
-
-const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
-
-  // debug (optional) — remove in production
-  useEffect(() => {
-  
-      menuList.reduce((acc, it) => {
-        acc[it.key] = process.env[`NEXT_PUBLIC_${it.key}`];
-        return acc;
-      }, {} as Record<string, string | undefined>)
-    
-  }, []);
+  const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
 
   return (
     <>
-      {/* Mobile close button */}
       <div className="flex items-center pt-4 px-4 justify-between lg:hidden">
         <div></div>
         <button
@@ -168,25 +174,28 @@ const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);
         </button>
       </div>
 
-      {/* Sidebar container */}
       <div className="pt-6 h-screen w-[260px] flex flex-col justify-between px-3 py-6 sb-bg shadow-md">
-        {/* Navigation */}
         <ul className="flex flex-col gap-1">
           {filteredMenu.map((item) => (
             <Tab key={item.link} item={item} />
           ))}
         </ul>
 
-        {/* Logout */}
-        <div className="mt-6 pt-4">
-          <button
-          //  onClick={() => signOut()}
-            className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
-          >
+        {/* <div className="mt-6 pt-4">
+          <button className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition">
             <IoIosLogOut size={20} />
             {BRANDING.sidebar.logout}
           </button>
-        </div>
+        </div> */}
+
+<button
+  onClick={() => signOut({ callbackUrl: "/auth/login" })}
+  className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
+>
+  <IoIosLogOut size={20} />
+  {BRANDING.sidebar.logout}
+</button>
+
       </div>
     </>
   );

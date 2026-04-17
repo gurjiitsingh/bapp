@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { editPorductSchema, TeditdeliverySchema } from "@/lib/types/deliveryType";
+import { editProductSchema, TeditdeliverySchema } from "@/lib/types/deliveryType";
 import { editdelivery, fetchdeliveryById } from "@/app/(universal)/action/delivery/dbOperation";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -18,7 +18,7 @@ const PageComp = () => {
     setValue,
     handleSubmit,
   } = useForm<TeditdeliverySchema>({
-    resolver: zodResolver(editPorductSchema),
+    resolver: zodResolver(editProductSchema),
   });
 
   useEffect(() => {
@@ -27,11 +27,13 @@ const PageComp = () => {
       if (!deliveryData) return;
       setValue("id", id);
       setValue("name", deliveryData.name);
-      setValue("deliveryDesc", deliveryData.deliveryDesc);
+      setValue("note", deliveryData.note);
       setValue("minSpend", deliveryData.minSpend.toString());
-      setValue("price", deliveryData.price);
+     
+      setValue("deliveryFee",deliveryData.deliveryFee != null ? deliveryData.deliveryFee.toString() : "");
       setValue("productCat", deliveryData.productCat);
-      setValue("deliveryDistance", deliveryData.deliveryDistance);
+      setValue("deliveryFee",deliveryData.deliveryDistance != null ? deliveryData.deliveryDistance.toString() : "");
+    
     }
     prefetch();
   }, [id, setValue]);
@@ -40,9 +42,9 @@ const PageComp = () => {
     const formData = new FormData();
     formData.append("id", data.id!);
     formData.append("name", data.name);
-    formData.append("price", data.price);
+    formData.append("deliveryFee", data.deliveryFee);
     formData.append("productCat", data.productCat);
-    formData.append("deliveryDesc", data.deliveryDesc);
+    formData.append("note", data.note);
     formData.append("minSpend", data.minSpend!);
     formData.append("deliveryDistance", data.deliveryDistance!);
 
@@ -83,21 +85,21 @@ const PageComp = () => {
               </div>
             </div>
 
-            {/* Price & Spend */}
+            {/* deliveryFee & Spend */}
             <div className="flex flex-col gap-3 bg-white rounded-xl p-4 border">
               <h2 className="font-semibold text-gray-700">Pricing Details</h2>
 
               <div className="flex flex-col gap-1">
                 <label className="label-style">
-                  Price<span className="text-red-500">*</span>
+                  deliveryFee<span className="text-red-500">*</span>
                 </label>
                 <input
-                  {...register("price")}
+                  {...register("deliveryFee")}
                   className="input-style py-1"
-                  placeholder="Enter price"
+                  placeholder="Enter deliveryFee"
                 />
                 <span className="text-[0.8rem] font-medium text-destructive">
-                  {errors.price?.message && <>{errors.price.message}</>}
+                  {errors.deliveryFee?.message && <>{errors.deliveryFee.message}</>}
                 </span>
               </div>
 
@@ -141,12 +143,12 @@ const PageComp = () => {
               <div className="flex flex-col gap-1">
                 <label className="label-style">Delivery Description</label>
                 <textarea
-                  {...register("deliveryDesc")}
+                  {...register("note")}
                   className="textarea-style py-1"
                   placeholder="Enter description"
                 />
                 <p className="text-[0.8rem] font-medium text-destructive">
-                  {errors.deliveryDesc && <>Delivery description is required</>}
+                  {errors.note && <>Delivery description is required</>}
                 </p>
               </div>
 

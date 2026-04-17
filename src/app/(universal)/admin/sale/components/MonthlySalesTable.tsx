@@ -22,6 +22,27 @@ import {
 import TableRows from './TableRows';
 
 
+function getCreatedAtDate(value: any): Date | null {
+  if (!value) return null;
+
+  // Firestore Timestamp
+  if (value instanceof Timestamp) {
+    return value.toDate();
+  }
+
+  // Serialized timestamp
+  if (value?.seconds) {
+    return new Date(value.seconds * 1000);
+  }
+
+  // POS long
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+
+  return null;
+}
+
 
 type MonthlySales = {
   month: string;
@@ -33,6 +54,8 @@ type MonthlySales = {
 export default function MonthlySalesTable() {
   const [monthlySales, setMonthlySales] = useState<MonthlySales[]>([]);
   const [loading, setLoading] = useState(true);
+
+  
 
   useEffect(() => {
     fetchMonthlySales();
@@ -46,12 +69,12 @@ export default function MonthlySalesTable() {
 
       const salesMap: Record<string, MonthlySales> = {};
 
-     snapshot.docs.forEach((doc) => {
+snapshot.docs.forEach((doc) => {
   const data = doc.data() as orderMasterDataT;
-  const createdAt = (data.createdAt as Timestamp)?.toDate();
-  const endTotalG = data.endTotalG || 0;
+  const createdAt = getCreatedAtDate(data.createdAt);
+  const grandTotal = data.grandTotal || 0;
 
-  if (!createdAt || data.status !== 'Completed') return; // ✅ Filter only completed orders
+  if (!createdAt || data.orderStatus !== 'COMPLETED') return;
 
   const monthKey = `${createdAt.getFullYear()}-${(createdAt.getMonth() + 1)
     .toString()
@@ -65,9 +88,10 @@ export default function MonthlySalesTable() {
     };
   }
 
-  salesMap[monthKey].totalSales += endTotalG;
+  salesMap[monthKey].totalSales += grandTotal;
   salesMap[monthKey].orderCount += 1;
 });
+
 
 
       const sorted = Object.values(salesMap).sort((a, b) =>
@@ -111,14 +135,21 @@ export default function MonthlySalesTable() {
               <tr>
                 <th className="border px-4 py-2 text-left">Month1</th>
                 <th className="border px-4 py-2 text-left">Total Orders</th>
-                <th className="border px-4 py-2 text-left">Total Sales (€)</th>
+                <th className="border px-4 py-2 text-left">Total Sales </th>
               </tr>
             </thead>
             <tbody>
              
-                {monthlySales.map((row,i) => (
-              <TableRows key={i} row={row} />
-            ))}
+               {monthlySales.map((row, i) => (
+  <TableRows
+    key={i}
+    row={{
+      label: row.month,
+      orderCount: row.orderCount,
+      totalSales: row.totalSales,
+    }}
+  />
+))}
             </tbody>
           </table>
         </>

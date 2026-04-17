@@ -16,7 +16,7 @@ export default function Checkout(){
    const deliveryType = searchParams.get("deliveryType");
   const customerNote = searchParams.get("customerNote");
   const couponCode = searchParams.get("couponCode");
-  const couponDiscount = searchParams.get("couponDiscount");
+  const couponPercent = searchParams.get("couponPercent");
   
 
     const [{ options, isPending,isRejected,isResolved, isInitial  }, dispatch] = usePayPalScriptReducer();
@@ -65,7 +65,7 @@ export default function Checkout(){
       return actions.order.capture().then((details) => {
 	  // const payer = details.payer;
     // 	  console.log("details-----",payer);
-          router.push(`/complete?paymentType=paypal&status=success&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}&customerNote=${customerNote}&couponCode=${couponCode}&couponDiscount=${couponDiscount}`)
+          router.push(`/complete?paymentType=paypal&status=success&orderMasterId=${orderMasterId}&deliveryType=${deliveryType}&customerNote=${customerNote}&couponCode=${couponCode}&couponPercent=${couponPercent}`)
        });
     };
  

@@ -16,8 +16,10 @@ export type ProductType = {
   purchaseSession: string | null;
   quantity: number | null;
   flavors: boolean;
-  status: 'published' | 'draft' | 'out_of_stock' | undefined;
+  publishStatus: 'published' | 'draft';
+  stockStatus: 'in_stock' | 'out_of_stock';
 
+  searchCode?: string | null;   // barcode / short code / SKU (nullable)
   // NEW FIELDS
   taxRate: number | undefined;
   taxType: 'inclusive' | 'exclusive' | undefined;
@@ -27,33 +29,20 @@ export type ProductType = {
   type?: 'parent' | 'variant';
 };
 
-export type ProductBase = {
-  id: string;
-  name: string;
-  price: number;
-  discountPrice?: number;
-  categoryId: string;
-  productCat?: string;
-  baseProductId: string;
-  productDesc: string;
-  sortOrder: number;
-  image: string;
-  isFeatured: boolean;
-  purchaseSession: string | null;
-  stockQty: number;
-  flavors: boolean;
-  status: 'published' | 'draft' | 'out_of_stock';
-  taxRate?: number;
-  taxType?: 'inclusive' | 'exclusive';
-};
 
 
-export const newPorductSchema = z.object({
+
+
+export const newProductSchema = z.object({
   id: z.string().optional(),
-parentId: z.string().optional(),
- hasVariants: z.boolean().optional(),
+  parentId: z.string().optional(),
+  hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
-  // Mandatory
+searchCode: z.string().max(50).optional(),
+  // --------------------------
+  // MANDATORY
+  // --------------------------
+
   name: z.string().min(1, { message: "Product name is required" }),
 
   price: z
@@ -73,14 +62,30 @@ parentId: z.string().optional(),
 
   categoryId: z.string().min(1, { message: "Please select category" }),
 
-  status: z.enum(["published", "draft", "out_of_stock"]),
+  // --------------------------
+  // ✅ NEW STATUS FIELDS (CLEAN)
+  // --------------------------
 
-  // Optional
+  publishStatus: z
+  .enum(["published", "draft"])
+  .default("published"),
+
+  stockStatus: z
+    .enum(["in_stock", "out_of_stock"])
+    .optional()
+    .nullable(), // ✅ allows null or undefined
+
+  // --------------------------
+  // OPTIONAL
+  // --------------------------
+
   discountPrice: z
     .union([z.string(), z.number()])
     .optional()
     .transform((val) =>
-      val === undefined || val === "" ? undefined : Number(val.toString().replace(",", "."))
+      val === undefined || val === ""
+        ? undefined
+        : Number(val.toString().replace(",", "."))
     )
     .refine(
       (val) => val === undefined || (!isNaN(val) && val >= 0),
@@ -105,7 +110,7 @@ parentId: z.string().optional(),
   flavors: z.boolean().optional(),
 
   // --------------------------
-  // NEW OPTIONAL FIELDS
+  // TAX
   // --------------------------
 
   taxRate: z
@@ -121,31 +126,42 @@ parentId: z.string().optional(),
       { message: "Invalid tax rate" }
     ),
 
-  taxType: z
-    .enum(["inclusive", "exclusive"])
-    .optional(),
+  taxType: z.enum(["inclusive", "exclusive"]).optional(),
 });
 
-export type TnewProductSchema = z.infer<typeof newPorductSchema>;
 
-export const editPorductSchema = z.object({
+export type TnewProductSchema = z.infer<typeof newProductSchema>;
+
+export const editProductSchema = z.object({
   id: z.string().optional(),
-parentId: z.string().optional(),
- hasVariants: z.boolean().optional(),
+  parentId: z.string().optional(),
+  hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
+searchCode: z.string().max(50).optional(),
+  // --------------------------
+  // REQUIRED
+  // --------------------------
 
   name: z.string().min(1, { message: "Product name is required" }),
 
   price: z
     .string()
-    .refine((value) => /^\d*[.,]?\d*$/.test(value), "Invalid product price"),
+    .refine(
+      (value) => /^\d*[.,]?\d*$/.test(value),
+      "Invalid product price"
+    ),
+
+  sortOrder: z.string().min(1, { message: "Invalid sort order" }),
+
+  // --------------------------
+  // OPTIONAL PRICING
+  // --------------------------
 
   discountPrice: z
     .string()
     .optional()
     .refine(
-      (value) =>
-        !value || /^\d*[.,]?\d*$/.test(value),
+      (value) => !value || /^\d*[.,]?\d*$/.test(value),
       "Invalid discount price"
     ),
 
@@ -153,45 +169,58 @@ parentId: z.string().optional(),
     .string()
     .optional()
     .refine(
-      (value) =>
-        !value || /^\d*[.,]?\d*$/.test(value),
+      (value) => !value || /^\d*[.,]?\d*$/.test(value),
       "Invalid stock quantity"
     ),
 
-  sortOrder: z.string().min(1, { message: "Please select category" }),
+  // --------------------------
+  // CATEGORY
+  // --------------------------
 
   categoryId: z.string().optional(),
   categoryIdOld: z.string().optional(),
 
-  productDesc: z.string().optional(),
+  // --------------------------
+  // CONTENT
+  // --------------------------
 
+  productDesc: z.string().optional(),
   isFeatured: z.boolean().optional(),
 
   image: z.any().optional(),
   oldImageUrl: z.string().optional(),
 
-  status: z
-    .enum(["published", "draft", "out_of_stock"])
+  // --------------------------
+  // ✅ NEW STATUS FIELDS (CLEAN)
+  // --------------------------
+
+publishStatus: z
+  .enum(["published", "draft"])
+  .default("published"),
+
+  stockStatus: z
+    .enum(["in_stock", "out_of_stock"])
     .optional()
-    .nullable(),
+    .nullable(), // ✅ can be null / undefined
 
   // --------------------------
-  // NEW OPTIONAL FIELDS
+  // TAX
   // --------------------------
 
   taxRate: z
     .string()
     .optional()
     .refine(
-      (value) =>
-        !value || /^\d*[.,]?\d*$/.test(value),
+      (value) => !value || /^\d*[.,]?\d*$/.test(value),
       "Invalid tax rate"
     ),
 
-  taxType: z.enum(["inclusive", "exclusive",""]).optional(),
+  taxType: z
+    .enum(["inclusive", "exclusive"])
+    .optional(),
 });
 
-export type TeditProductSchema = z.infer<typeof editPorductSchema>;
+export type TeditProductSchema = z.infer<typeof editProductSchema>;
 
 
 

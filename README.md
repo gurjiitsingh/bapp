@@ -45,10 +45,10 @@ const orderData = [] as orderMasterDataT[];
     userId: UserAddedId,
     addressId: addressAddedId,
     total:total,
-    status:"pending",
+    status:"NEW",
     totalDiscountG,
     time: now_german,
-    srno:new_srno,
+   srno:new_srno,
    
   } as orderMasterDataT; 
 

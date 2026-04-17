@@ -79,13 +79,13 @@ export default function OrderComplete() {
   // useEffect(() => {
   //   createOrder();
   //   if (PaymentType === 'paypal' && Paymentstatus === 'success') {
-  //     updateOrderStatus('Completed');
+  //     updateOrderStatus('COMPLETED');
   //   }
   //   if (PaymentType === 'paypal' && Paymentstatus === 'fail') {
   //     updateOrderStatus('Payment failed');
   //   }
   //   if (PaymentType === 'stripe' && Paymentstatus === 'success') {
-  //     updateOrderStatus('Completed');
+  //     updateOrderStatus('COMPLETED');
   //   }
   //   if (PaymentType === 'stripe' && Paymentstatus === 'fail') {
   //     updateOrderStatus('Payment failed');
@@ -97,7 +97,7 @@ export default function OrderComplete() {
       await createOrder();
 
       if (PaymentType === "paypal" && Paymentstatus === "success") {
-        await updateOrderStatus("Completed");
+        await updateOrderStatus("COMPLETED");
         if (MAINTAIN_STOCK) await decreaseProductStockFromOrder(id);
       }
       if (PaymentType === "paypal" && Paymentstatus === "fail") {
@@ -105,7 +105,7 @@ export default function OrderComplete() {
       }
 
       if (PaymentType === "stripe" && Paymentstatus === "success") {
-        await updateOrderStatus("Completed");
+        await updateOrderStatus("COMPLETED");
         if (MAINTAIN_STOCK) await decreaseProductStockFromOrder(id);
       }
       if (PaymentType === "stripe" && Paymentstatus === "fail") {
@@ -114,7 +114,7 @@ export default function OrderComplete() {
 
       // COD / Cash
       if (PaymentType === "cod" || PaymentType === "Barzahlung") {
-        await updateOrderStatus("Completed");
+        await updateOrderStatus("COMPLETED");
         if (MAINTAIN_STOCK) await decreaseProductStockFromOrder(id);
       }
     }

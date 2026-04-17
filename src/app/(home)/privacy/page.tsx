@@ -1,10 +1,8 @@
-'use client';
+import PrivacyPolicy from "@/custom/cus-components/PrivacyPolicy";
+import { getCachedOutlet } from "@/lib/outlet/getCachedOutlet";
 
-import PrivacyPolicy from '@/custom/cus-components/PrivacyPolicy';
+export default async function PrivacyPolicyWrapper() {
+  const outlet = await getCachedOutlet();
 
-
-export default function Page() {
-  return ( 
-    <PrivacyPolicy />
-  );
+  return <PrivacyPolicy outlet={outlet} />;
 }

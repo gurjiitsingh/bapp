@@ -13,6 +13,10 @@ import { orderMasterDataT } from "@/lib/types/orderMasterType";
 import { addressResT } from "@/lib/types/addressType";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
+
 export default function PrintOrderPage() {
   const searchParams = useSearchParams();
   const masterOrderId = searchParams.get("masterId") as string;
@@ -20,7 +24,8 @@ export default function PrintOrderPage() {
 
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
   const [customerAddress, setCustomerAddress] = useState<addressResT>();
-  const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+  const [orderMasterData, setOrderMasterData] =
+  useState<orderMasterDataSafeT | null>(null);
   const { settings } = UseSiteContext();
 
   useEffect(() => {
@@ -55,14 +60,14 @@ export default function PrintOrderPage() {
       (settings.locale ) as string
     );
  
-  const totalTax = formatCurrency(Number(orderMasterData?.totalTax ?? 0));
-  const finalGrandTotal = formatCurrency(Number(orderMasterData?.finalGrandTotal ?? 0));
-  const endTotal = formatCurrency(Number(orderMasterData?.endTotalG ?? 0));
+  const totalTax = formatCurrency(Number(orderMasterData?.taxTotal ?? 0));
+  const finalGrandTotal = formatCurrency(Number(orderMasterData?.grandTotal ?? 0));
+  const endTotal = formatCurrency(Number(orderMasterData?.subTotal ?? 0));
   const itemTotal = formatCurrency(Number(orderMasterData?.itemTotal ?? 0));
-  const deliveryCost = formatCurrency(Number(orderMasterData?.deliveryCost ?? 0));
-  const pickUpDiscount = formatCurrency(Number(orderMasterData?.calculatedPickUpDiscountL ?? 0));
-  const flatDiscount = formatCurrency(Number(orderMasterData?.flatDiscount ?? 0));
-  const couponDiscount = formatCurrency(Number(orderMasterData?.calCouponDiscount ?? 0));
+  const deliveryFee = formatCurrency(Number(orderMasterData?.deliveryFee ?? 0));
+  const pickUpDiscount = formatCurrency(Number(orderMasterData?.pickUpDiscount ?? 0));
+  const couponFlat = formatCurrency(Number(orderMasterData?.couponFlat ?? 0));
+  const couponPercent = formatCurrency(Number(orderMasterData?.couponPercent ?? 0));
 
   return (
     <div className="p-2 bg-white text-black print:p-0 print:bg-white font-mono text-[12px]">
@@ -70,7 +75,7 @@ export default function PrintOrderPage() {
       <div className="text-center border-b border-black pb-2 mb-2">
         <h1 className="text-lg font-bold">ORDER RECEIPT</h1>
         <p>Order No: {orderMasterData?.srno}</p>
-        <p>Date: {orderMasterData?.time}</p>
+        {/* <p>Date: {orderMasterData?.time}</p> */}
       </div>
 
       {/* Customer Info */}
@@ -116,10 +121,10 @@ export default function PrintOrderPage() {
       <div className="text-right mb-2">
         <p>Item Total: {itemTotal}</p>
          <p>Total Tax: {totalTax}</p>
-        <p>Delivery: {deliveryCost}</p>
+        <p>Delivery: {deliveryFee}</p>
         <p>Pickup Discount: {pickUpDiscount}</p>
-        <p>Coupon Flat: {flatDiscount}</p>
-        <p>Coupon %: {couponDiscount}</p>
+        <p>Coupon Flat: {couponFlat}</p>
+        <p>Coupon %: {couponPercent}</p>
         <p className="font-bold border-t border-black pt-1 mt-1">
           Grand Total: {finalGrandTotal}
         </p>

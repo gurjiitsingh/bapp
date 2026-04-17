@@ -11,7 +11,7 @@ export async function createTempDir() {
 
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir);
-      return { success: true, message: "✅ temp folder created successfully." };
+      return { success: true, message: " temp folder created successfully." };
     } else {
       return { success: false, message: "⚠️ temp folder already exists." };
     }

@@ -30,7 +30,7 @@ export default function POSOrderComplete() {
     async function finalizePosOrder() {
       if (!orderId) return;
 
-      await updateOrderMaster(orderId, "Completed");
+      await updateOrderMaster(orderId, "COMPLETED");
 
       if (MAINTAIN_STOCK) await decreaseProductStockFromOrder(orderId);
 

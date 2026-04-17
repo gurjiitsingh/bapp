@@ -1,4 +1,4 @@
-import "@/custom/globals.css";
+import "@/app/globals.css";
 import { Toaster } from "react-hot-toast";
 import type { Metadata } from "next";
 import CartBottomWrapper from "@/components/CartBottom/CartBottomWrapper"; // Import the new client component
@@ -90,7 +90,7 @@ export default function RootLayout({
               
                 </div>
 
-               {/* ✅ TOP BAR */}
+               {/*  TOP BAR */}
       <POSTopBar />
 
                 {children}

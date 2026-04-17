@@ -2,19 +2,20 @@ import { createContext, useContext } from "react";
 //import { cartProductType } from  '@/lib/types/cartProductType'
 //import { cartProductTypeT } from "@/lib/types/cartProductTypeype";
 
-
 import { addressT } from "@/lib/types/addressType";
 import { cartProductType } from "@/lib/types/cartDataType";
+type OrderType = "DINE_IN" | "TAKEAWAY" | "DELIVERY";
+
 interface CartContextType {
   counter: number;
   productTotalCost: number;
   cartData: cartProductType[];
   address: addressT;
-  addAddress: (a:addressT) => void;
+  addAddress: (a: addressT) => void;
 
   //getAddress:()=>{};
   addProduct: (c: cartProductType) => void;
-  addProductToCart: (c: cartProductType ) => void;
+  addProductToCart: (c: cartProductType) => void;
   decCartProduct: (c: cartProductType) => void;
   decCartProductAll: (c: cartProductType) => void;
   removeCartProduct: (c: cartProductType | undefined) => void;
@@ -23,17 +24,21 @@ interface CartContextType {
   setEndTotalG: (c: number) => void;
   totalDiscountG: number;
   setTotalDiscountG: (c: number) => void;
-  
+  scheduledAt: string | null;
+  setScheduledAt: (value: string | null) => void;
+  orderType: OrderType;
+  setOrderType: (t: OrderType) => void;
+  tableNo: string | null;
+  setTableNo: (t: string | null) => void;
 }
 
 //const CartContext = createContext<CartContextType | null>(null);
 
 const CartContext = createContext<CartContextType>({
   counter: 0,
-  endTotalG: 0,
-  setEndTotalG: () => {},
   productTotalCost: 0,
   cartData: [],
+
   address: {
     name: "",
     mobNo: "",
@@ -44,19 +49,32 @@ const CartContext = createContext<CartContextType>({
     addressLine2: "",
     userId: "",
   },
- 
-  addAddress: (a:addressT) => {return a},
-  // getAddress:()=>{},
+
+  addAddress: () => {},
   addProduct: () => {},
-  addProductToCart: (p:cartProductType) => {return p},
+  addProductToCart: () => {},
   decCartProduct: () => {},
   decCartProductAll: () => {},
   removeCartProduct: () => {},
   emptyCart: () => {},
+
+  endTotalG: 0,
+  setEndTotalG: () => {},
+
   totalDiscountG: 0,
   setTotalDiscountG: () => {},
-});
 
+  //  scheduling
+  scheduledAt: null,
+  setScheduledAt: () => {},
+
+  //  MISSING ONES — NOW ADDED
+  orderType: "DELIVERY", // sensible default
+  setOrderType: () => {},
+
+  tableNo: null,
+  setTableNo: () => {},
+});
 export const useCartContext = () => {
   const context = useContext(CartContext);
   if (!context) {

@@ -44,7 +44,7 @@ export const SiteProvider: React.FC<Props> = ({
   const [productCategoryIdG, setProductCategoryIdL] = useState<string>("");
   const [newOrderCondition, setNewOrderConditionL] = useState<boolean>(false);
   const [paymentType, setPaymentTypeL] = useState<string>("");
-  const [deliveryCost, setDeliveryCostL] = useState<number>(0);
+  const [deliveryFee, setdeliveryFeeL] = useState<number>(0);
   const [settings, setSettings] = useState<SettingsDataType>({});
   //const [disablePickupCatDiscountIds, setDisablePickupCatDiscountIdsL] = useState<string[] | null>(null);
   const [disablePickupCatDiscountIds, setDisablePickupCatDiscountIdsL] =
@@ -165,8 +165,8 @@ useEffect(() => {
     setPaymentTypeL(s);
   }
 
-  function setDeliveryCost(e: number) {
-    setDeliveryCostL(e);
+  function setdeliveryFee(e: number) {
+    setdeliveryFeeL(e);
   }
   function setDisablePickupCatDiscountIds(CatIds: string[]) {
     setDisablePickupCatDiscountIdsL(CatIds);
@@ -193,8 +193,8 @@ useEffect(() => {
         emailFormToggle,
         deliveryType,
         chageDeliveryType,
-        deliveryCost,
-        setDeliveryCost,
+        deliveryFee,
+        setdeliveryFee,
         couponDisc,
         setCouponDisc,
         deliveryDis,

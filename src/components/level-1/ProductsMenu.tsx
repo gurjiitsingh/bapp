@@ -68,7 +68,7 @@ export default function ProductsMenu() {
         ]);
 
         const published = fetchedProducts.filter(
-          (p) => p.status === "published"
+          (p) => p.publishStatus === "published"
         );
         const sorted = published.sort(
           (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
@@ -109,13 +109,13 @@ export default function ProductsMenu() {
     );
   }, [productToSearchQuery]);
 
-  // ✅ Conditional container classes
+  //  Conditional container classes
   // const containerClass =
   //   cardType === "3"
   //     ? "flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-5"
   //     : "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5";
 
-  // ✅ Conditional container classes
+  //  Conditional container classes
   let containerClass = "";
 
   switch (cardType) {

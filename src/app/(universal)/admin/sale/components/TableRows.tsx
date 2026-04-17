@@ -3,9 +3,9 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 type TRow = {
-  month: string;
+  label: string; // month OR date
   orderCount: number;
-  totalSales: number; // assuming your row has totalSales
+  totalSales: number;
 };
 
 type TableRowProps = {
@@ -23,7 +23,7 @@ export default function TableRows({ row }: TableRowProps) {
 
   return (
     <tr className="hover:bg-gray-50">
-      <td className="border px-4 py-2">{row.month}</td>
+      <td className="border px-4 py-2">{row.label}</td>
       <td className="border px-4 py-2">{row.orderCount}</td>
       <td className="border px-4 py-2">{amount}</td>
     </tr>

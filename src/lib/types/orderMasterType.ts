@@ -1,112 +1,160 @@
-
-
 import { Timestamp, FieldValue } from "firebase/firestore";
+import admin from "firebase-admin";
+
 export type orderMasterDataT = {
   // =====================================================
-  // EXISTING FIELDS (DO NOT REMOVE / RENAME)
-  // =====================================================
-  id: string; 
-
-  customerName: string;
-  email: string;
-  userId: string;
-  addressId: string;
-
-  srno: number;
-  timeId: string;
-  time: string;
-
-  paymentType: string;
-
-  itemTotal: number;                  // total of items (before discount & tax)
-  deliveryCost: number;
-
-  totalDiscountG: number;             // legacy
-  flatDiscount: number;
-  calculatedPickUpDiscountL: number;
-  calCouponDiscount: number;
-
-  couponCode?: string;
-  couponDiscountPercentL: number;
-  pickUpDiscountPercentL: number;
-
-  totalTax?: number;                  // legacy / raw tax
-  endTotalG: number;                  // legacy
-  finalGrandTotal?: number;           // legacy
-
-  status: string;                     // legacy status
-  createdAt: Timestamp | string | FieldValue;
-  createdAtUTC?: string;
-
-  // =====================================================
-  // ✅ NEW – CLEAN & CORRECT TOTAL FIELDS (OPTIONAL)
+  //  CORE OWNERSHIP & LOCATION (CRITICAL)
   // =====================================================
 
-  /** Total discount applied on order (sum of all discounts) */
-  discountTotal?: number;
+  ownerId: string; // 🔑 Restaurant owner (Auth UID)
+  outletId: string; // 🔑 Restaurant location / branch
 
-  /** Tax BEFORE discount (sum of per-product tax) */
+  // =====================================================
+  //  CORE ORDER IDENTIFIERS
+  // =====================================================
+
+  id: string;
+ srno: number; // Per-outlet running number
+
+  // =====================================================
+  //  CUSTOMER (REFERENCE + SNAPSHOT)
+  // =====================================================
+
+  customerId?: string; //  REAL customer (NULL for walk-in POS)
+  customerName?: string;
+  customerPhone?: string;
+  customerCountryCode?: string;
+  email?: string;
+
+  addressId?: string; // Reference (optional)
+
+  // 🔒 Snapshot for delivery / history:-- removed
+  // ---------- Delivery Address (FLAT) ----------
+  dAddressLine1?: string;
+  dAddressLine2?: string;
+  dCity?: string;
+  dState?: string;
+  dZipcode?: string;
+  dLandmark?: string;
+
+  // =====================================================
+  //  ORDER TYPE
+  // =====================================================
+
+  orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
+  tableNo: string | null; // Only for DINE_IN
+
+  // =====================================================
+  //  TIMESTAMPS
+  // =====================================================
+
+  createdAt: Timestamp | FieldValue;
+  updatedAt?: Timestamp | FieldValue;
+  closedAt?: Timestamp | FieldValue | null;
+
+  isScheduled?: boolean;
+  scheduledAt?: admin.firestore.Timestamp | admin.firestore.FieldValue | null;
+
+  // =====================================================
+  //  AMOUNTS (FINAL & AUDIT-SAFE)
+  // =====================================================
+
+  itemTotal: number; // Before discount & tax
+  discountTotal?: number; // FINAL discount
+  subTotal?: number; // After discount, before tax
   taxBeforeDiscount?: number;
-
-  /** Tax AFTER discount (adjusted tax – this is the correct tax) */
-  taxAfterDiscount?: number;
-
-  /** Subtotal after discount, before tax */
-  subTotal?: number;
-
-  /** Delivery fee (clean naming) */
+  taxTotal?: number;
   deliveryFee?: number;
-
-  /** Final payable amount (clean, correct) */
-  grandTotal?: number;
+  grandTotal?: number; // FINAL payable
 
   // =====================================================
-  // ORDER SOURCE & STATUS (FOR AUTOMATION)
+  //  PAYMENT
   // =====================================================
 
-  /** Where the order came from */
-  source?: "WEB" | "POS" | "APP";
+  // paymentType: string; // CASH | CARD | UPI | ONLINE
+  // paymentProvider?: string; // STRIPE | PAYPAL | RAZORPAY
+  // paymentMethod?: string; // VISA | GPAY | PHONEPE
+  // paymentStatus?: "PAID" | "NEW" | "FAILED" | "REFUNDED";
 
-  /** Clean order lifecycle status */
+  // =====================================================
+//  PAYMENT
+// =====================================================
+
+paymentMode: 
+  | "CASH"
+  | "CARD"
+  | "UPI"
+  | "ONLINE"
+  | "CREDIT"
+  | "MIXED";
+
+paymentProvider?: string; 
+paymentMethod?: string;
+
+paymentStatus?: 
+  | "NEW"
+  | "PAID"
+  | "PARTIAL"
+  | "CREDIT"
+  | "FAILED"
+  | "REFUNDED";
+
+paidAmount?: number;  
+dueAmount?: number;
+
+
+  // =====================================================
+  //  ORDER STATE
+  // =====================================================
+
   orderStatus?:
     | "NEW"
+    | "SCHEDULED"
     | "ACCEPTED"
     | "PREPARING"
     | "READY"
     | "COMPLETED"
     | "CANCELLED";
 
-  /** Payment lifecycle */
-  paymentStatus?: "PENDING" | "PAID" | "FAILED" | "REFUNDED";
-
   // =====================================================
-  // AUTOMATION FLAGS (POS LOGIC)
+  //  SOURCE & META
   // =====================================================
 
-  /** Whether order has been auto-printed */
+  source?: "WEB" | "POS" | "APP";
+  staffId?: string | null; // POS cashier / waiter
+  productsCount?: number;
+  notes?: string;
+
+  // =====================================================
+  //  SYNC / OFFLINE (POS SAFE)
+  // =====================================================
+
+  syncStatus?: "NEW" | "SYNCED" | "FAILED";
+  lastSyncedAt?: Timestamp | FieldValue;
+
+  // =====================================================
+  //  AUTOMATION
+  // =====================================================
+
   printed?: boolean;
-
-  /** Whether staff acknowledged the order (sound stopped) */
   acknowledged?: boolean;
 
-  // =====================================================
-  // OPTIONAL / FUTURE
-  // =====================================================
-
-  notes?: string;                     // kitchen or customer notes
-
+  // ---------- Archival / Retention ----------
+  // isArchived?: boolean;      //  default false / undefined
+  // archivedAt?: Timestamp;    //  set only when archived
 
   // =====================================================
-  // ✅ CUSTOM – NEW FIELDS FOR TABLE & SCHEDULE
+  // ⚠️ LEGACY FIELDS (KEEP, DO NOT USE FOR NEW LOGIC)
   // =====================================================
 
-  /** Table number (for dine-in orders) */
-  tableNo?: string | number;
+  couponCode?: string;
+  //couponPercentPercentL?: number;
+  //pickUpDiscountPercentL?: number;
 
-  /** Whether the order is scheduled for later */
-  orderScheduled?: boolean;
-
-  productsCount?: number;
+  //totalDiscountG?: number;
+  couponFlat?: number;
+  pickUpDiscount?: number;
+  couponPercent?: number;
 };
 
 
@@ -117,5 +165,5 @@ export type TOrderMaster = {
   time: string;
   userId: string;
   status: string;
-  srno: number;
+ srno: number;
 };

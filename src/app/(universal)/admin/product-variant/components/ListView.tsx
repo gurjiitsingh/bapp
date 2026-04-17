@@ -22,17 +22,17 @@ export default function ListView() {
   const productCat = searchParams.get("productCat") || "";
 const categoryBase = searchParams.get("categoryBase") || "";
 const nameBase = searchParams.get("nameBase") || "";
-  // ✅ URL state
+  //  URL state
   const urlCategory = searchParams.get("category") || "";
   const urlSearch = searchParams.get("search") || "";
 
-  // ✅ Component state
+  //  Component state
   const [categories, setCategories] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch product + category only once
+  //  Fetch product + category only once
   useEffect(() => {
     async function loadData() {
       try {
@@ -56,9 +56,9 @@ const nameBase = searchParams.get("nameBase") || "";
     }
 
     loadData();
-  }, []); // ✅ run once
+  }, []); //  run once
 
-  // ✅ Filter when URL state or products change
+  //  Filter when URL state or products change
   // useEffect(() => {
   //   let list = [...products];
 
@@ -101,7 +101,7 @@ const nameBase = searchParams.get("nameBase") || "";
     setFiltered(list);
   }, [urlCategory, urlSearch, products]);
 
-  // ✅ Update URL without refreshing
+  //  Update URL without refreshing
   function updateURL(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -134,7 +134,7 @@ const goToAddVariant = () => {
       
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-4">
-        {/* ✅ Category Filter */}
+        {/*  Category Filter */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium mb-1">Category</label>
           <select
@@ -151,7 +151,7 @@ const goToAddVariant = () => {
           </select>
         </div>
 
-        {/* ✅ Search Filter */}
+        {/*  Search Filter */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium mb-1">Search</label>
           <input
@@ -170,6 +170,7 @@ const goToAddVariant = () => {
         <Table>
           <TableHeader className="bg-gray-100 dark:bg-zinc-800">
             <TableRow>
+               <TableHead>Search Code</TableHead>
               <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>

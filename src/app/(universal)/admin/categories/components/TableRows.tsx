@@ -15,8 +15,17 @@ import { fetchProductByCategoryId } from "@/app/(universal)/action/products/dbOp
 import { useLanguage } from '@/store/LanguageContext';
 
 function TableRows({ category }: { category: categoryType }) {
+
+
   const { TEXT } = useLanguage();
-console.log("ca--------------",category)
+
+    const imageSrc =
+  category?.image &&
+  category.image !== "null" &&
+  category.image.trim() !== ""
+    ? category.image
+    : "/com-1.jpg";
+
   async function handleDelete(category: categoryType) {
     const products = await fetchProductByCategoryId(category.id!);
 
@@ -52,7 +61,7 @@ console.log("ca--------------",category)
           {category?.image && (
             <Image
               className="h-12 w-12 object-cover rounded-md border border-gray-200 dark:border-zinc-700"
-              src={category?.image}
+              src={imageSrc}
               width={48}
               height={48}
               alt={category.name}

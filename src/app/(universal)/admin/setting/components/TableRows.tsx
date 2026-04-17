@@ -59,7 +59,7 @@ function TableRows({ product }: { product: ProductType }) {
       <TableCell>
         {product?.isFeatured === true && (
           <span className="ml-2 bg-gradient-to-tr from-blue-500 to-indigo-400 text-white text-[10px] rounded-full px-3 py-1">
-            {TEXT?.status_featured || "Featured"}
+            {TEXT?.orderStatus_featured || "Featured"}
           </span>
         )}
       </TableCell>

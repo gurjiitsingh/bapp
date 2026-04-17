@@ -8,11 +8,11 @@ export async function createNewOrderFile(
   productTotalCost,
   totalDiscountG,
   PaymentType,
-  deliveryCost,
+  deliveryFee,
   deliveryType,
   customerNote,
   couponCode,
-  couponDiscount
+  couponPercent
 ) {
   const customAddress = JSON.parse(address);
   // console.log("cart data in create file -----------------",typeof(totalDiscountG),typeof(endTotalG));
@@ -124,7 +124,7 @@ export async function createNewOrderFile(
     myOrder.AddInfo.DeliveryType = deliveryType || "";
     // myOrder.AddInfo.CustomerNote = "sdsdfsdfsd";
     // myOrder.AddInfo.CouponCode =  "sdfs";
-    //myOrder.AddInfo.CouponDiscount = couponDiscount || 0;
+    //myOrder.AddInfo.couponPercent = couponPercent || 0;
     //  myOrder.AddInfo.CustomerID = "c56";
     //   myOrder.AddInfo.TableNumber = "tn";
 
@@ -161,13 +161,13 @@ export async function createNewOrderFile(
     // article.ArticleNo = 'P22';
     // article.Price = 7.8;
 
-    if (deliveryCost !== 0) {
+    if (deliveryFee !== 0) {
       article = new Article();
       //  article.Count = item.quantity;
       article.ArticleName = "Lieferpauschale";
       //  article.ArticleSize = item.productDesc;
       //  article.ArticleNo = i+1;
-      article.Price = deliveryCost;
+      article.Price = deliveryFee;
       myOrder.ArticleList.Article.push(article);
     }
 

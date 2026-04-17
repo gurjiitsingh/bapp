@@ -17,17 +17,17 @@ export default function ListView() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // ✅ URL state
+  //  URL state
   const urlCategory = searchParams.get("category") || "";
   const urlSearch = searchParams.get("search") || "";
 
-  // ✅ Component state
+  //  Component state
   const [categories, setCategories] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch product + category only once
+  //  Fetch product + category only once
 useEffect(() => {
   async function loadData() {
     try {
@@ -52,10 +52,10 @@ useEffect(() => {
   }
 
   loadData();
-}, []); // ✅ run once
+}, []); //  run once
 
 
-  // ✅ Filter when URL state or products change
+  //  Filter when URL state or products change
   // useEffect(() => {
   //   let list = [...products];
 
@@ -74,30 +74,33 @@ useEffect(() => {
 
 
 
-  useEffect(() => {
+useEffect(() => {
   let list = [...products];
 
-   list = list.filter((p) => p.type === "parent");
+  // Only parent products
+  list = list.filter((p) => p.type === "parent");
+
+  // Filter by category
   if (urlCategory) {
     list = list.filter((p) => p.categoryId === urlCategory);
   }
 
+  // Filter by search safely
   if (urlSearch) {
-    list = list.filter((p) =>
-      p.name.toLowerCase().includes(urlSearch.toLowerCase())
-    );
+    const search = urlSearch.toLowerCase();
+    list = list.filter((p) => (p.name ?? "").toString().toLowerCase().includes(search));
   }
 
-  // ⭐ Sort by sortOrder (undefined → 0)
+  // Sort by sortOrder
   list = list.sort(
-    (a: ProductType, b: ProductType) =>
-      (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    (a: ProductType, b: ProductType) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
   );
 
   setFiltered(list);
 }, [urlCategory, urlSearch, products]);
 
-  // ✅ Update URL without refreshing
+
+  //  Update URL without refreshing
   function updateURL(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
 
@@ -114,7 +117,7 @@ useEffect(() => {
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4 mb-4">
 
-        {/* ✅ Category Filter */}
+        {/*  Category Filter */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium mb-1">Category</label>
           <select
@@ -131,7 +134,7 @@ useEffect(() => {
           </select>
         </div>
 
-        {/* ✅ Search Filter */}
+        {/*  Search Filter */}
         <div className="w-full md:w-1/2">
           <label className="block text-sm font-medium mb-1">Search</label>
           <input
@@ -150,6 +153,7 @@ useEffect(() => {
         <Table>
           <TableHeader className="bg-gray-100 dark:bg-zinc-800">
             <TableRow>
+               <TableHead>Search Code</TableHead>
               <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
@@ -159,6 +163,7 @@ useEffect(() => {
               <TableHead>Tax</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Desc</TableHead>
+               <TableHead>Variant</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>

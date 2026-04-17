@@ -15,6 +15,12 @@ import { formatCurrencyNumber } from '@/utils/formatCurrency';
 import { UseSiteContext } from "@/SiteContext/SiteContext";
   import { Timestamp } from "firebase/firestore";
 import { formatFirestoreDateToIST } from "@/utils/date";
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+
+export type orderMasterDataSafeT = Omit<orderMasterDataT, "createdAt"> & {
+  createdAt: string;
+};
+
 const OrderDetail = () => {
   const searchParams = useSearchParams();
   // console.log(
@@ -26,7 +32,8 @@ const OrderDetail = () => {
   const masterOrderId = searchParams.get("masterId") as string;
   const [orderProducts, setOrderProducts] = useState<OrderProductT[]>([]);
   const [customerAddress, setCustomerAddress] = useState<addressResT>();
-  const [orderMasterData, setOrderMasterData] = useState<orderMasterDataT | null>(null);
+  const [orderMasterData, setOrderMasterData] =
+  useState<orderMasterDataSafeT | null>(null);
 
   const { settings } = UseSiteContext();
 
@@ -34,7 +41,7 @@ const OrderDetail = () => {
 
   useEffect(() => {
     async function getOrderProducts() {
-      // console.log("maserer id-----------", masterOrderId);
+    
       const orderProductList = await fetchOrderProductsByOrderMasterId(
         masterOrderId
       );
@@ -42,7 +49,9 @@ const OrderDetail = () => {
 
 let addressRes;
 
-if (addressId === "POS_ORDER") {
+
+
+if (addressId === "POS_ORDER" || addressId === "" ||  addressId === null  || addressId === " ") {
   addressRes = {
     id: "POS_ORDER",
     email: "pos@local",
@@ -57,8 +66,8 @@ if (addressId === "POS_ORDER") {
     zipCode: "-"
   };
 } else {
-  addressRes = await searchAddressByAddressId(addressId);
-}
+   addressRes = await searchAddressByAddressId(addressId);
+ }
 
 
 
@@ -68,11 +77,14 @@ if (addressId === "POS_ORDER") {
       setCustomerAddress(addressRes);
 
       const orderMaster = await fetchOrderMasterById(masterOrderId);
+      console.log("orderMaster--------------", orderMaster)
       setOrderMasterData(orderMaster);
      
     }
     getOrderProducts();
   }, []);
+
+
 
   useEffect(() => {
     // console.log("addre ins use efferxt-----", customerAddress);
@@ -81,7 +93,7 @@ if (addressId === "POS_ORDER") {
    
     
   const totalTax = formatCurrencyNumber(
-    Number(orderMasterData?.totalTax ?? 0),
+    Number(orderMasterData?.taxTotal ?? 0),
     (settings.currency ) as string,
     (settings.locale ) as string
   );
@@ -103,39 +115,38 @@ if (addressId === "POS_ORDER") {
     (settings.locale ) as string
   );
 
-    const deliveryCost = formatCurrencyNumber(
-    Number(orderMasterData?.deliveryCost) ?? 0,
+    const deliveryFee = formatCurrencyNumber(
+    Number(orderMasterData?.deliveryFee) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
 
 
     const calculatedPickUpDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.calculatedPickUpDiscountL) ?? 0,
+    Number(orderMasterData?.pickUpDiscount) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
-    const flatDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.flatDiscount) ?? 0,
-    (settings.currency ) as string,
-    (settings.locale ) as string
-  );
-
-      const calCouponDiscount = formatCurrencyNumber(
-    Number(orderMasterData?.calCouponDiscount) ?? 0,
+    const couponFlat = formatCurrencyNumber(
+    Number(orderMasterData?.couponFlat) ?? 0,
     (settings.currency ) as string,
     (settings.locale ) as string
   );
 
+      const calcouponPercent = formatCurrencyNumber(
+    Number(orderMasterData?.couponPercent) ?? 0,
+    (settings.currency ) as string,
+    (settings.locale ) as string
+  );
 
 
 
 
-const dateTime = formatFirestoreDateToIST(
-  orderMasterData?.createdAt as string
-);
 
-
+ const dateTime = formatDateTimeStamp(
+    orderMasterData?.createdAt as string,
+    String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+  ) 
 
 
   return (
@@ -160,7 +171,7 @@ const dateTime = formatFirestoreDateToIST(
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Status:</div>{" "}
-            <div className="">{orderMasterData?.status}</div>
+            <div className="">{orderMasterData?.orderStatus}</div>
           </div>
 
 
@@ -186,7 +197,7 @@ const dateTime = formatFirestoreDateToIST(
           
           <div className="flex gap-2">
             <div className="font-semibold">Dilevery cost:</div>{" "}
-            <div className="">{deliveryCost}</div>
+            <div className="">{deliveryFee}</div>
           </div>
 
           <div className="flex gap-2">
@@ -198,12 +209,12 @@ const dateTime = formatFirestoreDateToIST(
 
           <div className="flex gap-2">
             <div className="font-semibold">Coupon Discount Flat:</div>{" "}
-            <div className=""> {flatDiscount}</div>
+            <div className=""> {couponFlat}</div>
           </div>
 
           <div className="flex gap-2">
             <div className="font-semibold">Coupon Discount percent:</div>{" "}
-            <div className=""> {calCouponDiscount}</div>
+            <div className=""> {calcouponPercent}</div>
           </div>
           <div className="flex gap-2">
             <div className="font-semibold">Subtotal:</div>{" "}

@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 
 export default function SearchForm() {
   const { setProductToSearchQuery } = UseSiteContext();
-  const { TEXT } = useLanguage(); // ✅ get translations
+  const { TEXT } = useLanguage(); //  get translations
   const [query, setQuery] = useState("");
 
   useEffect(() => {

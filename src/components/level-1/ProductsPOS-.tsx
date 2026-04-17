@@ -27,7 +27,7 @@ export default function Products() {
 
   const cardType = process.env.NEXT_PUBLIC_PRODUCT_CARD_TYPE;
 
-  // ✅ DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
+  //  DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
 
   const Card = useMemo(() => {
     switch (cardType) {
@@ -67,7 +67,7 @@ export default function Products() {
     }
   }, [cardType]);
 
-  // ✅ Set initial category (runs only when settings OR global id changes)
+  //  Set initial category (runs only when settings OR global id changes)
 
 
 useEffect(() => {
@@ -78,7 +78,7 @@ useEffect(() => {
   setCategoryId(String(productCategoryIdG || fallback));
 }, [settings, productCategoryIdG]);
 
-  // ✅ Fetch ONCE (no remount loop now)
+  //  Fetch ONCE (no remount loop now)
   useEffect(() => {
     let isMounted = true;
 
@@ -86,11 +86,11 @@ useEffect(() => {
       try {
         const res = await fetch("/api/products");
         //  const data = await res.json();
-        const data: ProductType[] = await res.json(); // ✅ define type here
-        console.log("Fetched products ✅");
+        const data: ProductType[] = await res.json(); //  define type here
+        console.log("Fetched products ");
 
         const published = data.filter(
-          (p: ProductType) => p.status === "published"
+          (p: ProductType) => p.publishStatus === "published"
         );
 
         const sorted = published.sort(
@@ -101,7 +101,7 @@ useEffect(() => {
         if (!isMounted) return;
 
         setAllProductsLocal(sorted);
-        setAllProduct(sorted); // ✅ context update (won’t remount now)
+        setAllProduct(sorted); //  context update (won’t remount now)
         // setAddOns(data);
 
         setProducts(
@@ -119,9 +119,9 @@ useEffect(() => {
     return () => {
       isMounted = false;
     };
-  }, []); // ✅ runs ONCE ONLY
+  }, []); //  runs ONCE ONLY
 
-  // ✅ Category filter
+  //  Category filter
   useEffect(() => {
     if (!categoryId) {
       setProducts(allProducts);
@@ -130,7 +130,7 @@ useEffect(() => {
     setProducts(allProducts.filter((p) => p.categoryId === categoryId));
   }, [categoryId, allProducts]);
 
-  // ✅ Search filter
+  //  Search filter
   useEffect(() => {
     if (!productToSearchQuery) {
       setProducts(allProducts);
@@ -144,7 +144,7 @@ useEffect(() => {
     );
   }, [productToSearchQuery]);
 
-  // ✅ Layout logic (unchanged)
+  //  Layout logic (unchanged)
   let containerClass = "";
   switch (cardType) {
     case "1":

@@ -26,7 +26,7 @@ export default function CopyProductsWithStatus() {
 
         const newProduct: Omit<ProductType, 'id'> = {
           ...oldData,
-          status: 'published', // override/add
+          publishStatus: 'published', // override/add
         };
 
         const newDocRef = doc(db, 'products', docId);
@@ -34,7 +34,7 @@ export default function CopyProductsWithStatus() {
       }
 
       setStatus('done');
-      setMessage(`✅ Successfully copied ${copiedCount} products to "products" collection with status: 'published'.`);
+      setMessage(` Successfully copied ${copiedCount} products to "products" collection with status: 'published'.`);
     } catch (err: any) {
       setStatus('error');
       setMessage('❌ Error copying products: ' + err.message);

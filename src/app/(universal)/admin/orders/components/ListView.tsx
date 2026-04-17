@@ -61,10 +61,12 @@ const loadOrders = async (next = false, back = false) => {
         <Table className="min-w-[800px] text-sm text-left text-gray-700 dark:text-zinc-200">
           <TableHeader className="bg-gray-100 dark:bg-zinc-800">
             <TableRow>
-              <TableHead className="hidden md:table-cell">Order No.</TableHead>
+              <TableHead className="hidden md:table-cell">Order No.1</TableHead>
               <TableHead className="hidden md:table-cell">Name</TableHead>
-              <TableHead className="hidden md:table-cell">Date</TableHead>
-            
+              <TableHead className="hidden md:table-cell">Submited</TableHead>
+               <TableHead className="hidden md:table-cell">Delivery/picup</TableHead>
+                <TableHead className="hidden md:table-cell">Order Type</TableHead>
+               <TableHead className="hidden md:table-cell">Table No.</TableHead>
               <TableHead className="hidden md:table-cell">Status</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Payment</TableHead>

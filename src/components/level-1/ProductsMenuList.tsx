@@ -86,7 +86,7 @@ const cardType = process.env.NEXT_PUBLIC_MENU_CARD_TYPE;
     }, [cardType]);
 
 
-    // ✅ Layout logic (unchanged)
+    //  Layout logic (unchanged)
   let containerClass = "";
   switch (cardType) {
     case "1":

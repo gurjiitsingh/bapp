@@ -112,7 +112,7 @@ export const CartProvider: React.FC<Props> = ({
           ...newsauce,
           quantity: 1,
         //  purchaseSession: localStorage.getItem("cart_sauce_data_id"),
-          status: "draft",
+          publishStatus: "draft",
         },
       ]); // if the item is not in the cart, add the item to the cart
     }
@@ -211,7 +211,7 @@ export const CartProvider: React.FC<Props> = ({
           ...newsauce,
           quantity: 1,
           purchaseSession: localStorage.getItem("cart_sauce_data_id"),
-          status: "draft",
+          publishStatus: "draft",
         },
       ]); // if the item is not in the cart, add the item to the cart
     }}

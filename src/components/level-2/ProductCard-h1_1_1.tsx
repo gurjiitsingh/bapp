@@ -15,12 +15,12 @@ export default function ProductCardHorizontical({
   allAddOns,
 }: {
   product: ProductType;
-  variants: ProductType[]; // ✅ NEW
+  variants: ProductType[]; //  NEW
   allAddOns: addOnType[];
 }) {
   const { settings } = UseSiteContext();
 
-  // ✅ FILTER VARIANTS FOR THIS PRODUCT
+  //  FILTER VARIANTS FOR THIS PRODUCT
   const productVariants = useMemo(() => {
     if (!product.hasVariants) return [];
     return variants
@@ -105,7 +105,7 @@ export default function ProductCardHorizontical({
         </div>
       </div>
 
-      {/* ✅ VARIANTS LIST */}
+      {/*  VARIANTS LIST */}
       {product.hasVariants && productVariants.length > 0 && (
         <div className="mt-2 space-y-2">
           {productVariants.map((variant) => (

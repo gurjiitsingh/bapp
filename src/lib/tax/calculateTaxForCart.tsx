@@ -38,7 +38,7 @@ export async function calculateTaxForCart(cartItems: CartItem[]) {
 
   return {
     subtotal: Number(subtotal.toFixed(2)),
-    totalTax: Number(totalTax.toFixed(2)), // ✅ round once
+    totalTax: Number(totalTax.toFixed(2)), //  round once
     products,
   };
 }

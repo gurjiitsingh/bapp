@@ -74,7 +74,7 @@ export const createOrder = async (cart) => {
     // const { statusCode, headers } = httpResponse;
     return {
       jsonResponse: JSON.parse(body),
-      httpStatusCode: httpResponse.statusCode,
+      httpStatusCode: httpResponse.orderStatusCode,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -102,7 +102,7 @@ const captureOrder = async (orderID) => {
     // const { statusCode, headers } = httpResponse;
     return {
       jsonResponse: JSON.parse(body),
-      httpStatusCode: httpResponse.statusCode,
+      httpStatusCode: httpResponse.orderStatusCode,
     };
   } catch (error) {
     if (error instanceof ApiError) {
@@ -117,10 +117,10 @@ const captureOrder = async (orderID) => {
 //     // use the cart information passed from the front-end to calculate the order amount detals
 //     const { cart } = req.body;
 //     const { jsonResponse, httpStatusCode } = await createOrder(cart);
-//     res.status(httpStatusCode).json(jsonResponse);
+//     res.orderStatus(httpStatusCode).json(jsonResponse);
 //   } catch (error) {
 //     console.error("Failed to create order:", error);
-//     res.status(500).json({ error: "Failed to create order." });
+//     res.orderStatus(500).json({ error: "Failed to create order." });
 //   }
 // });
 
@@ -128,10 +128,10 @@ app.post("/api/orders/:orderID/capture", async (req, res) => {
   try {
     const { orderID } = req.params;
     const { jsonResponse, httpStatusCode } = await captureOrder(orderID);
-    res.status(httpStatusCode).json(jsonResponse);
+    res.orderStatus(httpStatusCode).json(jsonResponse);
   } catch (error) {
     console.error("Failed to create order:", error);
-    res.status(500).json({ error: "Failed to capture order." });
+    res.orderStatus(500).json({ error: "Failed to capture order." });
   }
 });
 

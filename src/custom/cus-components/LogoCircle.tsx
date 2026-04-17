@@ -36,7 +36,7 @@ export default function LogoCircle() {
           </div>
         </div>
       </div>
-      <h1 className="text-md w-full h-5 text-right pt-1 ">Masala Taste Of India</h1>
+      <h1 className="text-md w-full h-5 text-right pt-1 ">Pizzeria Milano Segle</h1>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidateTag } from "next/cache";
 
 
-// ✅ Removed all incorrect Firestore imports from firebase-admin
+//  Removed all incorrect Firestore imports from firebase-admin
 // You already use the correct admin SDK syntax
 
 export async function fetchCategories(): Promise<categoryType[]> {
@@ -102,7 +102,7 @@ export async function addNewCategory(formData: FormData) {
     const docRef = await adminDb.collection("category").add(data);
     console.log("Document written with ID: ", docRef.id);
 
-    // ✅ Instantly clear "categories" cached data
+    //  Instantly clear "categories" cached data
      revalidateTag("categories", "max");
 
     return { message: { success: "Category Created" } };
@@ -126,7 +126,7 @@ export async function editCategory(formData: FormData) {
 
   const taxRateRaw = formData.get("taxRate") as string | null;
   const taxType = (formData.get("taxType") as string ) ?? null;
-  // ✅ Convert taxRate safely
+  //  Convert taxRate safely
   const taxRate = taxRateRaw ? parseFloat(taxRateRaw) || null : null;
   const receivedData = {
     id,
@@ -164,10 +164,10 @@ export async function editCategory(formData: FormData) {
 
  if (image && image !== "undefined") {
     try {
-      // ✅ Upload new image
+      //  Upload new image
       imageUrl = await upload(image);
 
-      // ✅ Delete old Cloudinary image (skip if default image)
+      //  Delete old Cloudinary image (skip if default image)
       if (oldImageUrl && !oldImageUrl.includes("/com.jpg")) {
         const oldParts = oldImageUrl.split("/");
         const publicId = oldParts.slice(-2).join("/").split(".")[0];
@@ -175,7 +175,7 @@ export async function editCategory(formData: FormData) {
 
         try {
           await deleteImage(publicId);
-          console.log("✅ Old Cloudinary image deleted:", publicId);
+          console.log(" Old Cloudinary image deleted:", publicId);
         } catch (err) {
           console.error("❌ Failed to delete old image:", err);
         }
@@ -185,7 +185,7 @@ export async function editCategory(formData: FormData) {
       return { errors: "Image could not be uploaded" };
     }
   } else {
-    // ✅ Keep old image if no new image uploaded
+    //  Keep old image if no new image uploaded
    // imageUrl = existingProduct?.image || oldImageUrl;
      imageUrl = oldImageUrl;
   }
@@ -207,7 +207,7 @@ export async function editCategory(formData: FormData) {
   try {
     await adminDb.collection("category").doc(id).set(categoryUpdateData);
 
-    // ✅ REVALIDATE TAG SO /api/categories UPDATES IMMEDIATELY
+    //  REVALIDATE TAG SO /api/categories UPDATES IMMEDIATELY
      revalidateTag("categories", "max");
 
     return { message: { success: "Category updated" } };
@@ -281,7 +281,7 @@ console.log("First item keys:", Object.keys(data[0]));
     await ref.set(category, { merge: true });
   }
 
-  console.log("✅ All categories processed successfully.");
+  console.log(" All categories processed successfully.");
 }
 
 

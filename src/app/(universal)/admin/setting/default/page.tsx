@@ -26,7 +26,7 @@ export default function Page() {
       await addNewsetting(formData);
     }
     setInitialized(true);
-    setInstallMsg('✅ Default settings installed successfully.');
+    setInstallMsg(' Default settings installed successfully.');
   }
 
   async function handleCreateFolder() {

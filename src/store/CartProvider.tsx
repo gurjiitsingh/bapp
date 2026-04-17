@@ -1,11 +1,11 @@
 "use client";
 
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CartContext from "./CartContext";
 
 import { addressT } from "@/lib/types/addressType";
-import {  cartProductType } from "@/lib/types/cartDataType";
-
+import { cartProductType } from "@/lib/types/cartDataType";
+type OrderType = "DINE_IN" | "TAKEAWAY" | "DELIVERY";
 interface Props {
   children: React.ReactNode;
 }
@@ -18,7 +18,8 @@ export const CartProvider: React.FC<Props> = ({
   //var now1 = Date.now().toString();
 
   const [cartData, setCartData] = useState<cartProductType[]>([]);
-   const [address, setAddress] = useState<addressT>({
+  const [orderType, setOrderType] = useState<OrderType>("DINE_IN");
+  const [address, setAddress] = useState<addressT>({
     name: "",
     mobNo: "",
     city: "",
@@ -26,37 +27,39 @@ export const CartProvider: React.FC<Props> = ({
     zipCode: "",
     addressLine1: "",
     addressLine2: "",
-    userId: "",});
-   const [counter, setCounter] = useState<number>(0);
-   const [endTotalG, setEndTotalL] =useState<number>(0);
+    userId: "",
+  });
+  const [counter, setCounter] = useState<number>(0);
+  const [endTotalG, setEndTotalL] = useState<number>(0);
   const [productTotalCost, setProductTotalCost] = useState<number>(0);
   const [isUpdated, setIsUpdated] = useState<boolean>(false);
-  const [  totalDiscountG, setTotalDiscountL] = useState<number>(0);
- 
+  const [totalDiscountG, setTotalDiscountL] = useState<number>(0);
+  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+  const [tableNo, setTableNo] = useState<string | null>(null);
   useEffect(() => {
-
-     if (typeof window !== "undefined") {
-        //  Load END_TOTAL safely
-        const endTotalRaw = window.localStorage.getItem("END_TOTAL");
-        if (endTotalRaw !== null) {
-          const parsed = JSON.parse(endTotalRaw);
-          if (!isNaN(parsed)) {
-            setEndTotalL(+parsed);
-          }
+    if (typeof window !== "undefined") {
+      //  Load END_TOTAL safely
+      const endTotalRaw = window.localStorage.getItem("END_TOTAL");
+      if (endTotalRaw !== null) {
+        const parsed = JSON.parse(endTotalRaw);
+        if (!isNaN(parsed)) {
+          setEndTotalL(+parsed);
         }
-   
       }
-   
-  //  Create cart ID if missing
-  if (window.localStorage.getItem("cart_product_data_id") === null) {
-    const cartItemDateId = Date.now().toString();
-    window.localStorage.setItem("cart_product_data_id", cartItemDateId);
-  }
+    }
 
+    //  Create cart ID if missing
+    if (window.localStorage.getItem("cart_product_data_id") === null) {
+      const cartItemDateId = Date.now().toString();
+      window.localStorage.setItem("cart_product_data_id", cartItemDateId);
+    }
 
-     if (isUpdated) {
+    if (isUpdated) {
       //  Save cart only when updated
-      window.localStorage.setItem("cart_product_data", JSON.stringify(cartData));
+      window.localStorage.setItem(
+        "cart_product_data",
+        JSON.stringify(cartData)
+      );
     } else {
       //  Load and clean cart from localStorage
       const rawCart = window.localStorage.getItem("cart_product_data");
@@ -71,58 +74,49 @@ export const CartProvider: React.FC<Props> = ({
       setCartData(cleaned);
     }
 
-
-
     setIsUpdated(false);
     cartTotal();
     //console.log("useEffe 0", cartData)
   }, [cartData]);
 
   useEffect(() => {
-  
-     const cart_data_localstorage: any = window.localStorage.getItem("cart_product_data");
+    const cart_data_localstorage: any =
+      window.localStorage.getItem("cart_product_data");
     const data = JSON.parse(cart_data_localstorage);
     setCartData([]);
-    
+
     if (data) {
       const cleaned = data.filter((item: cartProductType) => {
         const quantity = Number(item.quantity);
         const price = parseFloat(item.price as any);
         return !isNaN(quantity) && !isNaN(price) && quantity >= 0 && price >= 0;
       });
-    
+
       setCartData(cleaned);
     }
-
-
-
   }, []);
-
- 
 
   function cartTotal() {
     let total = 0;
-  
+
     if (cartData.length > 0) {
       cartData.forEach((element, idx) => {
         const quantity = Number(element.quantity);
         const price = parseFloat(element.price as any);
-  
+
         // Validation: skip bad items
         if (isNaN(quantity) || isNaN(price)) {
           console.warn(` Skipping bad cart item at index ${idx}:`, element);
           return;
         }
-  
+
         total += quantity * price;
       });
     }
-  
+
     setProductTotalCost(parseFloat(total.toFixed(2)));
     setIsUpdated(true);
   }
-
-
 
   function addProductToCart(newProduct: cartProductType) {
     //  Validate incoming product data
@@ -133,14 +127,19 @@ export const CartProvider: React.FC<Props> = ({
       console.warn("Invalid product data, skipping:", newProduct);
       return;
     }
-  
-    const isItemInCart = cartData.find((cartItem) => cartItem.id === newProduct?.id);
-  
+
+    const isItemInCart = cartData.find(
+      (cartItem) => cartItem.id === newProduct?.id
+    );
+
     if (isItemInCart) {
       setCartData(
         cartData.map((cartItem) =>
           cartItem.id === newProduct?.id
-            ? { ...cartItem, quantity: cartItem.quantity! + newProduct.quantity! }
+            ? {
+                ...cartItem,
+                quantity: cartItem.quantity! + newProduct.quantity!,
+              }
             : cartItem
         )
       );
@@ -156,7 +155,6 @@ export const CartProvider: React.FC<Props> = ({
       }
     }
   }
-  
 
   function decCartProduct(decProduct: cartProductType) {
     //this funciton dec product almost to 1
@@ -187,8 +185,10 @@ export const CartProvider: React.FC<Props> = ({
   }
 
   function removeCartProduct(item: cartProductType | undefined) {
-    const isItemInCart = cartData.find((cartItem) => cartItem.id === item?.id) as cartProductType ;
-  //  console.log("item qu-- ", isItemInCart.quantity!);
+    const isItemInCart = cartData.find(
+      (cartItem) => cartItem.id === item?.id
+    ) as cartProductType;
+    //  console.log("item qu-- ", isItemInCart.quantity!);
     if (isItemInCart.quantity! <= 1) {
       setCartData(cartData.filter((cartItem) => cartItem.id !== item?.id)); // if the quantity of the item is 1, remove the item from the cart
     } else {
@@ -215,8 +215,7 @@ export const CartProvider: React.FC<Props> = ({
 
     setIsUpdated(true);
   }
-  
-  
+
   function addProduct(newProduct: cartProductType) {
     //  Validate incoming product data
     if (
@@ -226,9 +225,11 @@ export const CartProvider: React.FC<Props> = ({
       console.warn("Invalid product data, skipping:", newProduct);
       return;
     }
-  
-    const isItemInCart = cartData.find((cartItem) => cartItem.id === newProduct.id);
-  
+
+    const isItemInCart = cartData.find(
+      (cartItem) => cartItem.id === newProduct.id
+    );
+
     if (isItemInCart) {
       setCartData(
         cartData.map((cartItem) =>
@@ -250,7 +251,6 @@ export const CartProvider: React.FC<Props> = ({
     }
   }
 
-
   // const getCartTotal = () => {
   //   return cartData.reduce(
   //     (total, item) => total + (+item.price) * item.quantity!,
@@ -258,9 +258,9 @@ export const CartProvider: React.FC<Props> = ({
   //   ); // calculate the total price of the items in the cart
   // };
 
-  function addAddress(address:addressT) {
-    if (typeof window !== 'undefined') {
-    localStorage.setItem("customer_address", JSON.stringify(address));
+  function addAddress(address: addressT) {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("customer_address", JSON.stringify(address));
     }
   }
   // function getAddress() {
@@ -268,33 +268,28 @@ export const CartProvider: React.FC<Props> = ({
   //   setAddress(JSON.parse(address));
   // }
 
-  
-       function setEndTotalG(t:number){
-       // console.log("in store set end total------", t)
-        if (typeof window !== 'undefined') {
-          localStorage.setItem("END_TOTAL", JSON.stringify(t));
-          }
-setEndTotalL(t)
-       }
+  function setEndTotalG(t: number) {
+    // console.log("in store set end total------", t)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("END_TOTAL", JSON.stringify(t));
+    }
+    setEndTotalL(t);
+  }
 
-      
- function setTotalDiscountG(d:number){
-  setTotalDiscountL(d)
- }
- 
-
+  function setTotalDiscountG(d: number) {
+    setTotalDiscountL(d);
+  }
 
   return (
     <CartContext.Provider
       value={{
-       
         cartData,
         address,
         addProduct,
         addAddress,
         endTotalG,
         setEndTotalG,
-      //  getAddress,
+        //  getAddress,
         counter,
         productTotalCost,
         addProductToCart,
@@ -303,7 +298,13 @@ setEndTotalL(t)
         removeCartProduct,
         emptyCart,
         totalDiscountG,
-  setTotalDiscountG,
+        setTotalDiscountG,
+        orderType,
+        setOrderType,
+        tableNo,
+        setTableNo,
+        scheduledAt,
+        setScheduledAt,
       }}
     >
       {children}

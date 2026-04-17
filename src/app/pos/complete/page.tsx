@@ -19,7 +19,7 @@ export default function POSOrderComplete() {
       if (!orderId) return;
 
       // Mark order as Completed
-      await updateOrderMaster(orderId, "Completed");
+      await updateOrderMaster(orderId, "COMPLETED");
 
       // Maintain stock if enabled
       if (MAINTAIN_STOCK) {

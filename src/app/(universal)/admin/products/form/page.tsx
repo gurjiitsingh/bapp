@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { newPorductSchema, TnewProductSchema } from "@/lib/types/productType";
+import { newProductSchema, TnewProductSchema } from "@/lib/types/productType";
 import { categoryType } from "@/lib/types/categoryType";
 import { resizeImage } from "@/utils/resizeImage";
 import { addNewProduct } from "@/app/(universal)/action/products/dbOperation";
@@ -50,13 +50,13 @@ const Page = () => {
     setValue,
     reset,
   } = useForm<TnewProductSchema>({
-    resolver: zodResolver(newPorductSchema),
+    resolver: zodResolver(newProductSchema),
     defaultValues: {
-      status: "published",
+      publishStatus: "published",
       discountPrice: 0,
       stockQty: 0,
       //  sortOrder: 0,
-      //  taxRate: 0, // ✅ default tax 0%
+      //  taxRate: 0, //  default tax 0%
     },
   });
   const selectedCategoryId = watch("categoryId");
@@ -77,7 +77,7 @@ const Page = () => {
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
   }, [selectedCategoryId, categoryData, setValue]);
-  async function onsubmit(data: TnewProductSchema) {
+  async function onSubmit(data: TnewProductSchema) {
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -90,10 +90,11 @@ const Page = () => {
     formData.append("sortOrder", String(data.sortOrder ?? 0));
     formData.append("categoryId", data.categoryId || "");
     formData.append("productDesc", data.productDesc || "");
-    formData.append("status", data.status || "published");
+    formData.append("status", data.publishStatus || "published");
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
-    formData.append("taxRate", String(data.taxRate ?? 0)); // ✅ added tax info
+    formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
     formData.append("taxType", data.taxType as string);
+    formData.append("searchCode", data.searchCode || "");
     if (data.image && data.image[0]) {
       try {
         const resizedImage = await resizeImage(data.image[0], 400);
@@ -112,7 +113,7 @@ const Page = () => {
     setIsSubmitting(false);
 
     if (!result?.errors) {
-      //  alert("✅ Product added successfully!");
+      //  alert(" Product added successfully!");
       reset({
         name: "",
         //  price: 0,
@@ -122,8 +123,8 @@ const Page = () => {
         //  categoryId: "",
         productDesc: "",
         isFeatured: false,
-        status: "published",
-        //  taxRate: 0, // ✅ reset tax field
+        publishStatus: "published",
+        //  taxRate: 0, //  reset tax field
       });
     } else {
       console.error("❌ Validation errors:", result.errors);
@@ -133,7 +134,9 @@ const Page = () => {
 
   return (
     <form
-      onSubmit={handleSubmit(onsubmit)}
+      onSubmit={handleSubmit(onSubmit, (errors) => {
+        console.log("FORM ERRORS ❌", errors);
+      })}
       className="w-full max-w-7xl mx-auto p-5"
     >
       <h1 className="text-2xl font-semibold mb-4">Create Product</h1>
@@ -159,7 +162,42 @@ const Page = () => {
               <p className="text-xs text-destructive">{errors.name?.message}</p>
             </div>
 
-            <div className="flex flex-col gap-1">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              
+
+
+
+                <div className="flex flex-col gap-1">
+                  <label className="label-style">Category</label>
+                  <select {...register("categoryId")} className="input-style py-1">
+                    <option value="">Select Category</option>
+                    {categoryData.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-destructive">
+                    {errors.categoryId?.message}
+                  </p>
+                </div>
+
+
+             
+
+              <div className="flex flex-col gap-1">
+                <label className="label-style">Search Code / SKU</label>
+                <input
+                  {...register("searchCode")}
+                  className="input-style py-1"
+                  placeholder="Enter SKU, barcode, or short code"
+                />
+                <p className="text-xs text-destructive">{errors.searchCode?.message}</p>
+              </div>
+            </div>
+
+            {/* <div className="flex flex-col gap-1">
               <label className="label-style">Category</label>
               <select {...register("categoryId")} className="input-style py-1">
                 <option value="">Select Category</option>
@@ -172,7 +210,7 @@ const Page = () => {
               <p className="text-xs text-destructive">
                 {errors.categoryId?.message}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* Price Info */}
@@ -209,7 +247,7 @@ const Page = () => {
               </div>
             </div>
 
-            {/* ✅ Added Tax Field */}
+            {/*  Added Tax Field */}
             {/* <div>
               <label className="label-style">Tax Rate (%)</label>
               <input
@@ -339,13 +377,16 @@ const Page = () => {
 
               <div>
                 <label className="label-style">Status</label>
-                <select {...register("status")} className="input-style py-1">
+                <select
+                  {...register("publishStatus")}
+                  defaultValue="published"
+                  className="input-style py-1"
+                >
                   <option value="published">Published</option>
                   <option value="draft">Draft</option>
-                  <option value="out_of_stock">Out of Stock</option>
                 </select>
                 <p className="text-xs text-destructive">
-                  {errors.status?.message}
+                  {errors.publishStatus?.message}
                 </p>
               </div>
             </div>
@@ -367,9 +408,9 @@ const Page = () => {
               <div>
                 <label className="label-style">Tax Type</label>
                 <select {...register("taxType")} className="input-style py-1">
-                 
+
                   <option value="exclusive">Exclusive (Added on total)</option>
-                   <option value="inclusive">
+                  <option value="inclusive">
                     Inclusive (Deducted from total)
                   </option>
                 </select>
@@ -384,9 +425,8 @@ const Page = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className={`btn-save w-full mt-2 ${
-                isSubmitting ? "opacity-80" : ""
-              }`}
+              className={`btn-save w-full mt-2 ${isSubmitting ? "opacity-80" : ""
+                }`}
             >
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>

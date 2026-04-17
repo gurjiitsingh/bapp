@@ -130,6 +130,7 @@ const { TEXT } = useLanguage();
         state: data.state,
         zipCode: data.zipCode,
       };
+   
       if (typeof window !== "undefined") {
         localStorage.setItem("customer_address", JSON.stringify(customAddress));
       }

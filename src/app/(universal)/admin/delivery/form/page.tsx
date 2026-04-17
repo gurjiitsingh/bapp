@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  newPorductSchema,
+  newProductSchema,
   TnewdeliverySchema,
 } from "@/lib/types/deliveryType";
 import { addNewdelivery } from "@/app/(universal)/action/delivery/dbOperation";
@@ -16,7 +16,7 @@ const Page = () => {
     setValue,
     handleSubmit,
   } = useForm<TnewdeliverySchema>({
-    resolver: zodResolver(newPorductSchema),
+    resolver: zodResolver(newProductSchema),
   });
 
   async function onsubmit(data: TnewdeliverySchema) {
@@ -24,18 +24,18 @@ const Page = () => {
 
     const code = data.name.toUpperCase();
     formData.append("name", code);
-    formData.append("price", data.price);
+    formData.append("deliveryFee", data.deliveryFee);
     formData.append("deliveryDistance", data.deliveryDistance!);
     formData.append("productCat", data.productCat);
-    formData.append("deliveryDesc", data.deliveryDesc!);
+    formData.append("note", data.note!);
     formData.append("minSpend", data.minSpend!);
 
     const result = await addNewdelivery(formData);
 
     if (!result?.errors) {
       setValue("name", "");
-      setValue("deliveryDesc", "");
-      setValue("price", "");
+      setValue("note", "");
+      setValue("deliveryFee", "");
       setValue("productCat", "");
       setValue("minSpend", "");
       setValue("deliveryDistance", "");
@@ -89,12 +89,12 @@ const Page = () => {
                 Delivery Cost<span className="text-red-500">*</span>
               </label>
               <input
-                {...register("price")}
+                {...register("deliveryFee")}
                 className="input-style py-1"
                 placeholder="Enter delivery cost"
               />
               <span className="text-[0.8rem] text-destructive">
-                {errors.price?.message}
+                {errors.deliveryFee?.message}
               </span>
             </div>
 
@@ -138,12 +138,12 @@ const Page = () => {
             <div className="flex flex-col gap-1">
               <label className="label-style">Delivery Description</label>
               <textarea
-                {...register("deliveryDesc")}
+                {...register("note")}
                 className="textarea-style py-1"
                 placeholder="Enter delivery details..."
               />
               <span className="text-[0.8rem] text-destructive">
-                {errors.deliveryDesc?.message}
+                {errors.note?.message}
               </span>
             </div>
 

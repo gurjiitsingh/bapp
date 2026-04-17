@@ -51,7 +51,7 @@ export async function updateAllProductsWithCategoryName() {
       await batch.commit();
     }
 
-    console.log(`✅ Updated ${updatedCount} products. Skipped ${skippedCount}.`);
+    console.log(` Updated ${updatedCount} products. Skipped ${skippedCount}.`);
 
     return {
       updated: updatedCount,

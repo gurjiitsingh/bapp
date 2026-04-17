@@ -52,7 +52,7 @@ const PageComp = () => {
     formData.append("isFeatured", data.isFeatured!);
     formData.append("id", data.id!);
     formData.append("sortOrder", data.sortOrder!);
-     formData.append("taxRate", String(data.taxRate ?? 0)); // ✅ added tax info
+     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
       formData.append("taxType", data.taxType as string);
 
     const result = await editCategory(formData);

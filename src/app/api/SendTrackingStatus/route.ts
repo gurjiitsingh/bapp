@@ -26,10 +26,10 @@ return NextResponse.json({"status":"ok"});
 //     if (req.method === 'POST') 
 //     { const data = req.body; // This will contain your JSON data
         
-//      res.status(200).json({ message: "Data received", data }); } 
+//      res.orderStatus(200).json({ message: "Data received", data }); } 
 //      else 
 //      { 
 //         res.setHeader('Allow', ['POST']); 
-//         res.status(405).end(`Method ${req.method} Not Allowed`);
+//         res.orderStatus(405).end(`Method ${req.method} Not Allowed`);
 //      } 
 //     } 

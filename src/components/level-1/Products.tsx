@@ -16,19 +16,19 @@ import { addOnType } from "@/lib/types/addOnType";
 //   sortOrder?: number;
 //   [key: string]: any;
 // };
-export default function Products() {
+export default function Products({ initialProducts }: { initialProducts: ProductType[] }) {
   const { productCategoryIdG, settings, setAllProduct, productToSearchQuery } =
     UseSiteContext();
 
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [variant, setVariant] = useState<ProductType[]>([]);
-  const [allProducts, setAllProductsLocal] = useState<ProductType[]>([]);
+const [variant, setVariant] = useState<ProductType[]>([]);
+const [allProducts, setAllProductsLocal] = useState<ProductType[]>(initialProducts || []);
   const [addOns, setAddOns] = useState<addOnType[]>([]);
   const [categoryId, setCategoryId] = useState("");
 
   const cardType = process.env.NEXT_PUBLIC_PRODUCT_CARD_TYPE;
 
-  // ✅ DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
+  //  DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
 
   const Card = useMemo(() => {
     switch (cardType) {
@@ -70,7 +70,7 @@ export default function Products() {
     }
   }, [cardType]);
 
-  // ✅ Set initial category (runs only when settings OR global id changes)
+  //  Set initial category (runs only when settings OR global id changes)
 
   useEffect(() => {
     if (!settings?.display_category && !productCategoryIdG) return;
@@ -80,51 +80,35 @@ export default function Products() {
     setCategoryId(String(productCategoryIdG || fallback));
   }, [settings, productCategoryIdG]);
 
-  // ✅ Fetch ONCE (no remount loop now)
-  useEffect(() => {
-    let isMounted = true;
+  //  Fetch ONCE (no remount loop now)
+useEffect(() => {
+  if (!initialProducts?.length) return;
 
-    async function load() {
-      try {
-        const res = await fetch("/api/products");
-        //  const data = await res.json();
-        const data: ProductType[] = await res.json(); // ✅ define type here
+  const published = initialProducts.filter(
+    (p) => p.publishStatus === "published"
+  );
 
-        const published = data.filter(
-          (p: ProductType) => p.status === "published"
-        );
+  const sorted = [...published].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
 
-        const sorted = published.sort(
-          (a: ProductType, b: ProductType) =>
-            (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-        );
+  const parents = sorted.filter((p) => p.type === "parent");
+  const variants = sorted.filter((p) => p.type === "variant");
 
-        if (!isMounted) return;
+  setAllProductsLocal(parents);
+  setAllProduct(parents);
+  setVariant(variants);
 
-        const parents = sorted.filter((p) => p.type === "parent");
-        const variants = sorted.filter((p) => p.type === "variant");
-        setAllProductsLocal(parents);
-        setAllProduct(parents); // ✅ context update (won’t remount now)
-        setVariant(variants);
+  // ✅ IMPORTANT: set default products immediately
+setProducts(
+  categoryId
+    ? parents.filter((p) => p.categoryId === categoryId)
+    : parents
+);
 
-        setProducts(
-          categoryId
-            ? sorted.filter((p) => p.categoryId === categoryId)
-            : sorted
-        );
-      } catch (err) {
-        console.error("Error loading products:", err);
-      }
-    }
+}, [initialProducts]);
 
-    load();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []); // ✅ runs ONCE ONLY
-
-  // ✅ Category filter
+  //  Category filter
   useEffect(() => {
     if (!categoryId) {
       setProducts(allProducts);
@@ -133,7 +117,7 @@ export default function Products() {
     setProducts(allProducts.filter((p) => p.categoryId === categoryId));
   }, [categoryId, allProducts]);
 
-  // ✅ Search filter
+  //  Search filter
   useEffect(() => {
     if (!productToSearchQuery) {
       setProducts(allProducts);
@@ -147,7 +131,7 @@ export default function Products() {
     );
   }, [productToSearchQuery]);
 
-  // ✅ Layout logic (unchanged)
+  //  Layout logic (unchanged)
   let containerClass = "";
   switch (cardType) {
     case "1":
@@ -200,7 +184,7 @@ export default function Products() {
             <Card
               key={product.id ?? `${product.name}-${i}`}
               product={product}
-              variants={variant} // ✅ PASS ALL VARIANTS
+              variants={variant} //  PASS ALL VARIANTS
               allAddOns={addOns}
             />
           ))}

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { fetchCategories } from "@/app/(universal)/action/category/dbOperations";
 
-//export const revalidate = 30; // ✅ Optional background revalidation
+//export const revalidate = 30; //  Optional background revalidation
 
 export async function GET() {
   try {
@@ -11,7 +11,7 @@ export async function GET() {
 
     return NextResponse.json(categories, {
       status: 200,
-      // ✅ Tell Next.js this API belongs to the "categories" cache tag
+      //  Tell Next.js this API belongs to the "categories" cache tag
       headers: { "x-next-cache-tags": "categories" },
     });
   } catch (error) {

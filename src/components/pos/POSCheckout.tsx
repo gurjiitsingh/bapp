@@ -15,10 +15,12 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding";
 import { calculateOrderTotals } from "@/lib/orderAmount/calculateOrderTotals";
 
-import PaymentSelector from "@/app/(universal)/(purchase)/checkout/components/PaymentSelector";
+
 
 import { CartItem, orderDataType } from "@/lib/types/cartDataType";
 import { convertProductsToCartItemsPOS } from "@/lib/cart/convertProductsToCartItems";
+import PaymentSelectorPOS from "./checkout/PaymentSelectorPOS";
+
 
 // =====================================================
 // POS CHECKOUT
@@ -28,7 +30,8 @@ export default function POSCheckout() {
   const router = useRouter();
   const { TEXT } = useLanguage();
 
-  const { cartData, setEndTotalG } = useCartContext();
+  const { cartData, setEndTotalG, orderType, tableNo } = useCartContext();
+
   const { settings, paymentType } = UseSiteContext();
 
   // -------------------------
@@ -43,15 +46,12 @@ export default function POSCheckout() {
   const [isLoading, setIsLoading] = useState(false);
 
   // 🆕 STORE CONVERTED CART ITEMS (ORDER-SAFE)
- 
 
   // =====================================================
   // CALCULATE TOTALS (SINGLE SOURCE OF TRUTH)
   // =====================================================
   useEffect(() => {
     if (!cartData || cartData.length === 0) return;
-
-  
 
     async function calculateTotals() {
       // -------------------------
@@ -72,8 +72,8 @@ export default function POSCheckout() {
       // -------------------------
       const totals = calculateOrderTotals({
         itemTotal: itemTotalInitial,
-        flatDiscount: 0,
-        couponDiscount: 0,
+        couponFlat: 0,
+        couponPercent: 0,
         pickupDiscount: 0,
         taxBeforeDiscount: totalTax,
         deliveryFee: 0,
@@ -83,7 +83,7 @@ export default function POSCheckout() {
       // 4️⃣ SAVE STATE
       // -------------------------
       setItemTotal(Number(itemTotalInitial.toFixed(2)));
-      setTaxTotal(Number(totals.taxAfterDiscount!.toFixed(2)));
+      setTaxTotal(Number(totals.taxTotal!.toFixed(2)));
       setEndTotalG(Number(totals.grandTotal!.toFixed(2)));
 
       // -------------------------
@@ -133,8 +133,8 @@ export default function POSCheckout() {
       // -------------------------
       const totals = calculateOrderTotals({
         itemTotal,
-        flatDiscount: 0,
-        couponDiscount: 0,
+        couponFlat: 0,
+        couponPercent: 0,
         pickupDiscount: 0,
         taxBeforeDiscount: taxTotal,
         deliveryFee: 0,
@@ -147,37 +147,39 @@ export default function POSCheckout() {
         userId: "POS",
         customerName: "POS",
         email: "pos@local",
-
+        scheduledAt: "",
+        orderType,
+        tableNo,
         // CART SNAPSHOT
         cartData: cartData,
 
         // -------- CLEAN TOTALS --------
         itemTotal,
         discountTotal: totals.discountTotal,
-        taxTotal: totals.taxAfterDiscount,
+        taxTotal: totals.taxTotal,
         subTotal: totals.subTotal,
         grandTotal: totals.grandTotal,
 
         // -------- LEGACY (KEEP) --------
-        endTotalG: totals.grandTotal!,
-        finalGrandTotal: totals.grandTotal!,
+      
+       
 
         // -------- DISCOUNTS --------
         totalDiscountG: 0,
-        flatDiscount: 0,
-        calCouponDiscount: 0,
+        couponFlat: 0,
+        calcouponPercent: 0,
 
-        // ✅ REQUIRED BUT ZERO FOR POS
-        flatCouponDiscount: 0,
+        //  REQUIRED BUT ZERO FOR POS
+        flatcouponPercent: 0,
         noOffers: true,
 
         calculatedPickUpDiscountL: 0,
 
         addressId: "POS_ORDER",
         paymentType,
-        deliveryCost: 0,
+        deliveryFee: 0,
 
-        couponDiscountPercentL: 0,
+        couponPercentPercentL: 0,
         couponCode: "NA",
         pickUpDiscountPercentL: 0,
 
@@ -213,7 +215,7 @@ export default function POSCheckout() {
     <div className="bg-white border rounded-2xl p-5 flex flex-col gap-4 w-full">
       <h2 className="text-xl font-semibold border-b pb-3">POS Checkout</h2>
 
-      <PaymentSelector />
+      <PaymentSelectorPOS />
 
       <div className="flex justify-between text-md font-semibold">
         <span>Item Total</span>

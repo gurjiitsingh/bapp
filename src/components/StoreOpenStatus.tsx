@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
 
 type Props = {
-  onStatusChange: (open: boolean) => void;
+  onStatusChange: (
+    isOpen: boolean,
+    schedule: { open: string; close: string }
+  ) => void;
 };
 
 export default function StoreOpenStatus({ onStatusChange }: Props) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [message, setMessage] = useState("Checking store status...");
 
   useEffect(() => {
@@ -17,29 +19,24 @@ export default function StoreOpenStatus({ onStatusChange }: Props) {
       if (!data || data.length === 0) return;
 
       const now = new Date();
-      const today = now.toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
+      const today = now
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toLowerCase();
 
       const todaySchedule = data.find(d => d.day === today);
+      if (!todaySchedule) return;
 
-      if (!todaySchedule || !todaySchedule.isOpen) {
-        setIsOpen(false);
-        setMessage("🔴 Store is currently closed");
-        onStatusChange(false);
-        return;
-      }
-
-      const nowTime = now.toTimeString().slice(0, 5); // HH:mm
       const open = todaySchedule.amOpen;
       const close = todaySchedule.amClose;
 
+      const nowTime = now.toTimeString().slice(0, 5);
+
       if (nowTime >= open && nowTime <= close) {
-        setIsOpen(true);
         setMessage("🟢 Store is open now");
-        onStatusChange(true);
+        onStatusChange(true, { open, close });
       } else {
-        setIsOpen(false);
         setMessage(`🔴 Closed • Opens at ${open}`);
-        onStatusChange(false);
+        onStatusChange(false, { open, close });
       }
     }
 

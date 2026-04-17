@@ -58,6 +58,73 @@ export async function addUserDirect(formData: FormData): Promise<string | undefi
   }
 }
 
+
+export async function addUserDirectPrimaryMOB(
+  formData: FormData
+): Promise<string | undefined> {
+
+ 
+  const email = (formData.get("email") || "") as string;
+  const password = formData.get("password") as string;
+  const firstName = (formData.get("firstName") || "") as string;
+  const lastName = (formData.get("lastName") || "") as string;
+  const mobNo = (formData.get("mobNo") || "") as string;
+
+  let username = (formData.get("username") || undefined) as string | undefined;
+
+  if (!mobNo) {
+    console.error("Mobile number is required");
+    return undefined;
+  }
+ console.log("user data----",email,password,firstName,lastName,mobNo)
+  // 🔍 1️⃣ Search existing user by mobile
+  const existing = await adminDb
+    .collection("user")
+    .where("mobNo", "==", mobNo)
+    .limit(1)
+    .get();
+
+  if (!existing.empty) {
+    return existing.docs[0].id;
+  }
+
+  // fallback username
+  username ??= `${firstName} ${lastName}`.trim() || mobNo;
+
+  try {
+    const hashedPassword = await hashPassword(password);
+
+    const newUser = {
+      username,
+      firstName,
+      lastName,
+      email,
+      mobNo,
+      hashedPassword,
+      role: "user",
+      isVerified: true,
+      isAdmin: false,
+      time: new Intl.DateTimeFormat("de", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        hour12: false,
+        minute: "2-digit",
+      }).format(new Date()),
+      createdAt: FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await adminDb.collection("user").add(newUser);
+
+    return docRef.id;
+
+  } catch (e) {
+    console.error("Error adding user by mobile:", e);
+    return undefined;
+  }
+}
+
 /**
  * Search a user by userId field (custom key).
  */

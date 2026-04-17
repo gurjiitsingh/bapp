@@ -26,7 +26,7 @@ export async function saveDaySchedule(formData: FormData) {
       else schedule[index][field] = value;
     }
 
-    console.log("✅ Parsed Schedule:", schedule);
+    console.log(" Parsed Schedule:", schedule);
 
     // OPTIONAL: validate here
     // schedule.forEach(day => { ... })
@@ -54,9 +54,18 @@ export async function saveDaySchedule(formData: FormData) {
   }
 }
 
+export type DaySchedule = {
+  day: string;
+  isOpen: boolean;
+  fullDay: boolean;
+  amOpen: string;
+  amClose: string;
+  pmOpen: string;
+  pmClose: string;
+  updatedAt: string | null;
+};
 
-
-export async function getSchedule() {
+export async function getSchedule(): Promise<DaySchedule[]> {
   const snapshot = await adminDb.collection("day_schedule").get();
 
   return snapshot.docs.map((doc) => {
@@ -64,7 +73,15 @@ export async function getSchedule() {
 
     return {
       day: doc.id,
-      ...data,
+
+      //  defaults (VERY IMPORTANT)
+      isOpen: data.isOpen ?? false,
+      fullDay: data.fullDay ?? false,
+      amOpen: data.amOpen ?? "00:00",
+      amClose: data.amClose ?? "00:00",
+      pmOpen: data.pmOpen ?? "00:00",
+      pmClose: data.pmClose ?? "00:00",
+
       updatedAt: data.updatedAt?.toDate().toISOString() ?? null,
     };
   });

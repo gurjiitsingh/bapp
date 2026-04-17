@@ -7,7 +7,7 @@ export default function ReservationSuccessPage() {
     <div className="relative container mx-auto py-5 p-1">
       <div className="min-h-screen flex flex-col items-center justify-center  px-6 text-center">
         <div className="p-8 max-w-xl w-full rounded-xl border border-[#6366F1] bg-transparent">
-          <div className="text-5xl mb-4 text-[#6366F1]">✅</div>
+          <div className="text-5xl mb-4 text-[#6366F1]"></div>
           <h1 className="text-3xl font-bold text-[#6366F1] mb-2">
             Reservation Confirmed!
           </h1>

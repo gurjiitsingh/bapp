@@ -2,7 +2,7 @@
 
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase-admin/auth";   // ✅ Add this
+import { getAuth } from "firebase-admin/auth";   //  Add this
 import { readFileSync } from "fs";
 import path from "path";
 
@@ -20,4 +20,4 @@ if (!getApps().length) {
 }
 
 export const adminDb = getFirestore();
-export const adminAuth = getAuth();   // ✅ Export Admin Auth
+export const adminAuth = getAuth();   //  Export Admin Auth

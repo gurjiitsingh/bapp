@@ -28,7 +28,7 @@ const Form = () => {
       formData.append("sortOrder", data.sortOrder!);
       formData.append("desc", data.desc ?? "");
       formData.append("isFeatured", data.isFeatured!);
-      formData.append("taxRate", String(data.taxRate ?? 0)); // ✅ added tax info
+      formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
       formData.append("taxType", data.taxType as string);
 
       if (data.image?.[0] === undefined) {
@@ -40,14 +40,14 @@ const Form = () => {
       const result = await addNewCategory(formData);
 
       if (!result?.errors) {
-        //  alert("✅ Product added successfully!");
+        //  alert(" Product added successfully!");
         const SO = Number(data.sortOrder) + 1 || 1;
         reset({
           // name: "",
           sortOrder: SO.toString(),
           //  categoryId: "",
 
-          //  taxRate: 0, // ✅ reset tax field
+          //  taxRate: 0, //  reset tax field
         });
       } else {
         console.error("❌ Validation errors:", result.errors);

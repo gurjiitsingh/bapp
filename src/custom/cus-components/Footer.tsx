@@ -37,20 +37,32 @@ const fontPrice =
 
 type FooterLink = { href: string; name: string };
 
-export default function Footer() {
+type Props = {
+  outlet?: any;
+};
+
+export default function Footer({ outlet }: Props) {
   const { TEXT, BRANDING } = useLanguage();
 
   // Fallbacks
-  const fallbackBrand = {
-    brand_name: BRANDING?.brand_name || "",
-    poweredBy: BRANDING?.poweredBy || "Powered by",
-    poweredByUrl: BRANDING?.poweredByUrl || "https://www.gstadeveloper.com",
-    copyright: {
-      prefix: BRANDING?.copyright?.prefix || "Copyright ©",
-      suffix: BRANDING?.copyright?.suffix || "All Rights Reserved by",
-      company: BRANDING?.copyright?.company || "",
-    },
-  };
+const fallbackBrand = {
+  brand_name: outlet?.outletName || BRANDING?.brand_name || "",
+  poweredBy: BRANDING?.poweredBy || "Powered by",
+  poweredByUrl:
+    BRANDING?.poweredByUrl || "https://www.gstadeveloper.com",
+
+  copyright: {
+    prefix: BRANDING?.copyright?.prefix || "Copyright ©",
+    suffix:
+      BRANDING?.copyright?.suffix || "All Rights Reserved by",
+
+    // ✅ dynamic company
+    company:
+      outlet?.outletName ||
+      BRANDING?.copyright?.company ||
+      "",
+  },
+};
 
   const fallbackText = {
     logo_alt: TEXT?.logo_alt || "Restaurant Logo",
@@ -79,6 +91,16 @@ export default function Footer() {
     },
   };
 // 2B2E4A     navi dark color   d24a0f  orange
+
+const companyName =
+  outlet?.web
+    ? new URL(
+        outlet.web.startsWith("http")
+          ? outlet.web
+          : `https://${outlet.web}`
+      ).hostname
+    : outlet?.outletName || fallbackBrand.brand_name;
+    
   return (
     <footer className="relative pt-12 -mb-20 bg-[#ea9244] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
@@ -88,11 +110,11 @@ export default function Footer() {
             <div className="flex flex-col items-start  md:w-[70%] gap-1  h-fit footer-border p-2 mx-1 rounded-2xl ">
               <div className="flex items-center justify-start rounded-full">
                 <Link href="/">
-                  <img
-                    className="h-24 md:h-24"
-                    src="/logo-10.png"
-                    alt={fallbackText.logo_alt}
-                  />
+                 <img
+  className="h-24 md:h-24"
+  src={outlet?.logo || "/logo.png"}
+  alt={fallbackText.logo_alt}
+/>
                 </Link>
               </div>
               <div className="flex items-center h-fit">
@@ -163,14 +185,18 @@ export default function Footer() {
         <div className="container mx-auto flex flex-col items-center">
           <p className="text-md footer-text-light">
             {fallbackBrand.poweredBy}{" "}
-            <a href={fallbackBrand.poweredByUrl}>
+          <a
+  href={fallbackBrand.poweredByUrl}
+  target="_blank"
+  rel="noopener noreferrer"
+>
               {new URL(fallbackBrand.poweredByUrl).hostname}
             </a>
           </p>
           <p className="text-md footer-text-light">
             {fallbackBrand.copyright.prefix} {new Date().getFullYear()}{" "}
             {fallbackBrand.copyright.suffix}{" "}
-            <b>{fallbackBrand.copyright.company}</b>
+            <b>{companyName}</b>
           </p>
         </div>
       </div>

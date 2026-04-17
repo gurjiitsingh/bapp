@@ -9,17 +9,19 @@ import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { formatDateUTC } from "@/utils/formatDateUTC";
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+import { Timestamp } from "firebase/firestore";
 
 function TableRows({ order }: { order: orderMasterDataT }) {
   const { TEXT } = useLanguage();
   const { settings } = UseSiteContext();
-  const flatDiscount = formatCurrencyNumber(
-    Number(order.flatDiscount) ?? 0,
+  const couponFlat = formatCurrencyNumber(
+    Number(order.couponFlat) ?? 0,
     (settings.currency || "EUR") as string,
     (settings.locale || "de-DE") as string
   );
-  const endTotalG = formatCurrencyNumber(
-    Number(order.endTotalG) ?? 0,
+  const grandTotal = formatCurrencyNumber(
+    Number(order.grandTotal) ?? 0,
     (settings.currency || "EUR") as string,
     (settings.locale || "de-DE") as string
   );
@@ -43,7 +45,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
             pathname: `/admin/orders/order-detail`,
             query: {
               masterId: order.id,
-              userId: order.userId,
+              userId: order.customerId,
               addressId: order.addressId,
             },
           }}
@@ -56,7 +58,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
             pathname: `/admin/orders/order-print-auto`,
             query: {
               masterId: order.id,
-              userId: order.userId,
+              customerId: order.customerId,
               addressId: order.addressId,
             },
           }}
@@ -72,34 +74,41 @@ function TableRows({ order }: { order: orderMasterDataT }) {
 
       <TableCell className="text-gray-600 dark:text-zinc-400 text-sm">
         {/* {order.time} */}
-        {formatDateUTC(
-    order.createdAtUTC,
-    String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
-  ) || order.time}
+        {formatDateTimeStamp(
+          order.createdAt as Timestamp,
+          String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+        ) }
 {/* {formatDateUTC(order.createdAtUTC, settings.locale as string || "de-DE")} */}
       </TableCell>
+  <TableCell className="text-gray-600 dark:text-zinc-400 text-sm">
+        {/* {order.time} */}
+        {formatDateTimeStamp(
+          order.scheduledAt as Timestamp,
+          String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+        ) }
 
+      </TableCell>
 
       <TableCell>
         <span
           className={`px-2 py-1 text-xs rounded-full font-semibold ${
-            order.status === "pending"
+            order.orderStatus === "NEW"
               ? "bg-yellow-100 text-yellow-800"
-              : order.status === "Completed"
+              : order.orderStatus === "COMPLETED"
               ? "bg-green-100 text-green-800"
               : "bg-gray-100 text-gray-700"
           }`}
         >
-          {order.status}
+          {order.orderStatus}
         </span>
       </TableCell>
 
       <TableCell className="font-medium text-gray-900 dark:text-zinc-100">
-        {endTotalG}
+        {grandTotal}
       </TableCell>
 
       <TableCell className="text-sm text-gray-600 dark:text-zinc-400">
-        {order.paymentType}
+        {order.paymentMode}
       </TableCell>
 
       <TableCell className="text-sm text-gray-600 dark:text-zinc-400">
@@ -107,10 +116,10 @@ function TableRows({ order }: { order: orderMasterDataT }) {
       </TableCell>
 
       <TableCell className="text-sm text-gray-600">
-        {order.totalDiscountG}%
+        {order.discountTotal}%
       </TableCell>
 
-      <TableCell className="text-sm text-gray-600">{flatDiscount}</TableCell>
+      <TableCell className="text-sm text-gray-600">{couponFlat}</TableCell>
 
       <TableCell>
         <button

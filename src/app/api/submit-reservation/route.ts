@@ -15,14 +15,14 @@ export async function POST(req: NextRequest) {
 
     const data = parsed.data;
 
-    // ✅ Save to Firestore first
+    //  Save to Firestore first
     const saveResult = await saveReservationToFirestore(data);
 
     if (!saveResult.success) {
       return NextResponse.json({ success: false, error: saveResult.error }, { status: 500 });
     }
 
-    // ✅ Then send email
+    //  Then send email
     const result = await sendReservationConfirmationEmail(data);
 
     if (result.success) {

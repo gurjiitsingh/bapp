@@ -1,3 +1,5 @@
+"use client";
+
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import Sidebar from "@/app/(universal)/admin/components/Sidebar";
 import React, { useEffect, useRef } from "react";

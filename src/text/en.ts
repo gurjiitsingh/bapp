@@ -29,7 +29,7 @@ export const TEXT = {
   placing_order_text: "Placing Order...",
 
 
-  deliveryCost: {
+  deliveryFee: {
   title: "Delivery Cost",
   addressRequired: "Please enter full address and postal code to estimate delivery cost",
 notDeliverableAddress: "We do not deliver at this address"

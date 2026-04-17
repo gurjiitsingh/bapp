@@ -132,7 +132,7 @@ useEffect(() => {
     if (!res?.success) {
       alert("❌ Failed to save schedule");
     } else {
-      alert("✅ Schedule saved successfully");
+      alert(" Schedule saved successfully");
     }
   }
 

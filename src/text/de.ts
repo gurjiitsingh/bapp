@@ -26,7 +26,7 @@ searchForm: {
   placing_order_text: "Placing Order...",
 
 
-  deliveryCost: {
+  deliveryFee: {
   title: "Lieferpauschale", // German
   addressRequired: "Bitte geben Sie die vollständige Adresse und Postleitzahl ein, um die Versandkosten zu schätzen",
 notDeliverableAddress: "Wir liefern nicht an diese Adresse",

@@ -1,5 +1,51 @@
 import { string, z } from "zod";
 
+
+
+
+export const addressCheckoutSMALL = z.object({
+  id: z.string().optional(),
+
+  // REQUIRED
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+ // mobNo: z.string().min(6, "Mobile number is required"),
+//  mobNo: z
+//   .string()
+//   .transform(v => v.replace(/^0+/, ""))   // remove leading 0s
+//   .refine(v => /^[6-9]\d{9}$/.test(v), {
+//     message: "Enter valid 10-digit Indian mobile number",
+//   }),
+mobNo: z
+  .string()
+  .transform(v =>
+    v
+      .replace(/\D/g, "")
+      .replace(/^0+/, "")
+      .replace(/^91/, "")
+  )
+  .refine(v => v === "" || /^[6-9]\d{9}$/.test(v), {
+    message: "Enter valid 10-digit Indian mobile number",
+  }),
+ addressLine1: z.string().min(2, "Village / Locality / Town  is required"), // Village / Locality / Town
+  // OPTIONAL
+  email: z.string().optional(),
+
+ 
+  addressLine2: z.string().optional(), // House / Street
+  city: z.string().optional(),          // small city list
+  state: z.string().optional(),         // fixed (Punjab)
+  zipCode: z.string().optional(),
+
+  userId: z.string().optional(),
+
+});
+
+export type TAddressCheckoutSMALL = z.infer<typeof addressCheckoutSMALL>;
+
+
+
+
 export type addressT = {
     name: string;
     mobNo: string;
@@ -20,7 +66,7 @@ export const addressSchima = z.object({
   .min(2, { message: "Product name is very short" })
   .max(30, { message: "Product name is very long" }),
  
-  mobNo: z.string().min(2, { message: "City is required" }),
+  mobNo: z.string().min(2, { message: "Mob No. is required" }),
   addressLine1: z.string().optional(),
   addressLine2: z.string().optional(),
   city: z.string().min(2, { message: "City is required" }),

@@ -95,7 +95,7 @@ export const TEXT = {
   delivery_time: "Délai de livraison : 40–55 minutes",
 
 
-  deliveryCost: {
+  deliveryFee: {
   title: "Frais de livraison",
   addressRequired: "Veuillez entrer l'adresse complète et le code postal pour estimer les frais de livraison",
 },

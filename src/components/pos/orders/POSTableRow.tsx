@@ -7,12 +7,14 @@ import { MdDeleteForever, MdPrint } from "react-icons/md";
 import { deleteOrderMasterRec } from "@/app/(universal)/action/orders/dbOperations";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+import { Timestamp } from "firebase/firestore";
 
 export default function POSTableRow({ order }: { order: orderMasterDataT }) {
   const { settings } = UseSiteContext();
 
-  const total = formatCurrencyNumber(
-    Number(order.endTotalG) || 0,
+  const grandTotal = formatCurrencyNumber(
+    Number(order.grandTotal) || 0,
     settings.currency as string,
     settings.locale as string
   );
@@ -25,7 +27,7 @@ export default function POSTableRow({ order }: { order: orderMasterDataT }) {
   }
 
 
-console.log("orders--------", order)
+
   return (
     <TableRow className="hover:bg-green-50 transition">
       <TableCell>
@@ -35,7 +37,7 @@ console.log("orders--------", order)
             pathname: `/pos/orders/order-detail`,
             query: {
               masterId: order.id,
-              userId: order.userId,
+              userId: order.customerId,
               addressId: order.addressId,
             }}}
        // href={`/pos/orders/order-detail?orderId=${order.id}`}
@@ -61,25 +63,36 @@ console.log("orders--------", order)
 
       <TableCell>{order.customerName || "Walk-in"}</TableCell>
 
-      <TableCell>{order.time}</TableCell>
+      <TableCell> {formatDateTimeStamp(
+          order.createdAt as Timestamp,
+          String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+        ) }</TableCell>
+
+       <TableCell className="text-gray-600 dark:text-zinc-400 text-sm">
+        {/* {order.time} */}
+        {formatDateTimeStamp(
+    order.scheduledAt as Timestamp,
+    String(settings.locale) || process.env.NEXT_PUBLIC_DEFAULT_LOCALE
+  ) } 
+      </TableCell>
 
       <TableCell>
         <span
           className={`px-2 py-1 rounded-full text-xs font-semibold ${
-            order.status === "Completed"
+            order.orderStatus === "COMPLETED"
               ? "bg-green-200 text-green-800"
-              : order.status === "pending"
+              : order.orderStatus === "NEW"
               ? "bg-yellow-200 text-yellow-800"
               : "bg-gray-200 text-gray-700"
           }`}
         >
-          {order.status}
+          {order.orderStatus}
         </span>
       </TableCell>
 
-      <TableCell className="font-semibold">{total}</TableCell>
+      <TableCell className="font-semibold">{grandTotal}</TableCell>
 
-      <TableCell>{order.paymentType}</TableCell>
+      <TableCell>{order.paymentMode}</TableCell>
 
       <TableCell>{order.printed ? "Yes": "No"}</TableCell>
 

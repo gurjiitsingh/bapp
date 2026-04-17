@@ -1,11 +1,9 @@
-'use client';
 
-import PrivacyPolicy_en from '@/custom/cus-components/PrivacyPolicy-en';
 
-import React from 'react';
+
+
+import PrivacyPolicyEnWrapper from "@/components/PrivacyPolicyEnWrapper";
 
 export default function PrivacyPage() {
-  return (
-<PrivacyPolicy_en />
-  );
+  return <PrivacyPolicyEnWrapper />;
 }

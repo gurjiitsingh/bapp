@@ -28,9 +28,20 @@ const router = useRouter();
 
    <MiniCartSubtotal />
 
-           <button
-  onClick={() => router.push("/pos/checkout")}
-  className="w-full px-4 py-3 font-bold bg-green-600 text-white rounded-xl text-lg"
+   <button
+  onClick={() => {
+    if (cartData.length > 0) {
+      router.push("/pos/checkout");
+    }
+  }}
+  disabled={cartData.length === 0}
+  className={`w-full px-4 py-3 font-bold rounded-xl text-lg transition
+    ${
+      cartData.length === 0
+        ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+        : "bg-green-600 text-white hover:bg-green-700"
+    }
+  `}
 >
   Place Order
 </button>
