@@ -1,6 +1,7 @@
 "use server";
 
 
+import { upload, uploadOutletLogo } from "@/lib/cloudinary";
 import { countryConfig } from "@/lib/config/countryConfig";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { outletSchema } from "@/lib/types/outletType";
@@ -171,3 +172,51 @@ export const getOutlet = cache(async () => {
       : null,
   };
 });
+
+
+
+
+export async function updateOutletLogo(formData: FormData) {
+  console.log("logo upload-------------");
+
+  try {
+    const outletId = formData.get("outletId") as string;
+    const image = formData.get("image");
+
+    if (!outletId) {
+      return { errors: { general: "Outlet ID missing" } };
+    }
+
+    if (!image || image === "0") {
+      return { errors: { image: "Logo image required" } };
+    }
+
+    // ✅ Upload image (Cloudinary / storage)
+    let logoUrl = "";
+
+    try {
+const uploadRes = await uploadOutletLogo(image as File, outletId);
+ logoUrl = uploadRes.url;
+console.log("Logo url :", logoUrl, outletId)
+  
+    } catch (error) {
+      return { errors: { image: "Logo upload failed" } };
+    }
+
+    // ✅ Update Firestore outlet
+    await adminDb.collection("outlets").doc(outletId).update({
+      logoUrl,
+      updatedAt: new Date().toISOString(),
+    });
+
+    return {
+      success: true,
+      message: "Logo updated successfully",
+      logoUrl,
+    };
+
+  } catch (error) {
+    console.error("❌ Logo update failed:", error);
+    return { errors: { general: "Could not update logo" } };
+  }
+}

@@ -16,12 +16,14 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { useLanguage } from "@/store/LanguageContext";
 import { useState } from "react";
+import ModifierModal from "@/components/ModifierModal";
+
 
 function TableRows({ product }: { product: ProductType }) {
   const { settings } = UseSiteContext();
   const { TEXT } = useLanguage();
   const [isFeatured, setIsFeatured] = useState(product.isFeatured);
-
+const [showModifierModal, setShowModifierModal] = useState(false);
   
 
   const price = formatCurrencyNumber(
@@ -81,7 +83,14 @@ function TableRows({ product }: { product: ProductType }) {
     }
   }
 
-  return (
+  return (<>
+  {showModifierModal && (
+  <ModifierModal
+    productId={product.id!}
+    onClose={() => setShowModifierModal(false)}
+  />
+)}
+
     <TableRow
       key={product.id}
       className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition rounded-xl"
@@ -190,6 +199,13 @@ function TableRows({ product }: { product: ProductType }) {
       {/* ⚙️ Actions */}
       <TableCell>
         <div className="flex gap-2">
+          <Button
+  size="sm"
+  className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0"
+  onClick={() => setShowModifierModal(true)}
+>
+  Modifiers
+</Button>
           {/* ✏️ Edit */}
           <Link
             href={{
@@ -240,7 +256,7 @@ function TableRows({ product }: { product: ProductType }) {
           </Button>
         </div>
       </TableCell>
-    </TableRow>
+    </TableRow>  </>
   );
 }
 

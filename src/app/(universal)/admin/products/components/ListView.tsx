@@ -55,23 +55,7 @@ useEffect(() => {
 }, []); //  run once
 
 
-  //  Filter when URL state or products change
-  // useEffect(() => {
-  //   let list = [...products];
-
-  //   if (urlCategory) {
-  //     list = list.filter((p) => p.categoryId === urlCategory);
-  //   }
-
-  //   if (urlSearch) {
-  //     list = list.filter((p) =>
-  //       p.name.toLowerCase().includes(urlSearch.toLowerCase())
-  //     );
-  //   }
-
-  //   setFiltered(list);
-  // }, [urlCategory, urlSearch, products]);
-
+ 
 
 
 useEffect(() => {

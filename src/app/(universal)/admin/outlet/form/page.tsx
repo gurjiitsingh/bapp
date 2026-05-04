@@ -6,6 +6,7 @@ export default function page() {
   return (
   <Suspense>
     <Outlet />
+    
   </Suspense>
   )
 }

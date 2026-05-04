@@ -33,7 +33,26 @@ export async function upload(image) {
   return result.secure_url;
 }
 
+export async function uploadOutletLogo(image, outletId) {
+  const imageData = await image.arrayBuffer();
+  const mime = image.type;
+  const encoding = "base64";
 
+  const base64Data = Buffer.from(imageData).toString("base64");
+  const fileUri = `data:${mime};${encoding},${base64Data}`;
+
+  const result = await cloudinary.uploader.upload(fileUri, {
+    folder: "outlets", // optional (keeps things organized)
+    public_id: `outlets/${outletId}/logo`, // ✅ FIXED PATH
+    overwrite: true, // ✅ REPLACE OLD IMAGE
+    resource_type: "image",
+  });
+
+  return {
+    url: result.secure_url,
+    public_id: result.public_id,
+  };
+}
 
 export const deleteFile = (publicId) => {
   return new Promise((resolve, reject) => {

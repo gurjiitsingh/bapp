@@ -7,6 +7,7 @@ import { outletSchema, ToutletSchema } from "@/lib/types/outletType";
 
 import { Button } from "@/components/ui/button";
 import { saveOutlet } from "@/app/(universal)/action/outlet/dbOperation";
+import OutletLogoUpload from "./OutletLogoUpload";
 
 const Outlet = () => {
   const [loading, setLoading] = useState(false);
@@ -72,6 +73,7 @@ const Outlet = () => {
   }
 
   return (
+    <>{outletId && <OutletLogoUpload outletId={outletId} />}
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-4xl mx-auto p-5 space-y-5"
@@ -80,6 +82,7 @@ const Outlet = () => {
         {outletId ? "Edit Outlet" : "Create Outlet"}
       </h1>
 
+{/* <img src={logoUrl} className="h-20 object-contain" /> */}
       <input
         {...register("outletName")}
         placeholder="Outlet Name"
@@ -206,7 +209,9 @@ const Outlet = () => {
       <Button disabled={loading} className="btn-save w-full">
         {loading ? "Saving..." : "Save Outlet"}
       </Button>
-    </form>
+      
+     
+    </form></>
   );
 };
 
