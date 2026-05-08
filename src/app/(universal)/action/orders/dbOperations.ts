@@ -511,7 +511,7 @@ export async function addProductDraft(
   orderMasterId: string
 ) {
   const product = {
-    id: element.id,
+    prodcutId: element.id,
     name: element.name,
     price: element.price,
     quantity: element.quantity,
@@ -522,6 +522,9 @@ export async function addProductDraft(
     taxTotal: element.taxTotal, // tax * quantity
     finalPrice: element.finalPrice, // price + tax
     finalTotal: element.finalTotal, // finalPrice * quantity
+
+    note: element.note || "",
+    modifiers: element.modifiers || [],
   };
 
   try {
@@ -746,18 +749,19 @@ export async function fetchOrderMasterById(id: string) {
 
   const raw = docSnap.data() as orderMasterDataT;
 
-  // const createdAtStr =
-  //   raw.createdAt?.toDate?.().toISOString?.() ?? new Date().toISOString();
-
-  const createdAtStr =
-    raw.createdAt instanceof Timestamp
-      ? raw.createdAt.toDate().toISOString()
-      : new Date().toISOString();
+  const convert = (ts: any) =>
+    ts?.toDate?.().toISOString?.() || null;
 
   return {
     ...raw,
-    createdAt: createdAtStr,
+
     id: docSnap.id,
+
+    // ✅ override ALL timestamps
+    createdAt: convert(raw.createdAt),
+    updatedAt: convert(raw.updatedAt),
+    lastSyncedAt: convert(raw.lastSyncedAt),
+    scheduledAt: convert(raw.scheduledAt),
   } as orderMasterDataSafeT;
 }
 
@@ -772,14 +776,42 @@ export async function fetchOrderProductsByOrderMasterId(OrderMasterId: string) {
     .get();
 
   snapshot.forEach((doc) => {
-    const d = doc.data();
+    const raw = doc.data();
 
-    // 🔥 Convert Timestamp -> ISO String
-    if (d.createdAt && d.createdAt.toDate) {
-      d.createdAt = d.createdAt.toDate().toISOString();
-    }
+  const safeData: OrderProductT = {
+  ...raw,
 
-    data.push(d as OrderProductT);
+  id: doc.id,
+  productId: raw.productId || raw.id || "",
+
+  orderMasterId: raw.orderMasterId || "",
+  name: raw.name || "",
+  price: raw.price || 0,
+  quantity: raw.quantity || 0,
+  itemSubtotal: raw.itemSubtotal || 0,
+
+  taxRate: raw.taxRate || 0,
+  taxType: raw.taxType || "exclusive",
+  taxAmount: raw.taxAmount || 0,
+  taxTotal: raw.taxTotal || 0,
+  finalPrice: raw.finalPrice || 0,
+  finalTotal: raw.finalTotal || 0,
+
+  image: raw.image || "",
+  categoryId: raw.categoryId || "",
+  productCat: raw.productCat || "",
+
+  purchaseSession: raw.purchaseSession || "",
+  status: raw.status || "",
+  userId: raw.userId || "",
+
+  productDesc: raw.productDesc || "",
+
+  note: raw.note || "",
+  modifiers: raw.modifiers || [],
+};
+
+    data.push(safeData);
   });
 
   return data;

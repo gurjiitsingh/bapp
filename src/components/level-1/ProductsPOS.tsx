@@ -202,14 +202,14 @@ export default function Products() {
     <div  className="max-full mx-auto my-1">
       <div className="px-1">
         <div className={containerClass}>
-          {products.map((product, i) => (
+          {/* {products.map((product, i) => (
             <Card
               key={product.id ?? `${product.name}-${i}`}
               product={product}
               variants={variant} //  PASS ALL VARIANTS
               allAddOns={addOns}
             />
-          ))}
+          ))} */}
         </div>
       </div>
     </div>

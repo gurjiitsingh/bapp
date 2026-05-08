@@ -64,7 +64,33 @@ const total =
       </div>
       <div className="w-full flex flex-col justify-between gap-2 p-2">
         <div className="flex flex-row gap-3 items-start">
-          <div className="text-sm w-[40%] flex items-start">{item.name}</div>
+          <div className="flex flex-col text-sm w-[40%] flex items-start">
+            
+         <span> {item.name}</span>  
+            
+
+ {/* 📝 NOTE */}
+  {item.note && (
+    <span className="text-xs text-gray-500">
+      • {item.note}
+    </span>
+  )}
+
+  {/* ⚙️ MODIFIERS */}
+  {item.modifiers && item.modifiers.length > 0 && (
+    <span className="text-xs text-gray-500">
+      • {item.modifiers
+        .map((m) =>
+          m.price && m.price > 0
+            ? `${m.name} (+${m.price})`
+            : m.name
+        )
+        .join(", ")}
+    </span>
+  )}
+
+            
+            </div>
           <div className="flex gap-2 w-[60%]">
             
                <div className="text-[1rem] w-[33%] flex items-start justify-end">

@@ -9,6 +9,7 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import CartButtonAdd from "../AddToCart/CartButtonAdd";
 import Image from "next/image";
 import { useState } from "react";
+import type { TnewModifierItemSchema } from "@/lib/types/modifierItemType";
 import { IoClose } from "react-icons/io5";
 export default function ProductCardHorizontical({
   product,
@@ -24,6 +25,10 @@ export default function ProductCardHorizontical({
   productModifiers: any[];
 
 }) {
+
+  type ModifierItem = TnewModifierItemSchema & {
+  id: string;
+};
   const { settings } = UseSiteContext();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<ProductType | null>(null);
@@ -305,7 +310,7 @@ export default function ProductCardHorizontical({
                       Min: {groupData.group.minSelection} | Max: {groupData.group.maxSelection}
                     </p>
 
-                    {groupData.items.map((item) => {
+                  {groupData.items.map((item: ModifierItem) => {
                       const selectedItems = selectedModifiers[groupData.group.id] || [];
 
                       const isChecked = selectedItems.some((i) => i.id === item.id);

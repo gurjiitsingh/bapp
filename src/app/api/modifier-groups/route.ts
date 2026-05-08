@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebaseAdmin";
+import type { TnewModifierItemSchema } from "@/lib/types/modifierItemType";
 
 export async function GET() {
   try {
@@ -14,10 +15,17 @@ export async function GET() {
     // 2. Get items
     const itemSnap = await adminDb.collection("modifierItems").get();
 
-    const items = itemSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    type ModifierItem = TnewModifierItemSchema & {
+      id: string;
+    };
+
+    const items: ModifierItem[] = itemSnap.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as ModifierItem
+    );
 
     // 3. Combine
     const result = groups.map((group) => ({

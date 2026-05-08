@@ -1,7 +1,9 @@
+import { cartModifierItem } from "./cartDataType";
 
 
 export type OrderProductT = {
-  id: string;
+  id?: string;
+  productId: string;
   orderMasterId: string;
 
   name: string;
@@ -25,6 +27,8 @@ export type OrderProductT = {
   status: string;
   userId: string;
   productDesc?: string;
+   modifiers?: cartModifierItem[];
+   note?: string; 
 };
 
 
