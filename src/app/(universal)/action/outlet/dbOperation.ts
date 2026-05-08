@@ -206,7 +206,7 @@ console.log("Logo url :", logoUrl, outletId)
     // ✅ Update Firestore outlet
     await adminDb.collection("outlets").doc(outletId).update({
       logoUrl,
-      updatedAt: new Date().toISOString(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     return {

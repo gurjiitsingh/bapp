@@ -31,7 +31,7 @@ export const MiniCartSubtotal = () => {
           {/* {TEXT.discount_hint_checkout || "See discount at checkout"} */}
         </div>
       </div>
-      <div className="text-rose-600 font-bold text-lg">{total_amount}</div>
+      <div className="text-slate-800 font-bold text-lg">{total_amount}</div>
     </div>
   );
 };

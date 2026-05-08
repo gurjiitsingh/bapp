@@ -96,7 +96,7 @@ export const SideCart = () => {
                     {cartData.length ? (
                       <button
                         onClick={pickUpHandle}
-                        className="w-full py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md"
+                        className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md"
                       >
                         {TEXT.checkout_button}
                       </button>

@@ -18,13 +18,17 @@ const CartButtonAdd = ({ cartProduct }: { cartProduct: cartProductType }) => {
     removeCartProduct(cartProduct);
   }
 
-  useEffect(() => {
-    const cartQty = cartData.filter((item: cartProductType) => {
-      return item.id === cartProduct?.id;
-    });
-    setQuantity(cartQty[0]?.quantity);
-    //  console.log(cartQty[0]?.quantity)
-  }, [cartData]);
+ useEffect(() => {
+  const cartItem = cartData.find((item: cartProductType) => {
+    if (cartProduct?.uniqueKey) {
+      return item.uniqueKey === cartProduct.uniqueKey;
+    }
+
+    return item.id === cartProduct?.id;
+  });
+
+  setQuantity(cartItem?.quantity ?? 0);
+}, [cartData, cartProduct]);
 
   return (
     <>

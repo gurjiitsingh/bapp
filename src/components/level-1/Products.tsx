@@ -20,11 +20,17 @@ export default function Products({ initialProducts }: { initialProducts: Product
   const { productCategoryIdG, settings, setAllProduct, productToSearchQuery } =
     UseSiteContext();
 
+
   const [products, setProducts] = useState<ProductType[]>([]);
 const [variant, setVariant] = useState<ProductType[]>([]);
 const [allProducts, setAllProductsLocal] = useState<ProductType[]>(initialProducts || []);
   const [addOns, setAddOns] = useState<addOnType[]>([]);
   const [categoryId, setCategoryId] = useState("");
+
+  const [modifierGroups, setModifierGroups] = useState<any[]>([]);
+const [productModifiers, setProductModifiers] = useState<any[]>([]);
+
+
 
   const cardType = process.env.NEXT_PUBLIC_PRODUCT_CARD_TYPE;
 
@@ -108,6 +114,8 @@ setProducts(
 
 }, [initialProducts]);
 
+
+
   //  Category filter
   useEffect(() => {
     if (!categoryId) {
@@ -131,6 +139,38 @@ setProducts(
     );
   }, [productToSearchQuery]);
 
+
+useEffect(() => {
+  const timer = setTimeout(async () => {
+    try {
+      console.log("🚀 Fetching modifiers...");
+
+      const [groupsRes, mappingRes] = await Promise.all([
+        fetch("/api/modifier-groups"),
+        fetch("/api/product-modifiers"),
+      ]);
+
+   if (!groupsRes.ok || !mappingRes.ok) {
+  throw new Error("API error");
+}
+
+const groupsData = await groupsRes.json();
+const mappingData = await mappingRes.json();
+
+      setModifierGroups(groupsData);
+      setProductModifiers(mappingData);
+
+      // ✅ JUST LOG (important step)
+      // console.log("✅ modifierGroups:", groupsData);
+      // console.log("✅ productModifiers:", mappingData);
+
+    } catch (err) {
+      console.error("❌ Error fetching modifiers", err);
+    }
+  }, 1200);
+
+  return () => clearTimeout(timer);
+}, []);
   //  Layout logic (unchanged)
   let containerClass = "";
   switch (cardType) {
@@ -183,9 +223,11 @@ setProducts(
           {products.map((product, i) => (
             <Card
               key={product.id ?? `${product.name}-${i}`}
-              product={product}
-              variants={variant} //  PASS ALL VARIANTS
-              allAddOns={addOns}
+             product={product}
+  variants={variant}
+  allAddOns={addOns}
+  modifierGroups={modifierGroups}
+  productModifiers={productModifiers}
             />
           ))}
         </div>

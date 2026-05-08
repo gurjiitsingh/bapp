@@ -118,49 +118,85 @@ export const CartProvider: React.FC<Props> = ({
     setIsUpdated(true);
   }
 
-  function addProductToCart(newProduct: cartProductType) {
-    //  Validate incoming product data
-    if (
-      isNaN(Number(newProduct.quantity)) ||
-      isNaN(parseFloat(newProduct.price as any))
-    ) {
-      console.warn("Invalid product data, skipping:", newProduct);
-      return;
-    }
+//   function addProductToCart(newProduct: cartProductType) {
+//     //  Validate incoming product data
+//     if (
+//       isNaN(Number(newProduct.quantity)) ||
+//       isNaN(parseFloat(newProduct.price as any))
+//     ) {
+//       console.warn("Invalid product data, skipping:", newProduct);
+//       return;
+//     }
 
-    const isItemInCart = cartData.find(
-      (cartItem) => cartItem.id === newProduct?.id
-    );
+//    const isItemInCart = cartData.find(
+//   (cartItem) => cartItem.uniqueKey === newProduct.uniqueKey
+// );
 
-    if (isItemInCart) {
-      setCartData(
-        cartData.map((cartItem) =>
-          cartItem.id === newProduct?.id
-            ? {
-                ...cartItem,
-                quantity: cartItem.quantity! + newProduct.quantity!,
-              }
-            : cartItem
-        )
-      );
-    } else {
-      if (typeof window !== "undefined") {
-        setCartData([
-          ...cartData,
-          {
-            ...newProduct,
-            quantity: newProduct.quantity!,
-          },
-        ]);
-      }
-    }
+//     if (isItemInCart) {
+//       setCartData(
+//         cartData.map((cartItem) =>
+//         cartItem.uniqueKey === newProduct.uniqueKey
+//             ? {
+//                 ...cartItem,
+//                 quantity: cartItem.quantity! + newProduct.quantity!,
+//               }
+//             : cartItem
+//         )
+//       );
+//     } else {
+//       if (typeof window !== "undefined") {
+//         setCartData([
+//           ...cartData,
+//           {
+//             ...newProduct,
+//             quantity: newProduct.quantity!,
+//           },
+//         ]);
+//       }
+//     }
+//   }
+
+
+function addProductToCart(newProduct: cartProductType) {
+  if (
+    isNaN(Number(newProduct.quantity)) ||
+    isNaN(parseFloat(newProduct.price as any))
+  ) {
+    console.warn("Invalid product data, skipping:", newProduct);
+    return;
   }
+
+  const isItemInCart = cartData.find(
+    (cartItem) => cartItem.uniqueKey === newProduct.uniqueKey
+  );
+
+  if (isItemInCart) {
+    setCartData(
+      cartData.map((cartItem) =>
+        cartItem.uniqueKey === newProduct.uniqueKey
+          ? {
+              ...cartItem,
+              quantity: cartItem.quantity! + newProduct.quantity!,
+            }
+          : cartItem
+      )
+    );
+  } else {
+    setCartData([
+      ...cartData,
+      {
+        ...newProduct,
+        quantity: newProduct.quantity!,
+      },
+    ]);
+  }
+}
 
   function decCartProduct(decProduct: cartProductType) {
     //this funciton dec product almost to 1
     setCartData(
       cartData.map((item: cartProductType) => {
-        return item.id === decProduct.id
+        return item.uniqueKey === decProduct.uniqueKey
           ? item.quantity! > 1
             ? { ...item, quantity: item.quantity! - 1 }
             : item
@@ -174,7 +210,7 @@ export const CartProvider: React.FC<Props> = ({
     //removeCartProduct
     setCartData(
       cartData.map((item: cartProductType) => {
-        return item.id === decProduct.id
+        return item.uniqueKey === decProduct.uniqueKey
           ? item.quantity! > 0
             ? { ...item, quantity: item.quantity! - 1 }
             : item
@@ -186,15 +222,15 @@ export const CartProvider: React.FC<Props> = ({
 
   function removeCartProduct(item: cartProductType | undefined) {
     const isItemInCart = cartData.find(
-      (cartItem) => cartItem.id === item?.id
+      (cartItem) => cartItem.uniqueKey === item?.uniqueKey
     ) as cartProductType;
     //  console.log("item qu-- ", isItemInCart.quantity!);
     if (isItemInCart.quantity! <= 1) {
-      setCartData(cartData.filter((cartItem) => cartItem.id !== item?.id)); // if the quantity of the item is 1, remove the item from the cart
+      setCartData(cartData.filter((cartItem) => cartItem.uniqueKey !== item?.uniqueKey)); // if the quantity of the item is 1, remove the item from the cart
     } else {
       setCartData(
         cartData.map((cartItem) =>
-          cartItem.id === item?.id
+          cartItem.uniqueKey === item?.uniqueKey
             ? { ...cartItem, quantity: cartItem.quantity! - 1 } // if the quantity of the item is greater than 1, decrease the quantity of the item
             : cartItem
         )
@@ -227,13 +263,13 @@ export const CartProvider: React.FC<Props> = ({
     }
 
     const isItemInCart = cartData.find(
-      (cartItem) => cartItem.id === newProduct.id
+      (cartItem) => cartItem.uniqueKey === newProduct.uniqueKey
     );
 
     if (isItemInCart) {
       setCartData(
         cartData.map((cartItem) =>
-          cartItem.id === newProduct.id
+          cartItem.uniqueKey === newProduct.uniqueKey
             ? { ...cartItem, quantity: cartItem.quantity! + 1 }
             : cartItem
         )

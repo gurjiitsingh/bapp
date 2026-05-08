@@ -26,6 +26,7 @@ export type ProductType = {
 
   parentId?: string;
   hasVariants?: boolean;
+  hasModifier?: boolean;
   type?: 'parent' | 'variant';
 };
 

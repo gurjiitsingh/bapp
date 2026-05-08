@@ -141,7 +141,7 @@ export default function OrderComplete() {
         <div>
           <button
             onClick={() => router.push("/")}
-            className="min-w-[200px] mt-5 py-1 text-center primary rounded-2xl text-slate-500 text-[1rem]"
+            className="min-w-[200px] mt-5 py-1 text-center primary rounded-2xl bg-amber-600 hover:bg-amber-700 text-white text-[1rem]"
           >
             {TEXT?.shop_more_button || "Mehr einkaufen"}
           </button>

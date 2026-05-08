@@ -36,3 +36,55 @@ export async function addModifierItem(formData: FormData) {
     return { errors: { general: "Failed to save" } };
   }
 }
+
+
+
+
+export async function getModifierGroupsWithItems(productId: string) {
+  try {
+    // 1. Get mapping (product → groupIds)
+    const mappingSnap = await adminDb
+      .collection("productModifiers")
+      .where("productId", "==", productId)
+      .get();
+
+    const groupIds = mappingSnap.docs.map((doc) => doc.data().groupId);
+
+    if (groupIds.length === 0) return [];
+
+    // 2. Get groups
+    const groupSnap = await adminDb
+      .collection("modifierGroups")
+      .where("__name__", "in", groupIds)
+      .get();
+
+    const groups = groupSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // 3. Get all items for these groups
+    const itemsSnap = await adminDb
+      .collection("modifierItems")
+      .where("groupId", "in", groupIds)
+      .get();
+
+    const items = itemsSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // 4. Map group → items
+    const result = groups.map((group) => ({
+      group,
+      items: items
+        .filter((item) => item.groupId === group.id)
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
+    }));
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching modifiers:", error);
+    return [];
+  }
+}
