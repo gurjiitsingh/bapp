@@ -13,22 +13,23 @@ import { useRouter } from "next/navigation";
 
 export default function TableRows({ group }: any) {
 
+type StatusType = "published" | "draft";
 
-  const [status, setStatus] = useState(group.status);
+const [status, setStatus] = useState<StatusType>(group.status);
+
 
 // ✅ separate loading states (IMPORTANT)
 const [statusLoading, setStatusLoading] = useState(false);
 const [deleteLoading, setDeleteLoading] = useState(false);
   
-  const [loading, setLoading] = useState(false);
+ 
 
   const isSingle = group.maxSelection === 1;
 
-// const group = group.group;
-  const statusStyles = {
-    published: "bg-green-100 text-green-800",
-    draft: "bg-yellow-100 text-yellow-800",
-  };
+const statusStyles: Record<StatusType, string> = {
+  published: "bg-green-100 text-green-800",
+  draft: "bg-yellow-100 text-yellow-800",
+};
 
 
 
@@ -38,7 +39,8 @@ const router = useRouter();
     const newStatus = status === "published" ? "draft" : "published";
 
     setStatus(newStatus);
-    setLoading(true);
+  setStatusLoading(true);
+  
 
     try {
       const res = await fetch("/api/modifier-groups/toggle-status", {
@@ -60,7 +62,7 @@ const router = useRouter();
       alert("Error updating");
     }
 
-    setLoading(false);
+   setStatusLoading(true);
   }
 
 async function handleDelete() {
@@ -84,13 +86,13 @@ async function handleDelete() {
     <TableRow className="hover:bg-green-50 transition">
 
       {/* Name */}
-      
+  <TableCell className="text-slate-600">    
       <Link href={`/admin/modifier-groups/${group.id}`}>
   <span className="text-blue-600 underline cursor-pointer">
  {group.name}
   </span>
 </Link>
-
+</TableCell>
       {/* Type */}
       <TableCell className="text-slate-600">
         <span
@@ -123,12 +125,12 @@ async function handleDelete() {
       <TableCell>
         <button
           onClick={toggleStatus}
-          disabled={loading}
+       disabled={statusLoading}
           className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
             statusStyles[status] || "bg-gray-100 text-gray-700"
           }`}
         >
-          {loading ? "..." : status}
+         {statusLoading ? "..." : status}
         </button>
       </TableCell>
 
@@ -152,13 +154,14 @@ async function handleDelete() {
             </Button>
           </Link>
 
-          <Button
-            onClick={handleDelete}
-            size="sm"
-            className="bg-rose-600 text-white"
-          >
-            <MdDeleteForever size={18} />
-          </Button>
+        <Button
+  onClick={handleDelete}
+  disabled={deleteLoading}
+  size="sm"
+  className="bg-rose-600 text-white"
+>
+  {deleteLoading ? "..." : <MdDeleteForever size={18} />}
+</Button>
 
         </div>
       </TableCell>

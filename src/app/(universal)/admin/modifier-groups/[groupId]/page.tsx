@@ -10,7 +10,7 @@ export default async function Page({
 
   const items = await getModifierItemsByGroup(groupId);
 
-  console.log("items----------",items)
+
 
   return (
     <div className="h-screen flex flex-col">

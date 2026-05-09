@@ -75,7 +75,7 @@ export async function getModifierGroupsAdmin() {
       const groupData = doc.data();
 
       const items = allItems.filter(
-        (item) => item.groupId === doc.id
+        (item) => item.id === doc.id
       );
 
       return {
