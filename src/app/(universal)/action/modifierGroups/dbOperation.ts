@@ -53,3 +53,80 @@ export async function getModifierGroups() {
     return [];
   }
 }
+
+
+
+export async function getModifierGroupsAdmin() {
+  try {
+    const [groupSnap, itemsSnap] = await Promise.all([
+      adminDb.collection("modifierGroups")
+        .where("status", "==", "published")
+        .get(),
+
+      adminDb.collection("modifierItems").get(),
+    ]);
+
+    const allItems = itemsSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    const groups = groupSnap.docs.map((doc) => {
+      const groupData = doc.data();
+
+      const items = allItems.filter(
+        (item) => item.groupId === doc.id
+      );
+
+      return {
+        id: doc.id,
+        ...groupData,
+        items,
+      };
+    });
+
+    return groups;
+  } catch (e) {
+    console.error("Failed to fetch modifier groups", e);
+    return [];
+  }
+}
+
+
+
+export async function getModifierGroupById(id: string) {
+  try {
+    const doc = await adminDb.collection("modifierGroups").doc(id).get();
+
+    if (!doc.exists) return null;
+
+    return {
+      id: doc.id,
+      ...doc.data(),
+    };
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+
+import { revalidatePath } from "next/cache";
+
+export async function deleteModifierGroup(id: string) {
+  try {
+    if (!id) {
+      return { errors: { general: "Missing ID" } };
+    }
+
+    await adminDb.collection("modifierGroups").doc(id).delete();
+
+    // ✅ THIS IS KEY
+    revalidatePath("/admin/modifier-groups");
+
+    return { success: true };
+  } catch (e) {
+    console.error("Failed to delete modifier group", e);
+    return { errors: { general: "Failed to delete" } };
+  }
+}

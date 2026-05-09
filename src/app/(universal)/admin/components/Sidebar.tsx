@@ -44,7 +44,9 @@ type SidebarFlagKey =
   | "SHOW_SETTING"
   | "SHOW_DATA_BACKUP"
   | "SHOW_OUTLET"   // ⭐ NEW
-   | "SHOW_TABLES"; 
+   | "SHOW_TABLES" 
+   | "SHOW_MODIFIER"     
+  | "SHOW_MODIFIER_GROUPS"; 
 
 type Titem = {
   key: SidebarFlagKey;
@@ -78,6 +80,8 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
 
   SHOW_OUTLET: flag(process.env.NEXT_PUBLIC_SHOW_OUTLET),   
   SHOW_TABLES: flag(process.env.NEXT_PUBLIC_SHOW_TABLES),
+    SHOW_MODIFIER: flag(process.env.NEXT_PUBLIC_SHOW_MODIFIER),             
+  SHOW_MODIFIER_GROUPS: flag(process.env.NEXT_PUBLIC_SHOW_MODIFIER_GROUPS),
 };
 
 const Sidebar = () => {
@@ -118,6 +122,18 @@ const Sidebar = () => {
     { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
     { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
 
+      {
+    key: "SHOW_MODIFIER_GROUPS",
+    name: "Modifier Groups",
+    link: "/admin/modifier-groups",
+    icon: <MdRestaurantMenu />,
+  },
+  {
+    key: "SHOW_MODIFIER",
+    name: "Modifiers",
+    link: "/admin/modifiers",
+    icon: <MdRestaurantMenu />,
+  },
     { key: "SHOW_RESERVATIONS", name: BRANDING.sidebar.reservations, link: "/admin/reservations", icon: <BsCardList /> },
 
     { key: "SHOW_SALE", name: BRANDING.sidebar.sale, link: "/admin/sale", icon: <FaClipboardList /> },
