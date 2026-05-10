@@ -76,3 +76,36 @@ export async function uploadCategoriesJSON(formData: FormData) {
 
   await batch.commit();
 }
+
+
+
+import { FieldValue } from "firebase-admin/firestore";
+
+// IMPORT FUNCTION
+export async function uploadProductsJSONSys(formData: FormData) {
+  const file = formData.get("file") as File;
+
+  if (!file) throw new Error("No file uploaded");
+
+  const text = await file.text();
+  const products: ProductType[] = JSON.parse(text);
+
+  const batch = adminDb.batch();
+
+  products.forEach((product) => {
+    // ✅ Auto-generate document ID
+    const ref = adminDb.collection("products").doc();
+
+    const { id, ...data } = product;
+
+    batch.set(ref, {
+      ...data,
+      id: ref.id, // ✅ store generated ID inside document
+      createdAt: FieldValue.serverTimestamp(), // ✅ Firestore timestamp
+    });
+  });
+
+  await batch.commit();
+
+  return;
+}

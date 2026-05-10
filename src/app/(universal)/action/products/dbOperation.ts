@@ -41,6 +41,7 @@ export const fetchProducts = cache(async (): Promise<ProductType[]> => {
         categoryId: data.categoryId ?? "",
         parentId: data.parentId ?? "",
         hasVariants: data.hasVariants ?? false,
+        hasModifier:data.hasModifier ?? false,
         type: data.type ?? "parent",
         productCat: data.productCat ?? "",
         flavors: data.flavors ?? false,
