@@ -20,10 +20,16 @@ const Outlet = () => {
     formState: { errors },
   } = useForm<ToutletSchema>({
     resolver: zodResolver(outletSchema),
+
     defaultValues: {
       printerWidth: "80",
       isActive: true,
-      countryCode: "DE", // ✅ FIXED
+      countryCode: "DE",
+
+      // ✅ QR
+      qrEnabled: false,
+      qrText: "",
+      qrTitle: "",
     },
   });
 
@@ -31,19 +37,29 @@ const Outlet = () => {
   useEffect(() => {
     async function fetchOutlet() {
       const res = await fetch("/api/outlet");
+
       if (!res.ok) return;
 
       const data = await res.json();
+
       if (data?.outletId) {
         setOutletId(data.outletId);
 
         reset({
           ...data,
+
           printerWidth: String(data.printerWidth),
-          countryCode: data.countryCode ?? "DE", // ✅ SAFE RESET
+
+          countryCode: data.countryCode ?? "DE",
+
+          // ✅ SAFE QR RESET
+          qrEnabled: data.qrEnabled ?? false,
+          qrText: data.qrText ?? "",
+          qrTitle: data.qrTitle ?? "",
         });
       }
     }
+
     fetchOutlet();
   }, [reset]);
 
@@ -65,153 +81,184 @@ const Outlet = () => {
 
     if (result.success) {
       alert(outletId ? "Outlet updated" : "Outlet created");
+
       setOutletId(result.outletId);
     } else {
       console.error(result.errors);
+
       alert(JSON.stringify(result.errors, null, 2));
     }
   }
 
   return (
-    <>{outletId && <OutletLogoUpload outletId={outletId} />}
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-4xl mx-auto p-5 space-y-5"
-    >
-      <h1 className="text-2xl font-semibold">
-        {outletId ? "Edit Outlet" : "Create Outlet"}
-      </h1>
+    <>
+      {outletId && <OutletLogoUpload outletId={outletId} />}
 
-{/* <img src={logoUrl} className="h-20 object-contain" /> */}
-      <input
-        {...register("outletName")}
-        placeholder="Outlet Name"
-        className="input-style"
-      />
-      <p className="text-xs text-red-500">{errors.outletName?.message}</p>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="max-w-4xl mx-auto p-5 space-y-5"
+      >
+        <h1 className="text-2xl font-semibold">
+          {outletId ? "Edit Outlet" : "Create Outlet"}
+        </h1>
 
-      <input
-        {...register("taxType")}
-        placeholder="Type : GST, VAT"
-        className="input-style"
-      />
-
-      <input
-        {...register("gstVatNumber")}
-        placeholder="GST / VAT Number"
-        className="input-style"
-      />
-
-      <input
-        {...register("addressLine1")}
-        placeholder="Address Line 1"
-        className="input-style"
-      />
-
-      <input
-        {...register("addressLine2")}
-        placeholder="Address Line 2"
-        className="input-style"
-      />
-
-      <input
-        {...register("addressLine3")}
-        placeholder="Address Line 3"
-        className="input-style"
-      />
-
-      <div className="grid grid-cols-2 gap-3">
         <input
-          {...register("city")}
-          placeholder="City"
-          className="input-style"
-        />
-        <input
-          {...register("state")}
-          placeholder="State"
-          className="input-style"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <input
-          {...register("zipcode")}
-          placeholder="Pincode"
+          {...register("outletName")}
+          placeholder="Outlet Name"
           className="input-style"
         />
 
-        {/* ⚠️ OPTIONAL: keep if you still want manual country name */}
+        <p className="text-xs text-red-500">
+          {errors.outletName?.message}
+        </p>
+
         <input
-          {...register("country")}
-          placeholder="Country (optional)"
+          {...register("taxType")}
+          placeholder="Type : GST, VAT"
           className="input-style"
         />
-      </div>
 
-      <input
-        {...register("phone")}
-        placeholder="Phone"
-        className="input-style"
-      />
+        <input
+          {...register("gstVatNumber")}
+          placeholder="GST / VAT Number"
+          className="input-style"
+        />
 
-      <input
-        {...register("phone2")}
-        placeholder="Phone 2"
-        className="input-style"
-      />
+        <input
+          {...register("addressLine1")}
+          placeholder="Address Line 1"
+          className="input-style"
+        />
 
-      <input
-        {...register("email")}
-        placeholder="Email"
-        className="input-style"
-      />
+        <input
+          {...register("addressLine2")}
+          placeholder="Address Line 2"
+          className="input-style"
+        />
 
-      <input
-        {...register("web")}
-        placeholder="Website URL"
-        className="input-style"
-      />
+        <input
+          {...register("addressLine3")}
+          placeholder="Address Line 3"
+          className="input-style"
+        />
 
-      <select {...register("printerWidth")} className="input-style">
-        <option value="58">58 mm</option>
-        <option value="80">80 mm</option>
-      </select>
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            {...register("city")}
+            placeholder="City"
+            className="input-style"
+          />
 
-      <textarea
-        {...register("footerNote")}
-        placeholder="Footer note"
-        className="textarea-style"
-      />
+          <input
+            {...register("state")}
+            placeholder="State"
+            className="input-style"
+          />
+        </div>
 
-      <label className="flex items-center gap-2">
-        <input type="checkbox" {...register("isActive")} />
-        Active Outlet
-      </label>
+        <div className="grid grid-cols-2 gap-3">
+          <input
+            {...register("zipcode")}
+            placeholder="Pincode"
+            className="input-style"
+          />
 
-      {/* ✅ COUNTRY SELECT (MAIN FIELD) */}
-      <select {...register("countryCode")} className="input-style">
-        <option value="DE">Germany</option>
-        <option value="IN">India</option>
-        <option value="US">USA</option>
-        <option value="CA">Canada</option>
+          <input
+            {...register("country")}
+            placeholder="Country (optional)"
+            className="input-style"
+          />
+        </div>
 
-        <option value="ES">Spain</option>
-        <option value="AU">Australia</option>
-        <option value="GB">United Kingdom</option>
-        <option value="FR">France</option>
-        <option value="IT">Italy</option>
-      </select>
+        <input
+          {...register("phone")}
+          placeholder="Phone"
+          className="input-style"
+        />
 
-      <p className="text-xs text-red-500">
-        {errors.countryCode?.message}
-      </p>
+        <input
+          {...register("phone2")}
+          placeholder="Phone 2"
+          className="input-style"
+        />
 
-      <Button disabled={loading} className="btn-save w-full">
-        {loading ? "Saving..." : "Save Outlet"}
-      </Button>
-      
-     
-    </form></>
+        <input
+          {...register("email")}
+          placeholder="Email"
+          className="input-style"
+        />
+
+        <input
+          {...register("web")}
+          placeholder="Website URL"
+          className="input-style"
+        />
+
+        <select {...register("printerWidth")} className="input-style">
+          <option value="58">58 mm</option>
+          <option value="80">80 mm</option>
+        </select>
+
+        <textarea
+          {...register("footerNote")}
+          placeholder="Footer note"
+          className="textarea-style"
+        />
+
+        {/* ============================= */}
+        {/* ✅ QR CODE SETTINGS */}
+        {/* ============================= */}
+        <div className="space-y-3 rounded-2xl border p-4">
+          <h2 className="text-lg font-semibold">
+            QR Code Settings
+          </h2>
+
+          <label className="flex items-center gap-2">
+            <input type="checkbox" {...register("qrEnabled")} />
+            Enable QR Code On Receipt
+          </label>
+
+          <input
+            {...register("qrTitle")}
+            placeholder="Text under QR code"
+            className="input-style"
+          />
+
+          <textarea
+            {...register("qrText")}
+            placeholder="QR URL / UPI / Payment Link / Website"
+            className="textarea-style"
+          />
+        </div>
+
+        <label className="flex items-center gap-2">
+          <input type="checkbox" {...register("isActive")} />
+          Active Outlet
+        </label>
+
+        {/* ✅ COUNTRY SELECT */}
+        <select {...register("countryCode")} className="input-style">
+          <option value="DE">Germany</option>
+          <option value="IN">India</option>
+          <option value="US">USA</option>
+          <option value="CA">Canada</option>
+
+          <option value="ES">Spain</option>
+          <option value="AU">Australia</option>
+          <option value="GB">United Kingdom</option>
+          <option value="FR">France</option>
+          <option value="IT">Italy</option>
+        </select>
+
+        <p className="text-xs text-red-500">
+          {errors.countryCode?.message}
+        </p>
+
+        <Button disabled={loading} className="btn-save w-full">
+          {loading ? "Saving..." : "Save Outlet"}
+        </Button>
+      </form>
+    </>
   );
 };
 

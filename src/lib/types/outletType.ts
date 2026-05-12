@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { Timestamp, FieldValue } from "firebase/firestore";
 
+
+
 export const outletSchema = z.object({
   outletId: z.string().optional(),
   ownerId: z.string().optional(),
 
   // TAX
   taxType: z.string().min(2, "Tax type").optional().nullable(),
+
   gstVatNumber: z
     .string()
     .min(4, "Invalid GST / VAT number")
@@ -25,7 +28,7 @@ export const outletSchema = z.object({
   zipcode: z.string().optional(),
   country: z.string().optional(),
 
-  // ✅ NEW (IMPORTANT)
+  // COUNTRY
   countryCode: z.string().min(2, "Country is required"),
 
   // CONTACT
@@ -38,11 +41,25 @@ export const outletSchema = z.object({
   printerWidth: z.enum(["58", "80"]),
   footerNote: z.string().optional(),
 
+  // ✅ QR CODE
+  qrEnabled: z.boolean().optional(),
+
+  qrText: z
+    .string()
+    .optional()
+    .nullable(),
+
+  qrTitle: z
+    .string()
+    .optional()
+    .nullable(),
+
   // STATUS
   isActive: z.boolean(),
 });
 
 export type ToutletSchema = z.infer<typeof outletSchema>;
+
 
 export type OutletType = {
   outletId?: string;
@@ -57,7 +74,7 @@ export type OutletType = {
   zipcode?: string;
   country?: string;
 
-  // ✅ NEW
+  // ✅ Country
   countryCode: string;
 
   // Tax
@@ -74,6 +91,13 @@ export type OutletType = {
   printerWidth?: 58 | 80;
   printerName?: string;
   footerNote?: string;
+
+  // ✅ QR
+  qrEnabled?: boolean;
+  qrText?: string;
+
+  // 🔥 TEXT UNDER QR
+  qrTitle?: string;
 
   // Status
   isActive: boolean;
