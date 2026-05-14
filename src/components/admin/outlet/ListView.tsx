@@ -39,6 +39,11 @@ type OutletType = {
   qrEnabled?: boolean;
   qrText?: string;
   qrTitle?: string;
+
+  // ✅ NEW: UPI SETTINGS
+  upiId?: string;
+  upiName?: string;
+  upiTitle?: string;
 };
 
 export default function OutletPage() {
@@ -274,10 +279,7 @@ export default function OutletPage() {
         {/* QR SETTINGS */}
         <Section title="QR Code Settings">
 
-          <Row
-            label="QR Enabled"
-            value={data.qrEnabled ? "Yes" : "No"}
-          />
+        
 
           <Row
             label="QR Text"
@@ -290,6 +292,30 @@ export default function OutletPage() {
           />
 
         </Section>
+
+        {/* UPI SETTINGS */}
+<Section title="UPI Settings">
+
+  <Row
+    label="UPI ID"
+    value={data.upiId}
+  />
+
+  <Row
+    label="UPI Name"
+    value={data.upiName}
+  />
+
+  <Row
+    label="UPI Title"
+    value={data.upiTitle}
+  />
+
+</Section>
+  <Row
+            label="QR Enabled"
+            value={data.qrEnabled ? "Yes" : "No"}
+          />
 
         {/* FOOTER */}
         <Section title="Footer Note">

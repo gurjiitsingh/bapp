@@ -77,7 +77,7 @@ formData.append("maxPOS", String(data.maxPOS));
           {/* CLIENT ID */}
           <div className="flex flex-col gap-1">
             <label className="label-style">
-              Client ID <span className="text-red-500">*</span>
+              Client ID <span className="text-red-500">fill yourself *</span>
             </label>
             <input {...register("clientId")} className="input-style" />
             {errors.clientId && (
@@ -85,31 +85,7 @@ formData.append("maxPOS", String(data.maxPOS));
             )}
           </div>
 
-          {/* API KEY */}
-          <div className="flex flex-col gap-1">
-            <label className="label-style">
-              API Key <span className="text-red-500">*</span>
-            </label>
-            <input {...register("apiKey")} className="input-style" />
-            {errors.apiKey && (
-              <span className="error-text">{errors.apiKey.message}</span>
-            )}
-          </div>
-
-          {/* APPLICATION ID */}
-          <div className="flex flex-col gap-1">
-            <label className="label-style">
-              Application ID <span className="text-red-500">*</span>
-            </label>
-            <input {...register("applicationId")} className="input-style" />
-            {errors.applicationId && (
-              <span className="error-text">
-                {errors.applicationId.message}
-              </span>
-            )}
-          </div>
-
-          {/* PROJECT ID */}
+           {/* PROJECT ID */}
           <div className="flex flex-col gap-1">
             <label className="label-style">
               Project ID <span className="text-red-500">*</span>
@@ -119,6 +95,35 @@ formData.append("maxPOS", String(data.maxPOS));
               <span className="error-text">{errors.projectId.message}</span>
             )}
           </div>
+
+        
+
+          {/* APPLICATION ID */}
+          <div className="flex flex-col gap-1">
+            <label className="label-style">
+              Application ID ("client_info":mobilesdk_app_id)<span className="text-red-500">*</span>
+            </label>
+            <input {...register("applicationId")} className="input-style" />
+            {errors.applicationId && (
+              <span className="error-text">
+                {errors.applicationId.message}
+              </span>
+            )}
+          </div>
+
+
+            {/* API KEY */}
+          <div className="flex flex-col gap-1">
+            <label className="label-style">
+              API Key (api_key:current_key)<span className="text-red-500">*</span>
+            </label>
+            <input {...register("apiKey")} className="input-style" />
+            {errors.apiKey && (
+              <span className="error-text">{errors.apiKey.message}</span>
+            )}
+          </div>
+
+         
 
 
           {/* SUBSCRIPTION */}

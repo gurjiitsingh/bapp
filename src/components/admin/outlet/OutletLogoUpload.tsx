@@ -28,7 +28,7 @@ export default function OutletLogoUpload({ outletId }: { outletId: string }) {
   if (!outletId) return null;
 
   return (
-    <form onSubmit={handleUpload} className="space-y-3 border p-4 rounded-xl">
+    <form onSubmit={handleUpload} className=" border p-4 rounded-xl">
       <h2 className="font-semibold">Upload Logo</h2>
 
       <input type="file" name="image" accept="image/*" />

@@ -52,13 +52,37 @@ export async function saveOutlet(input: any) {
     qrText: data.qrText,
     qrTitle: data.qrTitle,
 
+    
+
     updatedAt: FieldValue.serverTimestamp(),
   };
 
   // =================================================
   // HELPER
   // =================================================
-  function setOrDelete(key: string, value: any) {
+
+function setOrDelete(key: string, value: any) {
+  const isEmpty =
+    value === "" ||
+    value === undefined ||
+    value === null;
+
+  // UPDATE mode
+  if (outletId) {
+    payload[key] = isEmpty
+      ? FieldValue.delete()
+      : value;
+
+    return;
+  }
+
+  // CREATE mode
+  if (!isEmpty) {
+    payload[key] = value;
+  }
+}
+
+  function setOrDelete1(key: string, value: any) {
 
     if (
       value === "" ||
@@ -96,6 +120,12 @@ export async function saveOutlet(input: any) {
   // ✅ QR OPTIONAL
   setOrDelete("qrText", data.qrText);
   setOrDelete("qrTitle", data.qrTitle);
+
+
+  // ✅ UPI (NEW)
+setOrDelete("upiId", data.upiId);
+setOrDelete("upiName", data.upiName)
+setOrDelete("upiTitle", data.upiTitle);
 
   // =================================================
   // COUNTRY CONFIG
@@ -283,6 +313,10 @@ export const getOutlet = cache(async () => {
     qrText: data.qrText ?? "",
 
     qrTitle: data.qrTitle ?? "",
+
+    upiId: data.upiId ?? "",
+upiName: data.upiName ?? "",
+upiTitle: data.upiTitle ?? "Scan to Pay",
 
     // =================================================
     // STATUS

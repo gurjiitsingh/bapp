@@ -56,6 +56,14 @@ export const outletSchema = z.object({
 
   // STATUS
   isActive: z.boolean(),
+
+  upiId: z
+  .string()
+  .regex(/^[\w.-]+@[\w.-]+$/, "Invalid UPI ID")
+  .optional()
+  .nullable(),
+upiName: z.string().optional().nullable(),
+upiTitle: z.string().optional().nullable(),
 });
 
 export type ToutletSchema = z.infer<typeof outletSchema>;
@@ -98,6 +106,10 @@ export type OutletType = {
 
   // 🔥 TEXT UNDER QR
   qrTitle?: string;
+
+  upiId?: string;
+upiName?: string;
+upiTitle?: string;
 
   // Status
   isActive: boolean;

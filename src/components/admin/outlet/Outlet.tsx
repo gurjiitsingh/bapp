@@ -56,6 +56,9 @@ const Outlet = () => {
           qrEnabled: data.qrEnabled ?? false,
           qrText: data.qrText ?? "",
           qrTitle: data.qrTitle ?? "",
+          upiId: data.upiId ?? "",
+          upiName: data.upiName ?? "",
+          upiTitle: data.upiTitle ?? "",
         });
       }
     }
@@ -92,8 +95,9 @@ const Outlet = () => {
 
   return (
     <>
+    <div className="max-w-4xl mx-auto p-5 space-y-5">
       {outletId && <OutletLogoUpload outletId={outletId} />}
-
+</div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto p-5 space-y-5"
@@ -205,31 +209,63 @@ const Outlet = () => {
           className="textarea-style"
         />
 
+      <label className="flex items-center gap-2">
+            <input type="checkbox" {...register("qrEnabled")} />
+            Enable QR Code On Receipt
+          </label>
         {/* ============================= */}
         {/* ✅ QR CODE SETTINGS */}
         {/* ============================= */}
         <div className="space-y-3 rounded-2xl border p-4">
           <h2 className="text-lg font-semibold">
-            QR Code Settings
+            General QR Code Settings (web link etc)
           </h2>
 
-          <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("qrEnabled")} />
-            Enable QR Code On Receipt
-          </label>
+    
 
-          <input
-            {...register("qrTitle")}
-            placeholder="Text under QR code"
-            className="input-style"
-          />
+        
 
           <textarea
             {...register("qrText")}
             placeholder="QR URL / UPI / Payment Link / Website"
             className="textarea-style"
           />
+
+            <input
+            {...register("qrTitle")}
+            placeholder="Text under QR code"
+            className="input-style"
+          />
         </div>
+
+        {/* ============================= */}
+{/* ✅ UPI SETTINGS (NEW) */}
+{/* ============================= */}
+<div className="space-y-3 rounded-2xl border p-4">
+  <h2 className="text-lg font-semibold">
+    UPI QR code setting (Your upi id)
+  </h2>
+
+  <input
+    {...register("upiId")}
+    placeholder="UPI ID (e.g. shop@upi)"
+    className="input-style"
+  />
+
+  <input
+    {...register("upiName")}
+    placeholder="UPI Name (e.g. My Shop)"
+    className="input-style"
+  />
+
+  <input
+  {...register("upiTitle")}
+  placeholder="UPI QR Text (e.g. Scan to Pay)"
+  className="input-style"
+/>
+</div>
+
+
 
         <label className="flex items-center gap-2">
           <input type="checkbox" {...register("isActive")} />
