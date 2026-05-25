@@ -4,16 +4,19 @@
 import { upload, uploadOutletLogo } from "@/lib/cloudinary";
 import { countryConfig } from "@/lib/config/countryConfig";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { outletSchema } from "@/lib/types/outletType";
+import { outletSchema, POS_TYPES, PosType } from "@/lib/types/outletType";
 import { FieldValue } from "firebase-admin/firestore";
 import { cache } from "react";
 
+
+// =====================================================// SAVE OUTLET// =====================================================
 
 export async function saveOutlet(input: any) {
 
   const parsed = outletSchema.safeParse(input);
 
   if (!parsed.success) {
+
     const errors: Record<string, string> = {};
 
     parsed.error.issues.forEach((i) => {
@@ -24,6 +27,10 @@ export async function saveOutlet(input: any) {
   }
 
   const data = parsed.data;
+
+  // =================================================
+  // COUNTRY CONFIG
+  // =================================================
 
   const config = countryConfig[data.countryCode];
 
@@ -39,10 +46,16 @@ export async function saveOutlet(input: any) {
 
   console.log("SAVE OUTLET", data);
 
+  // =================================================
+  // BASE PAYLOAD
+  // =================================================
+
   const payload: any = {
     outletName: data.outletName,
+
     addressLine1: data.addressLine1,
     city: data.city,
+
     printerWidth: Number(data.printerWidth),
 
     isActive: data.isActive,
@@ -52,7 +65,12 @@ export async function saveOutlet(input: any) {
     qrText: data.qrText,
     qrTitle: data.qrTitle,
 
-    
+    // ✅ COUNTRY CONFIG
+    countryCode: data.countryCode,
+    countryName: config.name,
+
+    currencyCode: config.code,
+    localeTag: config.locale,
 
     updatedAt: FieldValue.serverTimestamp(),
   };
@@ -61,36 +79,25 @@ export async function saveOutlet(input: any) {
   // HELPER
   // =================================================
 
-function setOrDelete(key: string, value: any) {
-  const isEmpty =
-    value === "" ||
-    value === undefined ||
-    value === null;
+  function setOrDelete(key: string, value: any) {
 
-  // UPDATE mode
-  if (outletId) {
-    payload[key] = isEmpty
-      ? FieldValue.delete()
-      : value;
-
-    return;
-  }
-
-  // CREATE mode
-  if (!isEmpty) {
-    payload[key] = value;
-  }
-}
-
-  function setOrDelete1(key: string, value: any) {
-
-    if (
+    const isEmpty =
       value === "" ||
       value === undefined ||
-      value === null
-    ) {
-      payload[key] = FieldValue.delete();
-    } else {
+      value === null;
+
+    // UPDATE MODE
+    if (outletId) {
+
+      payload[key] = isEmpty
+        ? FieldValue.delete()
+        : value;
+
+      return;
+    }
+
+    // CREATE MODE
+    if (!isEmpty) {
       payload[key] = value;
     }
   }
@@ -98,54 +105,45 @@ function setOrDelete(key: string, value: any) {
   // =================================================
   // OPTIONAL FIELDS
   // =================================================
+
   setOrDelete("ownerId", data.ownerId);
 
+  // ADDRESS
   setOrDelete("addressLine2", data.addressLine2);
   setOrDelete("addressLine3", data.addressLine3);
 
   setOrDelete("state", data.state);
   setOrDelete("zipcode", data.zipcode);
-  setOrDelete("country", data.country);
 
+  // CONTACT
   setOrDelete("phone", data.phone);
   setOrDelete("phone2", data.phone2);
+
   setOrDelete("email", data.email);
   setOrDelete("web", data.web);
 
+  // TAX
   setOrDelete("taxType", data.taxType);
   setOrDelete("gstVatNumber", data.gstVatNumber);
 
+  // POS
   setOrDelete("footerNote", data.footerNote);
 
-  // ✅ QR OPTIONAL
+  // QR
   setOrDelete("qrText", data.qrText);
   setOrDelete("qrTitle", data.qrTitle);
 
-
-  // ✅ UPI (NEW)
-setOrDelete("upiId", data.upiId);
-setOrDelete("upiName", data.upiName)
-setOrDelete("upiTitle", data.upiTitle);
-
-  // =================================================
-  // COUNTRY CONFIG
-  // =================================================
-  payload.countryCode = data.countryCode;
-  payload.countryName = config.name;
-
-  payload.currencyCode = config.code;
-  payload.currencySymbol = config.symbol;
-
-  payload.locale = config.locale;
-
-  // backward compatibility
-  payload.defaultCurrency = config.symbol;
+  // UPI
+  setOrDelete("upiId", data.upiId);
+  setOrDelete("upiName", data.upiName);
+  setOrDelete("upiTitle", data.upiTitle);
 
   try {
 
     // =================================================
     // UPDATE
     // =================================================
+
     if (outletId) {
 
       console.log("UPDATING", outletId, payload);
@@ -164,6 +162,7 @@ setOrDelete("upiTitle", data.upiTitle);
     // =================================================
     // CREATE
     // =================================================
+
     console.log("CREATING", payload);
 
     const docRef = await adminDb
@@ -193,50 +192,50 @@ setOrDelete("upiTitle", data.upiTitle);
 
 
 
-// app/(universal)/action/outlet/fetchOutlet.ts
+  // app/(universal)/action/outlet/fetchOutlet.ts
 
 
-export async function fetchOutletInternal() {
+  export async function fetchOutletInternal() {
 
-  const snap = await adminDb
-    .collection("outlets")
-    .limit(1)
-    .get();
+    const snap = await adminDb
+      .collection("outlets")
+      .limit(1)
+      .get();
 
-  if (snap.empty) return null;
+    if (snap.empty) return null;
 
-  const doc = snap.docs[0];
+    const doc = snap.docs[0];
 
-  return {
-    outletId: doc.id,
-    ...doc.data(),
-  };
-}
-
-
-
-export async function deleteOutlet(outletId: string) {
-  if (!outletId) {
-    return { errors: { outletId: "Outlet ID is required" } };
+    return {
+      outletId: doc.id,
+      ...doc.data(),
+    };
   }
 
-  try {
-    const ref = adminDb.collection("outlets").doc(outletId);
-    const snap = await ref.get();
 
-    if (!snap.exists) {
-      return { errors: { general: "Outlet not found" } };
+
+  export async function deleteOutlet(outletId: string) {
+    if (!outletId) {
+      return { errors: { outletId: "Outlet ID is required" } };
     }
 
-    // 🔒 SAFETY: single-outlet system guard
-    await ref.delete();
+    try {
+      const ref = adminDb.collection("outlets").doc(outletId);
+      const snap = await ref.get();
 
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Outlet delete failed:", error);
-    return { errors: { general: "Failed to delete outlet" } };
+      if (!snap.exists) {
+        return { errors: { general: "Outlet not found" } };
+      }
+
+      // 🔒 SAFETY: single-outlet system guard
+      await ref.delete();
+
+      return { success: true };
+    } catch (error) {
+      console.error("❌ Outlet delete failed:", error);
+      return { errors: { general: "Failed to delete outlet" } };
+    }
   }
-}
 
 
 export const getOutlet = cache(async () => {
@@ -273,9 +272,17 @@ export const getOutlet = cache(async () => {
     state: data.state,
     zipcode: data.zipcode,
 
-    country: data.country,
+    // =================================================
+    // COUNTRY
+    // =================================================
     countryCode: data.countryCode,
     countryName: data.countryName,
+
+    // =================================================
+    // CURRENCY
+    // =================================================
+    currencyCode: data.currencyCode,
+    localeTag: data.localeTag,
 
     // =================================================
     // CONTACT
@@ -300,24 +307,22 @@ export const getOutlet = cache(async () => {
     footerNote: data.footerNote,
 
     // =================================================
-    // CURRENCY
-    // =================================================
-    currencyCode: data.currencyCode,
-    currencySymbol: data.currencySymbol,
-
-    // =================================================
     // QR SETTINGS
     // =================================================
     qrEnabled: data.qrEnabled ?? false,
 
     qrText: data.qrText ?? "",
-
     qrTitle: data.qrTitle ?? "",
 
+    // =================================================
+    // UPI
+    // =================================================
     upiId: data.upiId ?? "",
-upiName: data.upiName ?? "",
-upiTitle: data.upiTitle ?? "Scan to Pay",
+    upiName: data.upiName ?? "",
+    upiTitle: data.upiTitle ?? "Scan to Pay",
 
+    posType: data.posType ?? "RESTAU_POS", 
+    
     // =================================================
     // STATUS
     // =================================================
@@ -334,102 +339,160 @@ upiTitle: data.upiTitle ?? "Scan to Pay",
 
 
 
-export async function updateOutletLogo(formData: FormData) {
+  export async function updateOutletLogo(formData: FormData) {
 
-  console.log("logo upload-------------");
-
-  try {
-
-    const outletId = formData.get("outletId") as string;
-
-    const image = formData.get("image");
-
-    // =================================================
-    // VALIDATION
-    // =================================================
-    if (!outletId) {
-
-      return {
-        errors: {
-          general: "Outlet ID missing",
-        },
-      };
-    }
-
-    if (!image || image === "0") {
-
-      return {
-        errors: {
-          image: "Logo image required",
-        },
-      };
-    }
-
-    // =================================================
-    // UPLOAD IMAGE
-    // =================================================
-    let logoUrl = "";
+    console.log("logo upload-------------");
 
     try {
 
-      const uploadRes = await uploadOutletLogo(
-        image as File,
-        outletId
-      );
+      const outletId = formData.get("outletId") as string;
 
-      logoUrl = uploadRes.url;
+      const image = formData.get("image");
 
-      console.log(
-        "Logo url :",
+      // =================================================
+      // VALIDATION
+      // =================================================
+      if (!outletId) {
+
+        return {
+          errors: {
+            general: "Outlet ID missing",
+          },
+        };
+      }
+
+      if (!image || image === "0") {
+
+        return {
+          errors: {
+            image: "Logo image required",
+          },
+        };
+      }
+
+      // =================================================
+      // UPLOAD IMAGE
+      // =================================================
+      let logoUrl = "";
+
+      try {
+
+        const uploadRes = await uploadOutletLogo(
+          image as File,
+          outletId
+        );
+
+        logoUrl = uploadRes.url;
+
+        console.log(
+          "Logo url :",
+          logoUrl,
+          outletId
+        );
+
+      } catch (error) {
+
+        console.error("Logo upload failed", error);
+
+        return {
+          errors: {
+            image: "Logo upload failed",
+          },
+        };
+      }
+
+      // =================================================
+      // UPDATE FIRESTORE
+      // =================================================
+      await adminDb
+        .collection("outlets")
+        .doc(outletId)
+        .update({
+
+          // ✅ LOGO
+          logoUrl,
+
+          // ✅ UPDATED DATE
+          updatedAt: FieldValue.serverTimestamp(),
+        });
+
+      // =================================================
+      // SUCCESS
+      // =================================================
+      return {
+        success: true,
+
+        message: "Logo updated successfully",
+
         logoUrl,
-        outletId
-      );
+      };
 
     } catch (error) {
 
-      console.error("Logo upload failed", error);
+      console.error("❌ Logo update failed:", error);
 
       return {
         errors: {
-          image: "Logo upload failed",
+          general: "Could not update logo",
         },
       };
     }
+  }
 
-    // =================================================
-    // UPDATE FIRESTORE
-    // =================================================
+
+
+
+
+
+
+export async function updatePosType(formData: FormData): Promise<void> {
+  const outletId = formData.get("outletId") as string;
+  const posType = formData.get("posType") as string;
+
+  if (!outletId || !posType) {
+    throw new Error("Missing data");
+  }
+
+  await adminDb.collection("outlets").doc(outletId).update({
+    posType,
+    updatedAt: FieldValue.serverTimestamp(),
+  });
+}
+
+
+export async function updateOutletPosType(
+  outletId: string,
+  posType: PosType
+) {
+ 
+  if (!Object.values(POS_TYPES).includes(posType)) {
+    return {
+      errors: { posType: "Invalid POS type" },
+    };
+  }
+
+  if (!outletId) {
+    return {
+      errors: { outletId: "Outlet ID required" },
+    };
+  }
+
+  try {
     await adminDb
       .collection("outlets")
       .doc(outletId)
       .update({
-
-        // ✅ LOGO
-        logoUrl,
-
-        // ✅ UPDATED DATE
+        posType,
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-    // =================================================
-    // SUCCESS
-    // =================================================
-    return {
-      success: true,
-
-      message: "Logo updated successfully",
-
-      logoUrl,
-    };
+    return { success: true };
 
   } catch (error) {
-
-    console.error("❌ Logo update failed:", error);
+    console.error("POS type update failed:", error);
 
     return {
-      errors: {
-        general: "Could not update logo",
-      },
+      errors: { general: "Failed to update POS type" },
     };
   }
 }

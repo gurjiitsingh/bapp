@@ -24,7 +24,7 @@ const Outlet = () => {
     defaultValues: {
       printerWidth: "80",
       isActive: true,
-      countryCode: "DE",
+      countryCode: "IN",
 
       // ✅ QR
       qrEnabled: false,
@@ -75,7 +75,7 @@ const Outlet = () => {
       outletId: outletId ?? undefined,
     });
 
-    setLoading(false);
+    setLoading(false); 
 
     if (!result) {
       alert("Unexpected server error");
@@ -167,11 +167,18 @@ const Outlet = () => {
             className="input-style"
           />
 
-          <input
-            {...register("country")}
-            placeholder="Country (optional)"
-            className="input-style"
-          />
+         <select {...register("countryCode")} className="input-style">
+  <option value="DE">Germany</option>
+  <option value="IN">India</option>
+  <option value="US">USA</option>
+  <option value="CA">Canada</option>
+
+  <option value="ES">Spain</option>
+  <option value="AU">Australia</option>
+  <option value="GB">United Kingdom</option>
+  <option value="FR">France</option>
+  <option value="IT">Italy</option>
+</select>
         </div>
 
         <input
@@ -272,20 +279,7 @@ const Outlet = () => {
           Active Outlet
         </label>
 
-        {/* ✅ COUNTRY SELECT */}
-        <select {...register("countryCode")} className="input-style">
-          <option value="DE">Germany</option>
-          <option value="IN">India</option>
-          <option value="US">USA</option>
-          <option value="CA">Canada</option>
-
-          <option value="ES">Spain</option>
-          <option value="AU">Australia</option>
-          <option value="GB">United Kingdom</option>
-          <option value="FR">France</option>
-          <option value="IT">Italy</option>
-        </select>
-
+   
         <p className="text-xs text-red-500">
           {errors.countryCode?.message}
         </p>

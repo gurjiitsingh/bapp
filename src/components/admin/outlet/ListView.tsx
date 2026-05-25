@@ -14,33 +14,37 @@ type OutletType = {
   city?: string;
   state?: string;
   zipcode?: string;
-  country?: string;
 
+  // COUNTRY
+  countryCode?: string;
+  countryName?: string;
+
+  // CURRENCY
+  currencyCode?: string;
+  localeTag?: string;
+
+  // CONTACT
   phone?: string;
   phone2?: string;
   email?: string;
   web?: string;
 
+  // TAX
   taxType?: string;
   gstVatNumber?: string;
 
+  // SETTINGS
   printerWidth?: number;
   footerNote?: string;
 
   isActive?: boolean;
 
-  countryCode?: string;
-  countryName?: string;
-
-  currencyCode?: string;
-  currencySymbol?: string;
-
-  // ✅ QR SETTINGS
+  // QR SETTINGS
   qrEnabled?: boolean;
   qrText?: string;
   qrTitle?: string;
 
-  // ✅ NEW: UPI SETTINGS
+  // UPI SETTINGS
   upiId?: string;
   upiName?: string;
   upiTitle?: string;
@@ -81,6 +85,7 @@ export default function OutletPage() {
   // =================================================
   // DELETE
   // =================================================
+
   async function handleDelete() {
 
     if (!data?.outletId) return;
@@ -127,6 +132,7 @@ export default function OutletPage() {
   // =================================================
   // LOADING
   // =================================================
+
   if (loading) {
     return <p className="p-5">Loading outlet...</p>;
   }
@@ -142,6 +148,7 @@ export default function OutletPage() {
       {/* ================================================= */}
       {/* HEADER */}
       {/* ================================================= */}
+
       <div className="flex justify-between items-center">
 
         <h1 className="text-2xl font-bold">
@@ -154,11 +161,13 @@ export default function OutletPage() {
         >
           Delete
         </button>
+
       </div>
 
       {/* ================================================= */}
       {/* CARD */}
       {/* ================================================= */}
+
       <div className="bg-white shadow rounded-2xl p-5 space-y-4">
 
         {/* BASIC */}
@@ -211,7 +220,7 @@ export default function OutletPage() {
 
           <Row
             label="Country"
-            value={data.countryName || data.country}
+            value={data.countryName}
           />
 
         </Section>
@@ -265,8 +274,13 @@ export default function OutletPage() {
           />
 
           <Row
-            label="Currency"
-            value={`${data.currencySymbol} (${data.currencyCode})`}
+            label="Currency Code"
+            value={data.currencyCode}
+          />
+
+          <Row
+            label="Locale"
+            value={data.localeTag}
           />
 
           <Row
@@ -279,7 +293,10 @@ export default function OutletPage() {
         {/* QR SETTINGS */}
         <Section title="QR Code Settings">
 
-        
+          <Row
+            label="QR Enabled"
+            value={data.qrEnabled ? "Yes" : "No"}
+          />
 
           <Row
             label="QR Text"
@@ -294,28 +311,24 @@ export default function OutletPage() {
         </Section>
 
         {/* UPI SETTINGS */}
-<Section title="UPI Settings">
+        <Section title="UPI Settings">
 
-  <Row
-    label="UPI ID"
-    value={data.upiId}
-  />
-
-  <Row
-    label="UPI Name"
-    value={data.upiName}
-  />
-
-  <Row
-    label="UPI Title"
-    value={data.upiTitle}
-  />
-
-</Section>
-  <Row
-            label="QR Enabled"
-            value={data.qrEnabled ? "Yes" : "No"}
+          <Row
+            label="UPI ID"
+            value={data.upiId}
           />
+
+          <Row
+            label="UPI Name"
+            value={data.upiName}
+          />
+
+          <Row
+            label="UPI Title"
+            value={data.upiTitle}
+          />
+
+        </Section>
 
         {/* FOOTER */}
         <Section title="Footer Note">
@@ -331,6 +344,7 @@ export default function OutletPage() {
       {/* ================================================= */}
       {/* DANGER ZONE */}
       {/* ================================================= */}
+
       <div className="border-t pt-4">
 
         <h2 className="text-red-500 font-semibold mb-2">
