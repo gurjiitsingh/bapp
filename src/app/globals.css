@@ -2,6 +2,32 @@
 
 /* text-[#64870d] */
 /* text-emerald-800 */
+
+.input-style-4 {
+  @apply w-full rounded-xl border border-gray-200 bg-white px-3 py-2
+  text-sm outline-none transition-all
+  focus:ring-2 focus:ring-rose-200
+  focus:border-rose-300;
+}
+
+.label-style-4 {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.textarea-style-4 {
+  @apply w-full rounded-xl border border-gray-200 bg-white px-3 py-2
+  text-sm outline-none transition-all min-h-[100px]
+  focus:ring-2 focus:ring-rose-200
+  focus:border-rose-300;
+}
+
+.btn-save-4 {
+  @apply bg-rose-600 hover:bg-rose-700
+  text-white rounded-xl px-4 py-2
+  font-medium transition-all shadow-sm;
+}
+
+
 .input-style1 {
   @apply border border-slate-300 rounded focus:outline-none py-[.5rem] px-1 text-slate-700 text-[.8rem];
 }

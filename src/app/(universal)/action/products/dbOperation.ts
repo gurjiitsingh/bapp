@@ -13,61 +13,7 @@ import path from "path";
 import fs from "fs";
 import { randomUUID } from "crypto";
 
-//  Cached version — reduces Firestore reads massively
-export const fetchProducts = cache(async (): Promise<ProductType[]> => {
-  try {
-    const snapshot = await adminDb.collection("products").get();
 
-    if (snapshot.empty) return [];
-
-    return snapshot.docs.map((doc) => {
-      const data = doc.data() as Partial<ProductType> & { updatedAt?: any };
-
-      let updatedAt: string | null = null;
-      if (data.updatedAt) {
-        if (typeof data.updatedAt.toDate === "function") {
-          updatedAt = data.updatedAt.toDate().toISOString();
-        } else if (typeof data.updatedAt === "string") {
-          updatedAt = data.updatedAt;
-        }
-      }
-
-      return {
-        id: doc.id,
-        name: data.name ?? "",
-        price: data.price ?? 0,
-        stockQty: data.stockQty ?? 0,
-        discountPrice: data.discountPrice ?? 0,
-        categoryId: data.categoryId ?? "",
-        parentId: data.parentId ?? "",
-        hasVariants: data.hasVariants ?? false,
-        hasModifier:data.hasModifier ?? false,
-        type: data.type ?? "parent",
-        productCat: data.productCat ?? "",
-        flavors: data.flavors ?? false,
-
-        publishStatus: data.publishStatus ?? "published",
-        stockStatus: data.stockStatus ?? "out_of_stock",
-
-        baseProductId: data.baseProductId ?? "",
-        productDesc: data.productDesc ?? "",
-        sortOrder: data.sortOrder ?? 0,
-        image: data.image ?? "",
-        isFeatured: data.isFeatured ?? false,
-        purchaseSession: data.purchaseSession ?? null,
-        quantity: data.quantity ?? null,
-        updatedAt,
-        searchCode: data.searchCode ?? "",
-        // tax fields
-        taxRate: data.taxRate ?? undefined,
-        taxType: data.taxType,
-      };
-    });
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-    throw new Error("Error retrieving product list");
-  }
-});
 
 export async function addNewProduct(formData: FormData) {
   console.log("product save-------------")
@@ -202,6 +148,131 @@ export async function addNewProduct(formData: FormData) {
     return { errors: { general: "Could not save product" } };
   }
 }
+
+export type ProductSearchType = {
+  id: string;
+
+  name: string;
+
+  price: number;
+
+  stockQty: number;
+
+  type: string;
+
+  productCat: string;
+
+  image: string;
+
+  searchCode: string;
+
+  updatedAt: number;
+}; 
+
+export const fetchProducts = cache(
+  async (): Promise<ProductSearchType[]> => {
+    try {
+      const snapshot = await adminDb
+        .collection("products")
+        .select(
+          "name",
+          "price",
+          "stockQty",
+          "type",
+          "productCat",
+          "searchCode",
+          "image",
+          "updatedAt"
+        )
+        .get();
+
+      return snapshot.docs.map((doc) => {
+        const data = doc.data();
+
+        return {
+          id: doc.id,
+
+          name: data.name ?? "",
+
+          price: data.price ?? 0,
+
+          stockQty: data.stockQty ?? 0,
+
+          type: data.type ?? "parent",
+
+          productCat: data.productCat ?? "",
+
+          image: data.image ?? "",
+
+          searchCode: data.searchCode ?? "",
+
+          updatedAt:
+            data.updatedAt?.toMillis?.() || 0,
+        };
+      });
+    } catch (error) {
+      console.error(error);
+
+      return [];
+    }
+  }
+);
+
+//  Cached version — reduces Firestore reads massively
+export const fetchProducts1 = cache(async (): Promise<ProductType[]> => {
+  try {
+    const snapshot = await adminDb.collection("products").get();
+
+    if (snapshot.empty) return [];
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data() as Partial<ProductType> & { updatedAt?: any };
+
+      let updatedAt: string | null = null;
+      if (data.updatedAt) {
+        if (typeof data.updatedAt.toDate === "function") {
+          updatedAt = data.updatedAt.toDate().toISOString();
+        } else if (typeof data.updatedAt === "string") {
+          updatedAt = data.updatedAt;
+        }
+      }
+
+      return {
+        id: doc.id,
+        name: data.name ?? "",
+        price: data.price ?? 0,
+        stockQty: data.stockQty ?? 0,
+        discountPrice: data.discountPrice ?? 0,
+        categoryId: data.categoryId ?? "",
+        parentId: data.parentId ?? "",
+        hasVariants: data.hasVariants ?? false,
+        hasModifier:data.hasModifier ?? false,
+        type: data.type ?? "parent",
+        productCat: data.productCat ?? "",
+        flavors: data.flavors ?? false,
+
+        publishStatus: data.publishStatus ?? "published",
+        stockStatus: data.stockStatus ?? "out_of_stock",
+
+        baseProductId: data.baseProductId ?? "",
+        productDesc: data.productDesc ?? "",
+        sortOrder: data.sortOrder ?? 0,
+        image: data.image ?? "",
+        isFeatured: data.isFeatured ?? false,
+        purchaseSession: data.purchaseSession ?? null,
+        quantity: data.quantity ?? null,
+        updatedAt,
+        searchCode: data.searchCode ?? "",
+        // tax fields
+        taxRate: data.taxRate ?? undefined,
+        taxType: data.taxType,
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    throw new Error("Error retrieving product list");
+  }
+});
 
 export async function editProduct(formData: FormData) {
   const id = formData.get("id") as string;

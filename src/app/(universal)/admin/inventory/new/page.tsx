@@ -1,0 +1,328 @@
+
+"use client";
+// name , category(liqued/non veg, bakery, veg, water, rice,readymade), Favorate,
+//  Available, Modify date, Created modify by, Action (view detail in popup, edit)
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+
+
+import { Button } from "@/components/ui/button";
+import { newInventorySchema, TnewInventorySchema } from "@/lib/types/InventoryItemType";
+import { addNewInventoryItem } from "@/app/(universal)/action/inventory/dbOperation";
+
+
+
+const Page = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm<TnewInventorySchema>({
+    resolver: zodResolver(newInventorySchema),
+
+    defaultValues: {
+      currentStock: 0,
+      minStock: 0,
+      costPrice: 0,
+      sellingPrice: 0,
+      unit: "pcs",
+      isActive: true,
+    },
+  });
+
+  async function onSubmit(data: TnewInventorySchema) {
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("name", data.name);
+      formData.append("sku", data.sku || "");
+      formData.append("barcode", data.barcode || "");
+      formData.append("unit", data.unit);
+
+      formData.append(
+        "currentStock",
+        String(data.currentStock ?? 0)
+      );
+
+      formData.append(
+        "minStock",
+        String(data.minStock ?? 0)
+      );
+
+      formData.append(
+        "costPrice",
+        String(data.costPrice ?? 0)
+      );
+
+      formData.append(
+        "sellingPrice",
+        String(data.sellingPrice ?? 0)
+      );
+
+      formData.append(
+        "categoryId",
+        data.categoryId || ""
+      );
+
+      formData.append(
+        "supplierId",
+        data.supplierId || ""
+      );
+
+      formData.append(
+        "isActive",
+        data.isActive ? "true" : "false"
+      );
+
+      const result = await addNewInventoryItem(formData);
+
+      if (!result?.errors) {
+        reset({
+          name: "",
+          sku: "",
+          barcode: "",
+          currentStock: 0,
+          minStock: 0,
+          costPrice: 0,
+          sellingPrice: 0,
+          unit: "pcs",
+          isActive: true,
+        });
+      } else {
+        console.error(result.errors);
+        alert("Failed to save inventory item");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    setIsSubmitting(false);
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="max-w-7xl mx-auto p-4 md:p-6"
+    >
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Create Inventory Item
+          </h1>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Manage raw materials, stock items and inventory
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+        {/* LEFT */}
+        <div className="xl:col-span-2 flex flex-col gap-5">
+          {/* Inventory Details */}
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Inventory Details
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Name */}
+              <div className="md:col-span-2">
+                <label className="label-style-4">
+                  Item Name
+                </label>
+
+                <input
+                  {...register("name")}
+                  placeholder="e.g. Burger Bun"
+                  className="input-style-4 mt-1"
+                />
+
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.name?.message}
+                </p>
+              </div>
+
+              {/* SKU */}
+              <div>
+                <label className="label-style-4">
+                  SKU
+                </label>
+
+                <input
+                  {...register("sku")}
+                  placeholder="Optional SKU"
+                  className="input-style-4 mt-1"
+                />
+              </div>
+
+              {/* Barcode */}
+              <div>
+                <label className="label-style-4">
+                  Barcode
+                </label>
+
+                <input
+                  {...register("barcode")}
+                  placeholder="Barcode"
+                  className="input-style-4 mt-1"
+                />
+              </div>
+
+              {/* Unit */}
+              <div>
+                <label className="label-style-4">
+                  Unit
+                </label>
+
+                <select
+                  {...register("unit")}
+                  className="input-style-4 mt-1"
+                >
+                  <option value="pcs">Pieces (pcs)</option>
+                  <option value="kg">Kilogram (kg)</option>
+                  <option value="gm">Gram (gm)</option>
+                  <option value="ltr">Liter (ltr)</option>
+                  <option value="ml">Milliliter (ml)</option>
+                </select>
+              </div>
+
+              {/* Current Stock */}
+              <div>
+                <label className="label-style-4">
+                  Current Stock
+                </label>
+
+                <input
+                  {...register("currentStock")}
+                  type="number"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.currentStock?.message}
+                </p>
+              </div>
+
+              {/* Min Stock */}
+              <div>
+                <label className="label-style-4">
+                  Minimum Stock Alert
+                </label>
+
+                <input
+                  {...register("minStock")}
+                  type="number"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.minStock?.message}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Pricing Information
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Cost Price */}
+              <div>
+                <label className="label-style-4">
+                  Cost Price
+                </label>
+
+                <input
+                  {...register("costPrice")}
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.costPrice?.message}
+                </p>
+              </div>
+
+              {/* Selling Price */}
+              <div>
+                <label className="label-style-4">
+                  Selling Price
+                </label>
+
+                <input
+                  {...register("sellingPrice")}
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex flex-col gap-5">
+          {/* Status Card */}
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Settings
+            </h2>
+
+            <div className="flex items-center gap-3">
+              <input
+                {...register("isActive")}
+                type="checkbox"
+                className="h-4 w-4"
+              />
+
+              <label className="label-style-4">
+                Active Inventory Item
+              </label>
+            </div>
+          </div>
+
+          {/* Save */}
+          <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl shadow-sm p-5">
+            <h3 className="text-lg font-semibold text-gray-800">
+              Save Inventory
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1 mb-5">
+              Save this inventory item to your system
+            </p>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="btn-save-4 w-full"
+            >
+              {isSubmitting
+                ? "Saving Inventory..."
+                : "Save Inventory Item"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+};
+
+export default Page;
+

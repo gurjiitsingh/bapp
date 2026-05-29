@@ -16,6 +16,9 @@ import {
   MdOutlineCrisisAlert,
   MdOutlineBackup,
   MdAccessTime,
+  MdOutlineInventory2,
+  MdOutlineReceiptLong,
+  MdOutlineRestaurant,
 } from "react-icons/md";
 import { FaUsers } from "react-icons/fa";
 import { BsCardList } from "react-icons/bs";
@@ -46,7 +49,10 @@ type SidebarFlagKey =
   | "SHOW_OUTLET"   // ⭐ NEW
    | "SHOW_TABLES" 
    | "SHOW_MODIFIER"     
-  | "SHOW_MODIFIER_GROUPS"; 
+  | "SHOW_MODIFIER_GROUPS"
+  | "SHOW_INVENTORY"
+| "SHOW_INVENTORY_TRANSACTIONS"
+| "SHOW_PRODUCT_RECIPES"; 
 
 type Titem = {
   key: SidebarFlagKey;
@@ -82,7 +88,18 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_TABLES: flag(process.env.NEXT_PUBLIC_SHOW_TABLES),
     SHOW_MODIFIER: flag(process.env.NEXT_PUBLIC_SHOW_MODIFIER),             
   SHOW_MODIFIER_GROUPS: flag(process.env.NEXT_PUBLIC_SHOW_MODIFIER_GROUPS),
+  SHOW_INVENTORY: flag(process.env.NEXT_PUBLIC_SHOW_INVENTORY),
+
+SHOW_INVENTORY_TRANSACTIONS: flag(
+  process.env.NEXT_PUBLIC_SHOW_INVENTORY_TRANSACTIONS
+),
+
+SHOW_PRODUCT_RECIPES: flag(
+  process.env.NEXT_PUBLIC_SHOW_PRODUCT_RECIPES
+),
 };
+
+
 
 const Sidebar = () => {
   const { BRANDING } = useLanguage() || {
@@ -97,6 +114,9 @@ const Sidebar = () => {
         pickup_discount: "Pickup Discount",
         products: "Products",
         variants: "Variants",
+
+
+        
         coupon: "Coupon",
         delivery: "Delivery",
         users: "Users",
@@ -121,6 +141,7 @@ const Sidebar = () => {
     },
     { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
     { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
+    
 
       {
     key: "SHOW_MODIFIER_GROUPS",
@@ -147,6 +168,51 @@ const Sidebar = () => {
 
     { key: "SHOW_VARIANTS", name: BRANDING.sidebar.variants, link: "/admin/flavorsProductG", icon: <MdRestaurantMenu /> },
 
+   
+   
+{
+  key: "SHOW_INVENTORY",
+  name: "Inventory",
+  link: "/admin/inventory",
+  icon: <MdOutlineInventory2 />,
+},
+
+{
+  key: "SHOW_INVENTORY",
+  name: "Add Inventory",
+  link: "/admin/inventory/new",
+  icon: <MdInventory />,
+},
+
+{
+  key: "SHOW_INVENTORY_TRANSACTIONS",
+  name: "Stock Transactions",
+  link: "/admin/inventory/transactions",
+  icon: <MdOutlineReceiptLong />,
+},
+
+{
+  key: "SHOW_INVENTORY_TRANSACTIONS",
+  name: "Add Transaction",
+  link: "/admin/inventory/transactions/new",
+  icon: <MdOutlineReceiptLong />,
+},
+
+{
+  key: "SHOW_PRODUCT_RECIPES",
+  name: "Product Recipes",
+  link: "/admin/product-recipes",
+  icon: <MdOutlineRestaurant />,
+},
+
+{
+  key: "SHOW_PRODUCT_RECIPES",
+  name: "Add Recipe",
+  link: "/admin/product-recipes/new",
+  icon: <MdRestaurantMenu />,
+},   
+   
+   
     { key: "SHOW_COUPON", name: BRANDING.sidebar.coupon, link: "/admin/coupon", icon: <MdLocalOffer /> },
 
     { key: "SHOW_DELIVERY", name: BRANDING.sidebar.delivery, link: "/admin/delivery", icon: <TbTruckDelivery /> },
@@ -173,6 +239,8 @@ const Sidebar = () => {
     { key: "SHOW_SETTING", name: BRANDING.sidebar.setting, link: "/admin/setting", icon: <MdSettings /> },
 
     { key: "SHOW_DATA_BACKUP", name: BRANDING.sidebar.data_backup, link: "/admin/data-backup", icon: <MdOutlineBackup /> },
+
+    
   ];
 
   const filteredMenu = menuList.filter((item) => sidebarFlags[item.key]);

@@ -121,6 +121,7 @@ import { calculateTaxForCart } from "@/lib/tax/calculateTaxForCart-withRounding"
 import { calculateOrderTotals } from "@/lib/orderAmount/calculateOrderTotals";
 import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
+import { processSaleInventory } from "../inventory/processSaleInventory";
 
 export async function createNewOrder(purchaseData: orderDataType) {
 
@@ -404,6 +405,17 @@ const orderMasterData: orderMasterDataT = {
   for (const product of cartWithTax) {
     await addProductDraft(product, userId!, orderMasterId!);
   }
+
+  // =====================================================
+// 9.5️⃣ PROCESS INVENTORY
+// =====================================================
+await processSaleInventory(
+  cartWithTax.map((item) => ({
+    productId: item.id,
+    quantity: item.quantity || 1,
+    name: item.name,
+  }))
+);
 
   // =====================================================
   // 🔟 MARKETING DATA

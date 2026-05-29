@@ -4,7 +4,7 @@ export type ProductType = {
   id: string ;
   name: string;
   price: number;
-  stockQty: number;
+ 
   discountPrice: number | undefined;
   categoryId: string;
   productCat: string | undefined;
@@ -13,8 +13,7 @@ export type ProductType = {
   sortOrder: number;
   image: string;
   isFeatured: boolean;
-  purchaseSession: string | null;
-  quantity: number | null;
+  
   flavors: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
@@ -28,6 +27,21 @@ export type ProductType = {
   hasVariants?: boolean;
   hasModifier?: boolean;
   type?: 'parent' | 'variant';
+
+  purchaseSession: string | null;
+  quantity: number | null;
+
+   stockQty: number;
+
+   // NEW
+  productMode?: 'simple' | 'recipe';
+
+  // FOR SIMPLE PRODUCTS ONLY
+  inventoryItemId?: string;
+
+  trackInventory?: boolean;
+
+  allowNegativeStock?: boolean;
 };
 
 
