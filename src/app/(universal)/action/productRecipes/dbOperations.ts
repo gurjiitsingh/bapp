@@ -209,3 +209,73 @@ export async function addProductRecipe(
     };
   }
 }
+
+
+export async function fetchProductRecipes(): Promise<
+  ProductRecipeType[]
+> {
+  try {
+    const snapshot = await adminDb
+      .collection("productRecipes")
+      .orderBy("productName")
+      .get();
+
+    if (snapshot.empty) return [];
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data() as Partial<ProductRecipeType> & {
+        createdAt?: any;
+      };
+
+      let createdAt: string | null = null;
+
+      if (data.createdAt) {
+        if (
+          typeof data.createdAt.toDate ===
+          "function"
+        ) {
+          createdAt =
+            data.createdAt
+              .toDate()
+              .toISOString();
+        } else if (
+          typeof data.createdAt ===
+          "string"
+        ) {
+          createdAt = data.createdAt;
+        }
+      }
+
+      return {
+        id: doc.id,
+
+        productId:
+          data.productId ?? "",
+
+        productName:
+          data.productName ?? "",
+
+        inventoryItemId:
+          data.inventoryItemId ?? "",
+
+        inventoryItemName:
+          data.inventoryItemName ??
+          "",
+
+        quantity:
+          data.quantity ?? 0,
+
+        unit: data.unit ?? "",
+
+        createdAt,
+      };
+    });
+  } catch (error) {
+    console.error(
+      "❌ Failed to fetch product recipes:",
+      error
+    );
+
+    return [];
+  }
+}

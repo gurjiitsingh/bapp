@@ -30,7 +30,11 @@ const Page = () => {
       minStock: 0,
       costPrice: 0,
       sellingPrice: 0,
-      unit: "pcs",
+
+      purchaseUnit: "kg",
+      consumptionUnit: "gm",
+      conversionFactor: 1000,
+
       isActive: true,
     },
   });
@@ -44,8 +48,20 @@ const Page = () => {
       formData.append("name", data.name);
       formData.append("sku", data.sku || "");
       formData.append("barcode", data.barcode || "");
-      formData.append("unit", data.unit);
+      formData.append(
+        "purchaseUnit",
+        data.purchaseUnit
+      );
 
+      formData.append(
+        "consumptionUnit",
+        data.consumptionUnit
+      );
+
+      formData.append(
+        "conversionFactor",
+        String(data.conversionFactor)
+      );
       formData.append(
         "currentStock",
         String(data.currentStock ?? 0)
@@ -92,7 +108,9 @@ const Page = () => {
           minStock: 0,
           costPrice: 0,
           sellingPrice: 0,
-          unit: "pcs",
+        purchaseUnit: "kg",
+consumptionUnit: "gm",
+conversionFactor: 1000,
           isActive: true,
         });
       } else {
@@ -179,20 +197,72 @@ const Page = () => {
 
               {/* Unit */}
               <div>
-                <label className="label-style-4">
-                  Unit
-                </label>
+                {/* Purchase Unit */}
+                <div>
+                  <label className="label-style-4">
+                    Purchase Unit
+                  </label>
 
-                <select
-                  {...register("unit")}
-                  className="input-style-4 mt-1"
-                >
-                  <option value="pcs">Pieces (pcs)</option>
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (gm)</option>
-                  <option value="ltr">Liter (ltr)</option>
-                  <option value="ml">Milliliter (ml)</option>
-                </select>
+                  <select
+                    {...register("purchaseUnit")}
+                    className="input-style-4 mt-1"
+                  >
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="gm">Gram (gm)</option>
+                    <option value="ltr">Liter (ltr)</option>
+                    <option value="ml">Milliliter (ml)</option>
+                  </select>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Unit used when purchasing stock
+                  </p>
+                </div>
+
+                {/* Consumption Unit */}
+                <div>
+                  <label className="label-style-4">
+                    Consumption Unit
+                  </label>
+
+                  <select
+                    {...register("consumptionUnit")}
+                    className="input-style-4 mt-1"
+                  >
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="gm">Gram (gm)</option>
+                    <option value="ltr">Liter (ltr)</option>
+                    <option value="ml">Milliliter (ml)</option>
+                  </select>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Unit used in recipes
+                  </p>
+                </div>
+
+                {/* Conversion Factor */}
+                <div>
+                  <label className="label-style-4">
+                    Conversion Factor
+                  </label>
+
+                  <input
+                    type="number"
+                    step="0.0001"
+                    {...register("conversionFactor")}
+                    className="input-style-4 mt-1"
+                    placeholder="1000"
+                  />
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Example: 1 kg = 1000 gm
+                  </p>
+
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.conversionFactor?.message}
+                  </p>
+                </div>
               </div>
 
               {/* Current Stock */}

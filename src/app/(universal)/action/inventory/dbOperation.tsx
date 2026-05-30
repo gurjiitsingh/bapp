@@ -20,12 +20,35 @@ export async function addNewInventoryItem(
 
     const barcode = formData.get("barcode") as string | null;
 
-    const unit = formData.get("unit") as
+    const purchaseUnit = formData.get(
+      "purchaseUnit"
+    ) as
       | "pcs"
       | "kg"
       | "gm"
       | "ltr"
       | "ml";
+
+    const consumptionUnit = formData.get(
+      "consumptionUnit"
+    ) as
+      | "pcs"
+      | "kg"
+      | "gm"
+      | "ltr"
+      | "ml";
+
+    const conversionFactorRaw =
+      formData.get(
+        "conversionFactor"
+      ) as string | null;
+
+    const conversionFactor =
+      conversionFactorRaw
+        ? parseFloat(
+          conversionFactorRaw
+        )
+        : 1;
 
     const currentStockRaw = formData.get(
       "currentStock"
@@ -76,7 +99,9 @@ export async function addNewInventoryItem(
       name,
       sku: sku || "",
       barcode: barcode || "",
-      unit,
+      purchaseUnit,
+      consumptionUnit,
+      conversionFactor,
       currentStock,
       minStock,
       costPrice,
@@ -105,33 +130,38 @@ export async function addNewInventoryItem(
 
     // FIRESTORE DATA
     const data = {
-      name,
+  name,
 
-      sku: sku || "",
+  sku: sku || "",
 
-      barcode: barcode || "",
+  barcode: barcode || "",
 
-      unit,
+  purchaseUnit,
 
-      currentStock,
+  consumptionUnit,
 
-      minStock,
+  conversionFactor,
 
-      costPrice,
+  currentStock,
 
-      sellingPrice,
+  minStock,
 
-      categoryId: categoryId || "",
+  costPrice,
 
-      supplierId: supplierId || "",
+  sellingPrice,
 
-      isActive,
+  categoryId: categoryId || "",
 
-     
-createdAt:
-  admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    };
+  supplierId: supplierId || "",
+
+  isActive,
+
+  createdAt:
+    admin.firestore.FieldValue.serverTimestamp(),
+
+  updatedAt:
+    admin.firestore.FieldValue.serverTimestamp(),
+};
 
     console.log(
       "inventory data-------------",
@@ -190,17 +220,51 @@ export const fetchInventoryItems = cache(
         snapshot.docs.map((doc) => {
           const data = doc.data();
 
-          return {
-            id: doc.id,
+        return {
+  id: doc.id,
 
-            ...data,
+  name: data.name || "",
 
-            createdAt:
-              data.createdAt?.toMillis?.() || 0,
+  sku: data.sku || "",
 
-            updatedAt:
-              data.updatedAt?.toMillis?.() || 0,
-          };
+  barcode: data.barcode || "",
+
+  purchaseUnit:
+    data.purchaseUnit || "pcs",
+
+  consumptionUnit:
+    data.consumptionUnit || "pcs",
+
+  conversionFactor:
+    data.conversionFactor || 1,
+
+  currentStock:
+    data.currentStock || 0,
+
+  minStock:
+    data.minStock || 0,
+
+  costPrice:
+    data.costPrice || 0,
+
+  sellingPrice:
+    data.sellingPrice || 0,
+
+  categoryId:
+    data.categoryId || "",
+
+  supplierId:
+    data.supplierId || "",
+
+  isActive:
+    data.isActive ?? true,
+
+  createdAt:
+    data.createdAt,
+
+  updatedAt:
+    data.updatedAt,
+};
         }) as InventoryItemType[];
 
       return inventoryItems;

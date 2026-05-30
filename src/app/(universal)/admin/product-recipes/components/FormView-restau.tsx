@@ -321,13 +321,13 @@ export default function FormView({
             </div>
 
             <div>
-             <h1 className="text-2xl font-bold text-gray-800">
-  Product Recipes
-</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Product Recipes
+              </h1>
 
-<p className="text-sm text-gray-500">
-  Define inventory consumption for products
-</p>
+              <p className="text-sm text-gray-500">
+                Search product and manage recipe ingredients
+              </p>
             </div>
           </div>
 
@@ -436,14 +436,14 @@ export default function FormView({
               <div className="flex items-center justify-between">
 
                 <div>
-                <h2 className="text-xl font-bold text-gray-800">
-  Recipe Components
-</h2>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Recipe Ingredients
+                  </h2>
 
                   <p className="text-sm text-gray-500">
                     {selectedProduct
                       ? selectedProduct.name
-                      : " Select product to view Recipe"}
+                      : "Select product to view recipe"}
                   </p>
                 </div>
 
@@ -452,7 +452,7 @@ export default function FormView({
                     {
                       currentRecipes.length
                     }{" "}
-                  Component
+                    ingredients
                   </div>
                 )}
               </div>
@@ -535,7 +535,7 @@ export default function FormView({
 
             <div className="border-b border-gray-100 px-6 py-5">
               <h2 className="text-xl font-bold text-gray-800">
-                 Add Component
+                Add Ingredient
               </h2>
 
               <p className="text-sm text-gray-500">
@@ -721,7 +721,7 @@ export default function FormView({
 
                 {isSubmitting
                   ? "Saving..."
-                  : " Add Component"}
+                  : "Add Ingredient"}
               </Button>
             </form>
           </div>

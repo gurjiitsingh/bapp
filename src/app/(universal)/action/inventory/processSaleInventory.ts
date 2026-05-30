@@ -3,6 +3,8 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { createInventoryTransaction } from "./createInventoryTransaction";
+import admin from "firebase-admin";
 
 type OrderItemType = {
   productId: string;
@@ -11,6 +13,7 @@ type OrderItemType = {
 };
 
 export async function processSaleInventory(
+  orderId,
   orderItems: OrderItemType[]
 ) {
   console.log(
@@ -83,64 +86,147 @@ export async function processSaleInventory(
               )
               .doc(inventoryItemId);
 
-          const inventoryDoc =
-            await inventoryRef.get();
 
-          if (!inventoryDoc.exists) {
-            console.log(
-              "❌ Inventory item missing:",
-              inventoryItemId
-            );
 
-            continue;
-          }
+// start replace
+await adminDb.runTransaction(
+  async (transaction) => {
+    // ===============================
+    // GET INVENTORY INSIDE TRANSACTION
+    // ===============================
 
-          const inventoryData =
-            inventoryDoc.data();
+    const inventoryDoc =
+      await transaction.get(
+        inventoryRef
+      );
 
-          const previousStock =
-            Number(
-              inventoryData?.currentStock
-            ) || 0;
+    if (!inventoryDoc.exists) {
+      console.log(
+        "❌ Inventory item missing:",
+        inventoryItemId
+      );
 
-          const newStock =
-            previousStock - deductQty;
+      return;
+    }
 
-          // UPDATE INVENTORY
-          await inventoryRef.update({
-            currentStock: newStock,
-            updatedAt: new Date(),
-          });
+    const inventoryData =
+      inventoryDoc.data();
 
-          // CREATE TRANSACTION
-          await adminDb
-            .collection(
-              "inventoryTransactions"
-            )
-            .add({
-              inventoryItemId,
+    const previousStock =
+      Number(
+        inventoryData?.currentStock
+      ) || 0;
 
-              inventoryItemName:
-                inventoryData?.name || "",
+    // ===============================
+    // NEGATIVE STOCK CHECK
+    // ===============================
 
-              type: "sale",
+    const allowNegativeStock =
+      productData?.allowNegativeStock ??
+      false;
 
-              quantity: deductQty,
+    const newStock =
+      previousStock - deductQty;
 
-              previousStock,
+    if (
+      newStock < 0 &&
+      !allowNegativeStock
+    ) {
+      console.log(
+        `❌ Not enough stock for ${inventoryData?.name}`
+      );
 
-              newStock,
+      return;
+    }
 
-              note: `Auto deducted from product sale (${productData?.name})`,
+    // ===============================
+    // UPDATE STOCK
+    // ===============================
 
-              createdBy: "system",
+    transaction.update(
+      inventoryRef,
+      {
+        currentStock: newStock,
 
-              createdAt: Date.now(),
-            });
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      }
+    );
 
-          console.log(
-            `✅ Deducted ${deductQty} from ${inventoryData?.name}`
-          );
+    // ===============================
+    // CREATE TRANSACTION LOG
+    // ===============================
+
+    const transactionRef =
+      adminDb
+        .collection(
+          "inventoryTransactions"
+        )
+        .doc();
+
+    transaction.set(
+      transactionRef,
+      {
+        inventoryItemId,
+
+        inventoryItemName:
+          inventoryData?.name || "",
+
+        type: "sale",
+
+        quantity: deductQty,
+
+        previousStock,
+
+        newStock,
+
+        note: `Auto deducted from product sale (${productData?.name})`,
+
+        referenceId: orderId,
+
+        referenceType: "order",
+
+        createdBy: "system",
+
+        createdAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      }
+    );
+  }
+);
+
+          //end of replaced code
+
+
+          
+          // await adminDb
+          //   .collection(
+          //     "inventoryTransactions"
+          //   )
+          //   .add({
+          //     inventoryItemId,
+
+          //     inventoryItemName:
+          //       inventoryData?.name || "",
+
+          //     type: "sale",
+
+          //     quantity: deductQty,
+
+          //     previousStock,
+
+          //     newStock,
+
+          //     note: `Auto deducted from product sale (${productData?.name})`,
+
+          //     createdBy: "system",
+
+          //     admin.firestore.FieldValue.serverTimestamp(),
+          //   });
+
+          // console.log(
+          //   `✅ Deducted ${deductQty} from ${inventoryData?.name}`
+          // );
         }
       }
 

@@ -1,32 +1,90 @@
 
 import { z } from "zod";
+import { Timestamp, FieldValue, } from "firebase/firestore";
+
+
+// export type InventoryTransactionType =
+//   | "purchase"
+//   | "sale"
+//   | "adjustment_add"
+//   | "adjustment_remove"
+//   | "wastage"
+//   | "opening";
 
 export type InventoryTransactionType = {
   id: string;
 
   inventoryItemId: string;
-
   inventoryItemName: string;
 
-  type:
-    | "purchase"
-    | "sale"
-    | "adjustment"
-    | "wastage"
-    | "return";
+  transactionType:
+  | "SALE"
+  | "PURCHASE"
+  | "OPENING"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  | "RETURN";
+
+  stockDirection:
+  | "IN"
+  | "OUT";
 
   quantity: number;
 
-  previousStock: number;
 
-  newStock: number;
+  beforeStock: number;
+  afterStock: number;
+
+  unit: string;
+
+  referenceType:
+  | "ORDER"
+  | "PURCHASE"
+  | "MANUAL";
+
+  referenceId?: string;
+
+  productId?: string;
+  productName?: string;
 
   note?: string;
-
+  orderId?: string;
+  purchaseId?: string;
+  source?: "POS" | "ADMIN" | "SYSTEM" | null;
   createdBy?: string;
 
-  createdAt: number;
+  createdAt:
+  | Timestamp
+  | FieldValue;
 };
+
+
+// export type InventoryTransactionType = {
+//   id: string;
+
+//   inventoryItemId: string;
+
+//   inventoryItemName: string;
+
+//   type:
+//     | "purchase"
+//     | "sale"
+//     | "adjustment"
+//     | "wastage"
+//     | "return";
+
+//   quantity: number;
+
+//   previousStock: number;
+
+//   newStock: number;
+
+//   note?: string;
+
+//   createdBy?: string;
+
+//   createdAt: number;
+// };
 
 export const newInventoryTransactionSchema =
   z.object({

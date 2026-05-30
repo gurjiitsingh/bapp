@@ -4,7 +4,7 @@ import ListView from "./components/ListView";
 
 import Link from "next/link";
 
-import { Plus, Package2 } from "lucide-react";
+import { Plus, Package2, ArrowLeft } from "lucide-react";
 import { fetchInventoryItems } from "../../action/inventory/dbOperation";
 
 
@@ -39,12 +39,27 @@ export default async function Page() {
                 </div>
               </div>
 
-              <Link href="/admin/inventory/form">
-                <button className="btn-save-4 flex items-center gap-2">
-                  <Plus size={18} />
-                  Create Inventory
-                </button>
-              </Link>
+             <div className="flex items-center gap-3">
+              <Link href="/admin/inventory">
+    <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
+      <ArrowLeft size={18} />
+      Inventory View
+    </button>
+  </Link>
+  <Link href="/admin/inventory/dashboard">
+    <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
+      <ArrowLeft size={18} />
+      Inventory Dashboard
+    </button>
+  </Link>
+
+  <Link href="/admin/inventory/new">
+    <button className="btn-save-4 flex items-center gap-2">
+      <Plus size={18} />
+      Create Inventory
+    </button>
+  </Link>
+</div>
             </div>
           </div>
         </div>

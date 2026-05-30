@@ -35,7 +35,7 @@ useEffect(() => {
         fetch("/api/products"),
         fetch("/api/categories"),
       ]);
-
+      
       const productsJson = await productsRes.json();
       const categoriesJson = await categoriesRes.json();
 

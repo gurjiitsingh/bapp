@@ -173,44 +173,55 @@ const Sidebar = () => {
 {
   key: "SHOW_INVENTORY",
   name: "Inventory",
-  link: "/admin/inventory",
+  link: "/admin/inventory/dashboard",
   icon: <MdOutlineInventory2 />,
 },
 
-{
-  key: "SHOW_INVENTORY",
-  name: "Add Inventory",
-  link: "/admin/inventory/new",
-  icon: <MdInventory />,
-},
+// {
+//   key: "SHOW_INVENTORY",
+//   name: "Add Inventory",
+//   link: "/admin/inventory/new",
+//   icon: <MdInventory />,
+// },
 
-{
-  key: "SHOW_INVENTORY_TRANSACTIONS",
-  name: "Stock Transactions",
-  link: "/admin/inventory/transactions",
-  icon: <MdOutlineReceiptLong />,
-},
+// {
+//   key: "SHOW_INVENTORY_TRANSACTIONS",
+//   name: "Stock Transactions",
+//   link: "/admin/inventory/transactions",
+//   icon: <MdOutlineReceiptLong />,
+// },
 
-{
-  key: "SHOW_INVENTORY_TRANSACTIONS",
-  name: "Add Transaction",
-  link: "/admin/inventory/transactions/new",
-  icon: <MdOutlineReceiptLong />,
-},
+// {
+//   key: "SHOW_INVENTORY_TRANSACTIONS",
+//   name: "Add Transaction",
+//   link: "/admin/inventory/transactions/new",
+//   icon: <MdOutlineReceiptLong />,
+// },
+
 
 {
   key: "SHOW_PRODUCT_RECIPES",
   name: "Product Recipes",
-  link: "/admin/product-recipes",
+  link: "/admin/product-recipes/recipes",
   icon: <MdOutlineRestaurant />,
 },
 
 {
   key: "SHOW_PRODUCT_RECIPES",
-  name: "Add Recipe",
-  link: "/admin/product-recipes/new",
-  icon: <MdRestaurantMenu />,
-},   
+  name: "Product Formula",
+  link: "/admin/product-recipes/product-formula",
+  icon: <MdOutlineRestaurant />,
+},
+
+
+
+
+// {
+//   key: "SHOW_PRODUCT_RECIPES",
+//   name: "Add Recipe",
+//   link: "/admin/product-recipes/new",
+//   icon: <MdRestaurantMenu />,
+// },   
    
    
     { key: "SHOW_COUPON", name: BRANDING.sidebar.coupon, link: "/admin/coupon", icon: <MdLocalOffer /> },

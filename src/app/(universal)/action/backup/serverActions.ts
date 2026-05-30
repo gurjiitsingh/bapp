@@ -54,7 +54,7 @@ export async function uploadProductsJSON(formData: FormData) {
 
 
 
-export async function uploadCategoriesJSON(formData: FormData) {
+export async function uploadCategoriesJSON (formData: FormData) {
   const file = formData.get("file") as File;
 
   if (!file) throw new Error("No file uploaded");
@@ -71,12 +71,11 @@ export async function uploadCategoriesJSON(formData: FormData) {
 
     const { id, ...data } = category;
 
-    batch.set(ref, data); // overwrite (same as products)
+    batch.set(ref, data);
   });
 
   await batch.commit();
 }
-
 
 
 import { FieldValue } from "firebase-admin/firestore";

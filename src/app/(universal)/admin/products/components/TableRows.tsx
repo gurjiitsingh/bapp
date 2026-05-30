@@ -120,7 +120,7 @@ const [showModifierModal, setShowModifierModal] = useState(false);
       {/* 🏷 Name + Featured */}
       <TableCell className="whitespace-normal break-words max-w-[180px]">
         <div className="flex items-center gap-2">
-          {product.sortOrder}.&nbsp;{product.name}
+          {product.sortOrder}&nbsp;{product.name}
           <button
             onClick={handleFeatureToggle}
             className="flex items-center justify-center rounded-md hover:bg-yellow-100 p-1 transition"

@@ -122,6 +122,7 @@ import { calculateOrderTotals } from "@/lib/orderAmount/calculateOrderTotals";
 import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 import { processSaleInventory } from "../inventory/processSaleInventory";
+import { checkStockAvailabilityV2 } from "../inventory/checkStockAvailabilityV2";
 
 export async function createNewOrder(purchaseData: orderDataType) {
 
@@ -194,7 +195,7 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // 1️⃣ STOCK CHECK (BEFORE ANY CALCULATION)
   // =====================================================
   if (SHOULD_MAINTAIN_STOCK) {
-    const stockCheck = await checkStockAvailability(cartData);
+    const stockCheck = await checkStockAvailabilityV2(cartData);
     if (!stockCheck.success) {
       return { success: false, message: stockCheck.message };
     }

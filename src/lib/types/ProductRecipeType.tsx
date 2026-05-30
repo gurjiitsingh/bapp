@@ -14,9 +14,11 @@ export type ProductRecipeType = {
 
   quantity: number;
 
+   wastagePercent?: number; // optional future
+
   unit: string;
 
-  createdAt: Timestamp | FieldValue;
+ createdAt?: Timestamp | FieldValue | string | null;
 
 };
 

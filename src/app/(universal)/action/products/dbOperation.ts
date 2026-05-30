@@ -15,8 +15,166 @@ import { randomUUID } from "crypto";
 
 
 
+
+export type ProductSearchType = {
+  id: string;
+
+  name: string;
+
+  price: number;
+
+  stockQty: number;
+
+  type: string;
+
+  productCat: string;
+
+  image: string;
+
+  searchCode: string;
+
+  updatedAt: number;
+}; 
+
+//  Cached version — reduces Firestore reads massively
+
+import { unstable_cache } from "next/cache";
+
+export const fetchProducts = unstable_cache(
+  async (): Promise<ProductType[]> => {
+    try {
+      const snapshot = await adminDb
+        .collection("products")
+        .get();
+
+      if (snapshot.empty) return [];
+
+      return snapshot.docs.map((doc) => {
+        const data = doc.data() as Partial<ProductType> & {
+          updatedAt?: any;
+        };
+
+        let updatedAt: string | null = null;
+
+        if (data.updatedAt) {
+          if (
+            typeof data.updatedAt.toDate ===
+            "function"
+          ) {
+            updatedAt =
+              data.updatedAt
+                .toDate()
+                .toISOString();
+          } else if (
+            typeof data.updatedAt ===
+            "string"
+          ) {
+            updatedAt = data.updatedAt;
+          }
+        }
+
+        return {
+          id: doc.id,
+
+          name: data.name ?? "",
+
+          price: data.price ?? 0,
+
+          stockQty:
+            data.stockQty ?? 0,
+
+          discountPrice:
+            data.discountPrice ?? 0,
+
+          categoryId:
+            data.categoryId ?? "",
+
+          parentId:
+            data.parentId ?? "",
+
+          hasVariants:
+            data.hasVariants ?? false,
+
+          hasModifier:
+            data.hasModifier ?? false,
+
+          type:
+            data.type ?? "parent",
+
+          productCat:
+            data.productCat ?? "",
+
+          flavors:
+            data.flavors ?? false,
+
+          publishStatus:
+            data.publishStatus ??
+            "published",
+
+          stockStatus:
+            data.stockStatus ??
+            "out_of_stock",
+
+          baseProductId:
+            data.baseProductId ?? "",
+
+          productDesc:
+            data.productDesc ?? "",
+
+          sortOrder:
+            data.sortOrder ?? 0,
+
+          image:
+            data.image ?? "",
+
+          isFeatured:
+            data.isFeatured ?? false,
+
+          purchaseSession:
+            data.purchaseSession ??
+            null,
+
+          quantity:
+            data.quantity ?? null,
+
+          updatedAt,
+
+          searchCode:
+            data.searchCode ?? "",
+
+          taxRate:
+            data.taxRate ??
+            undefined,
+
+          taxType:
+            data.taxType,
+        };
+      });
+    } catch (error) {
+      console.error(
+        "Failed to fetch products:",
+        error
+      );
+
+      return [];
+    }
+  },
+
+  // CACHE KEY
+  ["all-products"],
+
+  // OPTIONS
+  {
+    tags: ["products"],
+
+    // 1 hour cache
+    revalidate: 3600,
+  }
+);
+
+
 export async function addNewProduct(formData: FormData) {
-  console.log("product save-------------")
+  
   try {
     const rawHasVariants = formData.get("hasVariants");
 
@@ -120,7 +278,7 @@ export async function addNewProduct(formData: FormData) {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("product data-------------", data)
+   
 
     //  Save to Firestore
 
@@ -133,6 +291,9 @@ export async function addNewProduct(formData: FormData) {
     revalidatePath("/"); // storefront home
     revalidatePath("/products"); // storefront products page
     revalidatePath("/admin/products"); // admin product list
+
+
+
 
     if (type == "variant") {
       updateProductType(parentId, "parent", true);
@@ -149,130 +310,7 @@ export async function addNewProduct(formData: FormData) {
   }
 }
 
-export type ProductSearchType = {
-  id: string;
 
-  name: string;
-
-  price: number;
-
-  stockQty: number;
-
-  type: string;
-
-  productCat: string;
-
-  image: string;
-
-  searchCode: string;
-
-  updatedAt: number;
-}; 
-
-export const fetchProducts = cache(
-  async (): Promise<ProductSearchType[]> => {
-    try {
-      const snapshot = await adminDb
-        .collection("products")
-        .select(
-          "name",
-          "price",
-          "stockQty",
-          "type",
-          "productCat",
-          "searchCode",
-          "image",
-          "updatedAt"
-        )
-        .get();
-
-      return snapshot.docs.map((doc) => {
-        const data = doc.data();
-
-        return {
-          id: doc.id,
-
-          name: data.name ?? "",
-
-          price: data.price ?? 0,
-
-          stockQty: data.stockQty ?? 0,
-
-          type: data.type ?? "parent",
-
-          productCat: data.productCat ?? "",
-
-          image: data.image ?? "",
-
-          searchCode: data.searchCode ?? "",
-
-          updatedAt:
-            data.updatedAt?.toMillis?.() || 0,
-        };
-      });
-    } catch (error) {
-      console.error(error);
-
-      return [];
-    }
-  }
-);
-
-//  Cached version — reduces Firestore reads massively
-export const fetchProducts1 = cache(async (): Promise<ProductType[]> => {
-  try {
-    const snapshot = await adminDb.collection("products").get();
-
-    if (snapshot.empty) return [];
-
-    return snapshot.docs.map((doc) => {
-      const data = doc.data() as Partial<ProductType> & { updatedAt?: any };
-
-      let updatedAt: string | null = null;
-      if (data.updatedAt) {
-        if (typeof data.updatedAt.toDate === "function") {
-          updatedAt = data.updatedAt.toDate().toISOString();
-        } else if (typeof data.updatedAt === "string") {
-          updatedAt = data.updatedAt;
-        }
-      }
-
-      return {
-        id: doc.id,
-        name: data.name ?? "",
-        price: data.price ?? 0,
-        stockQty: data.stockQty ?? 0,
-        discountPrice: data.discountPrice ?? 0,
-        categoryId: data.categoryId ?? "",
-        parentId: data.parentId ?? "",
-        hasVariants: data.hasVariants ?? false,
-        hasModifier:data.hasModifier ?? false,
-        type: data.type ?? "parent",
-        productCat: data.productCat ?? "",
-        flavors: data.flavors ?? false,
-
-        publishStatus: data.publishStatus ?? "published",
-        stockStatus: data.stockStatus ?? "out_of_stock",
-
-        baseProductId: data.baseProductId ?? "",
-        productDesc: data.productDesc ?? "",
-        sortOrder: data.sortOrder ?? 0,
-        image: data.image ?? "",
-        isFeatured: data.isFeatured ?? false,
-        purchaseSession: data.purchaseSession ?? null,
-        quantity: data.quantity ?? null,
-        updatedAt,
-        searchCode: data.searchCode ?? "",
-        // tax fields
-        taxRate: data.taxRate ?? undefined,
-        taxType: data.taxType,
-      };
-    });
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-    throw new Error("Error retrieving product list");
-  }
-});
 
 export async function editProduct(formData: FormData) {
   const id = formData.get("id") as string;
@@ -446,7 +484,7 @@ if (!result.success) {
     taxType: taxType ?? existingProduct?.taxType ?? null,
   };
 
-  console.log("product data-------------", productData)
+ 
 
   //  Only overwrite isFeatured if explicitly sent
   if (typeof isFeatured !== "undefined") {
@@ -457,8 +495,19 @@ if (!result.success) {
 
   try {
     await productRef.update(productData);
-    revalidateTag("products", "max");
-    revalidateTag("featured-products", "max");
+ 
+// CLEAR PRODUCT CACHE
+revalidateTag("products", "max");
+
+// OPTIONAL FEATURED CACHE
+revalidateTag("featured-products", "max");
+
+// OPTIONAL PAGE RELOADS
+revalidatePath("/");
+revalidatePath("/products");
+revalidatePath("/admin/products");
+
+
     return { message: " Product updated successfully" };
   } catch (error) {
     console.error("❌ Failed to update product:", error);
@@ -466,41 +515,93 @@ if (!result.success) {
   }
 }
 
-export async function deleteProduct(id: string, oldImageUrl: string) {
-  const docRef = adminDb.collection("products").doc(id);
+export async function deleteProduct(
+  id: string,
+  oldImageUrl: string
+) {
+  const docRef = adminDb
+    .collection("products")
+    .doc(id);
 
   try {
-    //  Delete Firestore product
+    // DELETE FIRESTORE PRODUCT
     await docRef.delete();
-    console.log("Product deleted from Firestore:", id);
 
-    //  Delete image if not default
+    console.log(
+      "Product deleted from Firestore:",
+      id
+    );
+
+    // DELETE IMAGE IF NOT DEFAULT
     if (oldImageUrl !== "/com.jpg") {
-      const imagePublicId = oldImageUrl
-        .split("/")
-        .slice(-2)
-        .join("/")
-        .split(".")[0];
+      const imagePublicId =
+        oldImageUrl
+          .split("/")
+          .slice(-2)
+          .join("/")
+          .split(".")[0];
 
       try {
         await deleteImage(imagePublicId);
+
         console.log("Image deleted");
       } catch (error) {
-        console.error("Error deleting image:", error);
-        // ⚠️ Still revalidate, but return warning
+        console.error(
+          "Error deleting image:",
+          error
+        );
+
+        // STILL REVALIDATE CACHE
         revalidateTag("products", "max");
-        return { errors: "Product deleted, but failed to delete image." };
+        revalidateTag(
+          "featured-products",
+          "max"
+        );
+
+        revalidatePath("/");
+        revalidatePath("/products");
+        revalidatePath(
+          "/admin/products"
+        );
+
+        return {
+          errors:
+            "Product deleted, but failed to delete image.",
+        };
       }
     }
 
-    //  NOW revalidate cache
+    // REVALIDATE CACHE TAGS
     revalidateTag("products", "max");
-    revalidateTag("featured-products", "max");
 
-    return { message: "Product and image deleted successfully." };
+    revalidateTag(
+      "featured-products",
+      "max"
+    );
+
+    // REVALIDATE PAGES
+    revalidatePath("/");
+
+    revalidatePath("/products");
+
+    revalidatePath(
+      "/admin/products"
+    );
+
+    return {
+      message:
+        "Product and image deleted successfully.",
+    };
   } catch (error) {
-    console.error("Error deleting product from Firestore:", error);
-    return { errors: "Failed to delete product." };
+    console.error(
+      "Error deleting product from Firestore:",
+      error
+    );
+
+    return {
+      errors:
+        "Failed to delete product.",
+    };
   }
 }
 
@@ -1021,3 +1122,161 @@ export async function updateProductField(
 
 
 
+
+
+
+export const fetchProducts_old = unstable_cache(
+  async (): Promise<ProductType[]> => {
+    try {
+      const snapshot =
+        await adminDb
+          .collection("products")
+          .get();
+
+      if (snapshot.empty) return [];
+
+      return snapshot.docs.map((doc) => {
+        const data =
+          doc.data() as Partial<ProductType> & {
+            updatedAt?: any;
+          };
+
+        let updatedAt: string | null =
+          null;
+
+        if (data.updatedAt) {
+          if (
+            typeof data.updatedAt
+              .toDate === "function"
+          ) {
+            updatedAt =
+              data.updatedAt
+                .toDate()
+                .toISOString();
+          } else if (
+            typeof data.updatedAt ===
+            "string"
+          ) {
+            updatedAt =
+              data.updatedAt;
+          }
+        }
+
+        return {
+          id: doc.id,
+          name: data.name ?? "",
+          price: data.price ?? 0,
+          stockQty:
+            data.stockQty ?? 0,
+          discountPrice:
+            data.discountPrice ?? 0,
+          categoryId:
+            data.categoryId ?? "",
+          parentId:
+            data.parentId ?? "",
+          hasVariants:
+            data.hasVariants ?? false,
+          hasModifier:
+            data.hasModifier ?? false,
+          type:
+            data.type ?? "parent",
+          productCat:
+            data.productCat ?? "",
+          flavors:
+            data.flavors ?? false,
+          publishStatus:
+            data.publishStatus ??
+            "published",
+          stockStatus:
+            data.stockStatus ??
+            "out_of_stock",
+          baseProductId:
+            data.baseProductId ?? "",
+          productDesc:
+            data.productDesc ?? "",
+          sortOrder:
+            data.sortOrder ?? 0,
+          image: data.image ?? "",
+          isFeatured:
+            data.isFeatured ?? false,
+          purchaseSession:
+            data.purchaseSession ??
+            null,
+          quantity:
+            data.quantity ?? null,
+          updatedAt,
+          searchCode:
+            data.searchCode ?? "",
+          taxRate:
+            data.taxRate ?? undefined,
+          taxType: data.taxType,
+        };
+      });
+    } catch (error) {
+      console.error(
+        "Failed to fetch products:",
+        error
+      );
+
+      return [];
+    }
+  },
+
+  // CACHE KEY
+  ["products-cache"],
+
+  {
+    // cache for 1 hour
+    revalidate: 3600,
+  }
+);
+
+
+export const fetchProducts1 = cache(
+  async (): Promise<ProductSearchType[]> => {
+    try {
+      const snapshot = await adminDb
+        .collection("products")
+        .select(
+          "name",
+          "price",
+          "stockQty",
+          "type",
+          "productCat",
+          "searchCode",
+          "image",
+          "updatedAt"
+        )
+        .get();
+
+      return snapshot.docs.map((doc) => {
+        const data = doc.data();
+
+        return {
+          id: doc.id,
+
+          name: data.name ?? "",
+
+          price: data.price ?? 0,
+
+          stockQty: data.stockQty ?? 0,
+
+          type: data.type ?? "parent",
+
+          productCat: data.productCat ?? "",
+
+          image: data.image ?? "",
+
+          searchCode: data.searchCode ?? "",
+
+          updatedAt:
+            data.updatedAt?.toMillis?.() || 0,
+        };
+      });
+    } catch (error) {
+      console.error(error);
+
+      return [];
+    }
+  }
+);

@@ -2,22 +2,25 @@
 
 import React from "react";
 
-
+import FormView from "../../components/FormView";
 
 import { fetchProducts } from "@/app/(universal)/action/products/dbOperation";
 
-
-import FormView from "../components/FormView";
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/dbOperation";
-// conversion/recipe name, qty, created modified by, Action(convert, edit, delete)
-export default async function Page() {
-  const [products, inventoryItems] =
-    await Promise.all([
-      fetchProducts(),
-      fetchInventoryItems(),
-    ]);
 
-  // ONLY PARENT PRODUCTS
+import { fetchProductRecipes } from "@/app/(universal)/action/productRecipes/dbOperations";
+
+export default async function Page() {
+  const [
+    products,
+    inventoryItems,
+    recipes,
+  ] = await Promise.all([
+    fetchProducts(),
+    fetchInventoryItems(),
+    fetchProductRecipes(),
+  ]);
+
   const filteredProducts = products.filter(
     (product) => product.type === "parent"
   );
@@ -26,6 +29,7 @@ export default async function Page() {
     <FormView
       products={filteredProducts}
       inventoryItems={inventoryItems}
+      recipes={recipes}
     />
   );
 }
