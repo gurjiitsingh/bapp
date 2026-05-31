@@ -3,6 +3,27 @@ import { z } from "zod";
 
 import { Timestamp, FieldValue, } from "firebase/firestore";
 
+export const inventoryUnits = [
+  "pcs",
+  "kg",
+  "gm",
+  "ltr",
+  "ml",
+  "dozen",
+  "pair",
+  "box",
+  "pack",
+  "carton",
+  "bag",
+  "bottle",
+  "can",
+  "jar",
+  "roll",
+  "tray",
+] as const;
+
+export type InventoryUnit =
+  (typeof inventoryUnits)[number];
 
 export const newInventorySchema = z.object({
   name: z
@@ -14,17 +35,13 @@ export const newInventorySchema = z.object({
 
   barcode: z.string().optional(),
 
-  purchaseUnit: z.enum([
-    "pcs",
-    "kg",
-    "ltr",
-  ]),
+  purchaseUnit:  z.enum(
+  inventoryUnits
+),
 
-  consumptionUnit: z.enum([
-    "pcs",
-    "gm",
-    "ml",
-  ]),
+consumptionUnit:  z.enum(
+  inventoryUnits
+),
 
   conversionFactor: z.coerce
     .number()
@@ -117,12 +134,7 @@ export const newInventorySchema = z.object({
 
 
 
-export type InventoryUnit =
-  | "pcs"
-  | "kg"
-  | "gm"
-  | "ltr"
-  | "ml";
+
 
 export type InventoryItemType = {
   id: string;

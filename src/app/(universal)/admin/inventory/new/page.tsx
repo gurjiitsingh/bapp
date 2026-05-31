@@ -2,7 +2,7 @@
 "use client";
 // name , category(liqued/non veg, bakery, veg, water, rice,readymade), Favorate,
 //  Available, Modify date, Created modify by, Action (view detail in popup, edit)
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -17,11 +17,14 @@ import { addNewInventoryItem } from "@/app/(universal)/action/inventory/dbOperat
 const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  
   const {
-    register,
-    formState: { errors },
-    handleSubmit,
-    reset,
+  register,
+  watch,
+  setValue,
+  formState: { errors },
+  handleSubmit,
+  reset,
   } = useForm<TnewInventorySchema>({
     resolver: zodResolver(newInventorySchema),
 
@@ -39,7 +42,72 @@ const Page = () => {
     },
   });
 
-  async function onSubmit(data: TnewInventorySchema) {
+const purchaseUnit = watch("purchaseUnit");
+const consumptionUnit = watch("consumptionUnit");
+
+
+// useEffect(() => {
+//   const conversionMap: Record<string, number> = {
+//     "kg-gm": 1000,
+//     "ltr-ml": 1000,
+
+//     "dozen-pcs": 12,
+//     "pair-pcs": 2,
+
+//     // same unit
+//     "kg-kg": 1,
+//     "gm-gm": 1,
+//     "ltr-ltr": 1,
+//     "ml-ml": 1,
+//     "pcs-pcs": 1,
+//     "dozen-dozen": 1,
+//     "pair-pair": 1,
+//     "box-box": 1,
+//     "pack-pack": 1,
+//     "carton-carton": 1,
+//     "bag-bag": 1,
+//     "bottle-bottle": 1,
+//     "can-can": 1,
+//     "jar-jar": 1,
+//     "roll-roll": 1,
+//     "tray-tray": 1,
+//   };
+
+//   const key = `${purchaseUnit}-${consumptionUnit}`;
+
+//   if (conversionMap[key]) {
+//     setValue(
+//       "conversionFactor",
+//       conversionMap[key],
+//       { shouldValidate: true }
+//     );
+//   }
+// }, [purchaseUnit, consumptionUnit, setValue]);
+
+
+useEffect(() => {
+  if (purchaseUnit === consumptionUnit) {
+    setValue("conversionFactor", 1);
+    return;
+  }
+
+  const conversionMap: Record<string, number> = {
+    "kg-gm": 1000,
+    "ltr-ml": 1000,
+    "dozen-pcs": 12,
+    "pair-pcs": 2,
+    "carton-pcs":24,
+  };
+
+  const key = `${purchaseUnit}-${consumptionUnit}`;
+
+  if (conversionMap[key]) {
+    setValue("conversionFactor", conversionMap[key]);
+  }
+}, [purchaseUnit, consumptionUnit, setValue]);
+
+
+async function onSubmit(data: TnewInventorySchema) {
     setIsSubmitting(true);
 
     try {
@@ -108,9 +176,9 @@ const Page = () => {
           minStock: 0,
           costPrice: 0,
           sellingPrice: 0,
-        purchaseUnit: "kg",
-consumptionUnit: "gm",
-conversionFactor: 1000,
+          purchaseUnit: "kg",
+          consumptionUnit: "gm",
+          conversionFactor: 1000,
           isActive: true,
         });
       } else {
@@ -203,16 +271,29 @@ conversionFactor: 1000,
                     Purchase Unit
                   </label>
 
-                  <select
-                    {...register("purchaseUnit")}
-                    className="input-style-4 mt-1"
-                  >
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="gm">Gram (gm)</option>
-                    <option value="ltr">Liter (ltr)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                  </select>
+                <select
+  {...register("purchaseUnit")}
+  className="input-style-4 mt-1"
+>
+  <option value="kg">Kilogram (kg)</option>
+  <option value="gm">Gram (gm)</option>
+  <option value="ltr">Liter (ltr)</option>
+  <option value="ml">Milliliter (ml)</option>
+  <option value="pcs">Pieces (pcs)</option>
+  <option value="dozen">Dozen</option>
+  <option value="pair">Pair</option>
+  <option value="box">Box</option>
+  <option value="pack">Pack</option>
+  <option value="carton">Carton</option>
+  <option value="bag">Bag</option>
+  <option value="bottle">Bottle</option>
+  <option value="can">Can</option>
+  <option value="jar">Jar</option>
+  <option value="roll">Roll</option>
+  <option value="tray">Tray</option>
+
+  
+</select>
 
                   <p className="text-xs text-gray-500 mt-1">
                     Unit used when purchasing stock
@@ -229,11 +310,22 @@ conversionFactor: 1000,
                     {...register("consumptionUnit")}
                     className="input-style-4 mt-1"
                   >
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="gm">Gram (gm)</option>
-                    <option value="ltr">Liter (ltr)</option>
-                    <option value="ml">Milliliter (ml)</option>
+                   <option value="kg">Kilogram (kg)</option>
+  <option value="gm">Gram (gm)</option>
+  <option value="ltr">Liter (ltr)</option>
+  <option value="ml">Milliliter (ml)</option>
+  <option value="pcs">Pieces (pcs)</option>
+  <option value="dozen">Dozen</option>
+  <option value="pair">Pair</option>
+  <option value="box">Box</option>
+  <option value="pack">Pack</option>
+  <option value="carton">Carton</option>
+  <option value="bag">Bag</option>
+  <option value="bottle">Bottle</option>
+  <option value="can">Can</option>
+  <option value="jar">Jar</option>
+  <option value="roll">Roll</option>
+  <option value="tray">Tray</option>
                   </select>
 
                   <p className="text-xs text-gray-500 mt-1">

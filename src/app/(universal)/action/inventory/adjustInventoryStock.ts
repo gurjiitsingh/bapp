@@ -10,11 +10,12 @@ type AdjustInventoryStockType = {
   inventoryItemId: string;
 
   transactionType:
-    | "PURCHASE"
-    | "OPENING"
-    | "ADJUSTMENT"
-    | "WASTAGE"
-    | "RETURN";
+     | "PURCHASE"
+  | "OPENING"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  | "SUPPLIER_RETURN"
+  | "CUSTOMER_RETURN";
 
   stockDirection:
     | "IN"

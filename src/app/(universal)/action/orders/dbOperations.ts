@@ -407,10 +407,11 @@ const orderMasterData: orderMasterDataT = {
     await addProductDraft(product, userId!, orderMasterId!);
   }
 
-  // =====================================================
+  // ===================================================
 // 9.5️⃣ PROCESS INVENTORY
 // =====================================================
 await processSaleInventory(
+  "kljkl",
   cartWithTax.map((item) => ({
     productId: item.id,
     quantity: item.quantity || 1,

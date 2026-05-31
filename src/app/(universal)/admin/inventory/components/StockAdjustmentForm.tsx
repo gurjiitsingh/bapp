@@ -24,19 +24,26 @@ type Props = {
 type FormType = {
   inventoryItemId: string;
 
-  transactionType:
-    | "PURCHASE"
-    | "OPENING"
-    | "ADJUSTMENT"
-    | "WASTAGE"
-    | "SUPPLIER_RETURN"
-    | "CUSTOMER_RETURN";
+ transactionType:
+  | "PURCHASE"
+  | "OPENING"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  | "SUPPLIER_RETURN"
+  | "CUSTOMER_RETURN";
 
   stockDirection:
-    | "IN"
-    | "OUT";
+  | "IN"
+  | "OUT";
 
   quantity: number;
+
+  transactionUnit:
+  | "pcs"
+  | "kg"
+  | "gm"
+  | "ltr"
+  | "ml";
 
   note: string;
 };
@@ -46,7 +53,7 @@ export default function StockAdjustmentForm({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
-   
+
 
   const [search, setSearch] =
     useState("");
@@ -73,6 +80,7 @@ export default function StockAdjustmentForm({
       transactionType: "PURCHASE",
       stockDirection: "IN",
       quantity: 0,
+      transactionUnit: "pcs",
       note: "",
     },
   });
@@ -80,6 +88,8 @@ export default function StockAdjustmentForm({
   const transactionType = watch(
     "transactionType"
   );
+
+  const transactionUnit = watch("transactionUnit");
 
   // =====================================================
   // AUTO SET STOCK DIRECTION
@@ -89,7 +99,7 @@ export default function StockAdjustmentForm({
     if (
       transactionType === "PURCHASE" ||
       transactionType === "OPENING" ||
-      transactionType === "RETURN"
+      transactionType === "CUSTOMER_RETURN"
     ) {
       setValue("stockDirection", "IN");
     }
@@ -104,21 +114,21 @@ export default function StockAdjustmentForm({
 
 
   React.useEffect(() => {
-  switch (transactionType) {
-    case "PURCHASE":
-    case "OPENING":
-    case "CUSTOMER_RETURN":
-      setValue("stockDirection", "IN");
-      break;
+    switch (transactionType) {
+      case "PURCHASE":
+      case "OPENING":
+      case "CUSTOMER_RETURN":
+        setValue("stockDirection", "IN");
+        break;
 
-    case "WASTAGE":
-    case "SUPPLIER_RETURN":
-      setValue("stockDirection", "OUT");
-      break;
+      case "WASTAGE":
+      case "SUPPLIER_RETURN":
+        setValue("stockDirection", "OUT");
+        break;
 
-    // ADJUSTMENT = manual selection
-  }
-}, [transactionType, setValue]);
+      // ADJUSTMENT = manual selection
+    }
+  }, [transactionType, setValue]);
 
   // =====================================================
   // FILTER INVENTORY
@@ -156,7 +166,24 @@ export default function StockAdjustmentForm({
       return;
     }
 
-    setIsSubmitting(true);
+
+
+
+
+    
+let finalQuantity = Number(data.quantity);
+
+if (
+  data.transactionUnit === "kg" ||
+  data.transactionUnit === "ltr" 
+ 
+) {
+  finalQuantity =
+    finalQuantity *
+    selectedInventory.conversionFactor;
+}
+
+setIsSubmitting(true);
 
     try {
       const result =
@@ -170,56 +197,50 @@ export default function StockAdjustmentForm({
           stockDirection:
             data.stockDirection,
 
-          quantity: Number(
-            data.quantity
-          ),
+          quantity: finalQuantity,
 
           note: data.note,
 
           createdBy: "admin",
         });
 
-if (result.success) {
-  // alert(
-  //   "Inventory updated successfully"
-  // );
+      if (result.success) {
+        // alert(
+        //   "Inventory updated successfully"
+        // );
 
-  // CALCULATE NEW LOCAL STOCK
-  let updatedStock =
-    selectedInventory.currentStock;
+        // CALCULATE NEW LOCAL STOCK
+        let updatedStock =
+          selectedInventory.currentStock;
 
-  if (
-    data.stockDirection === "IN"
-  ) {
-    updatedStock =
-      updatedStock +
-      Number(data.quantity);
-  } else {
-    updatedStock =
-      updatedStock -
-      Number(data.quantity);
-  }
-
-  // UPDATE LOCAL UI
-  setSelectedInventory({
-    ...selectedInventory,
-    currentStock: updatedStock,
-  });
-
-  // RESET ONLY SMALL FIELDS
-  reset({
-    transactionType: "PURCHASE",
-
-    stockDirection: "IN",
-
-    quantity: 0,
-
-    note: "",
-
-    inventoryItemId:
-      selectedInventory.id,
-  });
+      if (data.stockDirection === "IN") {
+  updatedStock =
+    updatedStock + finalQuantity;
 } else {
+  updatedStock =
+    updatedStock - finalQuantity;
+}
+
+        // UPDATE LOCAL UI
+        setSelectedInventory({
+          ...selectedInventory,
+          currentStock: updatedStock,
+        });
+
+        // RESET ONLY SMALL FIELDS
+        reset({
+          transactionType: "PURCHASE",
+
+          stockDirection: "IN",
+
+          quantity: 0,
+
+          note: "",
+
+          inventoryItemId:
+            selectedInventory.id,
+        });
+      } else {
         alert(
           result.message
         );
@@ -296,65 +317,54 @@ if (result.success) {
                   );
                 }}
                 placeholder="Search inventory item..."
-                className={`input-style-4 pr-4 ${
-                  !search.trim()
-                    ? "pl-12"
-                    : "pl-4"
-                }`}
+                className={`input-style-4 pr-4 ${!search.trim()
+                  ? "pl-12"
+                  : "pl-4"
+                  }`}
               />
 
               {/* DROPDOWN */}
 
               {showDropdown &&
                 filteredInventory.length >
-                  0 && (
+                0 && (
                   <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
-                    {filteredInventory.map(
-                      (item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedInventory(
-                              item
-                            );
+                    {filteredInventory.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedInventory(item);
 
-                            setValue(
-                              "inventoryItemId",
-                              item.id
-                            );
+                          setValue(
+                            "inventoryItemId",
+                            item.id
+                          );
 
-                            setSearch(
-                              item.name
-                            );
+                          // default transaction unit
+                          setValue(
+                            "transactionUnit",
+                            item.purchaseUnit
+                          );
 
-                            setShowDropdown(
-                              false
-                            );
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
-                        >
-                          <div className="font-medium text-gray-800">
-                            {
-                              item.name
-                            }
-                          </div>
+                          setSearch(item.name);
 
-                          <div className="text-xs text-gray-400">
-                            Current:
-                            {" "}
-                            {
-                              item.currentStock
-                            }
-                            {" "}
-                            {
-                              item.unit
-                            }
-                          </div>
-                        </button>
-                      )
-                    )}
+                          setShowDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                      >
+                        <div className="font-medium text-gray-800">
+                          {item.name}
+                        </div>
+
+                        <div className="text-xs text-gray-400">
+                          Current:{" "}
+                          {item.currentStock}{" "}
+                          {item.consumptionUnit}
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 )}
             </div>
@@ -395,15 +405,16 @@ if (result.success) {
                 </div>
               </div>
 
-              <div className="text-2xl font-bold text-blue-700">
-                {
-                  selectedInventory.currentStock
-                }
-                {" "}
-                {
-                  selectedInventory.unit
-                }
-              </div>
+    <div className="text-2xl font-bold text-blue-700">
+  {selectedInventory.purchaseUnit === "kg"
+    ? selectedInventory.currentStock /
+      selectedInventory.conversionFactor
+    : selectedInventory.purchaseUnit === "ltr"
+      ? selectedInventory.currentStock /
+        selectedInventory.conversionFactor
+      : selectedInventory.currentStock}{" "}
+  {selectedInventory.purchaseUnit}
+</div>
             </div>
           )}
 
@@ -418,76 +429,108 @@ if (result.success) {
                 Transaction Type
               </label>
 
-          <select
-  {...register("transactionType")}
-  className="input-style-4"
->
-  <option value="PURCHASE">
-    Purchase
-  </option>
+              <select
+                {...register("transactionType")}
+                className="input-style-4"
+              >
+                <option value="PURCHASE">
+                  Purchase
+                </option>
 
-  <option value="OPENING">
-    Opening Stock
-  </option>
+                <option value="OPENING">
+                  Opening Stock
+                </option>
 
-  <option value="CUSTOMER_RETURN">
-    Customer Return
-  </option>
+                <option value="CUSTOMER_RETURN">
+                  Customer Return
+                </option>
 
-  <option value="SUPPLIER_RETURN">
-    Supplier Return
-  </option>
+                <option value="SUPPLIER_RETURN">
+                  Supplier Return
+                </option>
 
-  <option value="WASTAGE">
-    Wastage
-  </option>
+                <option value="WASTAGE">
+                  Wastage
+                </option>
 
-  <option value="ADJUSTMENT">
-    Adjustment
-  </option>
-</select>
+                <option value="ADJUSTMENT">
+                  Adjustment
+                </option>
+              </select>
             </div>
 
-          {transactionType === "ADJUSTMENT" && (
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Stock Direction
-    </label>
+            {transactionType === "ADJUSTMENT" && (
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Stock Direction
+                </label>
 
-    <select
-      {...register("stockDirection")}
-      className="input-style-4"
-    >
-      <option value="IN">
-        Add Stock
-      </option>
+                <select
+                  {...register("stockDirection")}
+                  className="input-style-4"
+                >
+                  <option value="IN">
+                    Add Stock
+                  </option>
 
-      <option value="OUT">
-        Remove Stock
-      </option>
-    </select>
-  </div>
-)}
+                  <option value="OUT">
+                    Remove Stock
+                  </option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* ===================================================== */}
           {/* QUANTITY */}
           {/* ===================================================== */}
 
-          <div className="flex flex-col gap-2">
-            <label className="label-style-4">
-              Quantity
-            </label>
 
-            <input
-              type="number"
-              step="0.001"
-              {...register(
-                "quantity"
-              )}
-              className="input-style-4"
-              placeholder="0"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Quantity
+              </label>
+
+              <input
+                type="number"
+                step="0.001"
+                {...register("quantity")}
+                className="input-style-4"
+                placeholder="0"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit
+              </label>
+
+              <select
+                {...register("transactionUnit")}
+                className="input-style-4"
+              >
+                {selectedInventory?.purchaseUnit === "kg" && (
+                  <>
+                    <option value="kg">Kilogram (kg)</option>
+                    {/* <option value="gm">Gram (gm)</option> */}
+                  </>
+                )}
+
+                {selectedInventory?.purchaseUnit === "ltr" && (
+                  <>
+                    <option value="ltr">Liter (ltr)</option>
+                    {/* <option value="ml">Milliliter (ml)</option> */}
+                  </>
+                )}
+
+                {selectedInventory?.purchaseUnit === "pcs" && (
+                  <option value="pcs">Pieces (pcs)</option>
+                )}
+              </select>
+            </div>
+
           </div>
 
           {/* ===================================================== */}
@@ -523,7 +566,7 @@ if (result.success) {
               : "Save Stock Adjustment"}
           </Button>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

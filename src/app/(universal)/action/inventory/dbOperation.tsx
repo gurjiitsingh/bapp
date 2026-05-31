@@ -1,172 +1,251 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { InventoryItemType, newInventorySchema } from "@/lib/types/InventoryItemType";
+import { InventoryItemType, InventoryUnit, newInventorySchema } from "@/lib/types/InventoryItemType";
 import admin from "firebase-admin";
 
 
 import { revalidatePath, revalidateTag } from "next/cache";
 
+
+
 export async function addNewInventoryItem(
   formData: FormData
 ) {
-  console.log("inventory save-------------");
+  console.log(
+    "inventory save-------------",
+    formData
+  );
 
   try {
     // FORM VALUES
-    const name = formData.get("name") as string;
+    const name =
+      (formData.get("name") as string)?.trim() ||
+      "";
 
-    const sku = formData.get("sku") as string | null;
+    const cleanedSku =
+      (
+        formData.get("sku") as string | null
+      )?.trim() || "";
 
-    const barcode = formData.get("barcode") as string | null;
+    const cleanedBarcode =
+      (
+        formData.get(
+          "barcode"
+        ) as string | null
+      )?.trim() || "";
 
     const purchaseUnit = formData.get(
       "purchaseUnit"
-    ) as
-      | "pcs"
-      | "kg"
-      | "gm"
-      | "ltr"
-      | "ml";
+    ) as InventoryUnit;
 
     const consumptionUnit = formData.get(
       "consumptionUnit"
-    ) as
-      | "pcs"
-      | "kg"
-      | "gm"
-      | "ltr"
-      | "ml";
-
-    const conversionFactorRaw =
-      formData.get(
-        "conversionFactor"
-      ) as string | null;
+    ) as InventoryUnit;
 
     const conversionFactor =
-      conversionFactorRaw
-        ? parseFloat(
-          conversionFactorRaw
-        )
-        : 1;
+      Number(
+        formData.get("conversionFactor")
+      ) || 1;
 
-    const currentStockRaw = formData.get(
-      "currentStock"
-    ) as string | null;
+    let currentStock =
+      Number(
+        formData.get("currentStock")
+      ) || 0;
 
-    const minStockRaw = formData.get(
-      "minStock"
-    ) as string | null;
+    const minStock =
+      Number(
+        formData.get("minStock")
+      ) || 0;
 
-    const costPriceRaw = formData.get(
-      "costPrice"
-    ) as string | null;
+    const costPrice =
+      Number(
+        formData.get("costPrice")
+      ) || 0;
 
-    const sellingPriceRaw = formData.get(
-      "sellingPrice"
-    ) as string | null;
+    const sellingPrice =
+      Number(
+        formData.get("sellingPrice")
+      ) || 0;
 
-    const categoryId = formData.get(
-      "categoryId"
-    ) as string | null;
+    const categoryId =
+      (
+        formData.get(
+          "categoryId"
+        ) as string | null
+      ) || "";
 
-    const supplierId = formData.get(
-      "supplierId"
-    ) as string | null;
+    const supplierId =
+      (
+        formData.get(
+          "supplierId"
+        ) as string | null
+      ) || "";
 
     const isActive =
       formData.get("isActive") === "true";
 
-    // SAFE NUMBER CONVERSION
-    const currentStock = currentStockRaw
-      ? parseFloat(currentStockRaw)
-      : 0;
-
-    const minStock = minStockRaw
-      ? parseFloat(minStockRaw)
-      : 0;
-
-    const costPrice = costPriceRaw
-      ? parseFloat(costPriceRaw)
-      : 0;
-
-    const sellingPrice = sellingPriceRaw
-      ? parseFloat(sellingPriceRaw)
-      : 0;
+    // STORE STOCK IN CONSUMPTION UNIT
+    if (
+      purchaseUnit !== consumptionUnit &&
+      conversionFactor > 0
+    ) {
+      currentStock =
+        currentStock * conversionFactor;
+    }
 
     // VALIDATION OBJECT
     const receivedData = {
       name,
-      sku: sku || "",
-      barcode: barcode || "",
+      sku: cleanedSku,
+      barcode: cleanedBarcode,
+
       purchaseUnit,
       consumptionUnit,
       conversionFactor,
+
       currentStock,
       minStock,
+
       costPrice,
       sellingPrice,
-      categoryId: categoryId || "",
-      supplierId: supplierId || "",
+
+      categoryId,
+      supplierId,
+
       isActive,
     };
 
     // ZOD VALIDATION
     const result =
-      newInventorySchema.safeParse(receivedData);
+      newInventorySchema.safeParse(
+        receivedData
+      );
 
     if (!result.success) {
-      const zodErrors: Record<string, string> = {};
+      const zodErrors: Record<
+        string,
+        string
+      > = {};
 
-      result.error.issues.forEach((issue) => {
-        zodErrors[issue.path[0]] =
-          issue.message;
-      });
+      result.error.issues.forEach(
+        (issue) => {
+          zodErrors[
+            issue.path[0] as string
+          ] = issue.message;
+        }
+      );
 
       return {
         errors: zodErrors,
       };
     }
 
+    // NORMALIZED NAME
+    const normalizedName =
+      name.toLowerCase();
+
+    // DUPLICATE SKU CHECK
+    if (cleanedSku) {
+      const skuCheck =
+        await adminDb
+          .collection(
+            "inventoryItems"
+          )
+          .where(
+            "sku",
+            "==",
+            cleanedSku
+          )
+          .limit(1)
+          .get();
+
+      if (!skuCheck.empty) {
+        return {
+          errors: {
+            sku: "SKU already exists",
+          },
+        };
+      }
+    }
+
+    // DUPLICATE BARCODE CHECK
+    if (cleanedBarcode) {
+      const barcodeCheck =
+        await adminDb
+          .collection(
+            "inventoryItems"
+          )
+          .where(
+            "barcode",
+            "==",
+            cleanedBarcode
+          )
+          .limit(1)
+          .get();
+
+      if (!barcodeCheck.empty) {
+        return {
+          errors: {
+            barcode:
+              "Barcode already exists",
+          },
+        };
+      }
+    }
+
+    // DUPLICATE NAME CHECK
+    const existingItem =
+      await adminDb
+        .collection("inventoryItems")
+        .where(
+          "nameLower",
+          "==",
+          normalizedName
+        )
+        .limit(1)
+        .get();
+
+    if (!existingItem.empty) {
+      return {
+        errors: {
+          name:
+            "Inventory item already exists",
+        },
+      };
+    }
+
     // FIRESTORE DATA
     const data = {
-  name,
+      name,
+      nameLower: normalizedName,
 
-  sku: sku || "",
+      sku: cleanedSku,
+      barcode: cleanedBarcode,
 
-  barcode: barcode || "",
+      purchaseUnit,
+      consumptionUnit,
+      conversionFactor,
 
-  purchaseUnit,
+      currentStock,
+      minStock,
 
-  consumptionUnit,
+      costPrice,
+      sellingPrice,
 
-  conversionFactor,
+      categoryId,
+      supplierId,
 
-  currentStock,
+      isActive,
 
-  minStock,
+      createdAt:
+        admin.firestore.FieldValue.serverTimestamp(),
 
-  costPrice,
+      updatedAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+    };
 
-  sellingPrice,
-
-  categoryId: categoryId || "",
-
-  supplierId: supplierId || "",
-
-  isActive,
-
-  createdAt:
-    admin.firestore.FieldValue.serverTimestamp(),
-
-  updatedAt:
-    admin.firestore.FieldValue.serverTimestamp(),
-};
-
-    console.log(
-      "inventory data-------------",
-      data
-    );
+ 
 
     // SAVE TO FIRESTORE
     const docRef = await adminDb
@@ -174,18 +253,23 @@ export async function addNewInventoryItem(
       .add(data);
 
     // REVALIDATE
-    revalidateTag("inventory-items", "max");
+    revalidateTag(
+      "inventory-items",
+      "max"
+    );
 
-    revalidatePath("/admin/inventory");
+    revalidatePath(
+      "/admin/inventory"
+    );
 
-    revalidatePath("/admin/inventory/form");
+    revalidatePath(
+      "/admin/inventory/form"
+    );
 
     return {
       success: true,
-
       message:
         "Inventory item saved successfully",
-
       id: docRef.id,
     };
   } catch (error) {
@@ -204,7 +288,6 @@ export async function addNewInventoryItem(
 }
 
 
-
 import { cache } from "react";
 
 // FETCH ALL INVENTORY ITEMS
@@ -220,51 +303,53 @@ export const fetchInventoryItems = cache(
         snapshot.docs.map((doc) => {
           const data = doc.data();
 
-        return {
-  id: doc.id,
+          return {
+            id: doc.id,
 
-  name: data.name || "",
+            name: data.name || "",
 
-  sku: data.sku || "",
+            sku: data.sku || "",
 
-  barcode: data.barcode || "",
+            barcode: data.barcode || "",
 
-  purchaseUnit:
-    data.purchaseUnit || "pcs",
+            purchaseUnit:
+              data.purchaseUnit || "pcs",
 
-  consumptionUnit:
-    data.consumptionUnit || "pcs",
+            consumptionUnit:
+              data.consumptionUnit || "pcs",
 
-  conversionFactor:
-    data.conversionFactor || 1,
+            conversionFactor:
+              data.conversionFactor || 1,
 
-  currentStock:
-    data.currentStock || 0,
+            currentStock:
+              data.currentStock || 0,
 
-  minStock:
-    data.minStock || 0,
+            minStock:
+              data.minStock || 0,
 
-  costPrice:
-    data.costPrice || 0,
+            costPrice:
+              data.costPrice || 0,
 
-  sellingPrice:
-    data.sellingPrice || 0,
+            sellingPrice:
+              data.sellingPrice || 0,
 
-  categoryId:
-    data.categoryId || "",
+            categoryId:
+              data.categoryId || "",
 
-  supplierId:
-    data.supplierId || "",
+            supplierId:
+              data.supplierId || "",
 
-  isActive:
-    data.isActive ?? true,
+            isActive:
+              data.isActive ?? true,
 
-  createdAt:
-    data.createdAt,
+            createdAt:
+              data.createdAt?.toDate?.().toISOString() ||
+              null,
 
-  updatedAt:
-    data.updatedAt,
-};
+            updatedAt:
+              data.updatedAt?.toDate?.().toISOString() ||
+              null,
+          };
         }) as InventoryItemType[];
 
       return inventoryItems;
@@ -281,10 +366,394 @@ export const fetchInventoryItems = cache(
 
 
 
+
+
+export async function deleteInventoryItem(
+  id: string
+) {
+  try {
+    // ==========================
+    // CHECK RECIPES
+    // ==========================
+
+    const recipeSnapshot =
+      await adminDb
+        .collection("productRecipes")
+        .where(
+          "inventoryItemId",
+          "==",
+          id
+        )
+        .limit(1)
+        .get();
+
+    if (!recipeSnapshot.empty) {
+      return {
+        success: false,
+        message:
+          "Inventory item is used in recipes. Remove recipes first.",
+      };
+    }
+
+    // ==========================
+    // CHECK TRANSACTIONS
+    // ==========================
+
+    const transactionSnapshot =
+      await adminDb
+        .collection(
+          "inventoryTransactions"
+        )
+        .where(
+          "inventoryItemId",
+          "==",
+          id
+        )
+        .limit(1)
+        .get();
+
+    if (
+      !transactionSnapshot.empty
+    ) {
+      return {
+        success: false,
+        message:
+          "Inventory item has transaction history and cannot be deleted.",
+      };
+    }
+
+    // ==========================
+    // DELETE INVENTORY
+    // ==========================
+
+    await adminDb
+      .collection("inventoryItems")
+      .doc(id)
+      .delete();
+
+    // ==========================
+    // REVALIDATE
+    // ==========================
+
+    revalidateTag(
+      "inventory-items",
+      "max"
+    );
+
+    revalidatePath(
+      "/admin/inventory"
+    );
+
+    revalidatePath(
+      "/admin/inventory/form"
+    );
+
+    revalidatePath(
+      "/admin/inventory/editform"
+    );
+
+    return {
+      success: true,
+      message:
+        "Inventory item deleted successfully",
+    };
+  } catch (error) {
+    console.error(
+      "❌ Error deleting inventory item:",
+      error
+    );
+
+    return {
+      success: false,
+      message:
+        "Failed to delete inventory item",
+    };
+  }
+}
+
+
+
+export async function updateInventoryItem(
+  id: string,
+  formData: FormData
+) {
+  try {
+    const name =
+      (formData.get("name") as string)?.trim() ||
+      "";
+
+    const cleanedSku =
+      (
+        formData.get("sku") as string | null
+      )?.trim() || "";
+
+    const cleanedBarcode =
+      (
+        formData.get(
+          "barcode"
+        ) as string | null
+      )?.trim() || "";
+
+    const purchaseUnit = formData.get(
+      "purchaseUnit"
+    ) as InventoryUnit;
+
+    const consumptionUnit = formData.get(
+      "consumptionUnit"
+    ) as InventoryUnit;
+
+    const conversionFactor =
+      Number(
+        formData.get("conversionFactor")
+      ) || 1;
+
+    let currentStock =
+      Number(
+        formData.get("currentStock")
+      ) || 0;
+
+    const minStock =
+      Number(
+        formData.get("minStock")
+      ) || 0;
+
+    const costPrice =
+      Number(
+        formData.get("costPrice")
+      ) || 0;
+
+    const sellingPrice =
+      Number(
+        formData.get("sellingPrice")
+      ) || 0;
+
+    const categoryId =
+      (
+        formData.get(
+          "categoryId"
+        ) as string | null
+      ) || "";
+
+    const supplierId =
+      (
+        formData.get(
+          "supplierId"
+        ) as string | null
+      ) || "";
+
+    const isActive =
+      formData.get("isActive") === "true";
+
+    // STORE STOCK IN CONSUMPTION UNIT
+    if (
+      purchaseUnit !== consumptionUnit &&
+      conversionFactor > 0
+    ) {
+      currentStock =
+        currentStock * conversionFactor;
+    }
+
+    // VALIDATION
+    const receivedData = {
+      name,
+      sku: cleanedSku,
+      barcode: cleanedBarcode,
+
+      purchaseUnit,
+      consumptionUnit,
+      conversionFactor,
+
+      currentStock,
+      minStock,
+
+      costPrice,
+      sellingPrice,
+
+      categoryId,
+      supplierId,
+
+      isActive,
+    };
+
+    const result =
+      newInventorySchema.safeParse(
+        receivedData
+      );
+
+    if (!result.success) {
+      const zodErrors: Record<
+        string,
+        string
+      > = {};
+
+      result.error.issues.forEach(
+        (issue) => {
+          zodErrors[
+            issue.path[0] as string
+          ] = issue.message;
+        }
+      );
+
+      return {
+        errors: zodErrors,
+      };
+    }
+
+    const normalizedName =
+      name.toLowerCase();
+
+    // DUPLICATE NAME CHECK
+    const nameCheck =
+      await adminDb
+        .collection("inventoryItems")
+        .where(
+          "nameLower",
+          "==",
+          normalizedName
+        )
+        .get();
+
+    const duplicateName =
+      nameCheck.docs.find(
+        (doc) => doc.id !== id
+      );
+
+    if (duplicateName) {
+      return {
+        errors: {
+          name:
+            "Inventory item already exists",
+        },
+      };
+    }
+
+    // DUPLICATE SKU CHECK
+    if (cleanedSku) {
+      const skuCheck =
+        await adminDb
+          .collection(
+            "inventoryItems"
+          )
+          .where(
+            "sku",
+            "==",
+            cleanedSku
+          )
+          .get();
+
+      const duplicateSku =
+        skuCheck.docs.find(
+          (doc) => doc.id !== id
+        );
+
+      if (duplicateSku) {
+        return {
+          errors: {
+            sku: "SKU already exists",
+          },
+        };
+      }
+    }
+
+    // DUPLICATE BARCODE CHECK
+    if (cleanedBarcode) {
+      const barcodeCheck =
+        await adminDb
+          .collection(
+            "inventoryItems"
+          )
+          .where(
+            "barcode",
+            "==",
+            cleanedBarcode
+          )
+          .get();
+
+      const duplicateBarcode =
+        barcodeCheck.docs.find(
+          (doc) => doc.id !== id
+        );
+
+      if (duplicateBarcode) {
+        return {
+          errors: {
+            barcode:
+              "Barcode already exists",
+          },
+        };
+      }
+    }
+
+    const data = {
+      name,
+      nameLower: normalizedName,
+
+      sku: cleanedSku,
+      barcode: cleanedBarcode,
+
+      purchaseUnit,
+      consumptionUnit,
+      conversionFactor,
+
+      currentStock,
+      minStock,
+
+      costPrice,
+      sellingPrice,
+
+      categoryId,
+      supplierId,
+
+      isActive,
+
+      updatedAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    await adminDb
+      .collection("inventoryItems")
+      .doc(id)
+      .update(data);
+
+    revalidateTag(
+      "inventory-items",
+      "max"
+    );
+
+    revalidatePath(
+      "/admin/inventory"
+    );
+
+    revalidatePath(
+      "/admin/inventory/editform"
+    );
+
+    return {
+      success: true,
+      message:
+        "Inventory updated successfully",
+    };
+  } catch (error) {
+    console.error(
+      "❌ Inventory update failed:",
+      error
+    );
+
+    return {
+      success: false,
+      message:
+        "Failed to update inventory",
+    };
+  }
+}
+
+
 // FETCH SINGLE INVENTORY ITEM
 export async function fetchInventoryItemById(
   id: string
 ): Promise<InventoryItemType | null> {
+
+  console.log("id----------------",id)
   try {
     const docRef = await adminDb
       .collection("inventoryItems")
@@ -299,6 +768,46 @@ export async function fetchInventoryItemById(
       id: docRef.id,
       ...docRef.data(),
     } as InventoryItemType;
+  } catch (error) {
+    console.error(
+      "❌ Error fetching inventory item:",
+      error
+    );
+
+    return null;
+  }
+}
+
+
+
+export async function getInventoryItemById(
+  id: string
+): Promise<InventoryItemType | null> {
+  try {
+    const docRef = await adminDb
+      .collection("inventoryItems")
+      .doc(id)
+      .get();
+
+    if (!docRef.exists) {
+      return null;
+    }
+
+    const data = docRef.data();
+
+    return {
+      id: docRef.id,
+
+      ...data,
+
+      createdAt: data?.createdAt
+        ? data.createdAt.toMillis()
+        : null,
+
+      updatedAt: data?.updatedAt
+        ? data.updatedAt.toMillis()
+        : null,
+    } as any;
   } catch (error) {
     console.error(
       "❌ Error fetching inventory item:",

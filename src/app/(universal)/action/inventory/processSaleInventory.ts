@@ -13,11 +13,11 @@ type OrderItemType = {
 };
 
 export async function processSaleInventory(
-  orderId,
+  orderId: string,
   orderItems: OrderItemType[]
 ) {
   console.log(
-    "processSaleInventory-------------"
+    "processSaleInventory-------------",
   );
 
   try {
@@ -78,6 +78,15 @@ export async function processSaleInventory(
           const deductQty =
             recipeQty * soldQty;
 
+            console.log("it---------------",{
+  product: productData?.name,
+  inventoryItemId,
+  recipeQty,
+  soldQty,
+  deductQty,
+});
+
+
           // GET INVENTORY ITEM
           const inventoryRef =
             adminDb
@@ -88,141 +97,116 @@ export async function processSaleInventory(
 
 
 
-// start replace
-await adminDb.runTransaction(
-  async (transaction) => {
-    // ===============================
-    // GET INVENTORY INSIDE TRANSACTION
-    // ===============================
+          // start replace
+          await adminDb.runTransaction(
+            async (transaction) => {
+              // ===============================
+              // GET INVENTORY INSIDE TRANSACTION
+              // ===============================
 
-    const inventoryDoc =
-      await transaction.get(
-        inventoryRef
-      );
+              const inventoryDoc =
+                await transaction.get(
+                  inventoryRef
+                );
 
-    if (!inventoryDoc.exists) {
-      console.log(
-        "❌ Inventory item missing:",
-        inventoryItemId
-      );
+              if (!inventoryDoc.exists) {
+                console.log(
+                  "❌ Inventory item missing:",
+                  inventoryItemId
+                );
 
-      return;
-    }
+                return;
+              }
 
-    const inventoryData =
-      inventoryDoc.data();
+              const inventoryData =
+                inventoryDoc.data();
 
-    const previousStock =
-      Number(
-        inventoryData?.currentStock
-      ) || 0;
+              const previousStock =
+                Number(
+                  inventoryData?.currentStock
+                ) || 0;
 
-    // ===============================
-    // NEGATIVE STOCK CHECK
-    // ===============================
+              // ===============================
+              // NEGATIVE STOCK CHECK
+              // ===============================
 
-    const allowNegativeStock =
-      productData?.allowNegativeStock ??
-      false;
+              const allowNegativeStock =
+                productData?.allowNegativeStock ??
+                false;
 
-    const newStock =
-      previousStock - deductQty;
+              const newStock =
+                previousStock - deductQty;
 
-    if (
-      newStock < 0 &&
-      !allowNegativeStock
-    ) {
-      console.log(
-        `❌ Not enough stock for ${inventoryData?.name}`
-      );
+              if (
+                newStock < 0 &&
+                !allowNegativeStock
+              ) {
+                console.log(
+                  `❌ Not enough stock for ${inventoryData?.name}`
+                );
 
-      return;
-    }
+                return;
+              }
 
-    // ===============================
-    // UPDATE STOCK
-    // ===============================
+              // ===============================
+              // UPDATE STOCK
+              // ===============================
 
-    transaction.update(
-      inventoryRef,
-      {
-        currentStock: newStock,
+              transaction.update(
+                inventoryRef,
+                {
+                  currentStock: newStock,
 
-        updatedAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      }
-    );
+                  updatedAt:
+                    admin.firestore.FieldValue.serverTimestamp(),
+                }
+              );
 
-    // ===============================
-    // CREATE TRANSACTION LOG
-    // ===============================
+              // ===============================
+              // CREATE TRANSACTION LOG
+              // ===============================
 
-    const transactionRef =
-      adminDb
-        .collection(
-          "inventoryTransactions"
-        )
-        .doc();
+              const transactionRef =
+                adminDb
+                  .collection(
+                    "inventoryTransactions"
+                  )
+                  .doc();
 
-    transaction.set(
-      transactionRef,
-      {
-        inventoryItemId,
+              transaction.set(
+                transactionRef,
+                {
+                  inventoryItemId,
 
-        inventoryItemName:
-          inventoryData?.name || "",
+                  inventoryItemName:
+                    inventoryData?.name || "",
 
-        type: "sale",
+                  type: "sale",
 
-        quantity: deductQty,
+                  quantity: deductQty,
 
-        previousStock,
+                  previousStock,
 
-        newStock,
+                  newStock,
 
-        note: `Auto deducted from product sale (${productData?.name})`,
+                  note: `Auto deducted from product sale (${productData?.name})`,
 
-        referenceId: orderId,
+                  referenceId: orderId,
 
-        referenceType: "order",
+                  referenceType: "order",
 
-        createdBy: "system",
+                  createdBy: "system",
 
-        createdAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      }
-    );
-  }
-);
+                  createdAt:
+                    admin.firestore.FieldValue.serverTimestamp(),
+                }
+              );
+            }
+          );
 
           //end of replaced code
 
 
-          
-          // await adminDb
-          //   .collection(
-          //     "inventoryTransactions"
-          //   )
-          //   .add({
-          //     inventoryItemId,
-
-          //     inventoryItemName:
-          //       inventoryData?.name || "",
-
-          //     type: "sale",
-
-          //     quantity: deductQty,
-
-          //     previousStock,
-
-          //     newStock,
-
-          //     note: `Auto deducted from product sale (${productData?.name})`,
-
-          //     createdBy: "system",
-
-          //     admin.firestore.FieldValue.serverTimestamp(),
-          //   });
 
           // console.log(
           //   `✅ Deducted ${deductQty} from ${inventoryData?.name}`

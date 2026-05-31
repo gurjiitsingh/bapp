@@ -12,6 +12,8 @@ export default async function Page() {
   const inventoryItems =
     await fetchInventoryItems();
 
+    console.log("inventoryItems----------", inventoryItems)
+
   return (
     <StockAdjustmentForm
       inventoryItems={inventoryItems}

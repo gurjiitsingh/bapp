@@ -26,12 +26,31 @@ import {
   Package2,
 } from "lucide-react";
 
-
+import { deleteInventoryItem } from "@/app/(universal)/action/inventory/dbOperation";
 
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
+
+
+function displayStock(item: InventoryItemType, value: number) {
+  if (
+    item.purchaseUnit === "kg" &&
+    item.consumptionUnit === "gm"
+  ) {
+    return value / item.conversionFactor;
+  }
+
+  if (
+    item.purchaseUnit === "ltr" &&
+    item.consumptionUnit === "ml"
+  ) {
+    return value / item.conversionFactor;
+  }
+
+  return value;
+}
 
 function TableRows({
   item,
@@ -50,25 +69,20 @@ function TableRows({
   const isLowStock =
     item.currentStock <= item.minStock;
 
-  async function handleDelete() {
-    const confirmDelete = confirm(
-      "Do you want to delete this inventory item?"
-    );
+async function handleDelete() {
+  const confirmDelete = confirm(
+    `Delete "${item.name}" ?`
+  );
 
-    if (!confirmDelete) return;
+  if (!confirmDelete) return;
 
-    try {
-      // ADD DELETE ACTION LATER
-      console.log("Delete:", item.id);
+  const result =
+    await deleteInventoryItem(item.id);
 
-      alert(
-        "Delete action not connected yet"
-      );
-    } catch (error) {
-      console.error(error);
-    }
+  if (!result.success) {
+    alert(result.message);
   }
-
+}
   return (
     <TableRow className="hover:bg-rose-50/40 transition-all border-b border-gray-100">
       {/* ITEM */}
@@ -117,7 +131,7 @@ function TableRows({
       {/* UNIT */}
       <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
-          {item.unit}
+          {item.purchaseUnit}
         </span>
       </TableCell>
 
@@ -131,7 +145,10 @@ function TableRows({
                 : "text-gray-800"
             }`}
           >
-            {item.currentStock}
+          {displayStock(
+  item,
+  item.currentStock
+)}
           </span>
 
           <span className="text-xs text-gray-400">
@@ -193,22 +210,16 @@ function TableRows({
       <TableCell className="text-right pr-5">
         <div className="flex items-center justify-end gap-2">
           {/* EDIT */}
-          <Link
-            href={{
-              pathname:
-                "/admin/inventory/editform",
-              query: {
-                id: item.id,
-              },
-            }}
-          >
-            <Button
-              size="sm"
-              className="h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-            >
-              <CiEdit size={18} />
-            </Button>
-          </Link>
+     <Link
+  href={`/admin/inventory/${item.id}`}
+>
+  <Button
+    size="sm"
+    className="h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+  >
+    <CiEdit size={18} />
+  </Button>
+</Link>
 
           {/* DELETE */}
           <Button

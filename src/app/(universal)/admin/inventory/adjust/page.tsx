@@ -308,7 +308,9 @@ export default function StockAdjustmentForm({
                             }
                             {" "}
                             {
-                              item.unit
+                              item.purchaseUnit
+// consumptionUnit
+// conversionFactor
                             }
                           </div>
                         </button>
@@ -360,7 +362,9 @@ export default function StockAdjustmentForm({
                 }
                 {" "}
                 {
-                  selectedInventory.unit
+                  selectedInventory.purchaseUnit
+// consumptionUnit
+// conversionFactor
                 }
               </div>
             </div>
