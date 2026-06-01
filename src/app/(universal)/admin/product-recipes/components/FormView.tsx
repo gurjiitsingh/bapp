@@ -31,7 +31,9 @@ import { ProductType } from "@/lib/types/productType";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
-
+import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
+import { MdDeleteForever } from "react-icons/md";
+deleteProductRecipe
 type Props = {
   products: ProductType[];
   inventoryItems: InventoryItemType[];
@@ -321,13 +323,13 @@ export default function FormView({
             </div>
 
             <div>
-             <h1 className="text-2xl font-bold text-gray-800">
-  Product Recipes
-</h1>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Product Recipes
+              </h1>
 
-<p className="text-sm text-gray-500">
-  Define inventory consumption for products
-</p>
+              <p className="text-sm text-gray-500">
+                Define inventory consumption for products
+              </p>
             </div>
           </div>
 
@@ -363,11 +365,10 @@ export default function FormView({
                 }
               }}
               placeholder="Search product..."
-              className={`input-style-4 pr-4 ${
-                !productSearch.trim()
+              className={`input-style-4 pr-4 ${!productSearch.trim()
                   ? "pl-12"
                   : "pl-4"
-              }`}
+                }`}
             />
 
             {showProducts &&
@@ -376,7 +377,7 @@ export default function FormView({
                 <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
                   {filteredProducts.length >
-                  0 ? (
+                    0 ? (
                     filteredProducts.map(
                       (product) => (
                         <button
@@ -436,9 +437,9 @@ export default function FormView({
               <div className="flex items-center justify-between">
 
                 <div>
-                <h2 className="text-xl font-bold text-gray-800">
-  Recipe Components
-</h2>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Recipe Components
+                  </h2>
 
                   <p className="text-sm text-gray-500">
                     {selectedProduct
@@ -452,7 +453,7 @@ export default function FormView({
                     {
                       currentRecipes.length
                     }{" "}
-                  Component
+                    Component
                   </div>
                 )}
               </div>
@@ -493,35 +494,57 @@ export default function FormView({
                         <th className="text-left py-3 text-sm font-semibold text-gray-600">
                           Unit
                         </th>
+                        <th className="text-right py-3 text-sm font-semibold text-gray-600">
+                          Action
+                        </th>
                       </tr>
                     </thead>
 
-                    <tbody>
-                      {currentRecipes.map(
-                        (recipe) => (
-                          <tr
-                            key={recipe.id}
-                            className="border-b border-gray-50 hover:bg-gray-50"
-                          >
-                            <td className="py-4 font-medium text-gray-800">
-                              {
-                                recipe.inventoryItemName
-                              }
-                            </td>
+                   <tbody>
+  {currentRecipes.map((recipe) => (
+    <tr
+      key={recipe.id}
+      className="border-b border-gray-50 hover:bg-gray-50"
+    >
+      <td className="py-4 font-medium text-gray-800">
+        {recipe.inventoryItemName}
+      </td>
 
-                            <td className="py-4 text-gray-600">
-                              {
-                                recipe.quantity
-                              }
-                            </td>
+      <td className="py-4 text-gray-600">
+        {recipe.quantity}
+      </td>
 
-                            <td className="py-4 text-gray-600">
-                              {recipe.unit}
-                            </td>
-                          </tr>
-                        )
-                      )}
-                    </tbody>
+      <td className="py-4 text-gray-600">
+        {recipe.unit}
+      </td>
+
+      {/* ✅ NEW DELETE BUTTON */}
+      <td className="py-4 text-right">
+        <button
+          type="button"
+          onClick={async () => {
+            if (!confirm("Delete this item?")) return;
+
+            const res = await deleteProductRecipe(recipe.id);
+
+            if (!res?.errors) {
+              // ✅ remove locally (no refresh needed)
+              const updated = currentRecipes.filter(
+                (r) => r.id !== recipe.id
+              );
+
+              // hack: force refresh via state
+              setSelectedProduct({ ...selectedProduct! });
+            }
+          }}
+          className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
+        >
+            <MdDeleteForever size={18} />
+        </button>
+      </td>
+    </tr>
+  ))}
+</tbody>
                   </table>
 
                 </div>
@@ -535,7 +558,7 @@ export default function FormView({
 
             <div className="border-b border-gray-100 px-6 py-5">
               <h2 className="text-xl font-bold text-gray-800">
-                 Add Component
+                Add Component
               </h2>
 
               <p className="text-sm text-gray-500">
@@ -599,15 +622,13 @@ export default function FormView({
                       }
                     }}
                     placeholder="Search inventory item..."
-                    className={`input-style-4 pr-4 ${
-                      !inventorySearch.trim()
+                    className={`input-style-4 pr-4 ${!inventorySearch.trim()
                         ? "pl-12"
                         : "pl-4"
-                    } ${
-                      !selectedProduct
+                      } ${!selectedProduct
                         ? "opacity-60 cursor-not-allowed"
                         : ""
-                    }`}
+                      }`}
                   />
 
                   <input
@@ -623,7 +644,7 @@ export default function FormView({
                       <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
                         {filteredInventory.length >
-                        0 ? (
+                          0 ? (
                           filteredInventory.map(
                             (item) => (
                               <button

@@ -1,0 +1,602 @@
+
+"use client";
+
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import { useForm } from "react-hook-form";
+
+import { Search, Package2 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
+import { SupplierType } from "@/lib/types/SupplierType";
+
+import {
+  InventoryItemType,
+  InventoryUnit,
+} from "@/lib/types/InventoryItemType";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+
+
+ 
+type FormType = {
+  inventoryItemId: string;
+supplierId?: string;
+
+  transactionType:InventoryTransactionNameType;
+
+
+  stockDirection:
+  | "IN"
+  | "OUT";
+
+  quantity: number;
+
+  transactionUnit: InventoryUnit;
+
+  note: string;
+};
+
+type Props = {
+  inventoryItems: InventoryItemType[];
+  supplierMap: Record<string, SupplierType[]>;
+};
+
+
+export default function StockPurchaseForm({
+  inventoryItems,
+   supplierMap 
+}: Props) {
+
+
+
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+  const [search, setSearch] =
+    useState("");
+
+  const [showDropdown, setShowDropdown] =
+    useState(false);
+
+  const [
+    selectedInventory,
+    setSelectedInventory,
+  ] =
+    useState<InventoryItemType | null>(
+      null
+    );
+
+  const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];  
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+  } = useForm<FormType>({
+    defaultValues: {
+      transactionType: "PURCHASE",
+      stockDirection: "IN",
+      quantity: 0,
+      transactionUnit: "pcs",
+      note: "",
+    },
+  });
+
+  const transactionType = watch(
+    "transactionType"
+  );
+
+  const transactionUnit = watch("transactionUnit");
+
+  // =====================================================
+  // AUTO SET STOCK DIRECTION
+  // =====================================================
+
+  React.useEffect(() => {
+    if (
+      transactionType === "PURCHASE" ||
+      transactionType === "OPENING" ||
+      transactionType === "CUSTOMER_RETURN"
+    ) {
+      setValue("stockDirection", "IN");
+    }
+
+    if (
+      transactionType === "WASTAGE"
+    ) {
+      setValue("stockDirection", "OUT");
+    }
+  }, [transactionType, setValue]);
+
+
+
+  React.useEffect(() => {
+    switch (transactionType) {
+      case "PURCHASE":
+      case "OPENING":
+      case "CUSTOMER_RETURN":
+        setValue("stockDirection", "IN");
+        break;
+
+      case "WASTAGE":
+      case "SUPPLIER_RETURN":
+        setValue("stockDirection", "OUT");
+        break;
+
+      // ADJUSTMENT = manual selection
+    }
+  }, [transactionType, setValue]);
+
+  // =====================================================
+  // FILTER INVENTORY
+  // =====================================================
+
+  const filteredInventory =
+    useMemo(() => {
+      if (!search.trim()) return [];
+
+      return inventoryItems
+        .filter((item) =>
+          item.name
+            ?.toLowerCase()
+            .includes(
+              search
+                .trim()
+                .toLowerCase()
+            )
+        )
+        .slice(0, 20);
+    }, [search, inventoryItems]);
+
+  // =====================================================
+  // SUBMIT
+  // =====================================================
+
+  async function onSubmit(
+    data: FormType
+  ) {
+    if (!selectedInventory) {
+      alert(
+        "Please select inventory item"
+      );
+
+      return;
+    }
+
+
+
+
+
+
+    let finalQuantity = Number(data.quantity);
+
+    if (
+      data.transactionUnit === "kg" ||
+      data.transactionUnit === "ltr"
+
+    ) {
+      finalQuantity =
+        finalQuantity *
+        selectedInventory.conversionFactor;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result =
+        await adjustInventoryStock({
+          inventoryItemId:
+            data.inventoryItemId,
+
+            supplierId: data.supplierId,
+
+          transactionType:
+            data.transactionType,
+
+          stockDirection:
+            data.stockDirection,
+
+          quantity: finalQuantity,
+
+          note: data.note,
+
+          createdBy: "admin",
+        });
+
+      if (result.success) {
+        // alert(
+        //   "Inventory updated successfully"
+        // );
+
+        // CALCULATE NEW LOCAL STOCK
+        let updatedStock =
+          selectedInventory.currentStock;
+
+        if (data.stockDirection === "IN") {
+          updatedStock =
+            updatedStock + finalQuantity;
+        } else {
+          updatedStock =
+            updatedStock - finalQuantity;
+        }
+
+        // UPDATE LOCAL UI
+        setSelectedInventory({
+          ...selectedInventory,
+          currentStock: updatedStock,
+        });
+
+        // RESET ONLY SMALL FIELDS
+        reset({
+          transactionType: "PURCHASE",
+
+          stockDirection: "IN",
+
+          quantity: 0,
+
+          note: "",
+
+          inventoryItemId:
+            selectedInventory.id,
+        });
+      } else {
+        alert(
+          result.message
+        );
+      }
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Something went wrong"
+      );
+    }
+
+    setIsSubmitting(false);
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
+      <div className="max-w-3xl mx-auto">
+
+        {/* ===================================================== */}
+        {/* HEADER */}
+        {/* ===================================================== */}
+
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">
+            Stock Purchase
+          </h1>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Purchase inventory
+            stock manually
+          </p>
+        </div>
+
+        {/* ===================================================== */}
+        {/* FORM */}
+        {/* ===================================================== */}
+
+        <form
+          onSubmit={handleSubmit(
+            onSubmit
+          )}
+          className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5"
+        >
+
+          {/* ===================================================== */}
+          {/* INVENTORY SEARCH */}
+          {/* ===================================================== */}
+
+          <div className="flex flex-col gap-2">
+            <label className="label-style-4">
+              Inventory Item
+            </label>
+
+            <div className="relative">
+
+              {!search.trim() && (
+                <Search
+                  size={18}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+              )}
+
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => {
+                  setSearch(
+                    e.target.value
+                  );
+
+                  setShowDropdown(
+                    true
+                  );
+                }}
+                placeholder="Search inventory item..."
+                className={`input-style-4 pr-4 ${!search.trim()
+                  ? "pl-12"
+                  : "pl-4"
+                  }`}
+              />
+
+              {/* DROPDOWN */}
+
+              {showDropdown &&
+                filteredInventory.length >
+                0 && (
+                  <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
+
+                    {filteredInventory.map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedInventory(item);
+
+                          setValue(
+                            "inventoryItemId",
+                            item.id
+                          );
+
+                          // default transaction unit
+                          setValue(
+                            "transactionUnit",
+                            item.purchaseUnit
+                          );
+
+                          setSearch(item.name);
+
+                          setShowDropdown(false);
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                      >
+                        <div className="font-medium text-gray-800">
+                          {item.name}
+                        </div>
+
+                        <div className="text-xs text-gray-400">
+                          Current:{" "}
+                          {item.currentStock}{" "}
+                          {item.consumptionUnit}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+            </div>
+
+            <input
+              type="hidden"
+              {...register(
+                "inventoryItemId"
+              )}
+            />
+          </div>
+
+          {/* ===================================================== */}
+          {/* CURRENT STOCK */}
+          {/* ===================================================== */}
+
+          {selectedInventory && (
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
+
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <Package2
+                    className="text-blue-600"
+                    size={22}
+                  />
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    {
+                      selectedInventory.name
+                    }
+                  </h3>
+
+                  <p className="text-sm text-gray-500">
+                    Current Stock
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-2xl font-bold text-blue-700">
+                {selectedInventory.purchaseUnit === "kg"
+                  ? selectedInventory.currentStock /
+                  selectedInventory.conversionFactor
+                  : selectedInventory.purchaseUnit === "ltr"
+                    ? selectedInventory.currentStock /
+                    selectedInventory.conversionFactor
+                    : selectedInventory.currentStock}{" "}
+                {selectedInventory.purchaseUnit}
+              </div>
+            </div>
+          )}
+
+          {/* ===================================================== */}
+          {/* TYPE */}
+          {/* ===================================================== */}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            {transactionType === "PURCHASE" && (
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Supplier
+                </label>
+
+                <select
+                  {...register("supplierId")}
+                  className="input-style-4"
+                >
+                  <option value="">
+                    Select Supplier
+                  </option>
+
+             {linkedSuppliers.map((supplier) => (
+  <option key={supplier.id} value={supplier.id}>
+    {supplier.companyName}
+  </option>
+))}
+                </select>
+              </div>
+            )}
+
+            {/* <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Transaction Type
+              </label>
+
+              <select
+                {...register("transactionType")}
+                className="input-style-4"
+              >
+                <option value="PURCHASE">
+                  Purchase
+                </option>
+
+                <option value="OPENING">
+                  Opening Stock
+                </option>
+
+                <option value="CUSTOMER_RETURN">
+                  Customer Return
+                </option>
+
+                <option value="SUPPLIER_RETURN">
+                  Supplier Return
+                </option>
+
+                <option value="WASTAGE">
+                  Wastage
+                </option>
+
+                <option value="ADJUSTMENT">
+                  Adjustment
+                </option>
+              </select>
+            </div> */}
+
+            {/* {transactionType === "ADJUSTMENT" && (
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Stock Direction
+                </label>
+
+                <select
+                  {...register("stockDirection")}
+                  className="input-style-4"
+                >
+                  <option value="IN">
+                    Add Stock
+                  </option>
+
+                  <option value="OUT">
+                    Remove Stock
+                  </option>
+                </select>
+              </div>
+            )} */}
+          </div>
+
+          {/* ===================================================== */}
+          {/* QUANTITY */}
+          {/* ===================================================== */}
+
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Quantity
+              </label>
+
+              <input
+                type="number"
+                step="0.001"
+                {...register("quantity")}
+                className="input-style-4"
+                placeholder="0"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit
+              </label>
+
+              <select
+                {...register("transactionUnit")}
+                className="input-style-4"
+              >
+                {selectedInventory?.purchaseUnit === "kg" && (
+                  <>
+                    <option value="kg">Kilogram (kg)</option>
+                    {/* <option value="gm">Gram (gm)</option> */}
+                  </>
+                )}
+
+                {selectedInventory?.purchaseUnit === "ltr" && (
+                  <>
+                    <option value="ltr">Liter (ltr)</option>
+                    {/* <option value="ml">Milliliter (ml)</option> */}
+                  </>
+                )}
+
+                {selectedInventory?.purchaseUnit === "pcs" && (
+                  <option value="pcs">Pieces (pcs)</option>
+                )}
+              </select>
+            </div>
+
+          </div>
+
+          {/* ===================================================== */}
+          {/* NOTE */}
+          {/* ===================================================== */}
+
+          <div className="flex flex-col gap-2">
+            <label className="label-style-4">
+              Note
+            </label>
+
+            <textarea
+              {...register("note")}
+              rows={4}
+              placeholder="Optional note..."
+              className="input-style-4 resize-none"
+            />
+          </div>
+
+          {/* ===================================================== */}
+          {/* SAVE */}
+          {/* ===================================================== */}
+
+          <Button
+            type="submit"
+            disabled={
+              isSubmitting
+            }
+            className="btn-save-4 h-11"
+          >
+            {isSubmitting
+              ? "Saving..."
+              : "Save Stock Purchase"}
+          </Button>
+        </form>
+      </div >
+    </div >
+  );
+}

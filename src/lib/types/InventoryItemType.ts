@@ -35,6 +35,8 @@ export const newInventorySchema = z.object({
 
   barcode: z.string().optional(),
 
+  supplierId: z.string().optional(),
+
   purchaseUnit:  z.enum(
   inventoryUnits
 ),

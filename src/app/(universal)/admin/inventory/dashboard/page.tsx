@@ -23,8 +23,13 @@ import {
   PackagePlus,
   BookOpen,
 } from "lucide-react";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 export default async function InventoryDashboardPage() {
+
+
+
+  
   const dashboard =
     await fetchInventoryDashboard();
 
@@ -57,7 +62,7 @@ export default async function InventoryDashboardPage() {
           {/* TOTAL ITEMS */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
             <div className="flex items-center justify-between">
-              
+
               <div>
                 <p className="text-sm text-gray-500">
                   Total Items
@@ -151,130 +156,150 @@ export default async function InventoryDashboardPage() {
 
 
         {/* ===================================================== */}
-{/* QUICK ACTIONS */}
-{/* ===================================================== */}
+        {/* QUICK ACTIONS */}
+        {/* ===================================================== */}
 
-<div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
 
-  <Link
-    href="/admin/inventory"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
-      <ClipboardList
-        size={22}
-        className="text-[#00897b]"
-      />
-    </div>
+          <Link
+            href="/admin/inventory"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
+              <ClipboardList
+                size={22}
+                className="text-[#00897b]"
+              />
+            </div>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      Inventory Items
-    </h3>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Inventory Items
+            </h3>
 
-    <p className="text-sm text-gray-500 mt-1">
-      View all inventory
-    </p>
-  </Link>
+            <p className="text-sm text-gray-500 mt-1">
+              View all inventory
+            </p>
+          </Link>
 
-  <Link
-    href="/admin/inventory/new"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center">
-      <Plus
-        size={22}
-        className="text-blue-600"
-      />
-    </div>
+          <Link
+            href="/admin/inventory/new"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+              <Plus
+                size={22}
+                className="text-blue-600"
+              />
+            </div>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      New Item
-    </h3>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              New Item
+            </h3>
 
-    <p className="text-sm text-gray-500 mt-1">
-      Create inventory item
-    </p>
-  </Link>
+            <p className="text-sm text-gray-500 mt-1">
+              Create inventory item
+            </p>
+          </Link>
 
-  <Link
-    href="/admin/inventory/adjust-stock"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-      <PackagePlus
-        size={22}
-        className="text-orange-600"
-      />
-    </div>
+              <Link
+            href="/admin/inventory/purchase/add"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <PackagePlus
+                size={22}
+                className="text-orange-600"
+              />
+            </div>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      Stock Adjustment
-    </h3>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Stock Purchase
+            </h3>
 
-    <p className="text-sm text-gray-500 mt-1">
-      Add or remove stock
-    </p>
-  </Link>
+            <p className="text-sm text-gray-500 mt-1">
+              Add stock
+            </p>
+          </Link>
 
-  <Link
-    href="/admin/inventory/transactions"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-      <BookOpen
-        size={22}
-        className="text-purple-600"
-      />
-    </div>
+          <Link
+            href="/admin/inventory/adjust-stock"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <PackagePlus
+                size={22}
+                className="text-orange-600"
+              />
+            </div>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      Stock Transactions
-    </h3>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Stock Adjustment
+            </h3>
 
-    <p className="text-sm text-gray-500 mt-1">
-      View stock history
-    </p>
-  </Link>
+            <p className="text-sm text-gray-500 mt-1">
+              Add or remove stock
+            </p>
+          </Link>
 
-   <Link
-    href="/admin/inventory/categories"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-       <Tags
-                  size={22}
-                  className="text-violet-600"
-                />
-    </div>
+          <Link
+            href="/admin/inventory/transactions"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <BookOpen
+                size={22}
+                className="text-purple-600"
+              />
+            </div>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      Inventory Category
-    </h3>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Stock Transactions
+            </h3>
 
-    <p className="text-sm text-gray-500 mt-1">
-      View
-    </p>
-  </Link>
- <Link
-    href="/admin/inventory/supplier"
-    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-  >
-    <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-      <Truck
-  size={22}
-  className="text-violet-600"
-/>
-    </div>
+            <p className="text-sm text-gray-500 mt-1">
+              View stock history
+            </p>
+          </Link>
 
-    <h3 className="font-semibold text-gray-800 mt-4">
-      Suppliers
-    </h3>
+          <Link
+            href="/admin/inventory/categories"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <Tags
+                size={22}
+                className="text-violet-600"
+              />
+            </div>
 
-    <p className="text-sm text-gray-500 mt-1">
-      View
-    </p>
-  </Link>
-</div>
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Inventory Category
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              View
+            </p>
+          </Link>
+          <Link
+            href="/admin/inventory/supplier"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <Truck
+                size={22}
+                className="text-violet-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Suppliers
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              View
+            </p>
+          </Link>
+        </div>
 
         {/* ===================================================== */}
         {/* CONTENT */}
@@ -363,62 +388,98 @@ export default async function InventoryDashboardPage() {
               </div>
             </div>
 
-            <div className="max-h-[500px] overflow-y-auto">
-              {dashboard
-                .recentTransactions
-                .length === 0 ? (
-                <div className="h-[250px] flex items-center justify-center text-gray-400">
-                  No transactions found
-                </div>
-              ) : (
-                dashboard.recentTransactions.map(
-                  (trx: any) => (
-                    <div
-                      key={trx.id}
-                      className="border-b border-gray-100 px-6 py-4 hover:bg-gray-50"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-semibold text-gray-800">
-                            {
-                              trx.inventoryItemName
-                            }
-                          </h3>
+          <div className="max-h-[500px] overflow-y-auto">
+  {dashboard.recentTransactions.length === 0 ? (
+    <div className="h-[250px] flex items-center justify-center text-gray-400">
+      No transactions found
+    </div>
+  ) : (
+    dashboard.recentTransactions.map((trx: any) => {
+      const style = getTransactionStyle(trx.transactionType);
 
-                          <p className="text-sm text-gray-500 mt-1">
-                            {trx.note}
-                          </p>
-                        </div>
+      const sign =
+        trx.transactionType === "ADJUSTMENT"
+          ? trx.stockDirection === "IN"
+            ? "+"
+            : "-"
+          : style.sign;
 
-                        <div className="text-right">
-                          <div
-                            className={`text-sm font-bold ${
-                              trx.type ===
-                              "purchase"
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {trx.type ===
-                            "purchase"
-                              ? "+"
-                              : "-"}
-                            {trx.quantity}
-                          </div>
+      return (
+        <div
+          key={trx.id}
+          className="border-b border-gray-100 px-6 py-4 hover:bg-gray-50 flex items-center justify-between"
+        >
+          {/* LEFT */}
+          <div>
+            <h3 className="font-semibold text-gray-800">
+              {trx.inventoryItemName}
+            </h3>
 
-                          <div className="text-xs text-gray-400 mt-1 uppercase">
-                            {trx.type}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )
-              )}
+            <p className="text-sm text-gray-500 mt-1">
+              {trx.note}
+            </p>
+          </div>
+
+          {/* RIGHT */}
+          <div className="text-right">
+            <div className={`text-sm font-bold ${style.color}`}>
+              {sign}
+              {trx.quantity}
             </div>
+
+            <div className="text-xs text-gray-400 mt-1 uppercase">
+              {trx.transactionType}
+            </div>
+          </div>
+        </div>
+      );
+    })
+  )}
+</div>
           </div>
         </div>
       </div>
     </div>
   );
+}
+
+
+
+
+ function getTransactionStyle(type: InventoryTransactionNameType) {
+  switch (type) {
+    case "PURCHASE":
+    case "OPENING":
+    case "CUSTOMER_RETURN":
+      return {
+        color: "text-green-600",
+        sign: "+",
+      };
+
+    case "SALE":
+    case "WASTAGE":
+    case "SUPPLIER_RETURN":
+      return {
+        color: "text-red-600",
+        sign: "-",
+      };
+
+    case "ADJUSTMENT":
+      return {
+        color: "text-blue-600",
+        sign: "", // depends on stockDirection
+      };
+
+    case "RETURN":
+      return {
+        color: "text-yellow-600",
+        sign: "",
+      };
+
+    default:
+      return {
+        color: "text-gray-600",
+        sign: "",
+      };
+  }
 }

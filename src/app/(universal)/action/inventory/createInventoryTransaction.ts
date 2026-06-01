@@ -1,22 +1,17 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 import admin from "firebase-admin";
 
-export type InventoryTransactionType =
-  | "sale"
-  | "purchase"
-  | "adjustment"
-  | "wastage"
-  | "return"
-  | "opening_stock";
+
 
 type CreateInventoryTransactionParams =
   {
     inventoryItemId: string;
 
-    type: InventoryTransactionType;
+    type: InventoryTransactionNameType;
 
     quantity: number;
 

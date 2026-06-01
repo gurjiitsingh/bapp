@@ -1,46 +1,48 @@
 
 import { z } from "zod";
 import { Timestamp, FieldValue, } from "firebase/firestore";
+import {
+  InventoryUnit,
+} from "./InventoryItemType";
 
-
-// export type InventoryTransactionType =
-//   | "purchase"
-//   | "sale"
-//   | "adjustment_add"
-//   | "adjustment_remove"
-//   | "wastage"
-//   | "opening";
+export type  InventoryTransactionNameType =
+ | "SALE"
+   | "PURCHASE"
+  | "OPENING"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  | "SUPPLIER_RETURN"
+  | "CUSTOMER_RETURN"
+  | "RETURN";
 
 export type InventoryTransactionType = {
   id: string;
 
   inventoryItemId: string;
+  supplierId?: string;
+
   inventoryItemName: string;
 
-  transactionType:
-  | "SALE"
-  | "PURCHASE"
-  | "OPENING"
-  | "ADJUSTMENT"
-  | "WASTAGE"
-  | "RETURN";
+  transactionType: InventoryTransactionNameType;
 
   stockDirection:
-  | "IN"
-  | "OUT";
+    | "IN"
+    | "OUT";
 
   quantity: number;
-
 
   beforeStock: number;
   afterStock: number;
 
-  unit: string;
+  unit: InventoryUnit;
+
+  unitCost?: number;
+  totalCost?: number;
 
   referenceType:
-  | "ORDER"
-  | "PURCHASE"
-  | "MANUAL";
+    | "ORDER"
+    | "PURCHASE"
+    | "MANUAL";
 
   referenceId?: string;
 
@@ -48,14 +50,21 @@ export type InventoryTransactionType = {
   productName?: string;
 
   note?: string;
+
   orderId?: string;
   purchaseId?: string;
-  source?: "POS" | "ADMIN" | "SYSTEM" | null;
+
+  source?:
+    | "POS"
+    | "ADMIN"
+    | "SYSTEM"
+    | null;
+
   createdBy?: string;
 
   createdAt:
-  | Timestamp
-  | FieldValue;
+    | Timestamp
+    | FieldValue;
 };
 
 

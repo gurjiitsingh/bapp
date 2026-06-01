@@ -5,21 +5,19 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 import { revalidatePath, revalidateTag } from "next/cache";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
-  transactionType:
-     | "PURCHASE"
-  | "OPENING"
-  | "ADJUSTMENT"
-  | "WASTAGE"
-  | "SUPPLIER_RETURN"
-  | "CUSTOMER_RETURN";
+  supplierId?: string;
+
+  transactionType:InventoryTransactionNameType;
+  
 
   stockDirection:
-    | "IN"
-    | "OUT";
+  | "IN"
+  | "OUT";
 
   quantity: number;
 
@@ -30,24 +28,27 @@ type AdjustInventoryStockType = {
   referenceId?: string;
 
   referenceType?:
-    | "PURCHASE"
-    | "MANUAL";
+  | "PURCHASE"
+  | "MANUAL";
 };
 
 export async function adjustInventoryStock({
   inventoryItemId,
+  supplierId,
   transactionType,
   stockDirection,
   quantity,
   note,
   createdBy,
-  referenceId,
+  referenceId, 
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
   try {
     // =====================================================
     // VALIDATION
     // =====================================================
+
+    console.log("inventoryItemId,  supplierId,  transactionType,  stockDirection,  quantity,  note,  createdBy,  referenceId,  referenceType, -------",inventoryItemId,  supplierId,  transactionType,  stockDirection,  quantity,  note,  createdBy,  referenceId,  referenceType)
 
     if (!inventoryItemId) {
       return {
@@ -125,6 +126,9 @@ export async function adjustInventoryStock({
       .add({
         inventoryItemId,
 
+        supplierId:
+          supplierId || "",
+
         inventoryItemName:
           inventoryData?.name || "",
 
@@ -134,12 +138,14 @@ export async function adjustInventoryStock({
 
         quantity,
 
-        beforeStock: previousStock,
+        beforeStock:
+          previousStock,
 
         afterStock,
 
         unit:
-          inventoryData?.unit || "pcs",
+  inventoryData?.consumptionUnit ||
+  "pcs",
 
         referenceType,
 

@@ -16,6 +16,7 @@ type Props = {
 export default function InventoryTransactionTable({
   transactions,
 }: Props) {
+  
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white">
       <Table>

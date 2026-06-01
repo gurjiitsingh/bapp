@@ -1,7 +1,7 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 
 
-import { adminDb } from "@/lib/firebaseAdmin";
+
 
 export async function fetchInventoryItemSuppliers(
   inventoryItemId: string
