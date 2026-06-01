@@ -25,19 +25,42 @@ import {
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import TableRows from "./TableRows";
+import { InventoryCategory } from "@/lib/types/InventoryCategory";
 
 type Props = {
   inventoryItems: InventoryItemType[];
+  categories: InventoryCategory[];
 };
 
 export default function ListView({
   inventoryItems,
+  categories
 }: Props) {
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
 
   const [search, setSearch] =
     useState("");
+
+const categoryMap = useMemo(() => {
+  return new Map(
+    (categories ?? []).map((category) => [
+      category.id,
+      category.name,
+    ])
+  );
+}, [categories]);
+
+  const inventoryWithCategory =
+    useMemo(() => {
+      return filtered.map((item) => ({
+        ...item,
+        categoryName:
+          categoryMap.get(
+            item.categoryId || ""
+          ) || "-",
+      }));
+    }, [filtered, categories]);
 
   // FILTER
   useEffect(() => {
@@ -186,7 +209,9 @@ export default function ListView({
                 <TableHead className="py-4">
                   Item
                 </TableHead>
-
+                <TableHead>
+                  Category
+                </TableHead>
                 <TableHead>
                   SKU
                 </TableHead>
@@ -217,25 +242,27 @@ export default function ListView({
               </TableRow>
             </TableHeader>
 
-            <TableBody>
-              {filtered.length > 0 ? (
-                filtered.map((item) => (
-                  <TableRows
-                    key={item.id}
-                    item={item}
-                  />
-                ))
-              ) : (
-                <TableRow>
-                  <td
-                    colSpan={8}
-                    className="text-center py-16 text-gray-400"
-                  >
-                    No inventory items found
-                  </td>
-                </TableRow>
-              )}
-            </TableBody>
+       <TableBody>
+  {filtered.length > 0 ? (
+    inventoryWithCategory.map(
+      (item) => (
+        <TableRows
+          key={item.id}
+          item={item}
+        />
+      )
+    )
+  ) : (
+    <TableRow>
+      <td
+        colSpan={8}
+        className="text-center py-16 text-gray-400"
+      >
+        No inventory items found
+      </td>
+    </TableRow>
+  )}
+</TableBody>
           </Table>
         </div>
       </div>

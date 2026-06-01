@@ -6,12 +6,16 @@ import Link from "next/link";
 
 import { Plus, Package2, ArrowLeft } from "lucide-react";
 import { fetchInventoryItems } from "../../action/inventory/dbOperation";
+import { fetchInventoryCategories } from "../../action/inventoryCategory/fetchInventoryCategories";
 
 
 
 export default async function Page() {
   const inventoryItems =
     await fetchInventoryItems();
+
+      const categories =
+        await fetchInventoryCategories();
 
   return (
     <Suspense>
@@ -68,6 +72,8 @@ export default async function Page() {
         <div className="p-4 md:p-6">
           <ListView
             inventoryItems={inventoryItems}
+            categories={categories}
+            
           />
         </div>
       </div>

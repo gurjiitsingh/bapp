@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { addInventoryCategory } from "../../../inventoryCategory/addInventoryCategory";
+import { addInventoryCategory } from "../../../../action/inventoryCategory/addInventoryCategory";
 import { categorySchema, TCategorySchema } from "@/lib/types/InventoryCategory";
 
 

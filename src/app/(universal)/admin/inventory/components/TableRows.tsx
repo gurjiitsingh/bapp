@@ -59,6 +59,8 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
+  console.log("item--------",item)
+
   const formattedCostPrice =
     formatCurrencyNumber(
       Number(item.costPrice) ?? 0,
@@ -101,6 +103,10 @@ async function handleDelete() {
             <span className="font-semibold text-gray-800">
               {item.name}
             </span>
+           
+             {/* <span className="font-semibold text-gray-800">
+              {item.categoryName}
+            </span> */}
 
             {item.barcode ? (
               <span className="text-xs text-gray-400 mt-1">
@@ -113,6 +119,11 @@ async function handleDelete() {
             )}
           </div>
         </div>
+      </TableCell>
+       <TableCell>
+        <span className="capitalize text-sm font-medium text-gray-700">
+          {item.categoryName}
+        </span>
       </TableCell>
 
       {/* SKU */}

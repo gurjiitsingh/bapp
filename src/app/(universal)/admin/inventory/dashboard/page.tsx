@@ -12,6 +12,8 @@ import {
   IndianRupee,
   TrendingDown,
   Clock3,
+  Tags,
+  Truck,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -27,14 +29,14 @@ export default async function InventoryDashboardPage() {
     await fetchInventoryDashboard();
 
   return (
-    <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+    <div className="min-h-screen bg-[#f6f8fb] p-2 pt-0 md:p-4">
+      <div className="w-full mx-auto flex flex-col gap-6">
 
         {/* ===================================================== */}
         {/* HEADER */}
         {/* ===================================================== */}
 
-        <div className="flex items-center justify-between">
+        <div className="w-full bg-green-100 rounded-3xl border border-gray-100 shadow-sm p-5">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">
               Inventory Dashboard
@@ -55,6 +57,7 @@ export default async function InventoryDashboardPage() {
           {/* TOTAL ITEMS */}
           <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
             <div className="flex items-center justify-between">
+              
               <div>
                 <p className="text-sm text-gray-500">
                   Total Items
@@ -151,7 +154,7 @@ export default async function InventoryDashboardPage() {
 {/* QUICK ACTIONS */}
 {/* ===================================================== */}
 
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div className="grid grid-cols-2 md:grid-cols-6 gap-3">
 
   <Link
     href="/admin/inventory"
@@ -233,6 +236,44 @@ export default async function InventoryDashboardPage() {
     </p>
   </Link>
 
+   <Link
+    href="/admin/inventory/categories"
+    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+  >
+    <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+       <Tags
+                  size={22}
+                  className="text-violet-600"
+                />
+    </div>
+
+    <h3 className="font-semibold text-gray-800 mt-4">
+      Inventory Category
+    </h3>
+
+    <p className="text-sm text-gray-500 mt-1">
+      View
+    </p>
+  </Link>
+ <Link
+    href="/admin/inventory/supplier"
+    className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+  >
+    <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+      <Truck
+  size={22}
+  className="text-violet-600"
+/>
+    </div>
+
+    <h3 className="font-semibold text-gray-800 mt-4">
+      Suppliers
+    </h3>
+
+    <p className="text-sm text-gray-500 mt-1">
+      View
+    </p>
+  </Link>
 </div>
 
         {/* ===================================================== */}

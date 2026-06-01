@@ -75,12 +75,11 @@ export async function addNewInventoryItem(
         ) as string | null
       ) || "";
 
-    const supplierId =
-      (
-        formData.get(
-          "supplierId"
-        ) as string | null
-      ) || "";
+   const supplierIds =
+  formData.getAll(
+    "supplierIds"
+  ) as string[];
+
 
     const isActive =
       formData.get("isActive") === "true";
@@ -95,27 +94,27 @@ export async function addNewInventoryItem(
     }
 
     // VALIDATION OBJECT
-    const receivedData = {
-      name,
-      sku: cleanedSku,
-      barcode: cleanedBarcode,
+ const receivedData = {
+  name,
+  sku: cleanedSku,
+  barcode: cleanedBarcode,
 
-      purchaseUnit,
-      consumptionUnit,
-      conversionFactor,
+  purchaseUnit,
+  consumptionUnit,
+  conversionFactor,
 
-      currentStock,
-      minStock,
+  currentStock,
+  minStock,
 
-      costPrice,
-      sellingPrice,
+  costPrice,
+  sellingPrice,
 
-      categoryId,
-      supplierId,
+  categoryId,
 
-      isActive,
-    };
+  supplierIds,
 
+  isActive,
+};
     // ZOD VALIDATION
     const result =
       newInventorySchema.safeParse(
@@ -234,7 +233,7 @@ export async function addNewInventoryItem(
       sellingPrice,
 
       categoryId,
-      supplierId,
+   //   supplierId,
 
       isActive,
 
@@ -247,16 +246,49 @@ export async function addNewInventoryItem(
 
  
 
-    // SAVE TO FIRESTORE
-    const docRef = await adminDb
-      .collection("inventoryItems")
-      .add(data);
+ // SAVE TO FIRESTORE
+const docRef = await adminDb
+  .collection("inventoryItems")
+  .add(data);
 
-    // REVALIDATE
-    revalidateTag(
-      "inventory-items",
-      "max"
-    );
+const inventoryItemId =
+  docRef.id;
+
+// Create supplier mapping
+for (const supplierId of supplierIds) {
+  const supplierFormData =
+    new FormData();
+
+  supplierFormData.append(
+    "inventoryItemId",
+    docRef.id
+  );
+
+  supplierFormData.append(
+    "supplierId",
+    supplierId
+  );
+
+  supplierFormData.append(
+    "preferred",
+    "false"
+  );
+
+  supplierFormData.append(
+    "isActive",
+    "true"
+  );
+
+  await addInventoryItemSupplier(
+    supplierFormData
+  );
+}
+
+// REVALIDATE
+revalidateTag(
+  "inventory-items",
+  "max"
+);
 
     revalidatePath(
       "/admin/inventory"
@@ -289,6 +321,7 @@ export async function addNewInventoryItem(
 
 
 import { cache } from "react";
+import { addInventoryItemSupplier } from "../inventoryItemSupplier/addInventoryItemSupplier";
 
 // FETCH ALL INVENTORY ITEMS
 export const fetchInventoryItems = cache(
@@ -534,12 +567,17 @@ export async function updateInventoryItem(
         ) as string | null
       ) || "";
 
-    const supplierId =
-      (
-        formData.get(
-          "supplierId"
-        ) as string | null
-      ) || "";
+    // const supplierId =
+    //   (
+    //     formData.get(
+    //       "supplierId"
+    //     ) as string | null
+    //   ) || "";
+
+const supplierIds =
+  formData.getAll(
+    "supplierIds"
+  ) as string[];
 
     const isActive =
       formData.get("isActive") === "true";
@@ -570,7 +608,7 @@ export async function updateInventoryItem(
       sellingPrice,
 
       categoryId,
-      supplierId,
+      supplierIds,
 
       isActive,
     };
@@ -702,7 +740,7 @@ export async function updateInventoryItem(
       sellingPrice,
 
       categoryId,
-      supplierId,
+      
 
       isActive,
 
@@ -714,6 +752,64 @@ export async function updateInventoryItem(
       .collection("inventoryItems")
       .doc(id)
       .update(data);
+
+      // ==========================
+// UPDATE SUPPLIER MAPPINGS
+// ==========================
+
+const existingMappings =
+  await adminDb
+    .collection(
+      "inventoryItemSuppliers"
+    )
+    .where(
+      "inventoryItemId",
+      "==",
+      id
+    )
+    .get();
+
+const batch =
+  adminDb.batch();
+
+existingMappings.docs.forEach(
+  (doc) => {
+    batch.delete(
+      doc.ref
+    );
+  }
+);
+
+await batch.commit();
+
+for (const supplierId of supplierIds) {
+  const supplierFormData =
+    new FormData();
+
+  supplierFormData.append(
+    "inventoryItemId",
+    id
+  );
+
+  supplierFormData.append(
+    "supplierId",
+    supplierId
+  );
+
+  supplierFormData.append(
+    "preferred",
+    "false"
+  );
+
+  supplierFormData.append(
+    "isActive",
+    "true"
+  );
+
+  await addInventoryItemSupplier(
+    supplierFormData
+  );
+}
 
     revalidateTag(
       "inventory-items",

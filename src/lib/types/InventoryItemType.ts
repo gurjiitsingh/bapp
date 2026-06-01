@@ -78,7 +78,10 @@ consumptionUnit:  z.enum(
 
   categoryId: z.string().optional(),
 
-  supplierId: z.string().optional(),
+ // supplierId: z.string().optional(),
+ supplierIds: z
+  .array(z.string())
+  .default([]),
 
   isActive: z.boolean().default(true),
 })

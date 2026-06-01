@@ -1,7 +1,7 @@
 import { Timestamp, FieldValue, } from "firebase/firestore";
 import z from "zod";
 
-type InventoryCategory = {
+export type InventoryCategory = {
   id: string;
 
   name: string;
