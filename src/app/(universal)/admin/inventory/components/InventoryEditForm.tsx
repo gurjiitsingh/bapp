@@ -80,43 +80,6 @@ const InventoryEditForm = ({
     const consumptionUnit = watch("consumptionUnit");
 
 
-    // useEffect(() => {
-    //   const conversionMap: Record<string, number> = {
-    //     "kg-gm": 1000,
-    //     "ltr-ml": 1000,
-
-    //     "dozen-pcs": 12,
-    //     "pair-pcs": 2,
-
-    //     // same unit
-    //     "kg-kg": 1,
-    //     "gm-gm": 1,
-    //     "ltr-ltr": 1,
-    //     "ml-ml": 1,
-    //     "pcs-pcs": 1,
-    //     "dozen-dozen": 1,
-    //     "pair-pair": 1,
-    //     "box-box": 1,
-    //     "pack-pack": 1,
-    //     "carton-carton": 1,
-    //     "bag-bag": 1,
-    //     "bottle-bottle": 1,
-    //     "can-can": 1,
-    //     "jar-jar": 1,
-    //     "roll-roll": 1,
-    //     "tray-tray": 1,
-    //   };
-
-    //   const key = `${purchaseUnit}-${consumptionUnit}`;
-
-    //   if (conversionMap[key]) {
-    //     setValue(
-    //       "conversionFactor",
-    //       conversionMap[key],
-    //       { shouldValidate: true }
-    //     );
-    //   }
-    // }, [purchaseUnit, consumptionUnit, setValue]);
 
     const displayStock =
   inventoryItem.purchaseUnit ===
@@ -124,6 +87,13 @@ const InventoryEditForm = ({
     ? inventoryItem.currentStock
     : inventoryItem.currentStock /
       inventoryItem.conversionFactor;
+
+
+// const displayStock =
+//   purchaseUnit === consumptionUnit
+//     ? inventoryItem.currentStock
+//     : inventoryItem.currentStock /
+//       (watch("conversionFactor") || 1);
 
     useEffect(() => {
         if (purchaseUnit === consumptionUnit) {
@@ -145,7 +115,15 @@ const InventoryEditForm = ({
             setValue("conversionFactor", conversionMap[key]);
         }
     }, [purchaseUnit, consumptionUnit, setValue]);
-
+useEffect(() => {
+  if (
+    purchaseUnit &&
+    consumptionUnit &&
+    purchaseUnit === consumptionUnit
+  ) {
+    setValue("conversionFactor", 1);
+  }
+}, [purchaseUnit, consumptionUnit]);
 
     async function onSubmit(
         data: TnewInventorySchema
@@ -218,9 +196,9 @@ const InventoryEditForm = ({
 
 
             if (!result?.errors) {
-                alert(
-                    "Inventory item updated successfully"
-                );
+                // alert(
+                //     "Inventory item updated successfully"
+                // );
             } else {
                 alert(
                     result.errors.general ||
@@ -228,9 +206,9 @@ const InventoryEditForm = ({
                 );
             }
             if (!result?.errors) {
-                alert(
-                    "Inventory item updated successfully"
-                );
+                // alert(
+                //     "Inventory item updated successfully"
+                // );
 
                 router.push("/admin/inventory");
                 router.refresh();
@@ -416,7 +394,7 @@ const InventoryEditForm = ({
     Current Stock
   </label>
 <div className="text-2xl font-bold text-blue-700">
-  {displayStock.toFixed(2)} <span  className="text-sm text-blue-600"> {inventoryItem.purchaseUnit}</span>
+  {displayStock.toFixed(2)} <span  className="text-sm text-blue-600"> {purchaseUnit}</span>
 </div>
 
   {/* <div className="mt-1 rounded-xl border border-blue-100 bg-blue-50 p-4">

@@ -7,6 +7,7 @@ import { useTransition } from "react";
 import {
   CiEdit,
   CiTrash,
+  CiWallet,
 } from "react-icons/ci";
 
 
@@ -111,11 +112,10 @@ export default function ListView({
 
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-lg text-xs font-medium ${
-                      item.isActive
+                    className={`px-2 py-1 rounded-lg text-xs font-medium ${item.isActive
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-700"
-                    }`}
+                      }`}
                   >
                     {item.isActive
                       ? "Active"
@@ -125,19 +125,28 @@ export default function ListView({
 
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-2">
+
+                    {/* ✅ NEW: Supplier Account */}
+                    <Link
+                      href={`/admin/inventory/supplier/${item.id}`}
+                    >
+                      <button className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                        <CiWallet size={18} />
+                      </button>
+                    </Link>
+
+                    {/* EDIT */}
                     <Link
                       href={`/admin/inventory/supplier/edit/${item.id}`}
                     >
                       <button className="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
-                        <CiEdit
-                          size={18}
-                        />
+                        <CiEdit size={18} />
                       </button>
                     </Link>
 
-                    <DeleteButton
-                      id={item.id}
-                    />
+                    {/* DELETE */}
+                    <DeleteButton id={item.id} />
+
                   </div>
                 </td>
               </tr>

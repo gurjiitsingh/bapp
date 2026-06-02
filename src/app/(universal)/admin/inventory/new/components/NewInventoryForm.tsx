@@ -311,17 +311,17 @@ export default function NewInventoryForm({
                     <option value="ltr">Liter (ltr)</option>
                     <option value="ml">Milliliter (ml)</option>
                     <option value="pcs">Pieces (pcs)</option>
-                    <option value="dozen">Dozen</option>
+                    {/* <option value="dozen">Dozen</option>
                     <option value="pair">Pair</option>
-                    <option value="box">Box</option>
+                    <option value="box">Box</option> */}
                     <option value="pack">Pack</option>
-                    <option value="carton">Carton</option>
+                    {/* <option value="carton">Carton</option> */}
                     <option value="bag">Bag</option>
                     <option value="bottle">Bottle</option>
                     <option value="can">Can</option>
                     <option value="jar">Jar</option>
                     <option value="roll">Roll</option>
-                    <option value="tray">Tray</option>
+                    {/* <option value="tray">Tray</option> */}
 
 
                   </select>
@@ -346,17 +346,17 @@ export default function NewInventoryForm({
                     <option value="ltr">Liter (ltr)</option>
                     <option value="ml">Milliliter (ml)</option>
                     <option value="pcs">Pieces (pcs)</option>
-                    <option value="dozen">Dozen</option>
-                    <option value="pair">Pair</option>
+                    {/* <option value="dozen">Dozen</option>
+                    <option value="pair">Pair</option> */}
                     <option value="box">Box</option>
                     <option value="pack">Pack</option>
-                    <option value="carton">Carton</option>
+                    {/* <option value="carton">Carton</option> */}
                     <option value="bag">Bag</option>
                     <option value="bottle">Bottle</option>
                     <option value="can">Can</option>
                     <option value="jar">Jar</option>
                     <option value="roll">Roll</option>
-                    <option value="tray">Tray</option>
+                    {/* <option value="tray">Tray</option> */}
                   </select>
 
                   <p className="text-xs text-gray-500 mt-1">

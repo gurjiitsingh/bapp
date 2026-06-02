@@ -433,9 +433,9 @@ setIsSubmitting(true);
                 {...register("transactionType")}
                 className="input-style-4"
               >
-                <option value="PURCHASE">
+                {/* <option value="PURCHASE">
                   Purchase
-                </option>
+                </option> */}
 
                 <option value="OPENING">
                   Opening Stock

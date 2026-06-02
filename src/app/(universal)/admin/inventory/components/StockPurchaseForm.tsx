@@ -23,21 +23,21 @@ import {
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 
- 
+
 type FormType = {
   inventoryItemId: string;
-supplierId?: string;
+  supplierId?: string;
 
-  transactionType:InventoryTransactionNameType;
+  transactionType: InventoryTransactionNameType;
 
-
-  stockDirection:
-  | "IN"
-  | "OUT";
+  stockDirection: "IN" | "OUT";
 
   quantity: number;
 
   transactionUnit: InventoryUnit;
+
+  // ✅ ADD THIS
+  unitCost: number;
 
   note: string;
 };
@@ -50,7 +50,7 @@ type Props = {
 
 export default function StockPurchaseForm({
   inventoryItems,
-   supplierMap 
+  supplierMap
 }: Props) {
 
 
@@ -72,7 +72,7 @@ export default function StockPurchaseForm({
       null
     );
 
-  const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];  
+  const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];
 
   const {
     register,
@@ -171,11 +171,6 @@ export default function StockPurchaseForm({
       return;
     }
 
-
-
-
-
-
     let finalQuantity = Number(data.quantity);
 
     if (
@@ -190,13 +185,18 @@ export default function StockPurchaseForm({
 
     setIsSubmitting(true);
 
+
+const unitCost = Number(data.unitCost);
+
+const totalCost = finalQuantity * unitCost;
+
     try {
       const result =
         await adjustInventoryStock({
           inventoryItemId:
             data.inventoryItemId,
 
-            supplierId: data.supplierId,
+          supplierId: data.supplierId,
 
           transactionType:
             data.transactionType,
@@ -205,6 +205,10 @@ export default function StockPurchaseForm({
             data.stockDirection,
 
           quantity: finalQuantity,
+
+            unitCost,
+            //totalCost,
+
 
           note: data.note,
 
@@ -262,6 +266,12 @@ export default function StockPurchaseForm({
 
     setIsSubmitting(false);
   }
+
+  useEffect(() => {
+  if (selectedInventory?.costPrice) {
+    setValue("unitCost", selectedInventory.costPrice);
+  }
+}, [selectedInventory]);
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -445,11 +455,11 @@ export default function StockPurchaseForm({
                     Select Supplier
                   </option>
 
-             {linkedSuppliers.map((supplier) => (
-  <option key={supplier.id} value={supplier.id}>
-    {supplier.companyName}
-  </option>
-))}
+                  {linkedSuppliers.map((supplier) => (
+                    <option key={supplier.id} value={supplier.id}>
+                      {supplier.companyName}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
@@ -541,24 +551,39 @@ export default function StockPurchaseForm({
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                {selectedInventory?.purchaseUnit === "kg" && (
-                  <>
-                    <option value="kg">Kilogram (kg)</option>
-                    {/* <option value="gm">Gram (gm)</option> */}
-                  </>
+                {selectedInventory && (
+                  <option value={selectedInventory.purchaseUnit}>
+                    {selectedInventory.purchaseUnit}
+                  </option>
                 )}
 
-                {selectedInventory?.purchaseUnit === "ltr" && (
-                  <>
-                    <option value="ltr">Liter (ltr)</option>
-                    {/* <option value="ml">Milliliter (ml)</option> */}
-                  </>
-                )}
-
-                {selectedInventory?.purchaseUnit === "pcs" && (
-                  <option value="pcs">Pieces (pcs)</option>
-                )}
+                {/* OPTIONAL: allow consumption unit */}
+                {selectedInventory &&
+                  selectedInventory.consumptionUnit !==
+                  selectedInventory.purchaseUnit && (
+                    <option value={selectedInventory.consumptionUnit}>
+                      {selectedInventory.consumptionUnit}
+                    </option>
+                  )}
               </select>
+
+
+
+
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit Cost
+              </label>
+
+              <input
+                type="number"
+                step="0.01"
+                {...register("unitCost")}
+                className="input-style-4"
+                placeholder="Enter unit cost"
+              />
             </div>
 
           </div>

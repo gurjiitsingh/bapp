@@ -6,6 +6,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 import { revalidatePath, revalidateTag } from "next/cache";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
 type AdjustInventoryStockType = {
   inventoryItemId: string;
@@ -20,7 +21,7 @@ type AdjustInventoryStockType = {
   | "OUT";
 
   quantity: number;
-
+  unitCost: number;
   note?: string;
 
   createdBy?: string;
@@ -38,9 +39,10 @@ export async function adjustInventoryStock({
   transactionType,
   stockDirection,
   quantity,
+  unitCost,
   note,
   createdBy,
-  referenceId, 
+  referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
   try {
@@ -48,61 +50,73 @@ export async function adjustInventoryStock({
     // VALIDATION
     // =====================================================
 
-    console.log("inventoryItemId,  supplierId,  transactionType,  stockDirection,  quantity,  note,  createdBy,  referenceId,  referenceType, -------",inventoryItemId,  supplierId,  transactionType,  stockDirection,  quantity,  note,  createdBy,  referenceId,  referenceType)
-
     if (!inventoryItemId) {
-      return {
-        success: false,
-        message: "Inventory item required",
-      };
+      return { success: false, message: "Inventory item required" };
     }
 
     if (!quantity || quantity <= 0) {
-      return {
-        success: false,
-        message: "Quantity must be greater than 0",
-      };
+      return { success: false, message: "Quantity must be greater than 0" };
     }
 
     // =====================================================
-    // GET INVENTORY ITEM
+    // GET INVENTORY
     // =====================================================
 
     const inventoryRef = adminDb
       .collection("inventoryItems")
       .doc(inventoryItemId);
 
-    const inventorySnap =
-      await inventoryRef.get();
+    const inventorySnap = await inventoryRef.get();
 
     if (!inventorySnap.exists) {
-      return {
-        success: false,
-        message: "Inventory item not found",
-      };
+      return { success: false, message: "Inventory item not found" };
     }
 
-    const inventoryData =
-      inventorySnap.data();
+    const inventoryData = inventorySnap.data();
 
-    const previousStock =
-      Number(
-        inventoryData?.currentStock
-      ) || 0;
+    const previousStock = Number(inventoryData?.currentStock) || 0;
 
     // =====================================================
-    // CALCULATE NEW STOCK
+    // STOCK CALCULATION
     // =====================================================
 
     let afterStock = previousStock;
 
     if (stockDirection === "IN") {
-      afterStock =
-        previousStock + quantity;
+      afterStock = previousStock + quantity;
     } else {
-      afterStock =
-        previousStock - quantity;
+      afterStock = previousStock - quantity;
+
+      // 🚨 Prevent negative stock (optional but recommended)
+      if (afterStock < 0) {
+        return {
+          success: false,
+          message: "Insufficient stock",
+        };
+      }
     }
+
+    // =====================================================
+    // COST CALCULATION
+    // =====================================================
+
+    const finalUnitCost =
+      unitCost ??
+      Number(inventoryData?.costPrice) ??
+      0;
+
+
+ 
+const shouldApplyCost =
+  transactionType === "PURCHASE" ||
+  transactionType === "OPENING_STOCK" ||
+  transactionType === "CUSTOMER_RETURN";
+
+const totalCost = shouldApplyCost
+  ? quantity * finalUnitCost
+  : 0;
+
+   // const totalCost = quantity * finalUnitCost;
 
     // =====================================================
     // UPDATE INVENTORY
@@ -111,8 +125,12 @@ export async function adjustInventoryStock({
     await inventoryRef.update({
       currentStock: afterStock,
 
-      updatedAt:
-        admin.firestore.FieldValue.serverTimestamp(),
+      // optional: update last cost price on purchase
+      ...(transactionType === "PURCHASE" && {
+        costPrice: finalUnitCost,
+      }),
+
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
     // =====================================================
@@ -120,17 +138,13 @@ export async function adjustInventoryStock({
     // =====================================================
 
     await adminDb
-      .collection(
-        "inventoryTransactions"
-      )
+      .collection("inventoryTransactions")
       .add({
         inventoryItemId,
 
-        supplierId:
-          supplierId || "",
+        supplierId: supplierId || "",
 
-        inventoryItemName:
-          inventoryData?.name || "",
+        inventoryItemName: inventoryData?.name || "",
 
         transactionType,
 
@@ -138,26 +152,26 @@ export async function adjustInventoryStock({
 
         quantity,
 
-        beforeStock:
-          previousStock,
+        beforeStock: previousStock,
 
         afterStock,
 
         unit:
-  inventoryData?.consumptionUnit ||
-  "pcs",
+          inventoryData?.consumptionUnit || "pcs",
+
+        // ✅ NEW FIELDS
+        unitCost: finalUnitCost,
+        totalCost: totalCost,
 
         referenceType,
 
-        referenceId:
-          referenceId || "",
+        referenceId: referenceId || "",
 
         note:
           note ||
           "Manual inventory adjustment",
 
-        createdBy:
-          createdBy || "admin",
+        createdBy: createdBy || "admin",
 
         createdAt:
           admin.firestore.FieldValue.serverTimestamp(),
@@ -167,198 +181,27 @@ export async function adjustInventoryStock({
     // REVALIDATE
     // =====================================================
 
-    revalidateTag(
-      "inventory-items",
-      "max"
-    );
+    revalidateTag("inventory-items", "max");
 
-    revalidatePath(
-      "/admin/inventory"
-    );
+    revalidatePath("/admin/inventory");
+    revalidatePath("/admin/inventory/dashboard");
 
-    revalidatePath(
-      "/admin/inventory/dashboard"
-    );
+    await updateSupplierAccount({
+  supplierId,
+  transactionType,
+  totalCost,
+});
 
     return {
       success: true,
-      message:
-        "Inventory updated successfully",
+      message: "Inventory updated successfully",
     };
   } catch (error) {
-    console.error(
-      "❌ adjustInventoryStock failed:",
-      error
-    );
+    console.error("❌ adjustInventoryStock failed:", error);
 
     return {
       success: false,
-      message:
-        "Failed to update inventory",
+      message: "Failed to update inventory",
     };
   }
 }
-
-// "use server";
-
-// import { adminDb } from "@/lib/firebaseAdmin";
-
-// import admin from "firebase-admin";
-
-// import { createInventoryTransaction } from "./createInventoryTransaction";
-
-// type AdjustInventoryStockParams = {
-//   inventoryItemId: string;
-
-//   newStock: number;
-
-//   reason:
-//     | "adjustment"
-//     | "wastage"
-//     | "damage"
-//     | "expired"
-//     | "manual";
-
-//   note?: string;
-
-//   createdBy?: string;
-// };
-
-// export async function adjustInventoryStock(
-//   params: AdjustInventoryStockParams
-// ) {
-//   try {
-//     const {
-//       inventoryItemId,
-
-//       newStock,
-
-//       reason,
-
-//       note,
-
-//       createdBy,
-//     } = params;
-
-//     // =====================================================
-//     // VALIDATION
-//     // =====================================================
-
-//     if (newStock < 0) {
-//       return {
-//         success: false,
-
-//         error:
-//           "Stock cannot be negative",
-//       };
-//     }
-
-//     // =====================================================
-//     // GET INVENTORY ITEM
-//     // =====================================================
-
-//     const inventoryRef = adminDb
-//       .collection("inventoryItems")
-//       .doc(inventoryItemId);
-
-//     const inventorySnap =
-//       await inventoryRef.get();
-
-//     if (!inventorySnap.exists) {
-//       return {
-//         success: false,
-
-//         error:
-//           "Inventory item not found",
-//       };
-//     }
-
-//     const inventory =
-//       inventorySnap.data();
-
-//     const previousStock =
-//       Number(
-//         inventory?.currentStock
-//       ) || 0;
-
-//     // =====================================================
-//     // CALCULATE DIFFERENCE
-//     // =====================================================
-
-//     const difference =
-//       newStock - previousStock;
-
-//     // NO CHANGE
-//     if (difference === 0) {
-//       return {
-//         success: false,
-
-//         error:
-//           "No stock change detected",
-//       };
-//     }
-
-//     // =====================================================
-//     // UPDATE INVENTORY
-//     // =====================================================
-
-//     await inventoryRef.update({
-//       currentStock: newStock,
-
-//       updatedAt:
-//         admin.firestore.FieldValue.serverTimestamp(),
-//     });
-
-//     // =====================================================
-//     // CREATE TRANSACTION
-//     // =====================================================
-
-//     await createInventoryTransaction({
-//       inventoryItemId,
-
-//       type:
-//         difference > 0
-//           ? "adjustment"
-//           : "wastage",
-
-//       quantity: Math.abs(
-//         difference
-//       ),
-
-//       previousStock,
-
-//       newStock,
-
-//       note:
-//         note ||
-//         `Stock adjusted (${reason})`,
-
-//       referenceType: reason,
-
-//       createdBy:
-//         createdBy || "admin",
-//     });
-
-//     return {
-//       success: true,
-
-//       previousStock,
-
-//       newStock,
-
-//       difference,
-//     };
-//   } catch (error) {
-//     console.error(
-//       "❌ adjustInventoryStock failed:",
-//       error
-//     );
-
-//     return {
-//       success: false,
-
-//       error:
-//         "Could not adjust stock",
-//     };
-//   }
-// }

@@ -41,10 +41,11 @@ type Props = {
   initialProductId?: string | null; // ✅ NEW
 };
 
-export default function FormView({
+export default function FormViewEdit({
   products,
   inventoryItems,
   recipes,
+  initialProductId
 }: Props) {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
@@ -52,6 +53,8 @@ export default function FormView({
   // =====================================================
   // PRODUCT SEARCH
   // =====================================================
+
+ 
 
   const [productSearch, setProductSearch] =
     useState("");
@@ -64,6 +67,11 @@ export default function FormView({
 
   const searchRef =
     useRef<HTMLDivElement>(null);
+
+    const [editingRecipe, setEditingRecipe] =
+  useState<ProductRecipeType | null>(null);
+
+  
 
   // =====================================================
   // INVENTORY SEARCH
@@ -116,6 +124,23 @@ export default function FormView({
   // =====================================================
 
   useEffect(() => {
+  if (!initialProductId) return;
+
+  // set productId in form
+  setValue("productId", initialProductId);
+
+  // also set selected product (for UI + enable form)
+  const product = products.find(
+    (p) => p.id === initialProductId
+  );
+
+  if (product) {
+    setSelectedProduct(product);
+    setProductSearch(product.name);
+  }
+}, [initialProductId, products, setValue]);
+
+  useEffect(() => {
     if (!selectedInventoryId) return;
 
     const inventory =
@@ -137,7 +162,33 @@ export default function FormView({
   // FILTERED PRODUCTS
   // =====================================================
 
-  const filteredProducts = useMemo(() => {
+  const filteredRecipes = useMemo(() => {
+  // ✅ If productId is provided (edit mode)
+  if (initialProductId) {
+    const product = recipes.find(
+      (p) => p.productId === initialProductId
+    );
+
+    return product ? [product] : [];
+  }
+
+  // ✅ Normal search mode
+  if (!productSearch.trim()) return [];
+
+  return products
+    .filter((product) =>
+      product.name
+        ?.toLowerCase()
+        .includes(
+          productSearch
+            .trim()
+            .toLowerCase()
+        )
+    )
+    .slice(0, 20);
+}, [productSearch, products, initialProductId]);
+
+  const filteredProducts1 = useMemo(() => {
     if (!productSearch.trim())
       return [];
 
@@ -153,6 +204,8 @@ export default function FormView({
       )
       .slice(0, 20);
   }, [productSearch, products]);
+
+  
 
   // =====================================================
   // FILTERED INVENTORY
@@ -182,15 +235,19 @@ export default function FormView({
   // CURRENT PRODUCT RECIPES
   // =====================================================
 
-  const currentRecipes = useMemo(() => {
-    if (!selectedProduct) return [];
+  
 
-    return recipes.filter(
-      (recipe) =>
-        recipe.productId ===
-        selectedProduct.id
-    );
-  }, [recipes, selectedProduct]);
+const currentRecipes = useMemo(() => {
+  const productId =
+    initialProductId || selectedProduct?.id;
+
+  if (!productId) return [];
+
+  return recipes.filter(
+    (recipe) => recipe.productId === productId
+  );
+}, [recipes, initialProductId, selectedProduct]);
+
 
   // =====================================================
   // CLOSE DROPDOWNS
@@ -336,7 +393,7 @@ export default function FormView({
 
           {/* PRODUCT SEARCH */}
 
-          <div
+          {/* <div
             className="relative"
             ref={searchRef}
           >
@@ -372,7 +429,7 @@ export default function FormView({
                 }`}
             />
 
-            {showProducts &&
+            {/* {showProducts &&
               productSearch.trim()
                 .length > 0 && (
                 <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
@@ -422,8 +479,8 @@ export default function FormView({
                     </div>
                   )}
                 </div>
-              )}
-          </div>
+              )} */}
+         {/* </div> */}
         </div>
 
         {/* CONTENT */}
@@ -462,7 +519,7 @@ export default function FormView({
 
             <div className="p-6">
 
-              {!selectedProduct ? (
+              { !selectedProduct ? (
                 <div className="h-[350px] flex flex-col items-center justify-center text-center">
 
                   <Package2

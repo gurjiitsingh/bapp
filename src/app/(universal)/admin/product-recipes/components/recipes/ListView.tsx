@@ -216,10 +216,10 @@ export default function ListView({
 
                         <td className="px-5 py-4 text-right">
                           <Link
-                            href={`/admin/product-recipes/new/recipe?productId=${product.productId}`}
+                          href={`/admin/product-recipes/edit/${product.productId}`}
                             className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
                           >
-                            View Recipe
+                            View/Edit
                           </Link>
                         </td>
                       </tr>

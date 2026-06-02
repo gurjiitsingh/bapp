@@ -13,7 +13,8 @@ export type  InventoryTransactionNameType =
   | "WASTAGE"
   | "SUPPLIER_RETURN"
   | "CUSTOMER_RETURN"
-  | "RETURN";
+  | "RETURN" 
+  | "OPENING_STOCK";
 
 export type InventoryTransactionType = {
   id: string;
