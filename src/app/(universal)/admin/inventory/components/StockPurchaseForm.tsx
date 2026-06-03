@@ -22,8 +22,8 @@ import {
 } from "@/lib/types/InventoryItemType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
-
-
+type PaymentMethod = "CASH" | "UPI" | "CARD";
+type PaymentStatus = "PAID" | "CREDIT";
 type FormType = {
   inventoryItemId: string;
   supplierId?: string;
@@ -38,6 +38,9 @@ type FormType = {
 
   // ✅ ADD THIS
   unitCost: number;
+  paymentStatus: PaymentStatus; // 
+  paymentMethod?: PaymentMethod;
+  paidAmount?: number;          // 
 
   note: string;
 };
@@ -160,118 +163,85 @@ export default function StockPurchaseForm({
   // SUBMIT
   // =====================================================
 
-  async function onSubmit(
-    data: FormType
-  ) {
-    if (!selectedInventory) {
-      alert(
-        "Please select inventory item"
-      );
+ async function onSubmit(data: FormType) {
+  if (isSubmitting) return;
 
-      return;
-    }
-
-    let finalQuantity = Number(data.quantity);
-
-    if (
-      data.transactionUnit === "kg" ||
-      data.transactionUnit === "ltr"
-
-    ) {
-      finalQuantity =
-        finalQuantity *
-        selectedInventory.conversionFactor;
-    }
-
-    setIsSubmitting(true);
-
-
-const unitCost = Number(data.unitCost);
-
-const totalCost = finalQuantity * unitCost;
-
-    try {
-      const result =
-        await adjustInventoryStock({
-          inventoryItemId:
-            data.inventoryItemId,
-
-          supplierId: data.supplierId,
-
-          transactionType:
-            data.transactionType,
-
-          stockDirection:
-            data.stockDirection,
-
-          quantity: finalQuantity,
-
-            unitCost,
-            //totalCost,
-
-
-          note: data.note,
-
-          createdBy: "admin",
-        });
-
-      if (result.success) {
-        // alert(
-        //   "Inventory updated successfully"
-        // );
-
-        // CALCULATE NEW LOCAL STOCK
-        let updatedStock =
-          selectedInventory.currentStock;
-
-        if (data.stockDirection === "IN") {
-          updatedStock =
-            updatedStock + finalQuantity;
-        } else {
-          updatedStock =
-            updatedStock - finalQuantity;
-        }
-
-        // UPDATE LOCAL UI
-        setSelectedInventory({
-          ...selectedInventory,
-          currentStock: updatedStock,
-        });
-
-        // RESET ONLY SMALL FIELDS
-        reset({
-          transactionType: "PURCHASE",
-
-          stockDirection: "IN",
-
-          quantity: 0,
-
-          note: "",
-
-          inventoryItemId:
-            selectedInventory.id,
-        });
-      } else {
-        alert(
-          result.message
-        );
-      }
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Something went wrong"
-      );
-    }
-
-    setIsSubmitting(false);
+  if (!selectedInventory) {
+    alert("Please select inventory item");
+    return;
   }
+
+  let finalQuantity = Number(data.quantity);
+
+  if (
+    data.transactionUnit === "kg" ||
+    data.transactionUnit === "ltr"
+  ) {
+    finalQuantity =
+      finalQuantity *
+      selectedInventory.conversionFactor;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const result = await adjustInventoryStock({
+      inventoryItemId: data.inventoryItemId,
+      supplierId: data.supplierId,
+
+      transactionType: data.transactionType,
+      stockDirection: data.stockDirection,
+
+      quantity: finalQuantity,
+
+      unitCost: Number(data.unitCost),
+
+      paymentStatus: data.paymentStatus,
+      paymentMethod: data.paymentMethod,
+      paidAmount: Number(data.paidAmount || 0),
+
+      note: data.note,
+      createdBy: "admin",
+    });
+
+    if (result.success) {
+      let updatedStock =
+        selectedInventory.currentStock;
+
+      if (data.stockDirection === "IN") {
+        updatedStock += finalQuantity;
+      } else {
+        updatedStock -= finalQuantity;
+      }
+
+      setSelectedInventory({
+        ...selectedInventory,
+        currentStock: updatedStock,
+      });
+
+      reset({
+        transactionType: "PURCHASE",
+        stockDirection: "IN",
+        quantity: 0,
+        note: "",
+        inventoryItemId: selectedInventory.id,
+      });
+    } else {
+      alert(result.message);
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Something went wrong");
+  }
+
+  setIsSubmitting(false);
+}
 
   useEffect(() => {
-  if (selectedInventory?.costPrice) {
-    setValue("unitCost", selectedInventory.costPrice);
-  }
-}, [selectedInventory]);
+    if (selectedInventory?.costPrice) {
+      setValue("unitCost", selectedInventory.costPrice);
+    }
+  }, [selectedInventory]);
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -584,6 +554,62 @@ const totalCost = finalQuantity * unitCost;
                 className="input-style-4"
                 placeholder="Enter unit cost"
               />
+            </div>
+
+
+
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* PAYMENT STATUS */}
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Payment Type
+                </label>
+
+                <select
+                  {...register("paymentStatus")}
+                  className="input-style-4"
+                >
+                  <option value="PAID">Paid</option>
+                  <option value="CREDIT">Credit (Pay Later)</option>
+                </select>
+              </div>
+
+              {/* OPTIONAL PAID AMOUNT */}
+              {watch("paymentStatus") === "CREDIT" && (
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Paid Amount (Optional)
+                  </label>
+
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...register("paidAmount")}
+                    className="input-style-4"
+                    placeholder="0"
+                  />
+                </div>
+              )}
+
+              {watch("paymentStatus") === "PAID" && (
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Payment Method
+    </label>
+
+    <select
+      {...register("paymentMethod")}
+      className="input-style-4"
+    >
+      <option value="CASH">Cash</option>
+      <option value="UPI">UPI</option>
+      <option value="CARD">Card</option>
+    </select>
+  </div>
+)}
+
             </div>
 
           </div>

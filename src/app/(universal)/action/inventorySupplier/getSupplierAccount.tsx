@@ -28,9 +28,20 @@ export async function getSupplierAccount(
     .get();
 
   if (!doc.exists) return null;
-console.log("supplierId-----------", supplierId)
+
+  const data = doc.data();
+
   return {
     supplierId,
-    ...doc.data(),
+
+    ...data,
+
+    updatedAt:
+      data?.updatedAt?.toDate?.()?.toISOString() ??
+      null,
+
+    createdAt:
+      data?.createdAt?.toDate?.()?.toISOString() ??
+      null,
   };
 }

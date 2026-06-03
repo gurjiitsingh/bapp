@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteInventoryItemSupplier } from "@/app/(universal)/action/inventoryItemSupplier/deleteInventoryItemSupplier";
 import { Supplier } from "@/lib/types/SupplierType";
 import Link from "next/link";
 import { useTransition } from "react";
@@ -105,7 +106,7 @@ export default function ListView({
                 </td>
 
                 <td className="px-4 py-3">
-                  <span className="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium capitalize">
+                  <span className="px-2 py-1 rounded-lg bg-slate-100 text-yellow-900 text-xs font-medium capitalize">
                     {item.type}
                   </span>
                 </td>
@@ -130,7 +131,7 @@ export default function ListView({
                     <Link
                       href={`/admin/inventory/supplier/${item.id}`}
                     >
-                      <button className="h-9 w-9 rounded-xl bg-blue-600 text-white flex items-center justify-center">
+                      <button className="h-9 w-9 rounded-xl bg-slate-300 text-white flex items-center justify-center">
                         <CiWallet size={18} />
                       </button>
                     </Link>
@@ -139,7 +140,7 @@ export default function ListView({
                     <Link
                       href={`/admin/inventory/supplier/edit/${item.id}`}
                     >
-                      <button className="h-9 w-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                      <button className="h-9 w-9 rounded-xl bg-emerald-200 text-white flex items-center justify-center">
                         <CiEdit size={18} />
                       </button>
                     </Link>
@@ -181,7 +182,7 @@ function DeleteButton({
       startTransition(
         async () => {
           const result =
-            await deleteSupplier(
+            await deleteInventoryItemSupplier(
               id
             );
 

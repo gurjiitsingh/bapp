@@ -1,38 +1,58 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+type PaymentMethod = "CASH" | "UPI" | "CARD";
 type UpdateSupplierAccountParams = {
   supplierId?: string;
   transactionType: string;
   totalCost: number;
+  paidAmount: number;   // ✅ ADD
+  dueAmount: number;    // ✅ ADD
+    paymentMethod?: PaymentMethod;
 };
 
 export async function updateSupplierAccount({
   supplierId,
   transactionType,
   totalCost,
+  paidAmount,
+  dueAmount,
+  paymentMethod,
 }: UpdateSupplierAccountParams) {
+
+  let cash = 0;
+let upi = 0;
+let card = 0;
+
+if (transactionType === "PURCHASE") {
+  if (paymentMethod === "CASH") cash = paidAmount;
+  if (paymentMethod === "UPI") upi = paidAmount;
+  if (paymentMethod === "CARD") card = paidAmount;
+}
   try {
-    // ❗ skip if no supplier
     if (!supplierId) return;
 
     const accountRef = adminDb
       .collection("supplierAccounts")
       .doc(supplierId);
 
-    let credit = 0;
-    let debit = 0;
+    let credit = 0; // increases balance (you owe supplier)
+    let debit = 0;  // decreases balance
 
     let purchase = 0;
     let returnAmount = 0;
+    let paid = 0;
 
     // ===============================
     // LOGIC
     // ===============================
 
     if (transactionType === "PURCHASE") {
-      credit = totalCost;
       purchase = totalCost;
+      paid = paidAmount;
+
+      // only unpaid part increases balance
+      credit = dueAmount;
     }
 
     if (transactionType === "SUPPLIER_RETURN") {
@@ -44,32 +64,29 @@ export async function updateSupplierAccount({
     // UPDATE (ATOMIC)
     // ===============================
 
-    await accountRef.set(
-      {
-        supplierId,
+   await accountRef.set(
+  {
+    supplierId,
 
-        totalCredit:
-          admin.firestore.FieldValue.increment(credit),
+    totalCredit: admin.firestore.FieldValue.increment(credit),
+    totalDebit: admin.firestore.FieldValue.increment(debit),
 
-        totalDebit:
-          admin.firestore.FieldValue.increment(debit),
+    totalPurchase: admin.firestore.FieldValue.increment(purchase),
+    totalReturn: admin.firestore.FieldValue.increment(returnAmount),
 
-        totalPurchase:
-          admin.firestore.FieldValue.increment(purchase),
+    totalPaid: admin.firestore.FieldValue.increment(paid),
 
-        totalReturn:
-          admin.firestore.FieldValue.increment(returnAmount),
+    // ✅ ADD THESE
+    cashPaid: admin.firestore.FieldValue.increment(cash),
+    upiPaid: admin.firestore.FieldValue.increment(upi),
+    cardPaid: admin.firestore.FieldValue.increment(card),
 
-        balance:
-          admin.firestore.FieldValue.increment(
-            credit - debit
-          ),
+    balance: admin.firestore.FieldValue.increment(credit - debit),
 
-        updatedAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  },
+  { merge: true }
+);
   } catch (error) {
     console.error(
       "❌ updateSupplierAccount failed:",

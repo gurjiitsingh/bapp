@@ -8,13 +8,15 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
+type PaymentMethod = "CASH" | "UPI" | "CARD";
+type PaymentStatus = "PAID" | "CREDIT";
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
   supplierId?: string;
 
-  transactionType:InventoryTransactionNameType;
-  
+  transactionType: InventoryTransactionNameType;
+
 
   stockDirection:
   | "IN"
@@ -22,6 +24,9 @@ type AdjustInventoryStockType = {
 
   quantity: number;
   unitCost: number;
+   paymentStatus: PaymentStatus; 
+  paymentMethod?: PaymentMethod;
+  paidAmount?: number;          
   note?: string;
 
   createdBy?: string;
@@ -40,6 +45,10 @@ export async function adjustInventoryStock({
   stockDirection,
   quantity,
   unitCost,
+  paymentStatus,                 
+  paymentMethod,                 
+  paidAmount: paidAmountInput,    
+
   note,
   createdBy,
   referenceId,
@@ -100,27 +109,53 @@ export async function adjustInventoryStock({
     // COST CALCULATION
     // =====================================================
 
-    const finalUnitCost =
-      unitCost ??
-      Number(inventoryData?.costPrice) ??
-      0;
+  const finalUnitCost =
+  unitCost !== undefined
+    ? unitCost
+    : Number(inventoryData?.costPrice) || 0;
 
 
- 
-const shouldApplyCost =
-  transactionType === "PURCHASE" ||
-  transactionType === "OPENING_STOCK" ||
-  transactionType === "CUSTOMER_RETURN";
 
-const totalCost = shouldApplyCost
-  ? quantity * finalUnitCost
+    const shouldApplyCost =
+      transactionType === "PURCHASE" ||
+      transactionType === "OPENING_STOCK" ||
+      transactionType === "CUSTOMER_RETURN";
+
+    const totalCost = shouldApplyCost
+      ? quantity * finalUnitCost
+      : 0;
+
+    // const totalCost = quantity * finalUnitCost;
+
+    // =====================================================
+// PAYMENT CALCULATION
+// =====================================================
+
+const isPurchase =
+  transactionType === "PURCHASE" &&
+  stockDirection === "IN";
+const paymentStatusSafe = paymentStatus || "PAID";
+const paidAmountRaw =
+  isPurchase && paymentStatusSafe === "PAID"
+    ? totalCost
+    : Number(paidAmountInput || 0);
+
+const paidAmount = Math.min(paidAmountRaw, totalCost);
+
+const dueAmount = isPurchase
+  ? Math.max(0, totalCost - paidAmount)
   : 0;
-
-   // const totalCost = quantity * finalUnitCost;
 
     // =====================================================
     // UPDATE INVENTORY
     // =====================================================
+
+        if (transactionType === "PURCHASE" && !supplierId) {
+  return {
+    success: false,
+    message: "Supplier required for purchase",
+  };
+}
 
     await inventoryRef.update({
       currentStock: afterStock,
@@ -137,60 +172,68 @@ const totalCost = shouldApplyCost
     // CREATE TRANSACTION
     // =====================================================
 
-    await adminDb
-      .collection("inventoryTransactions")
-      .add({
-        inventoryItemId,
 
-        supplierId: supplierId || "",
 
-        inventoryItemName: inventoryData?.name || "",
+   await adminDb
+  .collection("inventoryTransactions")
+  .add({
+    inventoryItemId,
+    supplierId: supplierId || "",
+    inventoryItemName: inventoryData?.name || "",
 
-        transactionType,
+    transactionType,
+    stockDirection,
+    quantity,
 
-        stockDirection,
+    beforeStock: previousStock,
+    afterStock,
 
-        quantity,
+unit: inventoryData?.consumptionUnit || "pcs",
 
-        beforeStock: previousStock,
+    unitCost: finalUnitCost,
+    totalCost: totalCost,
 
-        afterStock,
+    // ✅ NEW PAYMENT FIELDS
+  paymentStatus: paymentStatusSafe,
+    paymentMethod: paymentMethod || null,
+    paidAmount: paidAmount,
+    dueAmount: dueAmount,
 
-        unit:
-          inventoryData?.consumptionUnit || "pcs",
+    referenceType,
+    referenceId: referenceId || "",
 
-        // ✅ NEW FIELDS
-        unitCost: finalUnitCost,
-        totalCost: totalCost,
+    note: note || "Manual inventory adjustment",
 
-        referenceType,
+    createdBy: createdBy || "admin",
 
-        referenceId: referenceId || "",
-
-        note:
-          note ||
-          "Manual inventory adjustment",
-
-        createdBy: createdBy || "admin",
-
-        createdAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      });
+    createdAt:
+      admin.firestore.FieldValue.serverTimestamp(),
+  });
 
     // =====================================================
     // REVALIDATE
     // =====================================================
 
+
+
+  if (supplierId && isPurchase) {
+ await updateSupplierAccount({
+  supplierId,
+  transactionType,
+  totalCost,
+  paidAmount,
+  dueAmount,
+   paymentMethod, // ✅ ADD THIS
+});
+}
+
+
+
+
     revalidateTag("inventory-items", "max");
 
     revalidatePath("/admin/inventory");
     revalidatePath("/admin/inventory/dashboard");
-
-    await updateSupplierAccount({
-  supplierId,
-  transactionType,
-  totalCost,
-});
 
     return {
       success: true,

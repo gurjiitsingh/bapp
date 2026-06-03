@@ -14,8 +14,8 @@ export default async function Page() {
   const inventoryItems =
     await fetchInventoryItems();
 
-      const categories =
-        await fetchInventoryCategories();
+  const categories =
+    await fetchInventoryCategories();
 
   return (
     <Suspense>
@@ -43,27 +43,27 @@ export default async function Page() {
                 </div>
               </div>
 
-             <div className="flex items-center gap-3">
-              <Link href="/admin/inventory">
-    <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
-      <ArrowLeft size={18} />
-      Inventory View
-    </button>
-  </Link>
-  <Link href="/admin/inventory/dashboard">
-    <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
-      <ArrowLeft size={18} />
-      Inventory Dashboard
-    </button>
-  </Link>
+              <div className="flex items-center gap-3">
+                <Link href="/admin/inventory">
+                  <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
+                    <ArrowLeft size={18} />
+                    Inventory View
+                  </button>
+                </Link>
+                <Link href="/admin/inventory/dashboard">
+                  <button className="h-11 w-fit px-2 rounded-xl border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition">
+                    <ArrowLeft size={18} />
+                    Inventory Dashboard
+                  </button>
+                </Link>
 
-  <Link href="/admin/inventory/new">
-    <button className="btn-save-4 flex items-center gap-2">
-      <Plus size={18} />
-      Create Inventory
-    </button>
-  </Link>
-</div>
+                <Link href="/admin/inventory/new">
+                  <button className="btn-save-4 flex items-center gap-2">
+                    <Plus size={18} />
+                    Create Inventory
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@ export default async function Page() {
           <ListView
             inventoryItems={inventoryItems}
             categories={categories}
-            
+
           />
         </div>
       </div>
