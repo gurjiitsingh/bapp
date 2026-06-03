@@ -5,7 +5,7 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 type UpdateSupplierAccountParams = {
   supplierId?: string;
   transactionType: string;
-  totalCost: number;
+  totalAmount: number;
   paidAmount: number;   // ✅ ADD
   dueAmount: number;    // ✅ ADD
     paymentMethod?: PaymentMethod;
@@ -14,7 +14,7 @@ type UpdateSupplierAccountParams = {
 export async function updateSupplierAccount({
   supplierId,
   transactionType,
-  totalCost,
+  totalAmount,
   paidAmount,
   dueAmount,
   paymentMethod,
@@ -48,7 +48,7 @@ if (transactionType === "PURCHASE") {
     // ===============================
 
     if (transactionType === "PURCHASE") {
-      purchase = totalCost;
+      purchase = totalAmount;
       paid = paidAmount;
 
       // only unpaid part increases balance
@@ -56,9 +56,14 @@ if (transactionType === "PURCHASE") {
     }
 
     if (transactionType === "SUPPLIER_RETURN") {
-      debit = totalCost;
-      returnAmount = totalCost;
+      debit = totalAmount;
+      returnAmount = totalAmount;
     }
+
+    if (transactionType === "PAYMENT") {
+  debit = paidAmount; // reduce balance
+  paid = paidAmount;
+}
 
     // ===============================
     // UPDATE (ATOMIC)

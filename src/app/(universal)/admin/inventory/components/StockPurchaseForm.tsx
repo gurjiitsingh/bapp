@@ -21,9 +21,10 @@ import {
   InventoryUnit,
 } from "@/lib/types/InventoryItemType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { PaymentStatus } from "@/lib/types/PaymentStatus";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
-type PaymentStatus = "PAID" | "CREDIT";
+
 type FormType = {
   inventoryItemId: string;
   supplierId?: string;

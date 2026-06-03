@@ -3,6 +3,15 @@ import { getSupplierAccount } from "@/app/(universal)/action/inventorySupplier/g
 import SupplierAccountView from "../components/SupplierAccountView";
 
 
+
+
+// export default async function Page({
+//   params,
+// }: {
+//   params: { id: string };
+// }) {
+//   const { id } = params; // ✅ no await
+
 export default async function Page({
   params,
 }: {

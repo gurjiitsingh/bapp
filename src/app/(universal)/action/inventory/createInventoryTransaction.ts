@@ -79,6 +79,12 @@ export async function createInventoryTransaction(
     // SAVE TRANSACTION
     // =====================================================
 
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // 1-12
+    const day = now.getDate();
+
     const transactionData = {
       inventoryItemId,
 
@@ -106,6 +112,10 @@ export async function createInventoryTransaction(
 
       createdAt:
         admin.firestore.FieldValue.serverTimestamp(),
+
+      year,
+      month,
+      day,
     };
 
     const docRef = await adminDb
