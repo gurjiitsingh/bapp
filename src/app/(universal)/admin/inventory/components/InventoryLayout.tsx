@@ -38,7 +38,7 @@ export default function InventoryTabs() {
   const pathname = usePathname();
 
   return (
-   <div className="bg-[#f6f8fb] p-2 pt-0 md:px-6">
+   <div className="bg-[#f6f8fb] p-2 pt-5 md:px-6">
       <div className="w-full mx-auto flex flex-col gap-6">
     
         {/* ===================================================== */}
@@ -46,6 +46,47 @@ export default function InventoryTabs() {
         {/* ===================================================== */}
 
         <div className="grid grid-cols-2 xl:grid-cols-7 gap-3">
+
+               <Link
+            href="/admin/inventory/purchase/add"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <PackagePlus
+                size={22}
+                className="text-orange-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Stock Purchase
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Add stock
+            </p>
+          </Link>
+
+    <Link
+            href="/admin/inventory/supplier"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <Truck
+                size={22}
+                className="text-violet-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Suppliers
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              View
+            </p>
+          </Link>
+
 
           <Link
             href="/admin/inventory"
@@ -87,25 +128,7 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-              <Link
-            href="/admin/inventory/purchase/add"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
-                size={22}
-                className="text-orange-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Stock Purchase
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Add stock
-            </p>
-          </Link>
+         
 
           <Link
             href="/admin/inventory/adjust-stock"
@@ -166,25 +189,7 @@ export default function InventoryTabs() {
               View
             </p>
           </Link>
-          <Link
-            href="/admin/inventory/supplier"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <Truck
-                size={22}
-                className="text-violet-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Suppliers
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              View
-            </p>
-          </Link>
+      
         </div>
 
     </div>

@@ -4,14 +4,19 @@ import { getSupplierLedger } from "@/app/(universal)/action/inventoryItemSupplie
 export default async function Page({
   params,
   searchParams,
-}: any) {
-  const supplierId = params.id;
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: { from?: string; to?: string };
+}) {
+  const { id } = await params; // ✅ FIX
+
+  console.log("supplierId------------", id);
 
   const fromDate = searchParams?.from;
   const toDate = searchParams?.to;
 
   const res = await getSupplierLedger({
-    supplierId,
+    supplierId:id,
     fromDate,
     toDate,
   });

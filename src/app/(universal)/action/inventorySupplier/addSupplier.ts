@@ -1,249 +1,92 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
-
 import { adminDb } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
+import { revalidatePath, revalidateTag } from "next/cache";
 
-export async function addSupplier(
-  formData: FormData
-) {
+type PaymentMethod = "CASH" | "UPI" | "CARD";
+
+export async function paySupplierDue(formData: FormData) {
   try {
-    const companyName =
-      (
-        formData.get(
-          "companyName"
-        ) as string
-      )?.trim() || "";
+    const supplierId =
+      (formData.get("supplierId") as string) || "";
 
-    const contactPerson =
-      (
-        formData.get(
-          "contactPerson"
-        ) as string
-      )?.trim() || "";
+    const amount = Number(formData.get("amount") || 0);
 
-    const phone =
-      (
-        formData.get(
-          "phone"
-        ) as string
-      )?.trim() || "";
+    const paymentMethod =
+      (formData.get("paymentMethod") as PaymentMethod) || "CASH";
 
-    const email =
-      (
-        formData.get(
-          "email"
-        ) as string
-      )?.trim() || "";
+    const note =
+      (formData.get("note") as string)?.trim() || "";
 
-    const address =
-      (
-        formData.get(
-          "address"
-        ) as string
-      )?.trim() || "";
-
-    const city =
-      (
-        formData.get(
-          "city"
-        ) as string
-      )?.trim() || "";
-
-    const state =
-      (
-        formData.get(
-          "state"
-        ) as string
-      )?.trim() || "";
-
-    const pincode =
-      (
-        formData.get(
-          "pincode"
-        ) as string
-      )?.trim() || "";
-
-    const gstNumber =
-      (
-        formData.get(
-          "gstNumber"
-        ) as string
-      )?.trim() || "";
-
-    const panNumber =
-      (
-        formData.get(
-          "panNumber"
-        ) as string
-      )?.trim() || "";
-
-    const fssaiLicenseNumber =
-      (
-        formData.get(
-          "fssaiLicenseNumber"
-        ) as string
-      )?.trim() || "";
-
-    const type =
-      (
-        formData.get(
-          "type"
-        ) as string
-      )?.trim() || "purchase";
-
-    const notes =
-      (
-        formData.get(
-          "notes"
-        ) as string
-      )?.trim() || "";
-
-    const taxCollectedAtSource =
-      formData.get(
-        "taxCollectedAtSource"
-      ) === "true";
-
-    const isActive =
-      formData.get(
-        "isActive"
-      ) === "true";
-
-    // Validation
-    if (!companyName) {
+    if (!supplierId || amount <= 0) {
       return {
         errors: {
-          companyName:
-            "Company name is required",
+          general: "Invalid payment data",
         },
       };
     }
 
-    if (!contactPerson) {
+    // ✅ Get last balance
+    const snapshot = await adminDb
+      .collection("supplierLedger")
+      .where("supplierId", "==", supplierId)
+      .orderBy("createdAt", "desc")
+      .limit(1)
+      .get();
+
+    let prevBalance = 0;
+
+    if (!snapshot.empty) {
+      prevBalance =
+        snapshot.docs[0].data().balance || 0;
+    }
+
+    // 🚨 Prevent overpayment (optional but recommended)
+    if (amount > prevBalance) {
       return {
         errors: {
-          contactPerson:
-            "Contact person is required",
+          amount: "Amount exceeds due balance",
         },
       };
     }
 
-    if (!phone) {
-      return {
-        errors: {
-          phone:
-            "Phone number is required",
-        },
-      };
-    }
+    const newBalance = prevBalance - amount;
 
-    const companyNameLower =
-      companyName.toLowerCase();
+    // ✅ Create PAYMENT entry
+    await adminDb.collection("supplierLedger").add({
+      supplierId,
 
-    // Duplicate check
-    const existingSupplier =
-      await adminDb
-        .collection(
-          "suppliers"
-        )
-        .where(
-          "companyNameLower",
-          "==",
-          companyNameLower
-        )
-        .limit(1)
-        .get();
+      type: "PAYMENT",
 
-    if (
-      !existingSupplier.empty
-    ) {
-      return {
-        errors: {
-          companyName:
-            "Supplier already exists",
-        },
-      };
-    }
+      totalAmount: 0,
+      paidAmount: amount,
+      dueAmount: 0,
 
-    const data = {
-      companyName,
+      paymentMethod,
 
-      companyNameLower,
+      balance: newBalance,
 
-      contactPerson,
-
-      phone,
-
-      email,
-
-      address,
-
-      city,
-
-      state,
-
-      pincode,
-
-      gstNumber,
-
-      panNumber,
-
-      fssaiLicenseNumber,
-
-      type,
-
-      taxCollectedAtSource,
-
-      notes,
-
-      isActive,
+      note: note || "Supplier payment",
 
       createdAt:
         admin.firestore.FieldValue.serverTimestamp(),
+    });
 
-      updatedAt:
-        admin.firestore.FieldValue.serverTimestamp(),
-    };
-
-    const docRef =
-      await adminDb
-        .collection(
-          "suppliers"
-        )
-        .add(data);
-
-    revalidateTag(
-      "suppliers",
-      "max"
-    );
-
-    revalidatePath(
-      "/admin/inventory/supplier"
-    );
-
-    revalidatePath(
-      "/admin/inventory/supplier/add"
-    );
+    // 🔥 Revalidate
+    revalidateTag("supplier-ledger", "max");
+    revalidatePath(`/admin/inventory/supplier/${supplierId}`);
 
     return {
       success: true,
-
-      id: docRef.id,
-
-      message:
-        "Supplier created successfully",
+      message: "Payment recorded",
     };
   } catch (error) {
-    console.error(
-      "❌ Supplier save failed:",
-      error
-    );
+    console.error("❌ Payment failed:", error);
 
     return {
       errors: {
-        general:
-          "Could not save supplier",
+        general: "Something went wrong",
       },
     };
   }

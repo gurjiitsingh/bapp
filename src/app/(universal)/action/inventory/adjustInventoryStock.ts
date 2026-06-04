@@ -141,7 +141,14 @@ const paidAmountRaw =
     ? totalAmount
     : Number(paidAmountInput || 0);
 
-const paidAmount = Math.min(paidAmountRaw, totalAmount);
+if (paidAmountRaw > totalAmount) {
+  return {
+    success: false,
+    message: "Paid amount cannot exceed total amount",
+  };
+}
+
+const paidAmount = paidAmountRaw;
 
 const dueAmount = isPurchase
   ? Math.max(0, totalAmount - paidAmount)
@@ -210,6 +217,44 @@ unit: inventoryData?.consumptionUnit || "pcs",
     createdAt:
       admin.firestore.FieldValue.serverTimestamp(),
   });
+
+
+
+
+// ================= 🔥 SUPPLIER LEDGER =================
+const isSupplierFlow =
+  supplierId &&
+  (transactionType === "PURCHASE" ||
+   transactionType === "SUPPLIER_RETURN");
+
+if (isSupplierFlow) {
+
+  let ledgerType: "PURCHASE" | "RETURN" = "PURCHASE";
+
+  if (transactionType === "SUPPLIER_RETURN") {
+    ledgerType = "RETURN";
+  }
+
+  await adminDb.collection("supplierLedger").add({
+    supplierId,
+
+    type: ledgerType,
+
+    totalAmount,
+    paidAmount,   // ✅ SAME as inventory
+    dueAmount,    // ✅ SAME as inventory
+
+    paymentMethod: paymentMethod || null,
+
+    referenceType,
+    referenceId: referenceId || "",
+
+    note: note || "Inventory transaction",
+
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
 
     // =====================================================
     // REVALIDATE

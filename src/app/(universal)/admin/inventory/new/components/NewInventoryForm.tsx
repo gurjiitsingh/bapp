@@ -171,7 +171,7 @@ export default function NewInventoryForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-7xl mx-auto p-4 md:p-6"
+      className="w-full  p-4 md:p-6"
     >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
@@ -186,7 +186,7 @@ export default function NewInventoryForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
         {/* LEFT */}
         <div className="xl:col-span-2 flex flex-col gap-5">
           {/* Inventory Details */}
@@ -311,17 +311,17 @@ export default function NewInventoryForm({
                     <option value="ltr">Liter (ltr)</option>
                     <option value="ml">Milliliter (ml)</option>
                     <option value="pcs">Pieces (pcs)</option>
-                    {/* <option value="dozen">Dozen</option>
+                    <option value="dozen">Dozen</option>
                     <option value="pair">Pair</option>
-                    <option value="box">Box</option> */}
+                    <option value="box">Box</option>
                     <option value="pack">Pack</option>
-                    {/* <option value="carton">Carton</option> */}
+                    <option value="carton">Carton</option>
                     <option value="bag">Bag</option>
                     <option value="bottle">Bottle</option>
                     <option value="can">Can</option>
                     <option value="jar">Jar</option>
                     <option value="roll">Roll</option>
-                    {/* <option value="tray">Tray</option> */}
+                    <option value="tray">Tray</option>
 
 
                   </select>
@@ -346,17 +346,17 @@ export default function NewInventoryForm({
                     <option value="ltr">Liter (ltr)</option>
                     <option value="ml">Milliliter (ml)</option>
                     <option value="pcs">Pieces (pcs)</option>
-                    {/* <option value="dozen">Dozen</option>
-                    <option value="pair">Pair</option> */}
+                    <option value="dozen">Dozen</option>
+                    <option value="pair">Pair</option>
                     <option value="box">Box</option>
                     <option value="pack">Pack</option>
-                    {/* <option value="carton">Carton</option> */}
+                    <option value="carton">Carton</option>
                     <option value="bag">Bag</option>
                     <option value="bottle">Bottle</option>
                     <option value="can">Can</option>
                     <option value="jar">Jar</option>
                     <option value="roll">Roll</option>
-                    {/* <option value="tray">Tray</option> */}
+                    <option value="tray">Tray</option>
                   </select>
 
                   <p className="text-xs text-gray-500 mt-1">
@@ -426,7 +426,13 @@ export default function NewInventoryForm({
             </div>
           </div>
 
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+     
+        </div>
+
+        <div>
+
+
+     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold mb-4">
               Suppliers
             </h2>
@@ -501,6 +507,7 @@ export default function NewInventoryForm({
               </div>
             </div>
           </div>
+
         </div>
 
         {/* RIGHT */}

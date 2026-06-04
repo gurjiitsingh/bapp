@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { Supplier } from "@/lib/types/SupplierType";
+
 import ListView from "./components/ListView";
 import { fetchSuppliers } from "@/app/(universal)/action/inventorySupplier/fetchSuppliers";
 

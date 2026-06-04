@@ -258,7 +258,7 @@ setIsSubmitting(true);
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl">
 
         {/* ===================================================== */}
         {/* HEADER */}
