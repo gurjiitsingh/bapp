@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -24,9 +25,9 @@ type Props = {
 type FormType = {
   inventoryItemId: string;
 
- transactionType:
+  transactionType:
   | "PURCHASE"
-  | "OPENING"
+  | "OPENING_STOCK"
   | "ADJUSTMENT"
   | "WASTAGE"
   | "SUPPLIER_RETURN"
@@ -77,7 +78,7 @@ export default function StockAdjustmentForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
-      transactionType: "PURCHASE",
+      transactionType: "OPENING_STOCK",
       stockDirection: "IN",
       quantity: 0,
       transactionUnit: "pcs",
@@ -91,32 +92,34 @@ export default function StockAdjustmentForm({
 
   const transactionUnit = watch("transactionUnit");
 
+
+
   // =====================================================
   // AUTO SET STOCK DIRECTION
   // =====================================================
 
-  React.useEffect(() => {
-    if (
-      transactionType === "PURCHASE" ||
-      transactionType === "OPENING" ||
-      transactionType === "CUSTOMER_RETURN"
-    ) {
-      setValue("stockDirection", "IN");
-    }
+  // React.useEffect(() => {
+  //   if (
+  //     transactionType === "PURCHASE" ||
+  //     transactionType === "OPENING_STOCK" ||
+  //     transactionType === "CUSTOMER_RETURN"
+  //   ) {
+  //     setValue("stockDirection", "IN");
+  //   }
 
-    if (
-      transactionType === "WASTAGE"
-    ) {
-      setValue("stockDirection", "OUT");
-    }
-  }, [transactionType, setValue]);
+  //   if (
+  //     transactionType === "WASTAGE"
+  //   ) {
+  //     setValue("stockDirection", "OUT");
+  //   }
+  // }, [transactionType, setValue]);
 
 
 
   React.useEffect(() => {
     switch (transactionType) {
       case "PURCHASE":
-      case "OPENING":
+      case "OPENING_STOCK":
       case "CUSTOMER_RETURN":
         setValue("stockDirection", "IN");
         break;
@@ -155,35 +158,87 @@ export default function StockAdjustmentForm({
   // SUBMIT
   // =====================================================
 
-  async function onSubmit(
-    data: FormType
-  ) {
+  async function onSubmit(data: FormType) {
+    if (isSubmitting) return;
+
     if (!selectedInventory) {
+      alert("Please select inventory item");
+      return;
+    }
+
+    const decimalAllowedUnits = [
+      "kg",
+      "gm",
+      "ltr",
+      "ml",
+    ];
+
+    const quantity =
+      Number(data.quantity);
+
+    // prevent decimal in pcs
+    if (
+      !decimalAllowedUnits.includes(
+        data.transactionUnit
+      ) &&
+      !Number.isInteger(quantity)
+    ) {
       alert(
-        "Please select inventory item"
+        `Decimal quantity not allowed for ${data.transactionUnit}`
       );
 
       return;
     }
 
+    // =====================================
+    // ORIGINAL VALUES
+    // =====================================
 
+    const originalQuantity =
+      Number(data.quantity);
 
+    // =====================================
+    // INTERNAL VALUES
+    // =====================================
 
+    let finalQuantity =
+      Number(data.quantity);
 
-    
-let finalQuantity = Number(data.quantity);
+    // convert purchase -> consumption
+    if (
+      data.transactionUnit ===
+      selectedInventory.purchaseUnit &&
+      selectedInventory.purchaseUnit !==
+      selectedInventory.consumptionUnit
+    ) {
+      finalQuantity =
+        finalQuantity *
+        selectedInventory.conversionFactor;
+    }
+
+    setIsSubmitting(true);
+
+    let unitCost = 0;
+
+    if (
+      data.transactionType === "OPENING_STOCK" ||
+      data.transactionType === "CUSTOMER_RETURN"
+    ) {
+      unitCost =
+        selectedInventory.costPrice || 0;
+    }
+
+    let purchaseUnitCost =
+  selectedInventory.costPrice || 0;
 
 if (
-  data.transactionUnit === "kg" ||
-  data.transactionUnit === "ltr" 
- 
+  selectedInventory.purchaseUnit !==
+  selectedInventory.consumptionUnit
 ) {
-  finalQuantity =
-    finalQuantity *
+  purchaseUnitCost =
+    purchaseUnitCost *
     selectedInventory.conversionFactor;
 }
-
-setIsSubmitting(true);
 
     try {
       const result =
@@ -197,7 +252,30 @@ setIsSubmitting(true);
           stockDirection:
             data.stockDirection,
 
+          // =====================================
+          // INTERNAL
+          // =====================================
+
           quantity: finalQuantity,
+
+          unitCost,
+
+          // =====================================
+          // ORIGINAL
+          // =====================================
+
+          purchaseQuantity:
+            originalQuantity,
+
+          purchaseUnit:
+            data.transactionUnit,
+
+          purchaseUnitCost,
+
+          conversionFactor:
+            selectedInventory.conversionFactor,
+
+          paymentStatus: "PAID",
 
           note: data.note,
 
@@ -205,52 +283,35 @@ setIsSubmitting(true);
         });
 
       if (result.success) {
-        // alert(
-        //   "Inventory updated successfully"
-        // );
-
-        // CALCULATE NEW LOCAL STOCK
         let updatedStock =
           selectedInventory.currentStock;
 
-      if (data.stockDirection === "IN") {
-  updatedStock =
-    updatedStock + finalQuantity;
-} else {
-  updatedStock =
-    updatedStock - finalQuantity;
-}
+        if (data.stockDirection === "IN") {
+          updatedStock += finalQuantity;
+        } else {
+          updatedStock -= finalQuantity;
+        }
 
-        // UPDATE LOCAL UI
         setSelectedInventory({
           ...selectedInventory,
           currentStock: updatedStock,
         });
 
-        // RESET ONLY SMALL FIELDS
         reset({
-          transactionType: "PURCHASE",
-
+          transactionType: "OPENING_STOCK",
           stockDirection: "IN",
-
           quantity: 0,
-
           note: "",
-
           inventoryItemId:
             selectedInventory.id,
         });
       } else {
-        alert(
-          result.message
-        );
+        alert(result.message);
       }
     } catch (error) {
       console.error(error);
 
-      alert(
-        "Something went wrong"
-      );
+      alert("Something went wrong");
     }
 
     setIsSubmitting(false);
@@ -405,16 +466,14 @@ setIsSubmitting(true);
                 </div>
               </div>
 
-    <div className="text-2xl font-bold text-blue-700">
-  {selectedInventory.purchaseUnit === "kg"
-    ? selectedInventory.currentStock /
-      selectedInventory.conversionFactor
-    : selectedInventory.purchaseUnit === "ltr"
-      ? selectedInventory.currentStock /
-        selectedInventory.conversionFactor
-      : selectedInventory.currentStock}{" "}
-  {selectedInventory.purchaseUnit}
-</div>
+              <div className="text-2xl font-bold text-blue-700">
+                {displayStock(
+                  selectedInventory.currentStock,
+                  selectedInventory.purchaseUnit,
+                  selectedInventory.consumptionUnit,
+                  selectedInventory.conversionFactor
+                )}
+              </div>
             </div>
           )}
 
@@ -437,7 +496,7 @@ setIsSubmitting(true);
                   Purchase
                 </option> */}
 
-                <option value="OPENING">
+                <option value="OPENING_STOCK">
                   Opening Stock
                 </option>
 
@@ -511,23 +570,31 @@ setIsSubmitting(true);
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                {selectedInventory?.purchaseUnit === "kg" && (
-                  <>
-                    <option value="kg">Kilogram (kg)</option>
-                    {/* <option value="gm">Gram (gm)</option> */}
-                  </>
+                {selectedInventory && (
+                  <option
+                    value={
+                      selectedInventory.purchaseUnit
+                    }
+                  >
+                    {
+                      selectedInventory.purchaseUnit
+                    }
+                  </option>
                 )}
 
-                {selectedInventory?.purchaseUnit === "ltr" && (
-                  <>
-                    <option value="ltr">Liter (ltr)</option>
-                    {/* <option value="ml">Milliliter (ml)</option> */}
-                  </>
-                )}
-
-                {selectedInventory?.purchaseUnit === "pcs" && (
-                  <option value="pcs">Pieces (pcs)</option>
-                )}
+                {selectedInventory &&
+                  selectedInventory.consumptionUnit !==
+                  selectedInventory.purchaseUnit && (
+                    <option
+                      value={
+                        selectedInventory.consumptionUnit
+                      }
+                    >
+                      {
+                        selectedInventory.consumptionUnit
+                      }
+                    </option>
+                  )}
               </select>
             </div>
 

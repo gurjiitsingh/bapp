@@ -108,7 +108,7 @@ export default function StockPurchaseForm({
   React.useEffect(() => {
     if (
       transactionType === "PURCHASE" ||
-      transactionType === "OPENING" ||
+      transactionType === "OPENING_STOCK" ||
       transactionType === "CUSTOMER_RETURN"
     ) {
       setValue("stockDirection", "IN");
@@ -126,7 +126,7 @@ export default function StockPurchaseForm({
   React.useEffect(() => {
     switch (transactionType) {
       case "PURCHASE":
-      case "OPENING":
+      case "OPENING_STOCK":
       case "CUSTOMER_RETURN":
         setValue("stockDirection", "IN");
         break;
@@ -172,6 +172,34 @@ export default function StockPurchaseForm({
       alert("Please select inventory item");
       return;
     }
+
+    // =====================================
+// PURCHASE VALIDATIONS
+// =====================================
+
+if (data.transactionType === "PURCHASE") {
+
+  // supplier required
+  if (!data.supplierId) {
+    alert("Please select supplier");
+    return;
+  }
+
+  // price required
+  if (!data.unitCost || Number(data.unitCost) <= 0) {
+    alert("Unit cost must be greater than 0");
+    return;
+  }
+
+  // payment method required
+  if (
+    data.paymentStatus === "PAID" &&
+    !data.paymentMethod
+  ) {
+    alert("Please select payment method");
+    return;
+  }
+}
 
     const decimalAllowedUnits = [
       "kg",
@@ -294,6 +322,7 @@ export default function StockPurchaseForm({
           stockDirection: "IN",
           quantity: 0,
           note: "",
+          unitCost:0,
           inventoryItemId: selectedInventory.id,
         });
       } else {
@@ -307,11 +336,7 @@ export default function StockPurchaseForm({
     setIsSubmitting(false);
   }
 
-  useEffect(() => {
-    if (selectedInventory?.costPrice) {
-      setValue("unitCost", selectedInventory.costPrice);
-    }
-  }, [selectedInventory]);
+ 
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -515,8 +540,8 @@ export default function StockPurchaseForm({
                   Purchase
                 </option>
 
-                <option value="OPENING">
-                  Opening Stock
+                <option value="OPENING_STOCK">
+                  OPENING_STOCK Stock
                 </option>
 
                 <option value="CUSTOMER_RETURN">

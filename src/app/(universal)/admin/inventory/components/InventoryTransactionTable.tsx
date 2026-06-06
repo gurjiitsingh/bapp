@@ -18,7 +18,7 @@ type Props = {
 export default function InventoryTransactionTable({
   transactions,
 }: Props) {
-  console.log("transactions------------", transactions)
+ 
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white">
      <Table
@@ -244,14 +244,15 @@ export default function InventoryTransactionTable({
                 {tx.createdBy}
               </TableCell>
 
-              <TableCell>
-                {tx.createdAt?.seconds
-                  ? new Date(
-                    tx.createdAt.seconds *
-                    1000
-                  ).toLocaleString()
-                  : "-"}
-              </TableCell>
+           <TableCell>
+  {tx.createdAt
+    ? new Date(
+        tx.createdAt?.seconds
+          ? tx.createdAt.seconds * 1000
+          : tx.createdAt
+      ).toLocaleString()
+    : "-"}
+</TableCell>
             </TableRow>
           ))}
         </TableBody>
