@@ -18,25 +18,35 @@ type AdjustInventoryStockType = {
 
   transactionType: InventoryTransactionNameType;
 
+  stockDirection: "IN" | "OUT";
 
-  stockDirection:
-  | "IN"
-  | "OUT";
-
+  // =====================================
+  // INTERNAL STOCK VALUES (consumption)
+  // =====================================
   quantity: number;
   unitCost: number;
-   paymentStatus: PaymentStatus; 
+
+  // =====================================
+  // ORIGINAL USER INPUT VALUES
+  // =====================================
+  purchaseQuantity?: number;
+  purchaseUnit?: string;
+  purchaseUnitCost?: number;
+  conversionFactor?: number;
+
+  paymentStatus: PaymentStatus;
+
   paymentMethod?: PaymentMethod;
-  paidAmount?: number;          
+
+  paidAmount?: number;
+
   note?: string;
 
   createdBy?: string;
 
   referenceId?: string;
 
-  referenceType?:
-  | "PURCHASE"
-  | "MANUAL";
+  referenceType?: "PURCHASE" | "MANUAL";
 };
 
 export async function adjustInventoryStock({
@@ -44,11 +54,19 @@ export async function adjustInventoryStock({
   supplierId,
   transactionType,
   stockDirection,
+
   quantity,
   unitCost,
-  paymentStatus,                 
-  paymentMethod,                 
-  paidAmount: paidAmountInput,    
+
+  // ✅ ADD THESE
+  purchaseQuantity,
+  purchaseUnit,
+  purchaseUnitCost,
+  conversionFactor,
+
+  paymentStatus,
+  paymentMethod,
+  paidAmount: paidAmountInput,
 
   note,
   createdBy,
@@ -222,37 +240,94 @@ await inventoryRef.update({
     // CREATE TRANSACTION
     // =====================================================
 
-   await adminDb
+  await adminDb
   .collection("inventoryTransactions")
   .add({
     inventoryItemId,
+
     supplierId: supplierId || "",
-    inventoryItemName: inventoryData?.name || "",
+
+    inventoryItemName:
+      inventoryData?.name || "",
 
     transactionType,
+
     stockDirection,
+
+    // =====================================
+    // ORIGINAL PURCHASE VALUES
+    // =====================================
+
+    purchaseQuantity:
+      purchaseQuantity || quantity,
+
+    purchaseUnit:
+      purchaseUnit ||
+      inventoryData?.purchaseUnit ||
+      inventoryData?.consumptionUnit,
+
+    purchaseUnitCost:
+      purchaseUnitCost || unitCost,
+
+    conversionFactor:
+      conversionFactor ||
+      inventoryData?.conversionFactor ||
+      1,
+
+    // =====================================
+    // INTERNAL STOCK VALUES
+    // =====================================
+
     quantity,
 
-    beforeStock: previousStock,
-    afterStock,
-
-unit: inventoryData?.consumptionUnit || "pcs",
+    unit:
+      inventoryData?.consumptionUnit || "pcs",
 
     unitCost: finalUnitCost,
-    totalAmount: totalAmount,
 
-    // ✅ NEW PAYMENT FIELDS
-  paymentStatus: paymentStatusSafe,
-    paymentMethod: paymentMethod || null,
-    paidAmount: paidAmount,
-    dueAmount: dueAmount,
+    // =====================================
+    // STOCK SNAPSHOT
+    // =====================================
+
+    beforeStock: previousStock,
+
+    afterStock,
+
+    // =====================================
+    // AMOUNTS
+    // =====================================
+
+    totalAmount,
+
+    paidAmount,
+
+    dueAmount,
+
+    paymentStatus:
+      paymentStatusSafe,
+
+    paymentMethod:
+      paymentMethod || null,
+
+    // =====================================
+    // REFERENCES
+    // =====================================
 
     referenceType,
-    referenceId: referenceId || "",
 
-    note: note || "Manual inventory adjustment",
+    referenceId:
+      referenceId || "",
 
-    createdBy: createdBy || "admin",
+    // =====================================
+    // META
+    // =====================================
+
+    note:
+      note ||
+      "Manual inventory adjustment",
+
+    createdBy:
+      createdBy || "admin",
 
     createdAt:
       admin.firestore.FieldValue.serverTimestamp(),

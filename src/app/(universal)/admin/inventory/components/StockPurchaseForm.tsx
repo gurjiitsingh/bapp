@@ -29,7 +29,7 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 type FormType = {
   inventoryItemId: string;
   supplierId?: string;
-
+supplierName?: string;
   transactionType: InventoryTransactionNameType;
 
   stockDirection: "IN" | "OUT";
@@ -165,108 +165,147 @@ export default function StockPurchaseForm({
   // SUBMIT
   // =====================================================
 
- async function onSubmit(data: FormType) {
-  if (isSubmitting) return;
+  async function onSubmit(data: FormType) {
+    if (isSubmitting) return;
 
-  if (!selectedInventory) {
-    alert("Please select inventory item");
-    return;
-  }
+    if (!selectedInventory) {
+      alert("Please select inventory item");
+      return;
+    }
 
-const decimalAllowedUnits = [
-  "kg",
-  "gm",
-  "ltr",
-  "ml",
-];
+    const decimalAllowedUnits = [
+      "kg",
+      "gm",
+      "ltr",
+      "ml",
+    ];
 
-const quantity =
-  Number(data.quantity);
+    const quantity =
+      Number(data.quantity);
 
-if (
-  !decimalAllowedUnits.includes(
-    data.transactionUnit
-  ) &&
-  !Number.isInteger(quantity)
-) {
-  alert(
-    `Decimal quantity not allowed for ${data.transactionUnit}`
+    if (
+      !decimalAllowedUnits.includes(
+        data.transactionUnit
+      ) &&
+      !Number.isInteger(quantity)
+    ) {
+      alert(
+        `Decimal quantity not allowed for ${data.transactionUnit}`
+      );
+
+      return;
+    }
+
+    const selectedSupplier =
+  linkedSuppliers.find(
+    (s) => s.id === data.supplierId
   );
 
-  return;
-}
+    let finalQuantity =
+      Number(data.quantity);
 
-let finalQuantity =
-  Number(data.quantity);
+    let finalUnitCost =
+      Number(data.unitCost);
 
-// Convert purchase unit -> consumption unit
-if (
-  data.transactionUnit ===
-    selectedInventory.purchaseUnit &&
-  selectedInventory.purchaseUnit !==
-    selectedInventory.consumptionUnit
-) {
-  finalQuantity =
-    finalQuantity *
-    selectedInventory.conversionFactor;
-}
+    const originalQuantity =
+      Number(data.quantity);
 
-  setIsSubmitting(true);
+    const originalUnitCost =
+      Number(data.unitCost);
 
-  console.log("paymentMethod--------------",data.paymentMethod)
+    // Convert purchase unit -> consumption unit
+    if (
+      data.transactionUnit ===
+      selectedInventory.purchaseUnit &&
+      selectedInventory.purchaseUnit !==
+      selectedInventory.consumptionUnit
+    ) {
+      // quantity convert
+      finalQuantity =
+        finalQuantity *
+        selectedInventory.conversionFactor;
 
-  try {
-    const result = await adjustInventoryStock({
-      inventoryItemId: data.inventoryItemId,
-      supplierId: data.supplierId,
-
-      transactionType: data.transactionType,
-      stockDirection: data.stockDirection,
-
-      quantity: finalQuantity,
-
-      unitCost: Number(data.unitCost),
-
-      paymentStatus: data.paymentStatus,
-      paymentMethod: data.paymentMethod,
-      paidAmount: Number(data.paidAmount || 0),
-
-      note: data.note,
-      createdBy: "admin",
-    });
-
-    if (result.success) {
-      let updatedStock =
-        selectedInventory.currentStock;
-
-      if (data.stockDirection === "IN") {
-        updatedStock += finalQuantity;
-      } else {
-        updatedStock -= finalQuantity;
-      }
-
-      setSelectedInventory({
-        ...selectedInventory,
-        currentStock: updatedStock,
-      });
-
-      reset({
-        transactionType: "PURCHASE",
-        stockDirection: "IN",
-        quantity: 0,
-        note: "",
-        inventoryItemId: selectedInventory.id,
-      });
-    } else {
-      alert(result.message);
+      // ✅ cost convert
+      finalUnitCost =
+        finalUnitCost /
+        selectedInventory.conversionFactor;
     }
-  } catch (error) {
-    console.error(error);
-    alert("Something went wrong");
-  }
 
-  setIsSubmitting(false);
-}
+    setIsSubmitting(true);
+
+    console.log("paymentMethod--------------", data)
+
+    try {
+   const result = await adjustInventoryStock({
+  inventoryItemId: data.inventoryItemId,
+
+  supplierId: data.supplierId,
+
+  // ✅ ADD THIS
+  supplierName:
+    selectedSupplier?.companyName || "",
+
+  transactionType: data.transactionType,
+
+  stockDirection: data.stockDirection,
+
+  // INTERNAL
+  quantity: finalQuantity,
+
+  unitCost: finalUnitCost,
+
+  // ORIGINAL
+  purchaseQuantity: originalQuantity,
+
+  purchaseUnit: data.transactionUnit,
+
+  purchaseUnitCost: originalUnitCost,
+
+  conversionFactor:
+    selectedInventory.conversionFactor,
+
+  paymentStatus: data.paymentStatus,
+
+  paymentMethod: data.paymentMethod,
+
+  paidAmount: Number(data.paidAmount || 0),
+
+  note: data.note,
+
+  createdBy: "admin",
+});
+      if (result.success) {
+        let updatedStock =
+          selectedInventory.currentStock;
+
+        if (data.stockDirection === "IN") {
+          updatedStock += finalQuantity;
+        } else {
+          updatedStock -= finalQuantity;
+        }
+
+        setSelectedInventory({
+          ...selectedInventory,
+          currentStock: updatedStock,
+        });
+
+        reset({
+          transactionType: "PURCHASE",
+          stockDirection: "IN",
+          quantity: 0,
+          note: "",
+          inventoryItemId: selectedInventory.id,
+        });
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    }
+
+    setIsSubmitting(false);
+  }
 
   useEffect(() => {
     if (selectedInventory?.costPrice) {
@@ -423,14 +462,14 @@ if (
                 </div>
               </div>
 
-            <div className="text-2xl font-bold text-blue-700">
-  {displayStock(
-    selectedInventory.currentStock,
-    selectedInventory.purchaseUnit,
-    selectedInventory.consumptionUnit,
-    selectedInventory.conversionFactor
-  )}
-</div>
+              <div className="text-2xl font-bold text-blue-700">
+                {displayStock(
+                  selectedInventory.currentStock,
+                  selectedInventory.purchaseUnit,
+                  selectedInventory.consumptionUnit,
+                  selectedInventory.conversionFactor
+                )}
+              </div>
             </div>
           )}
 
@@ -623,21 +662,21 @@ if (
               )}
 
               {watch("paymentStatus") === "PAID" && (
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Payment Method
-    </label>
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Payment Method
+                  </label>
 
-    <select
-      {...register("paymentMethod")}
-      className="input-style-4"
-    >
-      <option value="CASH">Cash</option>
-      <option value="UPI">UPI</option>
-      <option value="CARD">Card</option>
-    </select>
-  </div>
-)}
+                  <select
+                    {...register("paymentMethod")}
+                    className="input-style-4"
+                  >
+                    <option value="CASH">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="CARD">Card</option>
+                  </select>
+                </div>
+              )}
 
             </div>
 
