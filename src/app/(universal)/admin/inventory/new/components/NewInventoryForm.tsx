@@ -21,6 +21,96 @@ type Props = {
   suppliers: SupplierType[];
 };
 
+const UNIT_PAIRS: Record<
+  string,
+  {
+    unit: string;
+    factor: number;
+  }[]
+> = {
+  kg: [
+    { unit: "kg", factor: 1 },
+    { unit: "gm", factor: 1000 },
+  ],
+
+  gm: [
+    { unit: "gm", factor: 1 },
+  ],
+
+  ltr: [
+    { unit: "ltr", factor: 1 },
+    { unit: "ml", factor: 1000 },
+  ],
+
+  ml: [
+    { unit: "ml", factor: 1 },
+  ],
+
+  dozen: [
+    { unit: "dozen", factor: 1 },
+    { unit: "pcs", factor: 12 },
+    { unit: "bottle", factor: 12 },
+    { unit: "can", factor: 12 },
+  ],
+
+  pair: [
+    { unit: "pair", factor: 1 },
+    { unit: "pcs", factor: 2 },
+  ],
+
+  carton: [
+    { unit: "carton", factor: 1 },
+    { unit: "pcs", factor: 24 },
+    { unit: "bottle", factor: 24 },
+    { unit: "can", factor: 24 },
+  ],
+
+  box: [
+    { unit: "box", factor: 1 },
+    { unit: "pcs", factor: 10 },
+  ],
+
+  pack: [
+    { unit: "pack", factor: 1 },
+    { unit: "pcs", factor: 6 },
+  ],
+
+  bag: [
+    { unit: "bag", factor: 1 },
+    { unit: "gm", factor: 5000 },
+  ],
+
+  bottle: [
+    { unit: "bottle", factor: 1 },
+    { unit: "ml", factor: 1000 },
+  ],
+
+  can: [
+    { unit: "can", factor: 1 },
+    { unit: "ml", factor: 330 },
+  ],
+
+  jar: [
+    { unit: "jar", factor: 1 },
+    { unit: "gm", factor: 500 },
+  ],
+
+  tray: [
+    { unit: "tray", factor: 1 },
+    { unit: "pcs", factor: 30 },
+  ],
+
+  roll: [
+    { unit: "roll", factor: 1 },
+    { unit: "pcs", factor: 1 },
+  ],
+
+  pcs: [
+    { unit: "pcs", factor: 1 },
+  ],
+};
+
+
 export default function NewInventoryForm({
   categories,
   suppliers
@@ -40,14 +130,14 @@ export default function NewInventoryForm({
     resolver: zodResolver(newInventorySchema),
 
     defaultValues: {
-      currentStock: 0,
-      minStock: 0,
-      costPrice: 0,
-      sellingPrice: 0,
+      //currentStock: 0,
+      // minStock: 0,
+      // costPrice: 0,
+      // sellingPrice: 0,
 
-      purchaseUnit: "kg",
-      consumptionUnit: "gm",
-      conversionFactor: 1000,
+      // purchaseUnit: "kg",
+      // consumptionUnit: "gm",
+      //conversionFactor: 1000,
 
       isActive: true,
     },
@@ -57,26 +147,39 @@ export default function NewInventoryForm({
   const consumptionUnit = watch("consumptionUnit");
 
 
+  // AUTO SET CONSUMPTION UNIT + FACTOR
   useEffect(() => {
-    if (purchaseUnit === consumptionUnit) {
-      setValue("conversionFactor", 1);
-      return;
+    const pairs =
+      UNIT_PAIRS[purchaseUnit] || [];
+
+    const selectedPair =
+      pairs.find(
+        (item) =>
+          item.unit ===
+          consumptionUnit
+      );
+
+    if (selectedPair) {
+      setValue(
+        "conversionFactor",
+        selectedPair.factor
+      );
+    } else if (pairs.length > 0) {
+      setValue(
+        "consumptionUnit",
+        pairs[0].unit as any
+      );
+
+      setValue(
+        "conversionFactor",
+        pairs[0].factor
+      );
     }
-
-    const conversionMap: Record<string, number> = {
-      "kg-gm": 1000,
-      "ltr-ml": 1000,
-      "dozen-pcs": 12,
-      "pair-pcs": 2,
-      "carton-pcs": 24,
-    };
-
-    const key = `${purchaseUnit}-${consumptionUnit}`;
-
-    if (conversionMap[key]) {
-      setValue("conversionFactor", conversionMap[key]);
-    }
-  }, [purchaseUnit, consumptionUnit, setValue]);
+  }, [
+    purchaseUnit,
+    consumptionUnit,
+    setValue,
+  ]);
 
 
   async function onSubmit(data: TnewInventorySchema) {
@@ -294,7 +397,7 @@ export default function NewInventoryForm({
                 />
               </div>
 
-              {/* Unit */}
+                       {/* Unit */}
               <div>
                 {/* Purchase Unit */}
                 <div>
@@ -337,27 +440,21 @@ export default function NewInventoryForm({
                     Consumption Unit
                   </label>
 
-                  <select
-                    {...register("consumptionUnit")}
-                    className="input-style-4 mt-1"
-                  >
-                    <option value="kg">Kilogram (kg)</option>
-                    <option value="gm">Gram (gm)</option>
-                    <option value="ltr">Liter (ltr)</option>
-                    <option value="ml">Milliliter (ml)</option>
-                    <option value="pcs">Pieces (pcs)</option>
-                    <option value="dozen">Dozen</option>
-                    <option value="pair">Pair</option>
-                    <option value="box">Box</option>
-                    <option value="pack">Pack</option>
-                    <option value="carton">Carton</option>
-                    <option value="bag">Bag</option>
-                    <option value="bottle">Bottle</option>
-                    <option value="can">Can</option>
-                    <option value="jar">Jar</option>
-                    <option value="roll">Roll</option>
-                    <option value="tray">Tray</option>
-                  </select>
+             <select
+  {...register("consumptionUnit")}
+  className="input-style-4 mt-1"
+>
+  {(
+    UNIT_PAIRS[purchaseUnit] || []
+  ).map((item) => (
+    <option
+      key={item.unit}
+      value={item.unit}
+    >
+      {item.unit}
+    </option>
+  ))}
+</select>
 
                   <p className="text-xs text-gray-500 mt-1">
                     Unit used in recipes

@@ -125,21 +125,33 @@ export async function getSupplierLedger({
         totalReturn += Number(d.totalAmount || 0);
       }
 
-      transactions.push({
-        id: doc.id,
-        date: d.createdAt?.toDate?.() || null,
-        type: d.type,
-        note: d.note || "",
+     transactions.push({
+  id: doc.id,
 
-        totalAmount: Number(d.totalAmount || 0),
-        paidAmount: Number(d.paidAmount || 0),
-        dueAmount: Number(d.dueAmount || 0),
+  date:
+    d.createdAt?.toDate?.() || null,
 
-        credit,
-        debit,
+  type: d.type,
 
-        balance: runningBalance, // ✅ CORRECT BALANCE
-      });
+  note: d.note || "",
+
+  paymentMethod:
+    d.paymentMethod || "",
+
+  totalAmount:
+    Number(d.totalAmount || 0),
+
+  paidAmount:
+    Number(d.paidAmount || 0),
+
+  dueAmount:
+    Number(d.dueAmount || 0),
+
+  credit,
+  debit,
+
+  balance: runningBalance,
+});
     });
 
     // ===============================

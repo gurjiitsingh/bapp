@@ -22,6 +22,7 @@ import {
 } from "@/lib/types/InventoryItemType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -172,18 +173,47 @@ export default function StockPurchaseForm({
     return;
   }
 
-  let finalQuantity = Number(data.quantity);
+const decimalAllowedUnits = [
+  "kg",
+  "gm",
+  "ltr",
+  "ml",
+];
 
-  if (
-    data.transactionUnit === "kg" ||
-    data.transactionUnit === "ltr"
-  ) {
-    finalQuantity =
-      finalQuantity *
-      selectedInventory.conversionFactor;
-  }
+const quantity =
+  Number(data.quantity);
+
+if (
+  !decimalAllowedUnits.includes(
+    data.transactionUnit
+  ) &&
+  !Number.isInteger(quantity)
+) {
+  alert(
+    `Decimal quantity not allowed for ${data.transactionUnit}`
+  );
+
+  return;
+}
+
+let finalQuantity =
+  Number(data.quantity);
+
+// Convert purchase unit -> consumption unit
+if (
+  data.transactionUnit ===
+    selectedInventory.purchaseUnit &&
+  selectedInventory.purchaseUnit !==
+    selectedInventory.consumptionUnit
+) {
+  finalQuantity =
+    finalQuantity *
+    selectedInventory.conversionFactor;
+}
 
   setIsSubmitting(true);
+
+  console.log("paymentMethod--------------",data.paymentMethod)
 
   try {
     const result = await adjustInventoryStock({
@@ -393,16 +423,14 @@ export default function StockPurchaseForm({
                 </div>
               </div>
 
-              <div className="text-2xl font-bold text-blue-700">
-                {selectedInventory.purchaseUnit === "kg"
-                  ? selectedInventory.currentStock /
-                  selectedInventory.conversionFactor
-                  : selectedInventory.purchaseUnit === "ltr"
-                    ? selectedInventory.currentStock /
-                    selectedInventory.conversionFactor
-                    : selectedInventory.currentStock}{" "}
-                {selectedInventory.purchaseUnit}
-              </div>
+            <div className="text-2xl font-bold text-blue-700">
+  {displayStock(
+    selectedInventory.currentStock,
+    selectedInventory.purchaseUnit,
+    selectedInventory.consumptionUnit,
+    selectedInventory.conversionFactor
+  )}
+</div>
             </div>
           )}
 

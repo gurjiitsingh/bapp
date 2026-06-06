@@ -55,6 +55,8 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
+
+  console.log("paymentMethod-----------", paymentMethod)
   try {
     // =====================================================
     // VALIDATION
@@ -83,6 +85,7 @@ export async function adjustInventoryStock({
     }
 
     const inventoryData = inventorySnap.data();
+    
 
     const previousStock = Number(inventoryData?.currentStock) || 0;
 
@@ -165,22 +168,59 @@ const dueAmount = isPurchase
   };
 }
 
-    await inventoryRef.update({
-      currentStock: afterStock,
 
-      // optional: update last cost price on purchase
-      ...(transactionType === "PURCHASE" && {
-        costPrice: finalUnitCost,
-      }),
+// =====================================================
+// AVERAGE COST CALCULATION
+// =====================================================
 
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    });
+const oldCostPrice =
+  Number(inventoryData?.costPrice) || 0;
+
+let updatedCostPrice =
+  oldCostPrice;
+
+// Only recalculate average cost for stock IN
+if (
+  stockDirection === "IN" &&
+  (
+    transactionType === "PURCHASE" ||
+    transactionType === "OPENING" ||
+    transactionType === "CUSTOMER_RETURN"
+  )
+) {
+  const oldStockValue =
+    previousStock * oldCostPrice;
+
+  const newStockValue =
+    quantity * finalUnitCost;
+
+  const totalStock =
+    previousStock + quantity;
+
+  if (totalStock > 0) {
+    updatedCostPrice =
+      (
+        oldStockValue +
+        newStockValue
+      ) / totalStock;
+  }
+}
+
+
+await inventoryRef.update({
+  currentStock: afterStock,
+
+  costPrice: updatedCostPrice,
+
+  updatedAt:
+    admin.firestore.FieldValue.serverTimestamp(),
+});
+
+   
 
     // =====================================================
     // CREATE TRANSACTION
     // =====================================================
-
-
 
    await adminDb
   .collection("inventoryTransactions")

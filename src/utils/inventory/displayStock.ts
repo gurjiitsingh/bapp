@@ -1,0 +1,77 @@
+export function displayStock(
+  currentStock: number,
+  purchaseUnit: string,
+  consumptionUnit: string,
+  conversionFactor: number
+) {
+  // Same unit
+  if (
+    purchaseUnit === consumptionUnit
+  ) {
+    return `${currentStock} ${consumptionUnit}`;
+  }
+
+  // ✅ FIX FLOAT ISSUES
+  const safeStock = Math.round(
+    currentStock * 1000
+  ) / 1000;
+
+  const wholeUnits = Math.floor(
+    safeStock / conversionFactor
+  );
+
+  const remainingRaw =
+    safeStock % conversionFactor;
+
+  // ✅ ROUND REMAINING
+  const remaining =
+    Math.round(remainingRaw * 1000) /
+    1000;
+
+  let result = "";
+
+  if (wholeUnits > 0) {
+    result += `${wholeUnits} ${purchaseUnit}`;
+  }
+
+  // avoid 0.00000000001 issue
+  if (remaining > 0.001) {
+    result += ` ${remaining} ${consumptionUnit}`;
+  }
+
+  return `${result} (${safeStock} ${consumptionUnit})`;
+}
+
+
+// export function displayStock(
+//   currentStock: number,
+//   purchaseUnit: string,
+//   consumptionUnit: string,
+//   conversionFactor: number
+// ) {
+//   // Same unit
+//   if (
+//     purchaseUnit === consumptionUnit
+//   ) {
+//     return `${currentStock} ${consumptionUnit}`;
+//   }
+
+//   const wholeUnits = Math.floor(
+//     currentStock / conversionFactor
+//   );
+
+//   const remaining =
+//     currentStock % conversionFactor;
+
+//   let result = "";
+
+//   if (wholeUnits > 0) {
+//     result += `${wholeUnits} ${purchaseUnit}`;
+//   }
+
+//   if (remaining > 0) {
+//     result += ` ${remaining} ${consumptionUnit}`;
+//   }
+
+//   return `${result} (${currentStock} ${consumptionUnit})`;
+// }

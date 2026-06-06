@@ -20,6 +20,7 @@ type Props = {
 export default function ListView({
   suppliers,
 }: Props) {
+  
   if (
     !suppliers ||
     suppliers.length === 0

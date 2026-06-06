@@ -53,7 +53,7 @@ export async function addNewInventoryItem(
         formData.get("currentStock")
       ) || 0;
 
-    const minStock =
+    let minStock =
       Number(
         formData.get("minStock")
       ) || 0;
@@ -91,7 +91,12 @@ export async function addNewInventoryItem(
     ) {
       currentStock =
         currentStock * conversionFactor;
+
+         minStock =
+        minStock * conversionFactor;
     }
+
+console.log("currentStock--------------", currentStock)
 
     // VALIDATION OBJECT
  const receivedData = {
@@ -244,7 +249,7 @@ export async function addNewInventoryItem(
         admin.firestore.FieldValue.serverTimestamp(),
     };
 
- 
+ console.log("data--------------------",data)
 
  // SAVE TO FIRESTORE
 const docRef = await adminDb

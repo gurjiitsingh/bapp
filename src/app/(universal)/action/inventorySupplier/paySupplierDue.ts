@@ -7,6 +7,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
 export async function paySupplierDue(formData: FormData) {
+
+
   try {
     const supplierId =
       (formData.get("supplierId") as string) || "";
@@ -15,9 +17,10 @@ export async function paySupplierDue(formData: FormData) {
 
     const paymentMethod =
       (formData.get("paymentMethod") as PaymentMethod) || "CASH";
-
+console.log("paymd------------",paymentMethod)
     const note =
       (formData.get("note") as string)?.trim() || "";
+      
 
     if (!supplierId || amount <= 0) {
       return {

@@ -32,25 +32,10 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 
-function displayStock(item: InventoryItemType, value: number) {
-  if (
-    item.purchaseUnit === "kg" &&
-    item.consumptionUnit === "gm"
-  ) {
-    return value / item.conversionFactor;
-  }
 
-  if (
-    item.purchaseUnit === "ltr" &&
-    item.consumptionUnit === "ml"
-  ) {
-    return value / item.conversionFactor;
-  }
-
-  return value;
-}
 
 function TableRows({
   item,
@@ -156,9 +141,11 @@ async function handleDelete() {
                 : "text-gray-800"
             }`}
           >
-          {displayStock(
-  item,
-  item.currentStock
+{displayStock(
+  item.currentStock,
+  item.purchaseUnit,
+  item.consumptionUnit,
+  item.conversionFactor
 )}
           </span>
 
@@ -171,7 +158,12 @@ async function handleDelete() {
       {/* MIN STOCK */}
       <TableCell>
         <span className="text-sm font-medium text-gray-700">
-          {item.minStock}
+         {displayStock(
+  item.minStock,
+  item.purchaseUnit,
+  item.consumptionUnit,
+  item.conversionFactor
+)}
         </span>
       </TableCell>
 

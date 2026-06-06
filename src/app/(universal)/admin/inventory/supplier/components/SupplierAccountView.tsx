@@ -50,8 +50,9 @@ export default function SupplierAccountView({
     });
 
     const json = await res.json();
-
+    console.log("res----------------", json?.data?.transactions)
     setTransactions(json?.data?.transactions || []);
+
     setLoading(false);
   };
 
@@ -183,40 +184,58 @@ export default function SupplierAccountView({
 
         <div className="overflow-auto border rounded-lg">
           <table className="w-full text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2">Date</th>
-                <th className="p-2">Type</th>
-                <th className="p-2">Note</th>
-                <th className="p-2 text-right">Total</th>
-                <th className="p-2 text-right">Paid</th>
-                <th className="p-2 text-right">Due</th>
-                <th className="p-2 text-right">Balance</th>
-              </tr>
-            </thead>
+           <thead className="bg-gray-100">
+  <tr>
+    <th className="p-2 text-left">Date</th>
+    <th className="p-2 text-left">Type</th>
+    <th className="p-2 text-left">Payment Method</th>
+    <th className="p-2 text-left">Note</th>
+
+    <th className="p-2 text-right">Total</th>
+    <th className="p-2 text-right">Paid</th>
+    <th className="p-2 text-right">Due</th>
+    <th className="p-2 text-right">Balance</th>
+  </tr>
+</thead>
 
             <tbody>
               {transactions.length ? (
                 transactions.map((t) => (
-                  <tr key={t.id} className="border-t">
-                    <td className="p-2">
-                      {t.date
-                        ? new Date(t.date).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td className="p-2">{t.type}</td>
-                    <td className="p-2">{t.note || "-"}</td>
-                    <td className="p-2 text-right">₹ {t.totalAmount || 0}</td>
-                    <td className="p-2 text-right text-green-600">
-                      ₹ {t.paidAmount || 0}
-                    </td>
-                    <td className="p-2 text-right text-red-600">
-                      ₹ {t.dueAmount || 0}
-                    </td>
-                    <td className="p-2 text-right font-semibold">
-                      ₹ {t.balance || 0}
-                    </td>
-                  </tr>
+             <tr key={t.id} className="border-t">
+  <td className="p-2 text-left">
+    {t.date
+      ? new Date(t.date).toLocaleDateString()
+      : "-"}
+  </td>
+
+  <td className="p-2 text-left">
+    {t.type}
+  </td>
+
+  <td className="p-2 text-left">
+    {t.paymentMethod || "-"}
+  </td>
+
+  <td className="p-2 text-left">
+    {t.note || "-"}
+  </td>
+
+  <td className="p-2 text-right">
+    ₹ {t.totalAmount || 0}
+  </td>
+
+  <td className="p-2 text-right text-green-600">
+    ₹ {t.paidAmount || 0}
+  </td>
+
+  <td className="p-2 text-right text-red-600">
+    ₹ {t.dueAmount || 0}
+  </td>
+
+  <td className="p-2 text-right font-semibold">
+    ₹ {t.balance || 0}
+  </td>
+</tr>
                 ))
               ) : (
                 <tr>

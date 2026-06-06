@@ -16,7 +16,7 @@ type Props = {
 export default function InventoryTransactionTable({
   transactions,
 }: Props) {
-  
+  console.log("transactions------------", transactions)
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white">
       <Table>
@@ -33,11 +33,15 @@ export default function InventoryTransactionTable({
             <TableHead>
               Direction
             </TableHead>
-
+  <TableHead>
+              Price
+            </TableHead>
             <TableHead>
               Qty
             </TableHead>
-
+ <TableHead>
+             Order Amount
+            </TableHead>
             <TableHead>
               Before
             </TableHead>
@@ -82,10 +86,17 @@ export default function InventoryTransactionTable({
                   {tx.stockDirection}
                 </span>
               </TableCell>
+<TableCell>
+                {tx.unitCost} 
+              </TableCell>
 
               <TableCell>
                 {tx.quantity} {tx.unit}
               </TableCell>
+  <TableCell>
+                {tx.totalAmount}
+              </TableCell>
+
 
               <TableCell>
                 {tx.beforeStock}

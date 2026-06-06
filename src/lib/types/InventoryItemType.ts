@@ -1,7 +1,9 @@
-
 import { z } from "zod";
 
-import { Timestamp, FieldValue, } from "firebase/firestore";
+import {
+  Timestamp,
+  FieldValue,
+} from "firebase/firestore";
 
 export const inventoryUnits = [
   "pcs",
@@ -25,158 +27,227 @@ export const inventoryUnits = [
 export type InventoryUnit =
   (typeof inventoryUnits)[number];
 
-export const newInventorySchema = z.object({
-  name: z
-    .string()
-    .min(2, "Inventory item name is required")
-    .max(120),
+/* -------------------------------- */
+/* UNIT PAIRS */
+/* -------------------------------- */
 
-  sku: z.string().optional(),
+export const UNIT_PAIRS: Record<
+  InventoryUnit,
+  {
+    unit: InventoryUnit;
+    factor: number;
+  }[]
+> = {
+  kg: [
+    { unit: "kg", factor: 1 },
+    { unit: "gm", factor: 1000 },
+  ],
 
-  barcode: z.string().optional(),
+  gm: [
+    { unit: "gm", factor: 1 },
+  ],
 
-  supplierId: z.string().optional(),
+  ltr: [
+    { unit: "ltr", factor: 1 },
+    { unit: "ml", factor: 1000 },
+  ],
 
-  purchaseUnit:  z.enum(
-  inventoryUnits
-),
+  ml: [
+    { unit: "ml", factor: 1 },
+  ],
 
-consumptionUnit:  z.enum(
-  inventoryUnits
-),
+  dozen: [
+    { unit: "dozen", factor: 1 },
+    { unit: "pcs", factor: 12 },
+    { unit: "bottle", factor: 12 },
+    { unit: "can", factor: 12 },
+  ],
 
-  conversionFactor: z.coerce
-    .number()
-    .min(
-      1,
-      "Conversion factor must be at least 1"
-    ),
+  pair: [
+    { unit: "pair", factor: 1 },
+    { unit: "pcs", factor: 2 },
+  ],
 
-  currentStock: z.coerce
-    .number()
-    .min(
-      0,
-      "Stock cannot be negative"
-    ),
+  carton: [
+    { unit: "carton", factor: 1 },
+    { unit: "pcs", factor: 24 },
+    { unit: "bottle", factor: 24 },
+    { unit: "can", factor: 24 },
+  ],
 
-  minStock: z.coerce
-    .number()
-    .min(
-      0,
-      "Minimum stock cannot be negative"
-    ),
+  box: [
+    { unit: "box", factor: 1 },
+    { unit: "pcs", factor: 10 },
+  ],
 
-  costPrice: z.coerce
-    .number()
-    .min(
-      0,
-      "Cost price is required"
-    ),
+  pack: [
+    { unit: "pack", factor: 1 },
+    { unit: "pcs", factor: 6 },
+  ],
 
-  sellingPrice: z.coerce
-    .number()
-    .min(0)
-    .optional(),
+  bag: [
+    { unit: "bag", factor: 1 },
+    { unit: "gm", factor: 5000 },
+  ],
 
-  categoryId: z.string().optional(),
+  bottle: [
+    { unit: "bottle", factor: 1 },
+    { unit: "ml", factor: 1000 },
+  ],
 
- // supplierId: z.string().optional(),
- supplierIds: z
-  .array(z.string())
-  .default([]),
+  can: [
+    { unit: "can", factor: 1 },
+    { unit: "ml", factor: 330 },
+  ],
 
-  isActive: z.boolean().default(true),
-})
-.superRefine((data, ctx) => {
-  // ✅ allow same units (bottle → bottle, box → box, etc.)
-  if (data.purchaseUnit === data.consumptionUnit) {
-    if (data.conversionFactor !== 1) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Conversion must be 1 for same unit",
-        path: ["conversionFactor"],
-      });
-    }
-    return;
-  }
+  jar: [
+    { unit: "jar", factor: 1 },
+    { unit: "gm", factor: 500 },
+  ],
 
-  // OPTIONAL: keep only special conversions
-  const validPairs = [
-    { purchaseUnit: "kg", consumptionUnit: "gm", factor: 1000 },
-    { purchaseUnit: "ltr", consumptionUnit: "ml", factor: 1000 },
-    { purchaseUnit: "dozen", consumptionUnit: "bottle", factor: 1000 },
-    
-  ];
+  tray: [
+    { unit: "tray", factor: 1 },
+    { unit: "pcs", factor: 30 },
+  ],
 
-  const valid = validPairs.find(
-    (item) =>
-      item.purchaseUnit === data.purchaseUnit &&
-      item.consumptionUnit === data.consumptionUnit
-  );
+  roll: [
+    { unit: "roll", factor: 1 },
+    { unit: "pcs", factor: 1 },
+  ],
 
-  if (!valid) return; // ✅ allow custom combos
+  pcs: [
+    { unit: "pcs", factor: 1 },
+  ],
+};
 
-  if (data.conversionFactor !== valid.factor) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: `Conversion factor must be ${valid.factor}`,
-      path: ["conversionFactor"],
-    });
-  }
-});
-// .superRefine((data, ctx) => {
-//   const validPairs = [
-//     {
-//       purchaseUnit: "kg",
-//       consumptionUnit: "gm",
-//       factor: 1000,
-//     },
-//     {
-//       purchaseUnit: "ltr",
-//       consumptionUnit: "ml",
-//       factor: 1000,
-//     },
-//     {
-//       purchaseUnit: "pcs",
-//       consumptionUnit: "pcs",
-//       factor: 1,
-//     },
-//   ];
+/* -------------------------------- */
+/* SCHEMA */
+/* -------------------------------- */
 
-//   const valid = validPairs.find(
-//     (item) =>
-//       item.purchaseUnit ===
-//         data.purchaseUnit &&
-//       item.consumptionUnit ===
-//         data.consumptionUnit
-//   );
+export const newInventorySchema =
+  z
+    .object({
+      name: z
+        .string()
+        .min(
+          2,
+          "Inventory item name is required"
+        )
+        .max(120),
 
-//   if (!valid) {
-//     ctx.addIssue({
-//       code: z.ZodIssueCode.custom,
-//       message:
-//         "Invalid unit combination",
-//       path: ["consumptionUnit"],
-//     });
+      sku: z.string().optional(),
 
-//     return;
-//   }
+      barcode:
+        z.string().optional(),
 
-//   if (
-//     data.conversionFactor !==
-//     valid.factor
-//   ) {
-//     ctx.addIssue({
-//       code: z.ZodIssueCode.custom,
-//       message: `Conversion factor must be ${valid.factor}`,
-//       path: ["conversionFactor"],
-//     });
-//   }
-// });
+      supplierId:
+        z.string().optional(),
 
+      purchaseUnit:
+        z.enum(inventoryUnits),
 
+      consumptionUnit:
+        z.enum(inventoryUnits),
 
+      conversionFactor:
+        z.coerce
+          .number()
+          .min(
+            1,
+            "Conversion factor must be at least 1"
+          ),
 
+      currentStock:
+        z.coerce
+          .number()
+          .min(
+            0,
+            "Stock cannot be negative"
+          ),
+
+      minStock:
+        z.coerce
+          .number()
+          .min(
+            0,
+            "Minimum stock cannot be negative"
+          ),
+
+      costPrice:
+        z.coerce
+          .number()
+          .min(
+            0,
+            "Cost price is required"
+          ),
+
+      sellingPrice:
+        z.coerce
+          .number()
+          .min(0)
+          .optional(),
+
+      categoryId:
+        z.string().optional(),
+
+      supplierIds: z
+        .array(z.string())
+        .default([]),
+
+      isActive:
+        z.boolean().default(
+          true
+        ),
+    })
+
+    .superRefine(
+      (data, ctx) => {
+        const pairs =
+          UNIT_PAIRS[
+            data.purchaseUnit
+          ] || [];
+
+        const validPair =
+          pairs.find(
+            (item) =>
+              item.unit ===
+              data.consumptionUnit
+          );
+
+        // INVALID PAIR
+        if (!validPair) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message:
+              "Invalid unit combination",
+            path: [
+              "consumptionUnit",
+            ],
+          });
+
+          return;
+        }
+
+        // INVALID FACTOR
+        if (
+          data.conversionFactor !==
+          validPair.factor
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `Conversion factor must be ${validPair.factor}`,
+            path: [
+              "conversionFactor",
+            ],
+          });
+        }
+      }
+    );
+
+export type TnewInventorySchema =
+  z.infer<
+    typeof newInventorySchema
+  >;
 
 export type InventoryItemType = {
   id: string;
@@ -214,4 +285,4 @@ export type InventoryItemType = {
 };
 
 
-export type TnewInventorySchema = z.infer<typeof newInventorySchema>;
+
