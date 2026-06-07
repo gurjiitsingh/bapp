@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { supplierSchema, TSupplierSchema } from "@/lib/types/SupplierType";
-import { addSupplier } from "@/app/(universal)/action/inventorySupplier/addSupplier";
+import { addInventoryItemSupplier } from "@/app/(universal)/action/inventoryItemSupplier/addInventoryItemSupplier";
+
 
 
 
@@ -86,7 +87,7 @@ const SupplierForm = () => {
       );
 
       const result =
-        await addSupplier(
+        await addInventoryItemSupplier(
           formData
         );
 

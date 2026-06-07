@@ -122,7 +122,7 @@ export default function FormView({
       );
 
     if (inventory) {
-      setValue("unit", inventory.unit);
+      setValue("unit",  inventory.consumptionUnit);
     }
   }, [
     selectedInventoryId,
@@ -641,7 +641,7 @@ export default function FormView({
 
                                   setValue(
                                     "unit",
-                                    item.unit
+                                   item.consumptionUnit
                                   );
 
                                   setInventorySearch(
@@ -659,7 +659,7 @@ export default function FormView({
                                 </div>
 
                                 <div className="text-xs text-gray-400">
-                                  {item.unit}
+                                  { item.consumptionUnit}
                                 </div>
                               </button>
                             )

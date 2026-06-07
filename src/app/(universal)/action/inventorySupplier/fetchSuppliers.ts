@@ -39,5 +39,5 @@ export async function fetchSuppliers(): Promise<
             : null,
       };
     }
-  ) as Supplier[];
+  ) as SupplierType[];
 }

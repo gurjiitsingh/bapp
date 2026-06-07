@@ -68,7 +68,7 @@ type AdjustInventoryStockType = {
     | "MANUAL";
 };
 
-export async function adjustInventoryStock({
+export async function newInventoryItemAndTransaction({
   inventoryItemId,
   supplierId,
     supplierName,
@@ -149,18 +149,7 @@ export async function adjustInventoryStock({
 
    
 
-    if (supplierId) {
-      const supplierSnap =
-        await adminDb
-          .collection("inventorySuppliers")
-          .doc(supplierId)
-          .get();
 
-      if (supplierSnap.exists) {
-        supplierName =
-          supplierSnap.data()?.companyName || "";
-      }
-    }
 
     // =====================================================
     // STOCK CALCULATION
@@ -375,7 +364,7 @@ export async function adjustInventoryStock({
         // =====================================
 
         purchaseQuantity:
-  purchaseQuantity ?? quantity,
+        purchaseQuantity ?? quantity,
 
         purchaseUnit:
           purchaseUnit ||
@@ -492,62 +481,14 @@ conversionFactor:
           "RETURN";
       }
 
-      await adminDb
-        .collection(
-          "supplierLedger"
-        )
-        .add({
-
-          supplierId,
-
-          supplierName,
-
-          type: ledgerType,
-
-          totalAmount,
-
-          paidAmount,
-
-          dueAmount,
-
-          paymentMethod:
-            paymentMethod ||
-            null,
-
-          referenceType,
-
-          referenceId:
-            referenceId || "",
-
-          note:
-            note ||
-            "Inventory transaction",
-
-          createdAt:
-            admin.firestore
-              .FieldValue
-              .serverTimestamp(),
-        });
+    
     }
 
     // =====================================================
     // UPDATE SUPPLIER ACCOUNT
     // =====================================================
 
-    if (
-      supplierId &&
-      isPurchase
-    ) {
-
-      await updateSupplierAccount({
-        supplierId,
-        transactionType,
-        totalAmount,
-        paidAmount,
-        dueAmount,
-        paymentMethod,
-      });
-    }
+  
 
     // =====================================================
     // REVALIDATE

@@ -13,7 +13,7 @@ import { Search, Package2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { InventoryItemType } from "@/lib/types/InventoryItemType";
+import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
 import { displayStock } from "@/utils/inventory/displayStock";
@@ -39,12 +39,7 @@ type FormType = {
 
   quantity: number;
 
-  transactionUnit:
-  | "pcs"
-  | "kg"
-  | "gm"
-  | "ltr"
-  | "ml";
+  transactionUnit: InventoryUnit
 
   note: string;
 };

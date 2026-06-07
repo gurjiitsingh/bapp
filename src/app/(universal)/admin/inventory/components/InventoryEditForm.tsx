@@ -76,8 +76,8 @@ const InventoryEditForm = ({
             categoryId:
                 inventoryItem.categoryId || "",
 
-            supplierIds:
-                inventoryItem.supplierIds || "",
+          supplierIds:
+  inventoryItem.supplierIds || [],
 
             isActive:
                 inventoryItem.isActive,

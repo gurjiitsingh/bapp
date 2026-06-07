@@ -22,10 +22,9 @@ import {
   TSupplierSchema,
 } from "@/lib/types/SupplierType";
 
-import {
-  addSupplier,
-} from "@/app/(universal)/action/inventorySupplier/addSupplier";
+
 import { updateSupplier } from "@/app/(universal)/action/inventorySupplier/updateSupplier";
+import { addInventoryItemSupplier } from "@/app/(universal)/action/inventoryItemSupplier/addInventoryItemSupplier";
 
 
 
@@ -157,7 +156,7 @@ const SupplierEditForm = ({
               supplier.id,
               formData
             )
-          : await addSupplier(
+          : await addInventoryItemSupplier(
               formData
             );
 

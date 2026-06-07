@@ -6,6 +6,7 @@ import admin from "firebase-admin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { cache } from "react";
 import { addInventoryItemSupplier } from "../inventoryItemSupplier/addInventoryItemSupplier";
+import { newInventoryItemAndTransaction } from "./newInvetoryItemTransactions";
 
 export async function addNewInventoryItem(
   formData: FormData
@@ -254,17 +255,18 @@ const docRef = await adminDb
   .collection("inventoryItems")
   .add(data);
 
-const inventoryItemId =
-  docRef.id;
+const inventoryItemId = docRef.id;
 
-// Create supplier mapping
+// =====================================
+// CREATE SUPPLIER MAPPINGS
+// =====================================
+
 for (const supplierId of supplierIds) {
-  const supplierFormData =
-    new FormData();
+  const supplierFormData = new FormData();
 
   supplierFormData.append(
     "inventoryItemId",
-    docRef.id
+    inventoryItemId
   );
 
   supplierFormData.append(
@@ -285,6 +287,60 @@ for (const supplierId of supplierIds) {
   await addInventoryItemSupplier(
     supplierFormData
   );
+}
+
+// =====================================
+// OPENING STOCK TRANSACTION
+// =====================================
+
+if (currentStock > 0) {
+  await newInventoryItemAndTransaction({
+    inventoryItemId,
+
+    transactionType: "OPENING_STOCK",
+
+    stockDirection: "IN",
+
+    // Internal stock (already converted to consumption unit)
+    quantity: currentStock,
+
+    // Cost per consumption unit
+    unitCost:
+      conversionFactor > 0
+        ? costPrice / conversionFactor
+        : costPrice,
+
+    // Original values entered by user
+    purchaseQuantity:
+      Number(
+        formData.get("currentStock")
+      ) || 0,
+
+    purchaseUnit,
+
+    // Cost per purchase unit
+    purchaseUnitCost:
+      costPrice,
+
+    conversionFactor,
+
+    paymentStatus: "PAID",
+
+    paidAmount:
+      (Number(
+        formData.get("currentStock")
+      ) || 0) * costPrice,
+
+    note:
+      "Opening stock during inventory creation",
+
+    createdBy: "admin",
+
+    referenceId:
+      inventoryItemId,
+
+    referenceType: "MANUAL",
+  });
 }
 
 // REVALIDATE

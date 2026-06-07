@@ -738,7 +738,8 @@ const currentRecipes = useMemo(() => {
                                 </div>
 
                                 <div className="text-xs text-gray-400">
-                                  {item.unit}
+                                  {item.consumptionUnit}
+                                  {/* purchaseUnit */}
                                 </div>
                               </button>
                             )

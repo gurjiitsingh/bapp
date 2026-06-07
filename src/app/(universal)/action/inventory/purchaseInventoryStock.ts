@@ -100,7 +100,7 @@ export async function purchaseInventoryStock(
     await createInventoryTransaction({
       inventoryItemId,
 
-      type: "purchase",
+      type: "PURCHASE",
 
       quantity,
 

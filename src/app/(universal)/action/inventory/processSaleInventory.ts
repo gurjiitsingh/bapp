@@ -3,7 +3,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { createInventoryTransaction } from "./createInventoryTransaction";
+
 import admin from "firebase-admin";
 
 type OrderItemType = {

@@ -670,7 +670,7 @@ if (data.transactionType === "PURCHASE") {
               </div>
 
               {/* OPTIONAL PAID AMOUNT */}
-              {watch("paymentStatus") === "CREDIT" && (
+              {watch("paymentStatus") === "DUE" && (
                 <div className="flex flex-col gap-2">
                   <label className="label-style-4">
                     Paid Amount (Optional)

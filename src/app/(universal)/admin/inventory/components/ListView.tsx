@@ -228,9 +228,9 @@ const categoryMap = useMemo(() => {
                   Min Stock
                 </TableHead>
 
-                <TableHead>
+                {/* <TableHead>
                   Cost Price
-                </TableHead>
+                </TableHead> */}
 
                 <TableHead>
                   Status

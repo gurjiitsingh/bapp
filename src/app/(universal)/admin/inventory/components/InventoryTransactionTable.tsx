@@ -20,6 +20,7 @@ import {
 
 import {
   formatPrice,
+  formatPriceS,
 } from "@/utils/inventory/formatPrice";
 
 import { formatQuantity } from "@/utils/inventory/formatQty";
@@ -171,7 +172,7 @@ export default function InventoryTransactionTable({
                       </span>
 
                       <span className="text-xs text-gray-500">
-                        {formatPrice(
+                        {formatPriceS(
                           tx.unitCost
                         )}{" "}
                         / {tx.unit}

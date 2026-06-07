@@ -44,7 +44,7 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
-  console.log("item--------",item)
+  console.log("item--------", item)
 
   const formattedCostPrice =
     formatCurrencyNumber(
@@ -56,20 +56,20 @@ function TableRows({
   const isLowStock =
     item.currentStock <= item.minStock;
 
-async function handleDelete() {
-  const confirmDelete = confirm(
-    `Delete "${item.name}" ?`
-  );
+  async function handleDelete() {
+    const confirmDelete = confirm(
+      `Delete "${item.name}" ?`
+    );
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  const result =
-    await deleteInventoryItem(item.id);
+    const result =
+      await deleteInventoryItem(item.id);
 
-  if (!result.success) {
-    alert(result.message);
+    if (!result.success) {
+      alert(result.message);
+    }
   }
-}
   return (
     <TableRow className="hover:bg-rose-50/40 transition-all border-b border-gray-100">
       {/* ITEM */}
@@ -88,8 +88,8 @@ async function handleDelete() {
             <span className="font-semibold text-gray-800">
               {item.name}
             </span>
-           
-             {/* <span className="font-semibold text-gray-800">
+
+            {/* <span className="font-semibold text-gray-800">
               {item.categoryName}
             </span> */}
 
@@ -105,7 +105,7 @@ async function handleDelete() {
           </div>
         </div>
       </TableCell>
-       <TableCell>
+      <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.categoryName}
         </span>
@@ -135,18 +135,17 @@ async function handleDelete() {
       <TableCell>
         <div className="flex flex-col">
           <span
-            className={`font-bold text-base ${
-              isLowStock
+            className={`font-bold text-base ${isLowStock
                 ? "text-rose-600"
                 : "text-gray-800"
-            }`}
+              }`}
           >
-{displayStock(
-  item.currentStock,
-  item.purchaseUnit,
-  item.consumptionUnit,
-  item.conversionFactor
-)}
+            {displayStock(
+              item.currentStock,
+              item.purchaseUnit,
+              item.consumptionUnit,
+              item.conversionFactor
+            )}
           </span>
 
           <span className="text-xs text-gray-400">
@@ -158,17 +157,17 @@ async function handleDelete() {
       {/* MIN STOCK */}
       <TableCell>
         <span className="text-sm font-medium text-gray-700">
-         {displayStock(
-  item.minStock,
-  item.purchaseUnit,
-  item.consumptionUnit,
-  item.conversionFactor
-)}
+          {displayStock(
+            item.minStock,
+            item.purchaseUnit,
+            item.consumptionUnit,
+            item.conversionFactor
+          )}
         </span>
       </TableCell>
 
       {/* COST PRICE */}
-      <TableCell>
+      {/* <TableCell>
         <div className="flex flex-col">
           <span className="font-semibold text-gray-800">
             {formattedCostPrice}
@@ -178,7 +177,7 @@ async function handleDelete() {
             Cost
           </span>
         </div>
-      </TableCell>
+      </TableCell> */}
 
       {/* STATUS */}
       <TableCell>
@@ -213,16 +212,16 @@ async function handleDelete() {
       <TableCell className="text-right pr-5">
         <div className="flex items-center justify-end gap-2">
           {/* EDIT */}
-     <Link
-  href={`/admin/inventory/${item.id}`}
->
-  <Button
-    size="sm"
-    className="h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-  >
-    <CiEdit size={18} />
-  </Button>
-</Link>
+          <Link
+            href={`/admin/inventory/${item.id}`}
+          >
+            <Button
+              size="sm"
+              className="h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            >
+              <CiEdit size={18} />
+            </Button>
+          </Link>
 
           {/* DELETE */}
           <Button

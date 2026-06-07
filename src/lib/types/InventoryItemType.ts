@@ -157,15 +157,8 @@ export const newInventorySchema =
             "Conversion factor must be at least 1"
           ),
 
-      currentStock:
-        z.coerce
-          .number()
-          .min(
-            0,
-            "Stock cannot be negative"
-          ),
 
-      minStock:
+           minStock:
         z.coerce
           .number()
           .min(
@@ -173,19 +166,50 @@ export const newInventorySchema =
             "Minimum stock cannot be negative"
           ),
 
-      costPrice:
-        z.coerce
-          .number()
-          .min(
-            0,
-            "Cost price is required"
-          ),
+currentStock: z.coerce
+  .number()
+  .min(
+    0,
+    "Stock cannot be negative"
+  )
+  .optional(),
 
-      sellingPrice:
-        z.coerce
-          .number()
-          .min(0)
-          .optional(),
+costPrice: z.coerce
+  .number()
+  .min(
+    0,
+    "Cost price cannot be negative"
+  )
+  .optional(),
+
+sellingPrice: z.coerce
+  .number()
+  .min(
+    0,
+    "Selling price cannot be negative"
+  )
+  .optional(),
+      // currentStock:
+      //   z.coerce
+      //     .number()
+      //     .min(
+      //       0,
+      //       "Stock cannot be negative"
+      //     ),     
+
+      // costPrice:
+      //   z.coerce
+      //     .number()
+      //     .min(
+      //       0,
+      //       "Cost price is required"
+      //     ),
+
+      // sellingPrice:
+      //   z.coerce
+      //     .number()
+      //     .min(0)
+      //     .optional(),
 
       categoryId:
         z.string().optional(),
@@ -266,11 +290,11 @@ export type InventoryItemType = {
 
   conversionFactor: number;
 
-  currentStock: number;
+  currentStock?: number;
 
   minStock: number;
 
-  costPrice: number;
+  costPrice?: number;
 
   sellingPrice?: number;
 

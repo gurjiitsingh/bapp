@@ -31,7 +31,7 @@ function OutletRow({ outlet }: { outlet: OutletType }) {
         </div>
 
         <div className="text-xs opacity-70">
-          {(outlet.state || "") + (outlet.country ? `, ${outlet.country}` : "")}
+          {(outlet.state || "") + (outlet.countryName ? `, ${outlet.countryName}` : "")}
         </div>
 
         {outlet.footerNote && (

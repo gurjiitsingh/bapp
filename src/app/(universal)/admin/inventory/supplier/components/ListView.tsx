@@ -33,10 +33,10 @@ import { Input } from "@/components/ui/input";
 
 import { deleteInventoryItemSupplier } from "@/app/(universal)/action/inventoryItemSupplier/deleteInventoryItemSupplier";
 
-import { Supplier } from "@/lib/types/SupplierType";
+import { SupplierType } from "@/lib/types/SupplierType";
 
 type Props = {
-  suppliers?: Supplier[];
+  suppliers?: SupplierType[];
 };
 
 export default function ListView({

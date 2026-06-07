@@ -192,7 +192,7 @@ export default async function InventoryDashboardPage() {
                           <p className="text-sm text-gray-500 mt-1">
                             Min Stock:{" "}
                             {item.minStock}{" "}
-                            {item.unit}
+                            {item.consumptionUnit}
                           </p>
                         </div>
 
@@ -201,7 +201,7 @@ export default async function InventoryDashboardPage() {
                             {
                               item.currentStock
                             }{" "}
-                            {item.unit}
+                            {item.consumptionUnit}
                           </div>
                         </div>
                       </div>

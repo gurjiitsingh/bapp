@@ -185,6 +185,8 @@ export default function NewInventoryForm({
   async function onSubmit(data: TnewInventorySchema) {
     setIsSubmitting(true);
 
+    
+
     try {
       const formData = new FormData();
 
@@ -230,14 +232,14 @@ export default function NewInventoryForm({
         data.categoryId || ""
       );
 
- data.supplierIds?.forEach(
-  (supplierId) => {
-    formData.append(
-      "supplierIds",
-      supplierId
-    );
-  }
-);
+      data.supplierIds?.forEach(
+        (supplierId) => {
+          formData.append(
+            "supplierIds",
+            supplierId
+          );
+        }
+      );
 
       formData.append(
         "isActive",
@@ -258,6 +260,7 @@ export default function NewInventoryForm({
           purchaseUnit: "kg",
           consumptionUnit: "gm",
           conversionFactor: 1000,
+       //   supplierIds: [],
           isActive: true,
         });
       } else {
@@ -397,7 +400,7 @@ export default function NewInventoryForm({
                 />
               </div>
 
-                       {/* Unit */}
+              {/* Unit */}
               <div>
                 {/* Purchase Unit */}
                 <div>
@@ -440,21 +443,21 @@ export default function NewInventoryForm({
                     Consumption Unit
                   </label>
 
-             <select
-  {...register("consumptionUnit")}
-  className="input-style-4 mt-1"
->
-  {(
-    UNIT_PAIRS[purchaseUnit] || []
-  ).map((item) => (
-    <option
-      key={item.unit}
-      value={item.unit}
-    >
-      {item.unit}
-    </option>
-  ))}
-</select>
+                  <select
+                    {...register("consumptionUnit")}
+                    className="input-style-4 mt-1"
+                  >
+                    {(
+                      UNIT_PAIRS[purchaseUnit] || []
+                    ).map((item) => (
+                      <option
+                        key={item.unit}
+                        value={item.unit}
+                      >
+                        {item.unit}
+                      </option>
+                    ))}
+                  </select>
 
                   <p className="text-xs text-gray-500 mt-1">
                     Unit used in recipes
@@ -486,7 +489,7 @@ export default function NewInventoryForm({
               </div>
 
               {/* Current Stock */}
-              <div>
+              {/* <div>
                 <label className="label-style-4">
                   Current Stock
                 </label>
@@ -501,7 +504,7 @@ export default function NewInventoryForm({
                 <p className="text-xs text-red-500 mt-1">
                   {errors.currentStock?.message}
                 </p>
-              </div>
+              </div> */}
 
               {/* Min Stock */}
               <div>
@@ -523,13 +526,13 @@ export default function NewInventoryForm({
             </div>
           </div>
 
-     
+
         </div>
 
         <div>
 
 
-     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold mb-4">
               Suppliers
             </h2>
@@ -563,13 +566,13 @@ export default function NewInventoryForm({
           </div>
 
           {/* Pricing */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+          {/* <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Pricing Information
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Cost Price */}
+             
               <div>
                 <label className="label-style-4">
                   Cost Price
@@ -588,7 +591,7 @@ export default function NewInventoryForm({
                 </p>
               </div>
 
-              {/* Selling Price */}
+            
               <div>
                 <label className="label-style-4">
                   Selling Price
@@ -603,7 +606,7 @@ export default function NewInventoryForm({
                 />
               </div>
             </div>
-          </div>
+          </div> */}
 
         </div>
 

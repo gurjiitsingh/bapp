@@ -137,25 +137,29 @@ export default function StockAdjustmentForm({
     setIsSubmitting(true);
 
     try {
-      const result =
-        await adjustInventoryStock({
-          inventoryItemId:
-            data.inventoryItemId,
 
-          transactionType:
-            data.transactionType,
+      
+      const result = await adjustInventoryStock({
+  inventoryItemId: data.inventoryItemId,
 
-          stockDirection:
-            data.stockDirection,
+  transactionType: data.transactionType,
 
-          quantity: Number(
-            data.quantity
-          ),
+  stockDirection: data.stockDirection,
 
-          note: data.note,
+  quantity: Number(data.quantity),
 
-          createdBy: "admin",
-        });
+  unitCost: 0,
+
+  paymentStatus: "PAID", // or whatever values your PaymentStatus type allows
+
+  paymentMethod: "CASH",
+
+  note: data.note,
+
+  createdBy: "admin",
+
+  referenceType: "MANUAL",
+});
 
       if (result.success) {
         alert(

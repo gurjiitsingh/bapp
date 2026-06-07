@@ -9,10 +9,10 @@ type Props = {
 const PAGE_SIZE = 14;
 
 export async function getInventoryTransactions({
-  page,
+  page = 1,
 }: Props = {}) {
 
-  console.log("page----------------",page)
+  console.log("page----------------", page);
 
   try {
 
@@ -25,74 +25,69 @@ export async function getInventoryTransactions({
 
     const docs = snapshot.docs;
 
-    const hasMore =
-      docs.length > PAGE_SIZE;
+    const hasMore = docs.length > PAGE_SIZE;
 
     const trimmedDocs =
       hasMore
         ? docs.slice(0, PAGE_SIZE)
         : docs;
 
-    const transactions =
-      trimmedDocs.map((doc) => {
+    const transactions = trimmedDocs.map((doc) => {
 
-        const data = doc.data();
+      const data = doc.data();
 
-        return {
-          id: doc.id,
+      return {
+        id: doc.id,
 
-          inventoryItemName:
-            data.inventoryItemName || "",
+        inventoryItemName:
+          data.inventoryItemName || "",
 
-          transactionType:
-            data.transactionType || "",
+        transactionType:
+          data.transactionType || "",
 
-          supplierName:
-            data.supplierName || "",
+        supplierName:
+          data.supplierName || "",
 
-          stockDirection:
-            data.stockDirection || "",
+        stockDirection:
+          data.stockDirection || "",
 
-          quantity:
-            data.quantity || 0,
+        quantity:
+          data.quantity || 0,
 
-          unit:
-            data.unit || "",
+        unit:
+          data.unit || "",
 
-          unitCost:
-            data.unitCost || 0,
+        unitCost:
+          data.unitCost || 0,
 
-          totalAmount:
-            data.totalAmount || 0,
+        totalAmount:
+          data.totalAmount || 0,
 
-          beforeStock:
-            data.beforeStock || 0,
+        beforeStock:
+          data.beforeStock || 0,
 
-          afterStock:
-            data.afterStock || 0,
+        afterStock:
+          data.afterStock || 0,
 
-          purchaseUnit:
-            data.purchaseUnit || "",
+        purchaseUnit:
+          data.purchaseUnit || "",
 
-          conversionFactor:
-            data.conversionFactor || 1,
+        conversionFactor:
+          data.conversionFactor || 1,
 
-          createdBy:
-            data.createdBy || "",
+        createdBy:
+          data.createdBy || "",
 
-          createdAt:
-            data.createdAt?._seconds
-              ? data.createdAt._seconds *
-                1000
-              : null,
-        };
-      });
+        createdAt:
+          data.createdAt?._seconds
+            ? data.createdAt._seconds * 1000
+            : null,
+      };
+    });
 
     return {
       success: true,
-
       data: transactions,
-
       hasMore,
     };
 
