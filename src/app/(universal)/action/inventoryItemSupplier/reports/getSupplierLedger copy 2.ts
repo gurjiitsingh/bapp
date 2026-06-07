@@ -27,74 +27,24 @@ export async function getSupplierLedger({
     // ===============================
     // 2️⃣ DATE FILTER
     // ===============================
- // ===============================
-// 2️⃣ DATE FILTER
-// ===============================
+    if (fromDate) {
+      query = query.where(
+        "createdAt",
+        ">=",
+        new Date(fromDate)
+      );
+    }
 
-// ✅ if no date selected -> today only
-if (!fromDate && !toDate) {
+    if (toDate) {
+      const end = new Date(toDate);
+      end.setHours(23, 59, 59, 999);
 
-  const todayStart = new Date();
-
-  todayStart.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-  const todayEnd = new Date();
-
-  todayEnd.setHours(
-    23,
-    59,
-    59,
-    999
-  );
-
-  query = query
-    .where(
-      "createdAt",
-      ">=",
-      todayStart
-    )
-    .where(
-      "createdAt",
-      "<=",
-      todayEnd
-    );
-}
-
-// ✅ custom range
-else {
-
-  if (fromDate) {
-    query = query.where(
-      "createdAt",
-      ">=",
-      new Date(fromDate)
-    );
-  }
-
-  if (toDate) {
-    const end = new Date(
-      toDate
-    );
-
-    end.setHours(
-      23,
-      59,
-      59,
-      999
-    );
-
-    query = query.where(
-      "createdAt",
-      "<=",
-      end
-    );
-  }
-}
+      query = query.where(
+        "createdAt",
+        "<=",
+        end
+      );
+    }
 
     // ===============================
     // 3️⃣ OPENING BALANCE (before fromDate)

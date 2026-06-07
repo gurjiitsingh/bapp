@@ -1,6 +1,8 @@
 
 import { fetchInventoryItemById, getInventoryItemById } from "@/app/(universal)/action/inventory/dbOperation";
 import InventoryEditForm from "../components/InventoryEditForm";
+import { fetchSuppliers } from "@/app/(universal)/action/inventorySupplier/fetchSuppliers";
+import { fetchInventoryCategories } from "@/app/(universal)/action/inventoryCategory/fetchInventoryCategories";
 
 
 
@@ -15,6 +17,9 @@ export default async function Page({
   const item =
     await getInventoryItemById(id);
 
+     const categories =
+        await fetchInventoryCategories();
+  const suppliers = await fetchSuppliers();
   if (!item) {
     return (
       <div>
@@ -25,7 +30,10 @@ export default async function Page({
 
   return (
     <InventoryEditForm
+      
       inventoryItem={item}
+       categories={categories}
+       suppliers={suppliers}
     />
   );
 }

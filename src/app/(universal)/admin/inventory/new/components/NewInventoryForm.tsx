@@ -10,9 +10,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { newInventorySchema, TnewInventorySchema } from "@/lib/types/InventoryItemType";
-import { addNewInventoryItem } from "@/app/(universal)/action/inventory/dbOperation";
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { SupplierType } from "@/lib/types/SupplierType";
+import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewInventoryItem";
 
 
 

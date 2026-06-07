@@ -277,7 +277,7 @@ export type InventoryItemType = {
   categoryId?: string;
 
   supplierId?: string;
-
+  supplierIds?: string[];
   isActive: boolean;
 
   createdAt: Timestamp | FieldValue;

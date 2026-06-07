@@ -10,17 +10,25 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { InventoryItemType, newInventorySchema, TnewInventorySchema } from "@/lib/types/InventoryItemType";
-import { updateInventoryItem } from "@/app/(universal)/action/inventory/dbOperation";
+
+import { InventoryCategory } from "@/lib/types/InventoryCategory";
+import { SupplierType } from "@/lib/types/SupplierType";
+import { updateInventoryItem } from "@/app/(universal)/action/inventory/updateInventoryItem";
 
 
 type Props = {
     inventoryItem: InventoryItemType;
+
+    categories: InventoryCategory[];
+
+    suppliers: SupplierType[];
 };
 
 const InventoryEditForm = ({
     inventoryItem,
+    categories,
+    suppliers,
 }: Props) => {
-
 
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,8 +76,8 @@ const InventoryEditForm = ({
             categoryId:
                 inventoryItem.categoryId || "",
 
-            supplierId:
-                inventoryItem.supplierId || "",
+            supplierIds:
+                inventoryItem.supplierIds || "",
 
             isActive:
                 inventoryItem.isActive,
@@ -82,18 +90,18 @@ const InventoryEditForm = ({
 
 
     const displayStock =
-  inventoryItem.purchaseUnit ===
-  inventoryItem.consumptionUnit
-    ? inventoryItem.currentStock
-    : inventoryItem.currentStock /
-      inventoryItem.conversionFactor;
+        inventoryItem.purchaseUnit ===
+            inventoryItem.consumptionUnit
+            ? inventoryItem.currentStock
+            : inventoryItem.currentStock /
+            inventoryItem.conversionFactor;
 
 
-// const displayStock =
-//   purchaseUnit === consumptionUnit
-//     ? inventoryItem.currentStock
-//     : inventoryItem.currentStock /
-//       (watch("conversionFactor") || 1);
+    // const displayStock =
+    //   purchaseUnit === consumptionUnit
+    //     ? inventoryItem.currentStock
+    //     : inventoryItem.currentStock /
+    //       (watch("conversionFactor") || 1);
 
     useEffect(() => {
         if (purchaseUnit === consumptionUnit) {
@@ -115,15 +123,15 @@ const InventoryEditForm = ({
             setValue("conversionFactor", conversionMap[key]);
         }
     }, [purchaseUnit, consumptionUnit, setValue]);
-useEffect(() => {
-  if (
-    purchaseUnit &&
-    consumptionUnit &&
-    purchaseUnit === consumptionUnit
-  ) {
-    setValue("conversionFactor", 1);
-  }
-}, [purchaseUnit, consumptionUnit]);
+    useEffect(() => {
+        if (
+            purchaseUnit &&
+            consumptionUnit &&
+            purchaseUnit === consumptionUnit
+        ) {
+            setValue("conversionFactor", 1);
+        }
+    }, [purchaseUnit, consumptionUnit]);
 
     async function onSubmit(
         data: TnewInventorySchema
@@ -178,9 +186,13 @@ useEffect(() => {
                 data.categoryId || ""
             );
 
-            formData.append(
-                "supplierId",
-                data.supplierId || ""
+            data.supplierIds?.forEach(
+                (supplierId) => {
+                    formData.append(
+                        "supplierIds",
+                        supplierId
+                    );
+                }
             );
 
             formData.append(
@@ -389,15 +401,15 @@ useEffect(() => {
                             </div>
 
                             {/* Current Stock */}
-                          <div>
-  <label className="label-style-4">
-    Current Stock
-  </label>
-<div className="text-2xl font-bold text-blue-700">
-  {displayStock.toFixed(2)} <span  className="text-sm text-blue-600"> {purchaseUnit}</span>
-</div>
+                            <div>
+                                <label className="label-style-4">
+                                    Current Stock
+                                </label>
+                                <div className="text-2xl font-bold text-blue-700">
+                                    {displayStock.toFixed(2)} <span className="text-sm text-blue-600"> {purchaseUnit}</span>
+                                </div>
 
-  {/* <div className="mt-1 rounded-xl border border-blue-100 bg-blue-50 p-4">
+                                {/* <div className="mt-1 rounded-xl border border-blue-100 bg-blue-50 p-4">
     <div className="text-2xl font-bold text-blue-700">
       {(
         inventoryItem.currentStock /
@@ -409,14 +421,14 @@ useEffect(() => {
       {inventoryItem.purchaseUnit}
     </div>
   </div> */}
- <p className="text-xs text-gray-500 mt-1">
+                                <p className="text-xs text-gray-500 mt-1">
                                     Stock quantity can only be changed through Stock Adjustment transactions.
                                 </p>
-  {/* <p className="text-xs text-gray-500 mt-1">
+                                {/* <p className="text-xs text-gray-500 mt-1">
     Stored as {inventoryItem.currentStock}{" "}
     {inventoryItem.consumptionUnit}
   </p> */}
-</div>
+                            </div>
 
                             {/* Min Stock */}
                             <div>
@@ -436,7 +448,51 @@ useEffect(() => {
                                 </p>
                             </div>
                         </div>
+
+                        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+
+                            {suppliers.length > 0 ? (
+                                suppliers.map((supplier) => (
+                                    <label
+                                        key={supplier.id}
+                                        className="
+            flex items-center gap-3
+            rounded-xl border border-gray-100
+            px-3 py-3
+            hover:bg-slate-50
+            cursor-pointer
+            transition
+          "
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            value={supplier.id}
+                                            {...register("supplierIds")}
+                                            className="h-4 w-4 rounded border-gray-300"
+                                        />
+
+                                        <div className="flex-1">
+                                            <p className="font-medium text-sm text-gray-800">
+                                                {supplier.companyName}
+                                            </p>
+
+                                            <p className="text-xs text-gray-500">
+                                                {supplier.phone || "No phone"}
+                                            </p>
+                                        </div>
+                                    </label>
+                                ))
+                            ) : (
+                                <div className="text-sm text-gray-400 text-center py-6">
+                                    No suppliers found
+                                </div>
+                            )}
+
+                        </div>
                     </div>
+
+
+
 
                     {/* Pricing */}
                     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
@@ -462,6 +518,29 @@ useEffect(() => {
                                 <p className="text-xs text-red-500 mt-1">
                                     {errors.costPrice?.message}
                                 </p>
+                            </div>
+
+                            {/* Suppliers */}
+                            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-gray-800">
+                                            Suppliers
+                                        </h2>
+
+                                        <p className="text-sm text-gray-500 mt-1">
+                                            Link suppliers who provide this item
+                                        </p>
+                                    </div>
+
+                                    <div className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+                                        {watch("supplierIds")?.length || 0} Selected
+                                    </div>
+                                </div>
+
+
+
+
                             </div>
 
                             {/* Selling Price */}

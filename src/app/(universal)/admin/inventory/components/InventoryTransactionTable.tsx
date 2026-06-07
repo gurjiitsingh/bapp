@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import {
   Table,
   TableBody,
@@ -8,24 +10,54 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatNumber, formatPrice } from "@/utils/inventory/formatPrice";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
+import {
+  formatPrice,
+} from "@/utils/inventory/formatPrice";
+
 import { formatQuantity } from "@/utils/inventory/formatQty";
 
 type Props = {
-  transactions: any[];
+  transactions?: any[];
+
+  currentPage: number;
+
+  hasMore: boolean;
 };
 
 export default function InventoryTransactionTable({
-  transactions,
+  transactions = [],
+  currentPage,
+  hasMore,
 }: Props) {
- 
+
+  const router = useRouter();
+
+  function goToPage(page: number) {
+    router.push(
+      `/admin/inventory/transactions?page=${page}`
+    );
+  }
+
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-100 bg-white">
-     <Table
-  className="text-sm"
->
-      <TableHeader className="bg-zinc-200">
+
+      {/* ===================================================== */}
+      {/* TABLE */}
+      {/* ===================================================== */}
+
+      <Table className="text-sm">
+
+        <TableHeader className="bg-zinc-200">
           <TableRow>
+
             <TableHead>
               Item
             </TableHead>
@@ -33,24 +65,27 @@ export default function InventoryTransactionTable({
             <TableHead>
               Type
             </TableHead>
-           
 
-              <TableHead>
-             supplierName
+            <TableHead>
+              Supplier
             </TableHead>
 
             <TableHead>
               Direction
             </TableHead>
+
             <TableHead>
               Price
             </TableHead>
+
             <TableHead>
               Qty
             </TableHead>
+
             <TableHead>
               Order Amount
             </TableHead>
+
             <TableHead>
               Before
             </TableHead>
@@ -66,197 +101,283 @@ export default function InventoryTransactionTable({
             <TableHead>
               Date
             </TableHead>
+
           </TableRow>
         </TableHeader>
 
         <TableBody>
+
           {transactions.map((tx) => (
+
             <TableRow
               key={tx.id}
               className="
-    whitespace-nowrap
-    transition-colors
-    odd:bg-zinc-50
-    even:bg-zinc-100
-    hover:bg-blue-50
-    border-b border-zinc-200
-  "
+                whitespace-nowrap
+                transition-colors
+                odd:bg-zinc-50
+                even:bg-zinc-100
+                hover:bg-blue-50
+                border-b border-zinc-200
+              "
             >
+
+              {/* ITEM */}
+
               <TableCell className="font-medium">
                 {tx.inventoryItemName}
-              </TableCell> 
+              </TableCell>
 
-                
+              {/* TYPE */}
 
               <TableCell>
                 {tx.transactionType}
               </TableCell>
 
-               <TableCell>
-                {tx.supplierName}
+              {/* SUPPLIER */}
+
+              <TableCell>
+                {tx.supplierName || "-"}
               </TableCell>
+
+              {/* DIRECTION */}
 
               <TableCell>
                 <span
-                  className={`text-xs px-2 py-1 rounded-full font-medium ${tx.stockDirection ===
-                    "IN"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                    }`}
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    tx.stockDirection === "IN"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
                 >
                   {tx.stockDirection}
                 </span>
               </TableCell>
-          
-               <TableCell>
-  <div className="flex flex-col">
-    
-    {tx.purchaseUnit &&
-    tx.purchaseUnit !== tx.unit &&
-    tx.conversionFactor ? (
-      <>
-        <span className="font-medium">
-          {formatPrice(
-            tx.unitCost * tx.conversionFactor
-          )}{" "}
-          / {tx.purchaseUnit}
-        </span>
 
-        <span className="text-xs text-gray-500">
-          {formatPrice(tx.unitCost)} / {tx.unit}
-        </span>
-      </>
-    ) : (
-      <span className="font-medium">
-        {formatPrice(tx.unitCost)} / {tx.unit}
-      </span>
-    )}
-  </div>
-</TableCell>
-             
-
+              {/* PRICE */}
 
               <TableCell>
                 <div className="flex flex-col">
 
-                  {/* Purchase/display quantity */}
                   {tx.purchaseUnit &&
-                    tx.purchaseUnit !== tx.unit &&
-                    tx.conversionFactor ? (
+                  tx.purchaseUnit !== tx.unit &&
+                  tx.conversionFactor ? (
+                    <>
+                      <span className="font-medium">
+                        {formatPrice(
+                          tx.unitCost *
+                            tx.conversionFactor
+                        )}{" "}
+                        / {tx.purchaseUnit}
+                      </span>
+
+                      <span className="text-xs text-gray-500">
+                        {formatPrice(
+                          tx.unitCost
+                        )}{" "}
+                        / {tx.unit}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="font-medium">
+                      {formatPrice(
+                        tx.unitCost
+                      )}{" "}
+                      / {tx.unit}
+                    </span>
+                  )}
+
+                </div>
+              </TableCell>
+
+              {/* QUANTITY */}
+
+              <TableCell>
+                <div className="flex flex-col">
+
+                  {tx.purchaseUnit &&
+                  tx.purchaseUnit !== tx.unit &&
+                  tx.conversionFactor ? (
                     <>
                       <span className="font-medium">
                         {formatQuantity(
-                          tx.quantity / tx.conversionFactor,
+                          tx.quantity /
+                            tx.conversionFactor,
                           tx.purchaseUnit
                         )}{" "}
                         {tx.purchaseUnit}
                       </span>
 
                       <span className="text-xs text-gray-500">
-                        {formatQuantity(tx.quantity, tx.unit)}{" "}
+                        {formatQuantity(
+                          tx.quantity,
+                          tx.unit
+                        )}{" "}
                         {tx.unit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
-                      {formatQuantity(tx.quantity, tx.unit)}{" "}
+                      {formatQuantity(
+                        tx.quantity,
+                        tx.unit
+                      )}{" "}
                       {tx.unit}
                     </span>
                   )}
+
                 </div>
               </TableCell>
+
+              {/* TOTAL */}
+
               <TableCell>
                 {formatPrice(tx.totalAmount)}
               </TableCell>
 
-
-              {/* <TableCell>
-  {formatQuantity(tx.beforeStock, tx.unit)}
-</TableCell> */}
-
+              {/* BEFORE */}
 
               <TableCell>
                 <div className="flex flex-col">
 
-                  {/* Purchase/display quantity */}
                   {tx.purchaseUnit &&
-                    tx.purchaseUnit !== tx.unit &&
-                    tx.conversionFactor ? (
+                  tx.purchaseUnit !== tx.unit &&
+                  tx.conversionFactor ? (
                     <>
                       <span className="font-medium">
                         {formatQuantity(
-                          tx.beforeStock / tx.conversionFactor,
+                          tx.beforeStock /
+                            tx.conversionFactor,
                           tx.purchaseUnit
                         )}{" "}
                         {tx.purchaseUnit}
                       </span>
 
                       <span className="text-xs text-gray-500">
-                        {formatQuantity(tx.beforeStock, tx.unit)}{" "}
+                        {formatQuantity(
+                          tx.beforeStock,
+                          tx.unit
+                        )}{" "}
                         {tx.unit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
-                      {formatQuantity(tx.beforeStock, tx.unit)}{" "}
+                      {formatQuantity(
+                        tx.beforeStock,
+                        tx.unit
+                      )}{" "}
                       {tx.unit}
                     </span>
                   )}
+
                 </div>
               </TableCell>
 
-
-
-
-
+              {/* AFTER */}
 
               <TableCell>
                 <div className="flex flex-col">
 
-                  {/* Purchase/display quantity */}
                   {tx.purchaseUnit &&
-                    tx.purchaseUnit !== tx.unit &&
-                    tx.conversionFactor ? (
+                  tx.purchaseUnit !== tx.unit &&
+                  tx.conversionFactor ? (
                     <>
                       <span className="font-medium">
                         {formatQuantity(
-                          tx.afterStock / tx.conversionFactor,
+                          tx.afterStock /
+                            tx.conversionFactor,
                           tx.purchaseUnit
                         )}{" "}
                         {tx.purchaseUnit}
                       </span>
 
                       <span className="text-xs text-gray-500">
-                        {formatQuantity(tx.afterStock, tx.unit)}{" "}
+                        {formatQuantity(
+                          tx.afterStock,
+                          tx.unit
+                        )}{" "}
                         {tx.unit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
-                      {formatQuantity(tx.afterStock, tx.unit)}{" "}
+                      {formatQuantity(
+                        tx.afterStock,
+                        tx.unit
+                      )}{" "}
                       {tx.unit}
                     </span>
                   )}
+
                 </div>
               </TableCell>
+
+              {/* USER */}
 
               <TableCell>
                 {tx.createdBy}
               </TableCell>
 
-           <TableCell>
-  {tx.createdAt
-    ? new Date(
-        tx.createdAt?.seconds
-          ? tx.createdAt.seconds * 1000
-          : tx.createdAt
-      ).toLocaleString()
-    : "-"}
-</TableCell>
+              {/* DATE */}
+
+              <TableCell>
+                {tx.createdAt
+                  ? new Date(
+                      tx.createdAt
+                    ).toLocaleString()
+                  : "-"}
+              </TableCell>
+
             </TableRow>
           ))}
+
         </TableBody>
       </Table>
+
+      {/* ===================================================== */}
+      {/* PAGINATION */}
+      {/* ===================================================== */}
+
+      <div className="flex items-center justify-between p-4 border-t bg-white">
+
+        <div className="text-sm text-gray-500">
+          Page {currentPage}
+        </div>
+
+        <div className="flex items-center gap-2">
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={currentPage <= 1}
+            onClick={() =>
+              goToPage(currentPage - 1)
+            }
+          >
+            <ChevronLeft
+              size={16}
+              className="mr-1"
+            />
+            Previous
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            disabled={!hasMore}
+            onClick={() =>
+              goToPage(currentPage + 1)
+            }
+          >
+            Next
+            <ChevronRight
+              size={16}
+              className="ml-1"
+            />
+          </Button>
+
+        </div>
+      </div>
     </div>
   );
 }
