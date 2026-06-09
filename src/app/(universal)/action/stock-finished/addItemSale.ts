@@ -4,6 +4,7 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { updateCustomerAccount } from "./inventorySupplier/updateCustomerAccount";
+import { InventoryUnit } from "@/lib/types/InventoryItemType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -17,8 +18,12 @@ type AdjustSaleStock = {
   stockDirection: "IN" | "OUT";
 
   quantity: number;
+  transactionUnit: InventoryUnit;
+
   price: number;
 
+  // ✅ ADD THESE
+  paymentStatus?: "PAID" | "CREDIT";
   paymentMethod?: PaymentMethod;
   paidAmount?: number;
 
@@ -32,10 +37,12 @@ type AdjustSaleStock = {
 export async function addItemSale({
   id,
   wholeSaleCutomerId,
+  wholeSaleCutomerName,
   transactionType,
   stockDirection,
   quantity,
   price,
+  transactionUnit,
   paymentMethod,
   note,
   createdBy,
@@ -132,29 +139,39 @@ export async function addItemSale({
     .doc();
 
   t.set(transactionRef, {
-    productId: id,
+  productId: id,
 
-    transactionType,
-    stockDirection,
+  transactionType,
+  stockDirection,
 
-    quantity,
-    price,
+  quantity,
+  transactionUnit, // ✅ ADD THIS
 
-    previousStock: freshStock, // ✅ FIXED
-    newStock,
+  price,
 
-    totalAmount: quantity * price,
+  previousStock: freshStock,
+  newStock,
 
-    paymentMethod: paymentMethod || null,
+  totalAmount: quantity * price,
 
-    referenceType,
-    referenceId: referenceId || "",
+  // ✅ PAYMENT
+  paymentStatus: paymentMethod ? "PAID" : "CREDIT",
+  paymentMethod: paymentMethod || null,
+  paidAmount: paymentMethod ? quantity * price : 0,
+  dueAmount: paymentMethod ? 0 : quantity * price,
 
-    note: note || "Stock update",
-    createdBy: createdBy || "admin",
+  // ✅ CUSTOMER
+  customerId: wholeSaleCutomerId || null,
+  customerName: wholeSaleCutomerName || null,
 
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+  referenceType,
+  referenceId: referenceId || "",
+
+  note: note || "Stock update",
+  createdBy: createdBy || "admin",
+
+  createdAt: admin.firestore.FieldValue.serverTimestamp(),
+});
 });
 
     // =====================================================
@@ -162,16 +179,19 @@ export async function addItemSale({
     // =====================================================
 
     if (transactionType === "SALE" && wholeSaleCutomerId) {
-      const totalAmount = quantity * price;
+   const totalAmount = quantity * price;
 
-      await updateCustomerAccount({
-        wholeSaleCutomerId,
-        transactionType,
-        totalAmount,
-        paidAmount: 0,
-        dueAmount: totalAmount,
-        paymentMethod,
-      });
+const paid = paymentMethod ? totalAmount : 0;
+const due = totalAmount - paid;
+
+await updateCustomerAccount({
+  wholeSaleCutomerId,
+  transactionType,
+  totalAmount,
+  paidAmount: paid,
+  dueAmount: due,
+  paymentMethod,
+});
     }
 
     // =====================================================
