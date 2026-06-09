@@ -14,7 +14,7 @@ import { Search, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { addItemSale } from "@/app/(universal)/action/stock-finished/addItemSale";
-import { WholeCustomerType, WholeCustomerTypeS } from "@/lib/types/WholeSaleCustomerType";
+import { WholeCustomerType  } from "@/lib/types/WholeSaleCustomerType";
 
 import {
   InventoryItemType,
@@ -123,49 +123,20 @@ export default function ItemPurchaseForm({
   // AUTO SET STOCK DIRECTION
   // =====================================================
 
-  React.useEffect(() => {
-    if (
-      transactionType === "SALE" ||
-      transactionType === "OPENING_STOCK" ||
-      transactionType === "CUSTOMER_RETURN"
-    ) {
-      setValue("stockDirection", "IN");
-    }
-
-    if (
-      transactionType === "WASTAGE"
-    ) {
-      setValue("stockDirection", "OUT");
-    }
-  }, [transactionType, setValue]);
+ 
 
 
 
-  React.useEffect(() => {
-    switch (transactionType) {
-      case "PURCHASE":
-      case "OPENING_STOCK":
-      case "CUSTOMER_RETURN":
-        setValue("stockDirection", "IN");
-        break;
 
-      case "WASTAGE":
-      case "SUPPLIER_RETURN":
-        setValue("stockDirection", "OUT");
-        break;
-
-      // ADJUSTMENT = manual selection
-    }
-  }, [transactionType, setValue]);
 
   // =====================================================
   // FILTER INVENTORY
   // =====================================================
 
-  const filteredInventory =
+  const filteredItem =
     useMemo(() => {
       if (!search.trim()) return [];
-
+      
       return products
         .filter((item) =>
           item.name
@@ -177,6 +148,8 @@ export default function ItemPurchaseForm({
             )
         )
         .slice(0, 20);
+
+      
     }, [search, products]);
 
   // =====================================================
@@ -214,32 +187,9 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
   alert("Select payment method");
   return;
 }
-
  
 
-    const decimalAllowedUnits = [
-      "kg",
-      "gm",
-      "ltr",
-      "ml",
-    ];
-
-    const quantity =
-      Number(data.quantity);
-
-    if (
-      !decimalAllowedUnits.includes(
-        data.transactionUnit
-      ) &&
-      !Number.isInteger(quantity)
-    ) {
-      alert(
-        `Decimal quantity not allowed for ${data.transactionUnit}`
-      );
-
-      return;
-    }
-
+   
 
 
     let finalQuantity =
@@ -248,34 +198,11 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
     let finalUnitCost =
       Number(data.price);
 
-    const originalQuantity =
-      Number(data.quantity);
-
-    const originalUnitCost =
-      Number(data.price);
-
-    // Convert purchase unit -> consumption unit
-    // if (
-    //   data.transactionUnit ===
-    //   selectedProduct.purchaseUnit &&
-    //   selectedProduct.purchaseUnit !==
-    //   selectedProduct.consumptionUnit
-    // ) {
-    //   // quantity convert
-    //   finalQuantity =
-    //     finalQuantity *
-    //     selectedProduct.conversionFactor;
-
-    //   // ✅ cost convert
-    //   finalUnitCost =
-    //     finalUnitCost /
-    //     selectedProduct.conversionFactor;
-    // }
+   
 
     setIsSubmitting(true);
 
-    console.log("paymentMethod--------------", data)
-
+    
     try {
       const result = await addItemSale({
         id: data.id,
@@ -284,48 +211,27 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
         // ✅ ADD THIS
         wholeSaleCutomerName:
-          selectedCustomer?.companyName || "",
-
+        selectedCustomer?.companyName || "",
         transactionType: "SALE",
-
         stockDirection: "OUT",//data.stockDirection,
-
         // INTERNAL
         quantity: finalQuantity,
-
         price: finalUnitCost,
-
-      
-  
-
-       
-
-    //    purchaseUnit: data.transactionUnit,
-
-      //  purchaseUnitCost: originalUnitCost,
-
-       
-     //   paymentStatus: data.paymentStatus,
-
+        transactionUnit: transactionUnit,
+      //   paymentStatus: data.paymentStatus,
         paymentMethod: data.paymentMethod,
-
         paidAmount: Number(data.paidAmount || 0),
-
         note: data.note,
-
         createdBy: "admin",
       });
+
+
+
+
       if (result.success) {
         let updatedStock =
           selectedProduct.currentStock;
-
-        // if (data.stockDirection === "IN") {
-        //   updatedStock += finalQuantity;
-        // } else {
-        //   updatedStock -= finalQuantity;
-        // }
-
-        setselectedProduct({
+         setselectedProduct({
           ...selectedProduct,
           currentStock: updatedStock,
         });
@@ -421,11 +327,11 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               {/* DROPDOWN */}
 
               {showDropdown &&
-                filteredInventory.length >
+                filteredItem.length >
                 0 && (
                   <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
-                    {filteredInventory.map((item) => (
+                    {filteredItem.map((item) => (
                       <button
                         key={item.id}
                         type="button"
@@ -501,6 +407,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               </div>
 
               <div className="text-2xl font-bold text-blue-700">
+                {selectedProduct.currentStock}
                 {/* {displayStock(
                   selectedProduct.currentStock,
                   selectedProduct.purchaseUnit,
@@ -636,119 +543,60 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
           {/* ===================================================== */}
 
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Quantity
-              </label>
+  
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Quantity
+    </label>
 
-              <input
-                type="number"
-                step="0.001"
-                {...register("quantity")}
-                className="input-style-4"
-                placeholder="0"
-              />
-            </div>
+    <input
+      type="number"
+      step="0.001"
+      {...register("quantity")}
+      className="input-style-4"
+      placeholder="0"
+    />
+  </div>
 
-            {/* <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Unit
-              </label>
+  {/* UNIT SELECTOR */}
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Unit
+    </label>
 
-              <select
-                {...register("transactionUnit")}
-                className="input-style-4"
-              >
-                {selectedProduct && (
-                  <option value={selectedProduct.purchaseUnit}>
-                    {selectedProduct.purchaseUnit}
-                  </option>
-                )}
+<select
+  {...register("transactionUnit")}
+  className="input-style-4"
+>
+  <option value="PCS">Piece (pcs)</option>
+  <option value="BOX">Box</option>
+  <option value="KG">Kilogram (kg)</option>
+  <option value="G">Gram (g)</option>
+  <option value="L">Liter (l)</option>
+  <option value="ML">Milliliter (ml)</option>
+  <option value="PACK">Pack</option>
+  <option value="DOZEN">Dozen</option>
+</select>
+  </div>
 
-               
-                {selectedProduct &&
-                  selectedProduct.consumptionUnit !==
-                  selectedProduct.purchaseUnit && (
-                    <option value={selectedProduct.consumptionUnit}>
-                      {selectedProduct.consumptionUnit}
-                    </option>
-                  )}
-              </select>
-            </div> */}
+  {/* PRICE */}
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Unit Price
+    </label>
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Unit Cost
-              </label>
+    <input
+      type="number"
+      step="0.01"
+      {...register("price")}
+      className="input-style-4"
+      placeholder="Enter price"
+    />
+  </div>
 
-              <input
-                type="number"
-                step="0.01"
-                {...register("price")}
-                className="input-style-4"
-                placeholder="Enter unit cost"
-              />
-            </div>
-
-
-
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-              {/* PAYMENT STATUS */}
-              <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Payment Type
-                </label>
-
-                <select
-                  {...register("paymentStatus")}
-                  className="input-style-4"
-                >
-                  <option value="PAID">Paid</option>
-                  <option value="CREDIT">Credit (Pay Later)</option>
-                </select>
-              </div>
-
-              {/* OPTIONAL PAID AMOUNT */}
-              {watch("paymentStatus") === "DUE" && (
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Paid Amount (Optional)
-                  </label>
-
-                  <input
-                    type="number"
-                    step="0.01"
-                    {...register("paidAmount")}
-                    className="input-style-4"
-                    placeholder="0"
-                  />
-                </div>
-              )}
-
-              {watch("paymentStatus") === "PAID" && (
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Payment Method
-                  </label>
-
-                  <select
-                    {...register("paymentMethod")}
-                    className="input-style-4"
-                  >
-                    <option value="CASH">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="CARD">Card</option>
-                  </select>
-                </div>
-              )}
-
-            </div>
-
-          </div>
+</div>
 
           {/* ===================================================== */}
           {/* NOTE */}

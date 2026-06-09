@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export type ProductType = {
-  id: string ;
+  id: string;
   name: string;
   price: number;
- 
+
   discountPrice: number | undefined;
   categoryId: string;
   productCat: string | undefined;
@@ -13,7 +13,7 @@ export type ProductType = {
   sortOrder: number;
   image: string;
   isFeatured: boolean;
-  
+
   flavors: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
@@ -29,20 +29,21 @@ export type ProductType = {
   type?: 'parent' | 'variant';
 
   purchaseSession: string | null;
-  quantity: number | null;
+  
 
-   stockQty: number;
-
-   // NEW
+  // NEW STOCK MAINTAIN
   productMode?: 'simple' | 'recipe';
+  sku?: string;
+  barcode?: string;
+  currentStock?: number;
+  minStock?: number;      // alert level
 
   // FOR SIMPLE PRODUCTS ONLY
   inventoryItemId?: string;
-
   trackInventory?: boolean;
-
   allowNegativeStock?: boolean;
 };
+
 
 
 

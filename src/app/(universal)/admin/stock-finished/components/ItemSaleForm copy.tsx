@@ -14,7 +14,7 @@ import { Search, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { addItemSale } from "@/app/(universal)/action/stock-finished/addItemSale";
-import { WholeCustomerType, WholeCustomerTypeS } from "@/lib/types/WholeSaleCustomerType";
+import { WholeCustomerType  } from "@/lib/types/WholeSaleCustomerType";
 
 import {
   InventoryItemType,
@@ -72,8 +72,8 @@ export default function ItemPurchaseForm({
     useState(false);
 
   const [
-    selectedInventory,
-    setSelectedInventory,
+    selectedProduct,
+    setselectedProduct,
   ] =
     useState<ProductType | null>(
       null
@@ -107,13 +107,10 @@ export default function ItemPurchaseForm({
     watch,
     reset,
   } = useForm<FormType>({
-    defaultValues: {
-      transactionType: "PURCHASE",
-      stockDirection: "IN",
-      quantity: 0,
-      transactionUnit: "pcs",
-      note: "",
-    },
+   defaultValues: {
+  transactionType: "SALE",
+  stockDirection: "OUT",
+},
   });
 
   const transactionType = watch(
@@ -128,7 +125,7 @@ export default function ItemPurchaseForm({
 
   React.useEffect(() => {
     if (
-      transactionType === "PURCHASE" ||
+      transactionType === "SALE" ||
       transactionType === "OPENING_STOCK" ||
       transactionType === "CUSTOMER_RETURN"
     ) {
@@ -165,9 +162,23 @@ export default function ItemPurchaseForm({
   // FILTER INVENTORY
   // =====================================================
 
-  const filteredInventory =
+  const filteredItem =
     useMemo(() => {
       if (!search.trim()) return [];
+      
+
+     const data =  products
+        .filter((item) =>
+          item.name
+            ?.toLowerCase()
+            .includes(
+              search
+                .trim()
+                .toLowerCase()
+            )
+        )
+        .slice(0, 20);
+          console.log("item -------------", data)
 
       return products
         .filter((item) =>
@@ -180,6 +191,8 @@ export default function ItemPurchaseForm({
             )
         )
         .slice(0, 20);
+
+      
     }, [search, products]);
 
   // =====================================================
@@ -189,38 +202,36 @@ export default function ItemPurchaseForm({
   async function onSubmit(data: FormType) {
     if (isSubmitting) return;
 
-    if (!selectedInventory) {
+    if (!selectedProduct) {
       alert("Please select inventory item");
       return;
     }
 
-    // =====================================
-    // PURCHASE VALIDATIONS
-    // =====================================
+   // SALE VALIDATION
 
-    if (data.transactionType === "PURCHASE") {
+if (!data.wholeSaleCutomerId) {
+  alert("Please select customer");
+  return;
+}
 
-      // supplier required
-      if (!data.wholeSaleCutomerId) {
-        alert("Please select supplier");
-        return;
-      }
+if (!data.price || Number(data.price) <= 0) {
+  alert("Selling price must be greater than 0");
+  return;
+}
 
-      // price required
-      if (!data.price || Number(data.price) <= 0) {
-        alert("Unit cost must be greater than 0");
-        return;
-      }
+// stock check
+if (selectedProduct && data.quantity > selectedProduct.currentStock!!) {
+  alert("Not enough stock available");
+  return;
+}
 
-      // payment method required
-      if (
-        data.paymentStatus === "PAID" &&
-        !data.paymentMethod
-      ) {
-        alert("Please select payment method");
-        return;
-      }
-    }
+// payment validation
+if (data.paymentStatus === "PAID" && !data.paymentMethod) {
+  alert("Select payment method");
+  return;
+}
+
+ 
 
     const decimalAllowedUnits = [
       "kg",
@@ -262,19 +273,19 @@ export default function ItemPurchaseForm({
     // Convert purchase unit -> consumption unit
     // if (
     //   data.transactionUnit ===
-    //   selectedInventory.purchaseUnit &&
-    //   selectedInventory.purchaseUnit !==
-    //   selectedInventory.consumptionUnit
+    //   selectedProduct.purchaseUnit &&
+    //   selectedProduct.purchaseUnit !==
+    //   selectedProduct.consumptionUnit
     // ) {
     //   // quantity convert
     //   finalQuantity =
     //     finalQuantity *
-    //     selectedInventory.conversionFactor;
+    //     selectedProduct.conversionFactor;
 
     //   // ✅ cost convert
     //   finalUnitCost =
     //     finalUnitCost /
-    //     selectedInventory.conversionFactor;
+    //     selectedProduct.conversionFactor;
     // }
 
     setIsSubmitting(true);
@@ -291,24 +302,26 @@ export default function ItemPurchaseForm({
         wholeSaleCutomerName:
           selectedCustomer?.companyName || "",
 
-        transactionType: data.transactionType,
+        transactionType: "SALE",
 
-        stockDirection: data.stockDirection,
+        stockDirection: "OUT",//data.stockDirection,
 
         // INTERNAL
         quantity: finalQuantity,
 
         price: finalUnitCost,
 
-        // ORIGINAL
-        purchaseQuantity: originalQuantity,
-
-        purchaseUnit: data.transactionUnit,
-
-        purchaseUnitCost: originalUnitCost,
+      
+  
 
        
-        paymentStatus: data.paymentStatus,
+
+    //    purchaseUnit: data.transactionUnit,
+
+      //  purchaseUnitCost: originalUnitCost,
+
+       
+     //   paymentStatus: data.paymentStatus,
 
         paymentMethod: data.paymentMethod,
 
@@ -320,7 +333,7 @@ export default function ItemPurchaseForm({
       });
       if (result.success) {
         let updatedStock =
-          selectedInventory.currentStock;
+          selectedProduct.currentStock;
 
         // if (data.stockDirection === "IN") {
         //   updatedStock += finalQuantity;
@@ -328,8 +341,8 @@ export default function ItemPurchaseForm({
         //   updatedStock -= finalQuantity;
         // }
 
-        setSelectedInventory({
-          ...selectedInventory,
+        setselectedProduct({
+          ...selectedProduct,
           currentStock: updatedStock,
         });
 
@@ -339,7 +352,7 @@ export default function ItemPurchaseForm({
           quantity: 0,
           note: "",
           price: 0,
-          id: selectedInventory.id,
+          id: selectedProduct.id,
         });
       } else {
         alert(result.message);
@@ -424,27 +437,27 @@ export default function ItemPurchaseForm({
               {/* DROPDOWN */}
 
               {showDropdown &&
-                filteredInventory.length >
+                filteredItem.length >
                 0 && (
                   <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
-                    {filteredInventory.map((item) => (
+                    {filteredItem.map((item) => (
                       <button
                         key={item.id}
                         type="button"
                         onClick={() => {
-                          setSelectedInventory(item);
+                          setselectedProduct(item);
 
                           setValue(
-                            "inventoryItemId",
+                            "id",
                             item.id
                           );
 
                           // default transaction unit
-                          setValue(
-                            "transactionUnit",
-                            item.purchaseUnit
-                          );
+                          // setValue(
+                          //   "transactionUnit",
+                          //   item.purchaseUnit
+                          // );
 
                           setSearch(item.name);
 
@@ -459,7 +472,7 @@ export default function ItemPurchaseForm({
                         <div className="text-xs text-gray-400">
                           Current:{" "}
                           {item.currentStock}{" "}
-                          {item.consumptionUnit}
+                        
                         </div>
                       </button>
                     ))}
@@ -470,7 +483,7 @@ export default function ItemPurchaseForm({
             <input
               type="hidden"
               {...register(
-                "inventoryItemId"
+                "id"
               )}
             />
           </div>
@@ -479,7 +492,7 @@ export default function ItemPurchaseForm({
           {/* CURRENT STOCK */}
           {/* ===================================================== */}
 
-          {selectedInventory && (
+          {selectedProduct && (
             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
@@ -493,7 +506,7 @@ export default function ItemPurchaseForm({
                 <div>
                   <h3 className="font-semibold text-gray-800">
                     {
-                      selectedInventory.name
+                      selectedProduct.name
                     }
                   </h3>
 
@@ -504,12 +517,13 @@ export default function ItemPurchaseForm({
               </div>
 
               <div className="text-2xl font-bold text-blue-700">
-                {displayStock(
-                  selectedInventory.currentStock,
-                  selectedInventory.purchaseUnit,
-                  selectedInventory.consumptionUnit,
-                  selectedInventory.conversionFactor
-                )}
+                {selectedProduct.currentStock}
+                {/* {displayStock(
+                  selectedProduct.currentStock,
+                  selectedProduct.purchaseUnit,
+                  selectedProduct.consumptionUnit,
+                  selectedProduct.conversionFactor
+                )} */}
               </div>
             </div>
           )}
@@ -664,18 +678,18 @@ export default function ItemPurchaseForm({
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                {selectedInventory && (
-                  <option value={selectedInventory.purchaseUnit}>
-                    {selectedInventory.purchaseUnit}
+                {selectedProduct && (
+                  <option value={selectedProduct.purchaseUnit}>
+                    {selectedProduct.purchaseUnit}
                   </option>
                 )}
 
                
-                {selectedInventory &&
-                  selectedInventory.consumptionUnit !==
-                  selectedInventory.purchaseUnit && (
-                    <option value={selectedInventory.consumptionUnit}>
-                      {selectedInventory.consumptionUnit}
+                {selectedProduct &&
+                  selectedProduct.consumptionUnit !==
+                  selectedProduct.purchaseUnit && (
+                    <option value={selectedProduct.consumptionUnit}>
+                      {selectedProduct.consumptionUnit}
                     </option>
                   )}
               </select>

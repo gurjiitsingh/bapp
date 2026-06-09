@@ -6,14 +6,15 @@
 import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventorySupplier/fetchCustomer";
 import ItemSaleForm from "../../components/ItemSaleForm";
 
-import { fetchProducts } from "@/app/(universal)/action/products/dbOperation";
+
+import { fetchFinishedProducts } from "@/app/(universal)/action/stock-finished/finshed-products/fetchFinishedProduct";
 
 
 
 export default async function Page() {
   // INVENTORY ITEMS
   const products =
-    await fetchProducts();
+    await fetchFinishedProducts();
 
   // WHOLESALE CUSTOMERS
   const customers =
