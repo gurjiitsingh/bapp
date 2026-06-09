@@ -173,28 +173,28 @@ const Sidebar = () => {
 {
   key: "SHOW_INVENTORY",
   name: "Inventory",
-  link: "/admin/inventory/dashboard",
+  link: "/admin/stock-finished/dashboard",
   icon: <MdOutlineInventory2 />,
 },
 
-// {
-//   key: "SHOW_INVENTORY",
-//   name: "Add Inventory",
-//   link: "/admin/inventory/new",
-//   icon: <MdInventory />,
-// },
+{
+  key: "SHOW_INVENTORY",
+  name: "Finished Stock",
+  link: "/admin/stock-finished/sale/add",
+  icon: <MdInventory />,
+},
 
 // {
 //   key: "SHOW_INVENTORY_TRANSACTIONS",
 //   name: "Stock Transactions",
-//   link: "/admin/inventory/transactions",
+//   link: "/admin/stock-finished/transactions",
 //   icon: <MdOutlineReceiptLong />,
 // },
 
 // {
 //   key: "SHOW_INVENTORY_TRANSACTIONS",
 //   name: "Add Transaction",
-//   link: "/admin/inventory/transactions/new",
+//   link: "/admin/stock-finished/transactions/new",
 //   icon: <MdOutlineReceiptLong />,
 // },
 
