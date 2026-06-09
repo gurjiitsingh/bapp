@@ -5,16 +5,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
-import { supplierSchema, TSupplierSchema } from "@/lib/types/SupplierType";
-import { addInventoryItemSupplier } from "@/app/(universal)/action/inventoryItemSupplier/addInventoryItemSupplier";
-import { addSupplier } from "@/app/(universal)/action/inventoryItemSupplier/addSupplier";
+
+
+//import { addSupplier } from "@/app/(universal)/action/stock-finished/ItemSupplier/addSupplier";
+import { TWholeCustomerSchema, WholeCustomerSchema } from "@/lib/types/WholeSaleCustomerType";
+import { addWholeSaleCutomer } from "@/app/(universal)/action/stock-finished/customer/addWholeSaleCutomer";
+
 
 
 
 
 // import { addSupplier } from "../addSupplier";
 
-const SupplierForm = () => {
+const NewWholeSaleCutomerForm = () => {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
@@ -24,10 +27,10 @@ const SupplierForm = () => {
     reset,
     formState: { errors },
   } =
-    useForm<TSupplierSchema>({
+    useForm<TWholeCustomerSchema>({
       resolver:
         zodResolver(
-          supplierSchema
+          WholeCustomerSchema
         ),
 
       defaultValues: {
@@ -61,7 +64,7 @@ const SupplierForm = () => {
     });
 
   async function onSubmit(
-    data: TSupplierSchema
+    data: TWholeCustomerSchema
   ) {
     if (isSubmitting)
       return;
@@ -88,7 +91,7 @@ const SupplierForm = () => {
       );
 
       const result =
-        await addSupplier(
+        await addWholeSaleCutomer(
           formData
         );
 
@@ -126,13 +129,12 @@ const SupplierForm = () => {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">
-          Create Supplier
+          Create Customer
         </h1>
 
         <p className="text-sm text-gray-500 mt-1">
-          Add suppliers for
-          inventory
-          purchasing and
+          Add Customer for
+          
           sales management
         </p>
       </div>
@@ -446,4 +448,4 @@ const SupplierForm = () => {
   );
 };
 
-export default SupplierForm;
+export default NewWholeSaleCutomerForm;
