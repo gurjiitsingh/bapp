@@ -101,78 +101,359 @@ export async function addItemSale({
     // =====================================================
     // FIRESTORE TRANSACTION (IMPORTANT)
     // =====================================================
+// =====================================================
+// GET PRODUCT MODE
+// =====================================================
 
-   await adminDb.runTransaction(async (t) => {
-  // ✅ ALWAYS re-read inside transaction (VERY IMPORTANT)
-  const freshSnap = await t.get(productRef);
+const productMode =
+  productData?.productMode;
 
-  if (!freshSnap.exists) {
-    throw new Error("Product not found inside transaction");
+// =====================================================
+// RECIPE CHECK
+// =====================================================
+
+const recipeSnapshot =
+  await adminDb
+    .collection("productRecipes")
+    .where(
+      "productId",
+      "==",
+      id
+    )
+    .get();
+
+// =====================================================
+// STOCK MANAGED PRODUCT
+// Finished goods stock
+// =====================================================
+
+if (
+  productMode ===
+  "stock_managed"
+) {
+
+  await adminDb.runTransaction(
+    async (t) => {
+
+      const freshSnap =
+        await t.get(productRef);
+
+      if (!freshSnap.exists) {
+        throw new Error(
+          "Product not found inside transaction"
+        );
+      }
+
+      const freshData =
+        freshSnap.data();
+
+      const freshStock =
+        Number(
+          freshData?.currentStock
+        ) || 0;
+
+      let newStock =
+        freshStock;
+
+      if (
+        stockDirection === "OUT"
+      ) {
+        newStock =
+          freshStock -
+          quantity;
+      } else {
+        newStock =
+          freshStock +
+          quantity;
+      }
+
+      if (
+        newStock < 0 &&
+        !freshData?.allowNegativeStock
+      ) {
+        throw new Error(
+          "Insufficient stock"
+        );
+      }
+
+      // UPDATE PRODUCT STOCK
+      t.update(productRef, {
+        currentStock: newStock,
+
+        stockStatus:
+          newStock > 0
+            ? "in_stock"
+            : "out_of_stock",
+
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // LOG
+      const transactionRef =
+        adminDb
+          .collection(
+            "finishedStockTransactions"
+          )
+          .doc();
+
+      t.set(transactionRef, {
+        productId: id,
+
+        transactionType,
+        stockDirection,
+
+        quantity,
+        transactionUnit,
+
+        price,
+
+        previousStock:
+          freshStock,
+
+        newStock,
+
+        totalAmount:
+          quantity * price,
+
+        paymentStatus:
+          paymentMethod
+            ? "PAID"
+            : "CREDIT",
+
+        paymentMethod:
+          paymentMethod ||
+          null,
+
+        paidAmount:
+          paymentMethod
+            ? quantity * price
+            : 0,
+
+        dueAmount:
+          paymentMethod
+            ? 0
+            : quantity * price,
+
+        customerId:
+          wholeSaleCutomerId ||
+          null,
+
+        customerName:
+          wholeSaleCutomerName ||
+          null,
+
+        referenceType,
+
+        referenceId:
+          referenceId || "",
+
+        note:
+          note ||
+          "Stock update",
+
+        createdBy:
+          createdBy ||
+          "admin",
+
+        createdAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  );
+}
+
+// =====================================================
+// RECIPE LIVE PRODUCT
+// Restaurant logic
+// =====================================================
+
+else if (
+  !recipeSnapshot.empty
+) {
+
+  for (const recipeDoc of recipeSnapshot.docs) {
+
+    const recipeData =
+      recipeDoc.data();
+
+    const inventoryItemId =
+      recipeData.inventoryItemId;
+
+    const recipeQty =
+      Number(
+        recipeData.quantity
+      ) || 0;
+
+    const deductQty =
+      recipeQty * quantity;
+
+    const inventoryRef =
+      adminDb
+        .collection(
+          "inventoryItems"
+        )
+        .doc(
+          inventoryItemId
+        );
+
+    await adminDb.runTransaction(
+      async (t) => {
+
+        const inventorySnap =
+          await t.get(
+            inventoryRef
+          );
+
+        if (
+          !inventorySnap.exists
+        ) {
+          return;
+        }
+
+        const inventoryData =
+          inventorySnap.data();
+
+        const previousStock =
+          Number(
+            inventoryData?.currentStock
+          ) || 0;
+
+        const newStock =
+          stockDirection ===
+          "OUT"
+            ? previousStock -
+              deductQty
+            : previousStock +
+              deductQty;
+
+        if (
+          newStock < 0 &&
+          !productData?.allowNegativeStock
+        ) {
+          throw new Error(
+            "Insufficient inventory stock"
+          );
+        }
+
+        // UPDATE INVENTORY
+        t.update(
+          inventoryRef,
+          {
+            currentStock:
+              newStock,
+
+            updatedAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          }
+        );
+
+        // INVENTORY LOG
+        const inventoryLogRef =
+          adminDb
+            .collection(
+              "inventoryTransactions"
+            )
+            .doc();
+
+        t.set(
+          inventoryLogRef,
+          {
+            inventoryItemId,
+
+            inventoryItemName:
+              inventoryData?.name ||
+              "",
+
+            type: "sale",
+
+            quantity:
+              deductQty,
+
+            previousStock,
+
+            newStock,
+
+            note: `Wholesale sale (${productData?.name})`,
+
+            referenceId:
+              referenceId ||
+              "",
+
+            referenceType:
+              "sale",
+
+            createdBy:
+              createdBy ||
+              "admin",
+
+            createdAt:
+              admin.firestore.FieldValue.serverTimestamp(),
+          }
+        );
+      }
+    );
   }
+}
 
-  const freshData = freshSnap.data();
-  const freshStock = freshData?.currentStock || 0;
+// =====================================================
+// SIMPLE PRODUCT
+// =====================================================
 
-  let newStock = freshStock;
+else {
 
-  if (stockDirection === "OUT") {
-    newStock = freshStock - quantity;
-  } else {
-    newStock = freshStock + quantity;
-  }
+  await adminDb.runTransaction(
+    async (t) => {
 
-  // prevent negative stock
-  if (newStock < 0 && !freshData?.allowNegativeStock) {
-    throw new Error("Insufficient stock");
-  }
+      const freshSnap =
+        await t.get(productRef);
 
-  // ✅ UPDATE PRODUCT STOCK (FINAL)
-  t.update(productRef, {
-    currentStock: newStock,
-    stockStatus: newStock > 0 ? "in_stock" : "out_of_stock",
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  });
+      if (!freshSnap.exists) {
+        throw new Error(
+          "Product not found"
+        );
+      }
 
-  // ✅ CREATE TRANSACTION LOG
-  const transactionRef = adminDb
-    .collection("finishedStockTransactions")
-    .doc();
+      const freshData =
+        freshSnap.data();
 
-  t.set(transactionRef, {
-  productId: id,
+      const previousStock =
+        Number(
+          freshData?.currentStock
+        ) || 0;
 
-  transactionType,
-  stockDirection,
+      const newStock =
+        stockDirection ===
+        "OUT"
+          ? previousStock -
+            quantity
+          : previousStock +
+            quantity;
 
-  quantity,
-  transactionUnit, // ✅ ADD THIS
+      if (
+        newStock < 0 &&
+        !freshData?.allowNegativeStock
+      ) {
+        throw new Error(
+          "Insufficient stock"
+        );
+      }
 
-  price,
+      t.update(productRef, {
+        currentStock: newStock,
 
-  previousStock: freshStock,
-  newStock,
+        stockStatus:
+          newStock > 0
+            ? "in_stock"
+            : "out_of_stock",
 
-  totalAmount: quantity * price,
-
-  // ✅ PAYMENT
-  paymentStatus: paymentMethod ? "PAID" : "CREDIT",
-  paymentMethod: paymentMethod || null,
-  paidAmount: paymentMethod ? quantity * price : 0,
-  dueAmount: paymentMethod ? 0 : quantity * price,
-
-  // ✅ CUSTOMER
-  customerId: wholeSaleCutomerId || null,
-  customerName: wholeSaleCutomerName || null,
-
-  referenceType,
-  referenceId: referenceId || "",
-
-  note: note || "Stock update",
-  createdBy: createdBy || "admin",
-
-  createdAt: admin.firestore.FieldValue.serverTimestamp(),
-});
-});
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+  );
+}
+ 
 
     // =====================================================
     // CUSTOMER ACCOUNT (ONLY FOR SALE)

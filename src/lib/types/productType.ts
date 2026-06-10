@@ -17,6 +17,7 @@ export type ProductType = {
   flavors: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
+ 
 
   searchCode?: string | null;   // barcode / short code / SKU (nullable)
   // NEW FIELDS
@@ -32,7 +33,11 @@ export type ProductType = {
   
 
   // NEW STOCK MAINTAIN
-  productMode?: 'simple' | 'recipe';
+ productMode?:
+| "recipe_live"
+| "stock_managed"
+| "simple";
+
   sku?: string;
   barcode?: string;
   currentStock?: number;

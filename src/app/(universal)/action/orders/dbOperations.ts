@@ -126,7 +126,7 @@ import { checkStockAvailabilityV2 } from "../inventory/checkStockAvailabilityV2"
 
 export async function createNewOrder(purchaseData: orderDataType) {
 
-  console.log("addreas full oredr masrer---------------",purchaseData)
+ // console.log("addreas full oredr masrer---------------",purchaseData)
   const {
     // -----------------------------
     // BASIC
@@ -411,11 +411,14 @@ const orderMasterData: orderMasterDataT = {
 // 9.5️⃣ PROCESS INVENTORY
 // =====================================================
 await processSaleInventory(
-  "kljkl",
+  "kjliiuwe",//orderMasterId,
   cartWithTax.map((item) => ({
     productId: item.id,
     quantity: item.quantity || 1,
     name: item.name,
+
+    // NEW
+    productMode: item.productMode,
   }))
 );
 
@@ -896,7 +899,7 @@ export async function decreaseProductStock(orderMasterId: string) {
       }
 
       const product = productSnap.data() as ProductType;
-      const currentStock = product.stockQty ?? 0;
+      const currentStock = product.currentStock ?? 0;
       const quantityOrdered = item.quantity ?? 0;
 
       //  Check stock

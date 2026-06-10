@@ -158,16 +158,11 @@ function TableRows({
       </TableCell>
 
       {/* MIN STOCK */}
-      <TableCell>
+      {/* <TableCell>
         <span className="text-sm font-medium text-gray-700">
-          {/* {displayStock(
-            item.minStock,
-            item.purchaseUnit,
-            item.consumptionUnit,
-            item.conversionFactor
-          )} */}
+         
         </span>
-      </TableCell>
+      </TableCell> */}
 
       {/* COST PRICE */}
       {/* <TableCell>
@@ -185,8 +180,8 @@ function TableRows({
       {/* STATUS */}
       <TableCell>
         <div className="flex flex-col gap-2">
-          {/* ACTIVE */}
-          <div>
+         
+          {/* <div>
             {item.isActive ? (
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
                 <CheckCircle2 size={14} />
@@ -197,7 +192,7 @@ function TableRows({
                 Inactive
               </span>
             )}
-          </div>
+          </div> */}
 
           {/* LOW STOCK */}
           {isLowStock && (
@@ -211,10 +206,62 @@ function TableRows({
         </div>
       </TableCell>
 
+  <TableCell>
+  <select
+    value={item.productMode || "recipe_live"}
+    onChange={async (e) => {
+      const newMode = e.target.value;
+
+      try {
+        await fetch(
+          "/api/products/update-mode",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              id: item.id,
+              productMode: newMode,
+            }),
+          }
+        );
+
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+      }
+    }}
+    className="
+      border border-gray-200
+      rounded-lg
+      px-2 py-1
+      text-sm
+      bg-white
+      text-gray-700
+    "
+  >
+    <option value="recipe_live">
+      Live Recipe
+    </option>
+
+    <option value="stock_managed">
+      Live Product
+    </option>
+
+    <option value="simple">
+      Simple Product
+    </option>
+  </select>
+</TableCell>
+
       {/* ACTIONS */}
-      <TableCell className="text-right pr-5">
+      {/* <TableCell className="text-right pr-5">
         <div className="flex items-center justify-end gap-2">
-          {/* EDIT */}
+         
           <Link
             href={`/admin/stock-finished/${item.id}`}
           >
@@ -226,7 +273,7 @@ function TableRows({
             </Button>
           </Link>
 
-          {/* DELETE */}
+        
           <Button
             onClick={handleDelete}
             size="sm"
@@ -235,7 +282,7 @@ function TableRows({
             <MdDeleteForever size={18} />
           </Button>
         </div>
-      </TableCell>
+      </TableCell> */}
     </TableRow>
   );
 }

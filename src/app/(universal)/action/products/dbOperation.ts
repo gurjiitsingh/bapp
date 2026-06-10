@@ -286,7 +286,7 @@ export async function addNewProduct(formData: FormData) {
 
     revalidateTag("products", "max");
     revalidateTag("featured-products", "max");
-
+revalidateTag("stock-products-updated", "max");
     //    REVALIDATE ALL PRODUCT PAGES
     revalidatePath("/"); // storefront home
     revalidatePath("/products"); // storefront products page

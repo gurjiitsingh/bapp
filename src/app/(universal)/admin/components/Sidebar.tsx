@@ -172,8 +172,8 @@ const Sidebar = () => {
    
 {
   key: "SHOW_INVENTORY",
-  name: "Inventory",
-  link: "/admin/stock-finished/dashboard",
+  name: "Raw Stock",
+  link: "/admin/inventory/dashboard",
   icon: <MdOutlineInventory2 />,
 },
 

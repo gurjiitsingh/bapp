@@ -5,6 +5,7 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 
 import admin from "firebase-admin";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 type OrderItemType = {
   productId: string;
@@ -16,21 +17,30 @@ export async function processSaleInventory(
   orderId: string,
   orderItems: OrderItemType[]
 ) {
-  console.log(
-    "processSaleInventory-------------",
-  );
+ 
 
   try {
     for (const item of orderItems) {
+
+       console.log(
+    "processSaleInventory-------------",item
+  );
       const productId = item.productId;
 
-      const soldQty = Number(item.quantity);
+      const soldQty =
+        Number(item.quantity) || 0;
 
+      // ===============================
       // GET PRODUCT
-      const productDoc = await adminDb
-        .collection("products")
-        .doc(productId)
-        .get();
+      // ===============================
+
+      const productRef =
+        adminDb
+          .collection("products")
+          .doc(productId);
+
+      const productDoc =
+        await productRef.get();
 
       if (!productDoc.exists) {
         console.log(
@@ -44,6 +54,9 @@ export async function processSaleInventory(
       const productData =
         productDoc.data();
 
+      const productMode =
+        productData?.productMode;
+
       // FIND RECIPES
       const recipeSnapshot =
         await adminDb
@@ -55,12 +68,91 @@ export async function processSaleInventory(
           )
           .get();
 
-      // ===============================
-      // RESTAURANT / RECIPE PRODUCT
-      // ===============================
+      // ==================================================
+      // STOCK MANAGED PRODUCT
+      // Sweet shop / finished goods
+      // Only reduce PRODUCT currentStock
+      // ==================================================
+
+      if (
+        productMode ===
+        "stock_managed"
+      ) {
+        console.log(
+          "📦 Stock managed product:",
+          productData?.name
+        );
+
+        await adminDb.runTransaction(
+          async (transaction) => {
+            const freshProductDoc =
+              await transaction.get(
+                productRef
+              );
+
+            if (
+              !freshProductDoc.exists
+            ) {
+              return;
+            }
+
+            const freshProductData =
+              freshProductDoc.data();
+
+            const previousStock =
+              Number(
+                freshProductData?.currentStock
+              ) || 0;
+
+            const allowNegativeStock =
+              freshProductData?.allowNegativeStock ??
+              false;
+
+            const newStock =
+              previousStock -
+              soldQty;
+
+            if (
+              newStock < 0 &&
+              !allowNegativeStock
+            ) {
+              console.log(
+                `❌ Not enough stock for ${freshProductData?.name}`
+              );
+
+              return;
+            }
+
+            transaction.update(
+              productRef,
+              {
+                currentStock:
+                  newStock,
+
+                updatedAt:
+                  admin.firestore.FieldValue.serverTimestamp(),
+              }
+            );
+revalidateTag("stock-products-updated", "max");
+revalidatePath("/admin/stock-finshed");
+            console.log(
+              `✅ Reduced product stock: ${freshProductData?.name}`
+            );
+          }
+        );
+
+        continue;
+      }
+
+      // ==================================================
+      // RECIPE LIVE PRODUCT
+      // Restaurant logic
+      // Also works if productMode is undefined/null
+      // ==================================================
+
       if (!recipeSnapshot.empty) {
         console.log(
-          "Recipe product detected:",
+          "🍳 Recipe live product:",
           productData?.name
         );
 
@@ -72,20 +164,29 @@ export async function processSaleInventory(
             recipeData.inventoryItemId;
 
           const recipeQty =
-            Number(recipeData.quantity) || 0;
+            Number(
+              recipeData.quantity
+            ) || 0;
 
           // TOTAL TO DEDUCT
           const deductQty =
             recipeQty * soldQty;
 
-            console.log("it---------------",{
-  product: productData?.name,
-  inventoryItemId,
-  recipeQty,
-  soldQty,
-  deductQty,
-});
+          console.log(
+            "recipe deduction-------------",
+            {
+              product:
+                productData?.name,
 
+              inventoryItemId,
+
+              recipeQty,
+
+              soldQty,
+
+              deductQty,
+            }
+          );
 
           // GET INVENTORY ITEM
           const inventoryRef =
@@ -93,23 +194,21 @@ export async function processSaleInventory(
               .collection(
                 "inventoryItems"
               )
-              .doc(inventoryItemId);
+              .doc(
+                inventoryItemId
+              );
 
-
-
-          // start replace
           await adminDb.runTransaction(
             async (transaction) => {
-              // ===============================
-              // GET INVENTORY INSIDE TRANSACTION
-              // ===============================
-
+              // GET INVENTORY
               const inventoryDoc =
                 await transaction.get(
                   inventoryRef
                 );
 
-              if (!inventoryDoc.exists) {
+              if (
+                !inventoryDoc.exists
+              ) {
                 console.log(
                   "❌ Inventory item missing:",
                   inventoryItemId
@@ -126,16 +225,14 @@ export async function processSaleInventory(
                   inventoryData?.currentStock
                 ) || 0;
 
-              // ===============================
               // NEGATIVE STOCK CHECK
-              // ===============================
-
               const allowNegativeStock =
                 productData?.allowNegativeStock ??
                 false;
 
               const newStock =
-                previousStock - deductQty;
+                previousStock -
+                deductQty;
 
               if (
                 newStock < 0 &&
@@ -148,24 +245,19 @@ export async function processSaleInventory(
                 return;
               }
 
-              // ===============================
               // UPDATE STOCK
-              // ===============================
-
               transaction.update(
                 inventoryRef,
                 {
-                  currentStock: newStock,
+                  currentStock:
+                    newStock,
 
                   updatedAt:
                     admin.firestore.FieldValue.serverTimestamp(),
                 }
               );
 
-              // ===============================
-              // CREATE TRANSACTION LOG
-              // ===============================
-
+              // TRANSACTION LOG
               const transactionRef =
                 adminDb
                   .collection(
@@ -179,11 +271,13 @@ export async function processSaleInventory(
                   inventoryItemId,
 
                   inventoryItemName:
-                    inventoryData?.name || "",
+                    inventoryData?.name ||
+                    "",
 
                   type: "sale",
 
-                  quantity: deductQty,
+                  quantity:
+                    deductQty,
 
                   previousStock,
 
@@ -191,11 +285,14 @@ export async function processSaleInventory(
 
                   note: `Auto deducted from product sale (${productData?.name})`,
 
-                  referenceId: orderId,
+                  referenceId:
+                    orderId,
 
-                  referenceType: "order",
+                  referenceType:
+                    "order",
 
-                  createdBy: "system",
+                  createdBy:
+                    "system",
 
                   createdAt:
                     admin.firestore.FieldValue.serverTimestamp(),
@@ -203,45 +300,38 @@ export async function processSaleInventory(
               );
             }
           );
-
-          //end of replaced code
-
-
-
-          // console.log(
-          //   `✅ Deducted ${deductQty} from ${inventoryData?.name}`
-          // );
         }
+
+        continue;
       }
 
-      // ===============================
-      // NORMAL PRODUCT
-      // ===============================
-      else {
-        console.log(
-          "Simple stock product:",
-          productData?.name
-        );
+      // ==================================================
+      // SIMPLE PRODUCT
+      // ==================================================
 
-        const previousStock =
-          Number(
-            productData?.stockQty
-          ) || 0;
+      console.log(
+        "🧾 Simple product:",
+        productData?.name
+      );
 
-        const newStock =
-          previousStock - soldQty;
+      const previousStock =
+        Number(
+          productData?.currentStock
+        ) || 0;
 
-        await adminDb
-          .collection("products")
-          .doc(productId)
-          .update({
-            stockQty: newStock,
-          });
+      const newStock =
+        previousStock - soldQty;
 
-        console.log(
-          `✅ Reduced product stock: ${productData?.name}`
-        );
-      }
+      await productRef.update({
+        currentStock: newStock,
+
+        updatedAt:
+          admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      console.log(
+        `✅ Reduced simple product stock: ${productData?.name}`
+      );
     }
 
     return {

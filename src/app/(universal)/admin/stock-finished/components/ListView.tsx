@@ -233,19 +233,22 @@ export default function ListView({
                   Cost Price
                 </TableHead> */}
 
-                <TableHead>
+                {/* <TableHead>
                   Status
+                </TableHead> */}
+                <TableHead>
+                  Maintain Stock
                 </TableHead>
 
-                <TableHead className="text-right pr-5">
+                {/* <TableHead className="text-right pr-5">
                   Actions
-                </TableHead>
+                </TableHead> */}
               </TableRow>
             </TableHeader>
 
        <TableBody>
   {filtered.length > 0 ? (
-    products.map(
+    filtered.map(
       (item) => (
         <TableRows
           key={item.id}

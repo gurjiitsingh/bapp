@@ -258,7 +258,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
 
   return (
-    <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
+    <div className="min-h-screen  p-4 md:p-6">
       <div className="max-w-3xl">
 
         {/* ===================================================== */}

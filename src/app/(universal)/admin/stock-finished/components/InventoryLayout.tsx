@@ -38,7 +38,7 @@ export default function InventoryTabs() {
   const pathname = usePathname();
 
   return (
-   <div className="bg-[#f6f8fb] p-2 pt-5 md:px-6">
+   <div className="  p-2 pt-5 md:px-6">
       <div className="w-full mx-auto flex flex-col gap-6">
     
         {/* ===================================================== */}

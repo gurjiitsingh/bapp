@@ -3,6 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
+import { processInventoryFinishedStockCreated } from "../inventory/processInventoryFinishedStockCreated";
 
 type AdjustStockType = {
   id: string;
@@ -57,6 +58,10 @@ export async function updateFinishedItemStock({
       // ✅ UPDATE STOCK
       tx.update(productRef, {
         currentStock: newStock,
+         // IMPORTANT:
+  // If finished stock is maintained,
+  // this product becomes stock managed
+  //productMode: "stock_managed",
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 
@@ -76,14 +81,99 @@ export async function updateFinishedItemStock({
     });
 
     // ================= REVALIDATE =================
-    revalidateTag("products", "max");
-    revalidatePath("/admin/products");
-    revalidatePath("/admin/products/dashboard");
+  // ==================================================
+// RAW MATERIAL CONSUMPTION
+// ONLY WHEN NEW FINISHED STOCK IS CREATED
+// ==================================================
 
-    return {
-      success: true,
-      message: "Stock updated successfully",
-    };
+if (stockDirection === "IN") {
+  await processInventoryFinishedStockCreated(
+    `production-${Date.now()}`,
+    [
+      {
+        productId: id,
+        quantity,
+      },
+    ]
+  );
+}
+
+// ================= REVALIDATE =================
+
+// ==================================================
+// RAW MATERIAL CONSUMPTION
+// ONLY WHEN NEW FINISHED STOCK IS CREATED
+// ==================================================
+
+if (stockDirection === "IN") {
+  await processInventoryFinishedStockCreated(
+    `production-${Date.now()}`,
+    [
+      {
+        productId: id,
+        quantity,
+      },
+    ]
+  );
+}
+
+// ================= REVALIDATE =================
+
+// ==================================================
+// RAW MATERIAL CONSUMPTION
+// ONLY WHEN NEW FINISHED STOCK IS CREATED
+// ==================================================
+
+if (stockDirection === "IN") {
+  await processInventoryFinishedStockCreated(
+    `production-${Date.now()}`,
+    [
+      {
+        productId: id,
+        quantity,
+      },
+    ]
+  );
+}
+
+// ================= REVALIDATE =================
+
+
+// ==================================================
+// RAW MATERIAL CONSUMPTION
+// ONLY WHEN NEW FINISHED STOCK IS CREATED
+// ==================================================
+
+if (stockDirection === "IN") {
+  await processInventoryFinishedStockCreated(
+    `production-${Date.now()}`,
+    [
+      {
+        productId: id,
+        quantity,
+      },
+    ]
+  );
+}
+
+// ================= REVALIDATE =================
+
+revalidateTag("products", "max");
+
+revalidatePath("/admin/products");
+
+revalidatePath(
+  "/admin/products/dashboard"
+);
+
+return {
+  success: true,
+  message: "Stock updated successfully",
+};
+
+
+
+
   } catch (error: any) {
     console.error("❌ updateFinishedItemStock:", error);
 

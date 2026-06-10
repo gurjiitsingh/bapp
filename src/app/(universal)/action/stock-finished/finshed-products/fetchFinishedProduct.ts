@@ -71,6 +71,8 @@ export const fetchFinishedProducts = unstable_cache(
           parentId:
             data.parentId ?? "",
 
+            productMode:data.productMode ?? "",
+
           hasVariants:
             data.hasVariants ?? false,
 
@@ -143,9 +145,9 @@ export const fetchFinishedProducts = unstable_cache(
 
   // OPTIONS
   {
-    tags: ["products"],
+       tags: ["products", "stock-products-updated"],
 
     // 1 hour cache
-    revalidate: 3600,
+   // revalidate: 3600,
   }
 );
