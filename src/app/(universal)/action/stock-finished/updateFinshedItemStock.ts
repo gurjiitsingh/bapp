@@ -3,7 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { processInventoryFinishedStockCreated } from "../inventory/processInventoryFinishedStockCreated";
+import { processInventory_FinishedStockCreated } from "../inventory/processInventory_FinishedStockCreated";
 
 type AdjustStockType = {
   id: string;
@@ -87,74 +87,22 @@ export async function updateFinishedItemStock({
 // ==================================================
 
 if (stockDirection === "IN") {
-  await processInventoryFinishedStockCreated(
+  await processInventory_FinishedStockCreated(
     `production-${Date.now()}`,
     [
       {
-        productId: id,
+        id: id,
         quantity,
       },
     ]
   );
 }
 
-// ================= REVALIDATE =================
-
-// ==================================================
-// RAW MATERIAL CONSUMPTION
-// ONLY WHEN NEW FINISHED STOCK IS CREATED
-// ==================================================
-
-if (stockDirection === "IN") {
-  await processInventoryFinishedStockCreated(
-    `production-${Date.now()}`,
-    [
-      {
-        productId: id,
-        quantity,
-      },
-    ]
-  );
-}
-
-// ================= REVALIDATE =================
-
-// ==================================================
-// RAW MATERIAL CONSUMPTION
-// ONLY WHEN NEW FINISHED STOCK IS CREATED
-// ==================================================
-
-if (stockDirection === "IN") {
-  await processInventoryFinishedStockCreated(
-    `production-${Date.now()}`,
-    [
-      {
-        productId: id,
-        quantity,
-      },
-    ]
-  );
-}
-
-// ================= REVALIDATE =================
 
 
-// ==================================================
-// RAW MATERIAL CONSUMPTION
-// ONLY WHEN NEW FINISHED STOCK IS CREATED
-// ==================================================
 
-if (stockDirection === "IN") {
-  await processInventoryFinishedStockCreated(
-    `production-${Date.now()}`,
-    [
-      {
-        productId: id,
-        quantity,
-      },
-    ]
-  );
-}
+
+
 
 // ================= REVALIDATE =================
 

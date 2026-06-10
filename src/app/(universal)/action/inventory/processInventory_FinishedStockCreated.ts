@@ -7,25 +7,25 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
 
 type OrderItemType = {
-  productId: string;
+  id: string;
   quantity: number;
   name?: string;
 };
 
-export async function processInventoryFinishedStockCreated(
+export async function processInventory_FinishedStockCreated(
   orderId: string,
   orderItems: OrderItemType[]
 ) {
-  console.log(
-    "processInventoryFinishedStockCreated-------------"
-  );
+ 
 
   try {
     for (const item of orderItems) {
-      const productId = item.productId;
+      const productId = item.id;
 
       const producedQty =
         Number(item.quantity) || 0;
+
+        console.log("product qty----------",producedQty)
 
       // ==================================================
       // GET PRODUCT
@@ -37,11 +37,15 @@ export async function processInventoryFinishedStockCreated(
           .doc(productId)
           .get();
 
+          
+
       if (!productDoc.exists) {
         console.log(
           "❌ Product not found:",
           productId
         );
+
+
 
         continue;
       }
