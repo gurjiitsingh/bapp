@@ -45,13 +45,13 @@ export default function InventoryTabs() {
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-2 xl:grid-cols-7 gap-3">
+        <div className="grid grid-cols-2 xl:grid-cols-8 gap-3">
 
                <Link
             href="/admin/inventory/purchase/add"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
               <PackagePlus
                 size={22}
                 className="text-orange-600"
@@ -71,7 +71,7 @@ export default function InventoryTabs() {
             href="/admin/inventory/supplier"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <Truck
                 size={22}
                 className="text-violet-600"
@@ -92,7 +92,7 @@ export default function InventoryTabs() {
             href="/admin/inventory"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
               <ClipboardList
                 size={22}
                 className="text-[#00897b]"
@@ -112,7 +112,7 @@ export default function InventoryTabs() {
             href="/admin/inventory/new"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-blue-100 flex items-center justify-center">
               <Plus
                 size={22}
                 className="text-blue-600"
@@ -134,7 +134,7 @@ export default function InventoryTabs() {
             href="/admin/inventory/adjust-stock"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
               <PackagePlus
                 size={22}
                 className="text-orange-600"
@@ -154,7 +154,7 @@ export default function InventoryTabs() {
             href="/admin/inventory/transactions"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <BookOpen
                 size={22}
                 className="text-purple-600"
@@ -174,7 +174,7 @@ export default function InventoryTabs() {
             href="/admin/inventory/categories"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+            <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <Tags
                 size={22}
                 className="text-violet-600"
@@ -183,6 +183,26 @@ export default function InventoryTabs() {
 
             <h3 className="font-semibold text-gray-800 mt-4">
               Stock Categories
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              View
+            </p>
+          </Link>
+
+           <Link
+            href="/admin/inventory/product-recipes/recipes"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <Tags
+                size={22}
+                className="text-violet-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Recipes
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">

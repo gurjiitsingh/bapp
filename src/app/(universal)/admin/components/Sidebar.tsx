@@ -199,19 +199,19 @@ const Sidebar = () => {
 // },
 
 
-{
-  key: "SHOW_PRODUCT_RECIPES",
-  name: "Product Recipes",
-  link: "/admin/product-recipes/recipes",
-  icon: <MdOutlineRestaurant />,
-},
+// {
+//   key: "SHOW_PRODUCT_RECIPES",
+//   name: "Product Recipes",
+//   link: "/admin/product-recipes/recipes",
+//   icon: <MdOutlineRestaurant />,
+// },
 
-{
-  key: "SHOW_PRODUCT_RECIPES",
-  name: "Product Formula",
-  link: "/admin/product-recipes/product-formula",
-  icon: <MdOutlineRestaurant />,
-},
+// {
+//   key: "SHOW_PRODUCT_RECIPES",
+//   name: "Product Formula",
+//   link: "/admin/product-recipes/product-formula",
+//   icon: <MdOutlineRestaurant />,
+// },
 
 
 

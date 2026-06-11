@@ -68,7 +68,7 @@ export default function ListView({
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <div className="w-full flex flex-col gap-6">
 
         {/* HEADER */}
 
@@ -84,7 +84,7 @@ export default function ListView({
           </div>
 
           <Link
-            href="/admin/product-recipes/new/recipes"
+            href="/admin/inventory/product-recipes/new/recipes"
             className="btn-save-4"
           >
             Add Recipe
@@ -159,7 +159,7 @@ export default function ListView({
                         key={
                           product.productId
                         }
-                        className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-800 transition"
+                        className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition"
                       >
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
