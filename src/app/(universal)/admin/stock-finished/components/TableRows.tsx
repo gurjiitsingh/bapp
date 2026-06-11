@@ -245,16 +245,16 @@ function TableRows({
     "
   >
     <option value="recipe_live">
-      Live Recipe
+      Raw Stock
     </option>
 
     <option value="stock_managed">
-      Live Product
+      Finished Product
     </option>
 
-    <option value="simple">
+    {/* <option value="simple">
       Simple Product
-    </option>
+    </option> */}
   </select>
 </TableCell>
 

@@ -100,7 +100,7 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Inventory Items
+              Raw Stock
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
@@ -120,11 +120,11 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              New Item
+              Add Item
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              Create inventory item
+              New stock item
             </p>
           </Link>
 
@@ -182,7 +182,7 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Inventory Category
+              Stock Categories
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">

@@ -14,7 +14,7 @@ import { InventoryItemType, newInventorySchema, TnewInventorySchema } from "@/li
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { SupplierType } from "@/lib/types/SupplierType";
 import { updateInventoryItem } from "@/app/(universal)/action/inventory/updateInventoryItem";
-
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
     inventoryItem: InventoryItemType;
@@ -67,17 +67,17 @@ const InventoryEditForm = ({
             minStock:
                 inventoryItem.minStock,
 
-            costPrice:
-                inventoryItem.costPrice,
+            // costPrice:
+            //     inventoryItem.costPrice,
 
-            sellingPrice:
-                inventoryItem.sellingPrice || 0,
+            // sellingPrice:
+            //     inventoryItem.sellingPrice || 0,
 
             categoryId:
                 inventoryItem.categoryId || "",
 
-          supplierIds:
-  inventoryItem.supplierIds || [],
+            supplierIds:
+                inventoryItem.supplierIds || [],
 
             isActive:
                 inventoryItem.isActive,
@@ -87,21 +87,20 @@ const InventoryEditForm = ({
     const purchaseUnit = watch("purchaseUnit");
     const consumptionUnit = watch("consumptionUnit");
 
-
+    const selectedCategory = categories.find(
+        (cat) =>
+            cat.id === watch("categoryId")
+    );
 
     const displayStock =
         inventoryItem.purchaseUnit ===
             inventoryItem.consumptionUnit
             ? inventoryItem.currentStock
-            : inventoryItem.currentStock /
-            inventoryItem.conversionFactor;
+            : inventoryItem.currentStock
+    inventoryItem.conversionFactor;
 
 
-    // const displayStock =
-    //   purchaseUnit === consumptionUnit
-    //     ? inventoryItem.currentStock
-    //     : inventoryItem.currentStock /
-    //       (watch("conversionFactor") || 1);
+
 
     useEffect(() => {
         if (purchaseUnit === consumptionUnit) {
@@ -238,7 +237,7 @@ const InventoryEditForm = ({
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="max-w-7xl mx-auto p-4 md:p-6"
+            className=" w-full  p-4 md:p-6"
         >
             {/* Header */}
             <div className="mb-6 flex items-center justify-between">
@@ -262,9 +261,9 @@ const InventoryEditForm = ({
                             Inventory Details
                         </h2>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                             {/* Name */}
-                            <div className="md:col-span-2">
+                            <div className="md:col-span-1">
                                 <label className="label-style-4">
                                     Item Name
                                 </label>
@@ -278,6 +277,56 @@ const InventoryEditForm = ({
                                 <p className="text-xs text-red-500 mt-1">
                                     {errors.name?.message}
                                 </p>
+                            </div>
+
+                            {/* Current Stock */}
+                            <div>
+                                <label className="label-style-4">
+                                    Category
+                                </label>
+
+                                <select
+                                    {...register("categoryId")}
+                                    className="input-style-4 mt-1"
+                                >
+                                    <option value="">
+                                        Select Category
+                                    </option>
+
+                                    {categories.map((category) => (
+                                        <option
+                                            key={category.id}
+                                            value={category.id}
+                                        >
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {selectedCategory && (
+                                    <div className="mt-2">
+                                        <span
+                                            className="
+                inline-flex items-center
+                rounded-full
+                bg-blue-50
+                text-blue-700
+                px-3 py-1
+                text-xs
+                font-medium
+            "
+                                        >
+                                            Selected:
+                                            {" "}
+                                            {selectedCategory.name}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Group inventory items into categories
+                                </p>
+
                             </div>
 
                             {/* SKU */}
@@ -307,128 +356,102 @@ const InventoryEditForm = ({
                             </div>
 
                             {/* Unit */}
-                            <div>
-                                {/* Purchase Unit */}
-                                <div>
-                                    <label className="label-style-4">
-                                        Purchase Unit
-                                    </label>
 
-                                    <select
-                                        {...register("purchaseUnit")}
-                                        className="input-style-4 mt-1"
-                                    >
-                                        <option value="kg">Kilogram (kg)</option>
-                                        <option value="gm">Gram (gm)</option>
-                                        <option value="ltr">Liter (ltr)</option>
-                                        <option value="ml">Milliliter (ml)</option>
-                                        <option value="pcs">Pieces (pcs)</option>
-                                        <option value="dozen">Dozen</option>
-                                        <option value="pair">Pair</option>
-                                        <option value="box">Box</option>
-                                        <option value="pack">Pack</option>
-                                        <option value="carton">Carton</option>
-                                        <option value="bag">Bag</option>
-                                        <option value="bottle">Bottle</option>
-                                        <option value="can">Can</option>
-                                        <option value="jar">Jar</option>
-                                        <option value="roll">Roll</option>
-                                        <option value="tray">Tray</option>
-
-
-                                    </select>
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Unit used when purchasing stock
-                                    </p>
-                                </div>
-
-                                {/* Consumption Unit */}
-                                <div>
-                                    <label className="label-style-4">
-                                        Consumption Unit
-                                    </label>
-
-                                    <select
-                                        {...register("consumptionUnit")}
-                                        className="input-style-4 mt-1"
-                                    >
-                                        <option value="kg">Kilogram (kg)</option>
-                                        <option value="gm">Gram (gm)</option>
-                                        <option value="ltr">Liter (ltr)</option>
-                                        <option value="ml">Milliliter (ml)</option>
-                                        <option value="pcs">Pieces (pcs)</option>
-                                        <option value="dozen">Dozen</option>
-                                        <option value="pair">Pair</option>
-                                        <option value="box">Box</option>
-                                        <option value="pack">Pack</option>
-                                        <option value="carton">Carton</option>
-                                        <option value="bag">Bag</option>
-                                        <option value="bottle">Bottle</option>
-                                        <option value="can">Can</option>
-                                        <option value="jar">Jar</option>
-                                        <option value="roll">Roll</option>
-                                        <option value="tray">Tray</option>
-                                    </select>
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Unit used in recipes
-                                    </p>
-                                </div>
-
-                                {/* Conversion Factor */}
-                                <div>
-                                    <label className="label-style-4">
-                                        Conversion Factor
-                                    </label>
-
-                                    <input
-                                        type="number"
-                                        step="0.0001"
-                                        {...register("conversionFactor")}
-                                        className="input-style-4 mt-1"
-                                        placeholder="1000"
-                                    />
-
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Example: 1 kg = 1000 gm
-                                    </p>
-
-                                    <p className="text-xs text-red-500 mt-1">
-                                        {errors.conversionFactor?.message}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Current Stock */}
-                            <div>
+                            {/* Purchase Unit */}
+                            {/* <div>
                                 <label className="label-style-4">
-                                    Current Stock
+                                    Purchase Unit
                                 </label>
-                                <div className="text-2xl font-bold text-blue-700">
-                                    {displayStock.toFixed(2)} <span className="text-sm text-blue-600"> {purchaseUnit}</span>
-                                </div>
 
-                                {/* <div className="mt-1 rounded-xl border border-blue-100 bg-blue-50 p-4">
-    <div className="text-2xl font-bold text-blue-700">
-      {(
-        inventoryItem.currentStock /
-        inventoryItem.conversionFactor
-      ).toLocaleString()}
-    </div>
+                                <select
+                                    {...register("purchaseUnit")}
+                                    className="input-style-4 mt-1"
+                                >
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gm">Gram (gm)</option>
+                                    <option value="ltr">Liter (ltr)</option>
+                                    <option value="ml">Milliliter (ml)</option>
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="dozen">Dozen</option>
+                                    <option value="pair">Pair</option>
+                                    <option value="box">Box</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="carton">Carton</option>
+                                    <option value="bag">Bag</option>
+                                    <option value="bottle">Bottle</option>
+                                    <option value="can">Can</option>
+                                    <option value="jar">Jar</option>
+                                    <option value="roll">Roll</option>
+                                    <option value="tray">Tray</option>
 
-    <div className="text-sm text-blue-600">
-      {inventoryItem.purchaseUnit}
-    </div>
-  </div> */}
+
+                                </select>
+
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Stock quantity can only be changed through Stock Adjustment transactions.
+                                    Unit used when purchasing stock
                                 </p>
-                                {/* <p className="text-xs text-gray-500 mt-1">
-    Stored as {inventoryItem.currentStock}{" "}
-    {inventoryItem.consumptionUnit}
-  </p> */}
-                            </div>
+                            </div> */}
+
+                            {/* Consumption Unit */}
+                            {/* <div>
+                                <label className="label-style-4">
+                                    Consumption Unit
+                                </label>
+
+                                <select
+                                    {...register("consumptionUnit")}
+                                    className="input-style-4 mt-1"
+                                >
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="gm">Gram (gm)</option>
+                                    <option value="ltr">Liter (ltr)</option>
+                                    <option value="ml">Milliliter (ml)</option>
+                                    <option value="pcs">Pieces (pcs)</option>
+                                    <option value="dozen">Dozen</option>
+                                    <option value="pair">Pair</option>
+                                    <option value="box">Box</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="carton">Carton</option>
+                                    <option value="bag">Bag</option>
+                                    <option value="bottle">Bottle</option>
+                                    <option value="can">Can</option>
+                                    <option value="jar">Jar</option>
+                                    <option value="roll">Roll</option>
+                                    <option value="tray">Tray</option>
+                                </select>
+
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Unit used in recipes
+                                </p>
+                            </div> */}
+
+
+
+                            {/* Conversion Factor */}
+                            {/* <div>
+                                <label className="label-style-4">
+                                    Conversion Factor
+                                </label>
+
+                                <input
+                                    type="number"
+                                    step="0.0001"
+                                    {...register("conversionFactor")}
+                                    className="input-style-4 mt-1"
+                                    placeholder="1000"
+                                />
+
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Example: 1 kg = 1000 gm
+                                </p>
+
+                                <p className="text-xs text-red-500 mt-1">
+                                    {errors.conversionFactor?.message}
+                                </p>
+                            </div> */}
+
+
+
 
                             {/* Min Stock */}
                             <div>
@@ -449,120 +472,72 @@ const InventoryEditForm = ({
                             </div>
                         </div>
 
-                        <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
 
-                            {suppliers.length > 0 ? (
-                                suppliers.map((supplier) => (
-                                    <label
-                                        key={supplier.id}
-                                        className="
-            flex items-center gap-3
-            rounded-xl border border-gray-100
-            px-3 py-3
-            hover:bg-slate-50
-            cursor-pointer
-            transition
-          "
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            value={supplier.id}
-                                            {...register("supplierIds")}
-                                            className="h-4 w-4 rounded border-gray-300"
-                                        />
-
-                                        <div className="flex-1">
-                                            <p className="font-medium text-sm text-gray-800">
-                                                {supplier.companyName}
-                                            </p>
-
-                                            <p className="text-xs text-gray-500">
-                                                {supplier.phone || "No phone"}
-                                            </p>
-                                        </div>
-                                    </label>
-                                ))
-                            ) : (
-                                <div className="text-sm text-gray-400 text-center py-6">
-                                    No suppliers found
-                                </div>
-                            )}
-
-                        </div>
                     </div>
 
 
-
-
-                    {/* Pricing */}
                     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                            Pricing Information
+                            Supplier Information
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Cost Price */}
-                            <div>
-                                <label className="label-style-4">
-                                    Cost Price
-                                </label>
 
-                                <input
-                                    {...register("costPrice")}
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0"
-                                    className="input-style-4 mt-1"
-                                />
+                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
 
-                                <p className="text-xs text-red-500 mt-1">
-                                    {errors.costPrice?.message}
-                                </p>
-                            </div>
+                                {suppliers.length > 0 ? (
+                                    suppliers.map((supplier) => (
 
-                            {/* Suppliers */}
-                            <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h2 className="text-lg font-semibold text-gray-800">
-                                            Suppliers
-                                        </h2>
+                                        <label
+                                            key={supplier.id}
+                                            className="
+        flex items-center gap-2
+        rounded-lg border border-gray-100
+        px-2 py-2
+        hover:bg-slate-50
+        cursor-pointer
+        transition
+    "
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                value={supplier.id}
+                                                {...register("supplierIds")}
+                                                className="h-4 w-4 rounded border-gray-300"
+                                            />
 
-                                        <p className="text-sm text-gray-500 mt-1">
-                                            Link suppliers who provide this item
-                                        </p>
+                                            <div className="flex-1">
+                                                <p className="font-medium text-xs text-gray-800 leading-tight">
+                                                    {supplier.companyName}
+                                                </p>
+
+                                                <p className="text-[11px] text-gray-500 leading-tight">
+                                                    {supplier.phone || "No phone"}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    ))
+                                ) : (
+                                    <div className="text-sm text-gray-400 text-center py-6">
+                                        No suppliers found
                                     </div>
-
-                                    <div className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
-                                        {watch("supplierIds")?.length || 0} Selected
-                                    </div>
-                                </div>
-
-
-
+                                )}
 
                             </div>
 
-                            {/* Selling Price */}
-                            <div>
-                                <label className="label-style-4">
-                                    Selling Price
-                                </label>
-
-                                <input
-                                    {...register("sellingPrice")}
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0"
-                                    className="input-style-4 mt-1"
-                                />
-                            </div>
                         </div>
                     </div>
+
+
+
+
                 </div>
 
                 {/* RIGHT */}
                 <div className="flex flex-col gap-5">
+
+
+
                     {/* Status Card */}
                     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -610,3 +585,31 @@ const InventoryEditForm = ({
 
 export default InventoryEditForm;
 
+
+
+
+
+
+
+{/* Suppliers */ }
+// <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+//     <div className="flex items-center justify-between mb-4">
+//         <div>
+//             <h2 className="text-lg font-semibold text-gray-800">
+//                 Suppliers
+//             </h2>
+
+//             <p className="text-sm text-gray-500 mt-1">
+//                 Link suppliers who provide this item
+//             </p>
+//         </div>
+
+//         <div className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
+//             {watch("supplierIds")?.length || 0} Selected
+//         </div>
+//     </div>
+
+
+
+
+// </div>

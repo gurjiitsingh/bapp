@@ -237,7 +237,7 @@ export default function ListView({
                   Status
                 </TableHead> */}
                 <TableHead>
-                  Maintain Stock
+                  Maintain Live
                 </TableHead>
 
                 {/* <TableHead className="text-right pr-5">

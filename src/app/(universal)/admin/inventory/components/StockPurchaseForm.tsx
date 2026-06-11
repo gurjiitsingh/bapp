@@ -348,7 +348,7 @@ if (data.transactionType === "PURCHASE") {
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
-            Stock Purchase
+            Raw Stock Purchase
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
@@ -489,7 +489,7 @@ if (data.transactionType === "PURCHASE") {
 
               <div className="text-2xl font-bold text-blue-700">
                 {displayStock(
-                  selectedInventory.currentStock,
+                  selectedInventory.currentStock!!,
                   selectedInventory.purchaseUnit,
                   selectedInventory.consumptionUnit,
                   selectedInventory.conversionFactor

@@ -13,6 +13,7 @@ export async function updateInventoryItem(
   id: string,
   formData: FormData
 ) {
+
   try {
     const name =
       (formData.get("name") as string)?.trim() ||
@@ -43,10 +44,10 @@ export async function updateInventoryItem(
         formData.get("conversionFactor")
       ) || 1;
 
-    let currentStock =
-      Number(
-        formData.get("currentStock")
-      ) || 0;
+    // let currentStock =
+    //   Number(
+    //     formData.get("currentStock")
+    //   ) || 0;
 
     const minStock =
       Number(
@@ -81,13 +82,13 @@ const supplierIds =
       formData.get("isActive") === "true";
 
     // STORE STOCK IN CONSUMPTION UNIT
-    if (
-      purchaseUnit !== consumptionUnit &&
-      conversionFactor > 0
-    ) {
-      currentStock =
-        currentStock * conversionFactor;
-    }
+    // if (
+    //   purchaseUnit !== consumptionUnit &&
+    //   conversionFactor > 0
+    // ) {
+    //   currentStock =
+    //     currentStock * conversionFactor;
+    // }
 
     // VALIDATION
     const receivedData = {
@@ -99,7 +100,7 @@ const supplierIds =
       consumptionUnit,
       conversionFactor,
 
-      currentStock,
+     // currentStock,
       minStock,
 
       costPrice,
@@ -227,15 +228,15 @@ const supplierIds =
   sku: cleanedSku,
   barcode: cleanedBarcode,
 
-  purchaseUnit,
-  consumptionUnit,
-  conversionFactor,
+  // purchaseUnit,
+  // consumptionUnit,
+  // conversionFactor,
 
-  currentStock,
+  //currentStock,
   minStock,
 
-  costPrice,
-  sellingPrice,
+  // costPrice,
+  // sellingPrice,
 
   categoryId,
 
@@ -247,6 +248,7 @@ const supplierIds =
   updatedAt:
     admin.firestore.FieldValue.serverTimestamp(),
 };
+console.log("data---------------------",data)
 
     await adminDb
       .collection("inventoryItems")

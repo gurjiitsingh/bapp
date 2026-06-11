@@ -165,7 +165,7 @@ const Page = () => {
       onSubmit={handleSubmit(
         onSubmit
       )}
-      className="max-w-7xl mx-auto p-4 md:p-6"
+      className="w-full p-4 md:p-6"
     >
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
@@ -319,7 +319,7 @@ const Page = () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="label-style-4">
                   Color
                 </label>
@@ -345,7 +345,7 @@ const Page = () => {
                   placeholder="Package"
                   className="input-style-4 mt-1"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
