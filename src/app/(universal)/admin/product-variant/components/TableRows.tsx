@@ -141,7 +141,7 @@ function TableRows({ product }: { product: ProductType }) {
       <TableCell>{discountedPrice}</TableCell>
 
       {/* 📦 Quantity */}
-      <TableCell>{product.stockQty}</TableCell>
+      <TableCell>{product.currentStock}</TableCell>
 
       {/* 💸 Tax */}
       <TableCell>

@@ -44,17 +44,10 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
-  console.log("item--------", item)
-
-  const formattedCostPrice =
-    formatCurrencyNumber(
-      Number(item.costPrice) ?? 0,
-      settings.currency as string,
-      settings.locale as string
-    );
+   
 
   const isLowStock =
-    item.currentStock <= item.minStock;
+    item.currentStock! <= item.minStock;
 
   async function handleDelete() {
     const confirmDelete = confirm(
@@ -141,7 +134,7 @@ function TableRows({
               }`}
           >
             {displayStock(
-              item.currentStock,
+              item.currentStock!,
               item.purchaseUnit,
               item.consumptionUnit,
               item.conversionFactor
@@ -166,18 +159,7 @@ function TableRows({
         </span>
       </TableCell>
 
-      {/* COST PRICE */}
-      {/* <TableCell>
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">
-            {formattedCostPrice}
-          </span>
-
-          <span className="text-xs text-gray-400">
-            Cost
-          </span>
-        </div>
-      </TableCell> */}
+     
 
       {/* STATUS */}
       <TableCell>

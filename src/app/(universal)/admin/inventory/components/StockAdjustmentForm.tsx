@@ -215,25 +215,25 @@ export default function StockAdjustmentForm({
 
     let unitCost = 0;
 
-    if (
-      data.transactionType === "OPENING_STOCK" ||
-      data.transactionType === "CUSTOMER_RETURN"
-    ) {
-      unitCost =
-        selectedInventory.costPrice || 0;
-    }
+    // if (
+    //   data.transactionType === "OPENING_STOCK" ||
+    //   data.transactionType === "CUSTOMER_RETURN"
+    // ) {
+    //   unitCost =
+    //     selectedInventory.costPrice || 0;
+    // }
 
-    let purchaseUnitCost =
-  selectedInventory.costPrice || 0;
+  //   let purchaseUnitCost =
+  // selectedInventory.costPrice || 0;
 
-if (
-  selectedInventory.purchaseUnit !==
-  selectedInventory.consumptionUnit
-) {
-  purchaseUnitCost =
-    purchaseUnitCost *
-    selectedInventory.conversionFactor;
-}
+// if (
+//   selectedInventory.purchaseUnit !==
+//   selectedInventory.consumptionUnit
+// ) {
+//   purchaseUnitCost =
+//     purchaseUnitCost *
+//     selectedInventory.conversionFactor;
+// }
 
     try {
       const result =
@@ -265,7 +265,7 @@ if (
           purchaseUnit:
             data.transactionUnit,
 
-          purchaseUnitCost,
+          purchaseUnitCost:0,
 
           conversionFactor:
             selectedInventory.conversionFactor,
@@ -282,9 +282,9 @@ if (
           selectedInventory.currentStock;
 
         if (data.stockDirection === "IN") {
-          updatedStock += finalQuantity;
+          updatedStock! += finalQuantity;
         } else {
-          updatedStock -= finalQuantity;
+          updatedStock! -= finalQuantity;
         }
 
         setSelectedInventory({
@@ -463,7 +463,7 @@ if (
 
               <div className="text-2xl font-bold text-blue-700">
                 {displayStock(
-                  selectedInventory.currentStock,
+                  selectedInventory.currentStock!!,
                   selectedInventory.purchaseUnit,
                   selectedInventory.consumptionUnit,
                   selectedInventory.conversionFactor

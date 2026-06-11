@@ -1,6 +1,7 @@
+import { fetchSupplierById } from "@/app/(universal)/action/inventorySupplier/fetchSupplierById";
+import SupplierEditForm from "@/app/(universal)/admin/inventory/supplier/components/SupplierEditForm";
 
-import { fetchSupplierById } from "@/app/(universal)/action/stock-finished/Supplier/fetchSupplierById";
-import SupplierEditForm from "../../components/SupplierEditForm";
+
 
 type Props = {
   params: Promise<{

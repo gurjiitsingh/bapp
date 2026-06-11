@@ -2,7 +2,7 @@ import {  cartProductType } from "../types/cartDataType";
 
 export async function calculateTaxForCart(cartItems: cartProductType[]) {
   let subtotal = 0;
-  let totalTax = 0;
+  let totalTax = 0; 
 
   const products = cartItems.map((item) => {
     const price = Number(item.price);

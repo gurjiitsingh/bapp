@@ -247,9 +247,9 @@ export default function StockAdjustmentForm({
           selectedInventory.currentStock;
 
         if (data.stockDirection === "IN") {
-          updatedStock += finalQuantity;
+          updatedStock! += finalQuantity;
         } else {
-          updatedStock -= finalQuantity;
+          updatedStock! -= finalQuantity;
         }
 
         setSelectedInventory({

@@ -81,7 +81,7 @@ export const fetchProducts = unstable_cache(
           price: data.price ?? 0,
 
           stockQty:
-            data.stockQty ?? 0,
+            data.currentStock ?? 0,
 
           discountPrice:
             data.discountPrice ?? 0,
@@ -135,7 +135,7 @@ export const fetchProducts = unstable_cache(
             null,
 
           quantity:
-            data.quantity ?? null,
+            data.currentStock ?? null,
 
           updatedAt,
 
@@ -874,7 +874,7 @@ export async function fetchProductById(
       id: docSnap.id,
       name: data?.name ?? "",
       price: data?.price ?? 0,
-      stockQty: data?.stockQty ?? 0,
+      currentStock: data?.stockQty ?? 0,
       discountPrice: data?.discountPrice ?? undefined,
       categoryId: data?.categoryId ?? "",
       productCat: data?.productCat ?? undefined,
@@ -884,7 +884,6 @@ export async function fetchProductById(
       image: data?.image ?? "",
       isFeatured: data?.isFeatured ?? false,
       purchaseSession: data?.purchaseSession ?? null,
-      quantity: data?.quantity ?? null,
       flavors: data?.flavors ?? false,
       publishStatus: data?.publishStatus ?? "draft",
       stockStatus: data?.stockStatus ?? "out_of_stock",
@@ -985,7 +984,7 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     price: Number(data.price),
     discountPrice:
       data.discountPrice !== undefined ? Number(data.discountPrice) : 0,
-    stockQty: data.stockQty ?? 0,
+    // stockQty: data.stockQty ?? 0,
     categoryId: data.categoryId ?? "",
     productCat: data.productCat ?? "",
     baseProductId: data.baseProductId ?? "",
@@ -994,10 +993,10 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     image: data.image ?? "",
     isFeatured: String(data.isFeatured).toLowerCase() === "true" ? true : false,
     purchaseSession: data.purchaseSession ?? null,
-    quantity:
-      data.quantity !== undefined && data.quantity !== null
-        ? Number(data.quantity)
-        : null,
+    // quantity:
+    //   data.quantity !== undefined && data.quantity !== null
+    //     ? Number(data.quantity)
+    //     : null,
     flavors: String(data.flavors).toLowerCase() === "true" ? true : false,
     publishStatus: data?.publishStatus ?? "draft",
     stockStatus: data.stockStatus ?? "out_of_stock",
@@ -1166,8 +1165,8 @@ export const fetchProducts_old = unstable_cache(
           id: doc.id,
           name: data.name ?? "",
           price: data.price ?? 0,
-          stockQty:
-            data.stockQty ?? 0,
+          currentStock:
+            data.currentStock ?? 0,
           discountPrice:
             data.discountPrice ?? 0,
           categoryId:
@@ -1202,8 +1201,7 @@ export const fetchProducts_old = unstable_cache(
           purchaseSession:
             data.purchaseSession ??
             null,
-          quantity:
-            data.quantity ?? null,
+        
           updatedAt,
           searchCode:
             data.searchCode ?? "",

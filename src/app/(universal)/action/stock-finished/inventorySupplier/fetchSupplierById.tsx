@@ -1,6 +1,7 @@
 import { adminDb } from "@/lib/firebaseAdmin";
+import { SupplierType } from "@/lib/types/SupplierType";
 
-import { SupplierType } from "@/lib/types/WholeSaleCustomerType";
+
 
 export async function fetchSupplierById(
   id: string

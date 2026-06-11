@@ -6,12 +6,12 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
 
 
-export async function getSupplierLedger({
-  supplierId,
+export async function getCustomerLedger({
+  customerId,
   fromDate,
   toDate,
 }: {
-  supplierId: string;
+  customerId: string;
   fromDate?: string;
   toDate?: string;
 }) {
@@ -21,7 +21,7 @@ export async function getSupplierLedger({
     // ===============================
     let query = adminDb
       .collection("customerLedger")
-      .where("supplierId", "==", supplierId)
+      .where("customerId", "==", customerId)
       .orderBy("createdAt", "asc"); // ✅ IMPORTANT
 
     // ===============================
@@ -104,7 +104,7 @@ else {
     if (fromDate) {
       const prevSnap = await adminDb
         .collection("customerLedger")
-        .where("supplierId", "==", supplierId)
+        .where("customerId", "==", customerId)
         .where("createdAt", "<", new Date(fromDate))
         .get();
 
@@ -232,19 +232,19 @@ else {
 }
 
 // export async function getSupplierLedger({
-//   supplierId,
+//   customerId,
 //   fromDate,
 //   toDate,
 // }: {
-//   supplierId: string;
+//   customerId: string;
 //   fromDate?: string;
 //   toDate?: string;
 // }) {
-//   console.log("supplierId------------", supplierId);
+//   console.log("customerId------------", customerId);
 //   try {
 //     let query = adminDb
 //       .collection("inventoryTransactions")
-//       .where("supplierId", "==", supplierId)
+//       .where("customerId", "==", customerId)
 //       .orderBy("createdAt", "asc");
 
 //     // ✅ Date filter

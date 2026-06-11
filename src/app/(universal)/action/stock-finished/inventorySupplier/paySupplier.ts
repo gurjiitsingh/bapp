@@ -2,7 +2,8 @@
 
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
-import { updateSupplierAccount } from "./updateCustomerAccount";
+import { updateSupplierAccount } from "../../inventorySupplier/updateSupplierAccount";
+
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 

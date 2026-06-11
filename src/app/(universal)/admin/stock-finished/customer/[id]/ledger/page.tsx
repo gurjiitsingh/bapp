@@ -1,4 +1,5 @@
-import { getSupplierLedger } from "@/app/(universal)/action/stock-finished/ItemSupplier/reports/getSupplierLedger";
+import { getCustomerLedger } from "@/app/(universal)/action/stock-finished/customer/reports/getCustomerLedger";
+
 
 
 export default async function Page({
@@ -15,8 +16,8 @@ export default async function Page({
   const fromDate = searchParams?.from;
   const toDate = searchParams?.to;
 
-  const res = await getSupplierLedger({
-    buyerId:id,
+  const res = await getCustomerLedger({
+    customerId:id,
     fromDate,
     toDate,
   });
