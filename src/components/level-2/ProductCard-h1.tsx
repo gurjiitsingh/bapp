@@ -66,7 +66,7 @@ export default function ProdcutCardHorizontical({
   const cartProduct: cartProductType = {
     id: product.id,
     quantity: 1,
-    stockQty :product.stockQty,
+    currentStock :product.currentStock!,
     price: priceTarget,
     name: product.name,
     image: product.image,
@@ -107,8 +107,8 @@ export default function ProdcutCardHorizontical({
               {/* {productCategoryIdG !== "" && <>{product.sortOrder}.&nbsp;</>} */}
               {product.name}
             </div>
-          {product.stockQty>0 ? <>
-          <div className="text-gray-600 font-sami-bold"> {product.stockQty} in stock</div>
+          {product.currentStock!>0 ? <>
+          <div className="text-gray-600 font-sami-bold"> {product.currentStock} in stock</div>
           </> : <>
            <div className="text-slate-500 font-sami-bold">  Out of stock</div>
           </>}  

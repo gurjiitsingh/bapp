@@ -62,6 +62,9 @@ export const fetchFinishedProducts = unstable_cache(
           currentStock:
             data.currentStock ?? 0,
 
+            quantity:
+  data.quantity ?? 0,
+
           discountPrice:
             data.discountPrice ?? 0,
 

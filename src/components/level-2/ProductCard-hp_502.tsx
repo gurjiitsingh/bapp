@@ -52,7 +52,7 @@ export default function ProductCardHorizontical({
   const cartProduct: cartProductType = {
     id: product.id,
     quantity: 1,
-    stockQty: product.stockQty,
+    currentStock: product.currentStock!,
     price: priceTarget,
     name: product.name,
     image: product.image,
@@ -130,7 +130,7 @@ export default function ProductCardHorizontical({
                   price: variant.price ?? 0,
                   name: product.name +" "+ variant.name,
                   quantity: 1,
-                  stockQty: variant.stockQty,
+                  currentStock: variant.currentStock!,
                   image: product.image,
                   categoryId: variant.categoryId,
                   productCat: variant.productCat!,

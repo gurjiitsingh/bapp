@@ -25,7 +25,7 @@ export default function TableRows({
     discountPrice: product.discountPrice ?? 0,
     taxRate: product.taxRate ?? 0,
     taxType: product.taxType ?? "inclusive",
-    stockQty: product.stockQty ?? 0,
+    currentStock: product.currentStock ?? 0,
     sortOrder: product.sortOrder ?? 0,
   });
 
@@ -132,9 +132,9 @@ export default function TableRows({
         <input
           type="number"
           className="border rounded-md px-2 py-1 w-16 text-sm"
-          value={editData.stockQty}
+          value={editData.currentStock}
           onChange={(e) =>
-            setEditData({ ...editData, stockQty: Number(e.target.value) })
+            setEditData({ ...editData, currentStock: Number(e.target.value) })
           }
         />
       </TableCell>

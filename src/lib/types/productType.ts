@@ -4,7 +4,7 @@ export type ProductType = {
   id: string;
   name: string;
   price: number;
-
+quantity:number | null;
   discountPrice: number | undefined;
   categoryId: string;
   productCat: string | undefined;
@@ -113,7 +113,7 @@ searchCode: z.string().max(50).optional(),
       { message: "Invalid discount price" }
     ),
 
-  stockQty: z
+  currentStock: z
     .union([z.string(), z.number()])
     .optional()
     .transform((val) =>
@@ -186,7 +186,7 @@ searchCode: z.string().max(50).optional(),
       "Invalid discount price"
     ),
 
-  stockQty: z
+  currentStock: z
     .string()
     .optional()
     .refine(

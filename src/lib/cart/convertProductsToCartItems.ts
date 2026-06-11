@@ -7,7 +7,7 @@ export function convertProductsToCartItems(products: ProductType[]): CartItem[] 
     name: p.name,
     price: p.price,
     quantity: p.quantity ?? 1,
-    stockQty: p.stockQty ?? 0,
+    currentStock: p.currentStock ?? 0,
     categoryId: p.categoryId,
     productCat: p.productCat ?? "",
     taxRate: p.taxRate,
@@ -21,7 +21,7 @@ export type MinimalProductForPOS = {
   name: string;
   price: number;
   quantity?: number | null;
-  stockQty?: number | null;
+  currentStock?: number | null;
   categoryId: string;
   productCat?: string;
   taxRate?: number;
@@ -37,7 +37,7 @@ export function convertProductsToCartItemsPOS(
     name: p.name,
     price: p.price,
     quantity: p.quantity ?? 1,
-    stockQty: p.stockQty ?? 0,
+    currentStock: p.currentStock ?? 0,
     categoryId: p.categoryId,
     productCat: p.productCat ?? "",
     taxRate: p.taxRate,

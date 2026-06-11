@@ -143,7 +143,7 @@ const [showModifierModal, setShowModifierModal] = useState(false);
       <TableCell>{discountedPrice}</TableCell>
 
       {/* 📦 Quantity */}
-      <TableCell>{product.stockQty}</TableCell>
+      <TableCell>{product.currentStock}</TableCell>
 
       {/* 💸 Tax */}
       <TableCell>

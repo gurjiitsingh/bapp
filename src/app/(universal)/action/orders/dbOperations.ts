@@ -849,7 +849,7 @@ Fetches each product individually.
 
 Checks for insufficient stock before decrementing.
 
-Also updates product status → "out_of_stock" when stockQty = 0.
+Also updates product status → "out_of_stock" when currentStock = 0.
 
 Returns detailed error messages per product.
 
@@ -912,7 +912,7 @@ export async function decreaseProductStock(orderMasterId: string) {
 
       //  Add to batch
       batch.update(productRef, {
-        stockQty: newStock,
+        currentStock: newStock,
         status: newStock === 0 ? "out_of_stock" : product.stockStatus,
       });
     }
@@ -1002,11 +1002,11 @@ export async function decreaseProductStockFromOrder(orderMasterId: string) {
       }
 
       const productData = productSnap.data();
-      const currentStock = productData?.stockQty ?? 0;
+      const currentStock = productData?.currentStock ?? 0;
       const newStock = Math.max(currentStock - orderQty, 0);
 
       batch.update(productRef, {
-        stockQty: newStock,
+        currentStock: newStock,
         status:
           newStock === 0 ? "out_of_stock" : productData?.orderStatus ?? "published",
       });

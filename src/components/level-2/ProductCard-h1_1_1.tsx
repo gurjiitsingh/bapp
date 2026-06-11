@@ -121,7 +121,7 @@ export default function ProductCardHorizontical({
       (quickNote?.trim() || ""),
     note: quickNote,
     quantity: 1,
-    stockQty: product.stockQty,
+    currentStock: product.currentStock!,
     price: priceTarget,
     basePrice: priceTarget,
     name: product.name,
@@ -403,7 +403,7 @@ export default function ProductCardHorizontical({
                     name: selectedVariant?.name ?? product.name,
 
                     quantity: 1,
-                    stockQty: selectedVariant?.stockQty ?? product.stockQty,
+                    currentStock: selectedVariant?.currentStock ?? product.currentStock!,
 
                     image: product.image,
                     categoryId: product.categoryId,

@@ -26,12 +26,12 @@ export async function checkStockAvailability(
       continue;
     }
 
-    const data = snap.data() as { stockQty?: number };
-    const stockQty = data?.stockQty ?? 0;
+    const data = snap.data() as { currentStock?: number };
+    const currentStock = data?.currentStock ?? 0;
 
-    if (item.quantity > stockQty) {
+    if (item.quantity > currentStock) {
       insufficient.push(
-        `${item.name} (Only ${stockQty} left)`
+        `${item.name} (Only ${currentStock} left)`
       );
     }
   }

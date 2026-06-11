@@ -23,7 +23,7 @@ export type ProductSearchType = {
 
   price: number;
 
-  stockQty: number;
+  currentStock: number;
 
   type: string;
 
@@ -80,7 +80,7 @@ export const fetchProducts = unstable_cache(
 
           price: data.price ?? 0,
 
-          stockQty:
+          currentStock:
             data.currentStock ?? 0,
 
           discountPrice:
@@ -195,13 +195,13 @@ export async function addNewProduct(formData: FormData) {
       | "published"
       | "draft"
       | "out_of_stock";
-    const stockQtyRaw = formData.get("stockQty") as string | null;
+    const currentStockRaw = formData.get("currentStock") as string | null;
 
     //  New tax fields
     const taxRateRaw = formData.get("taxRate") as string | null;
     const taxType = formData.get("taxType") as string | null;
     const searchCode = formData.get("searchCode") as string | null;
-    const stockQty = stockQtyRaw ? parseInt(stockQtyRaw, 10) : null;
+    const currentStock = currentStockRaw ? parseInt(currentStockRaw, 10) : null;
     const priceF = parseFloat(price.replace(/,/g, ".")) || 0;
     const discountPriceF = parseFloat(discountPrice.replace(/,/g, ".")) || 0;
     const sortOrderN = parseInt(sortOrder || "0", 10);
@@ -212,7 +212,7 @@ export async function addNewProduct(formData: FormData) {
       searchCode,
       price: priceF,
       discountPrice: discountPriceF,
-      stockQty,
+      currentStock,
       sortOrder: sortOrderN,
       categoryId,
       productDesc,
@@ -258,7 +258,7 @@ export async function addNewProduct(formData: FormData) {
       searchCode,
       price: priceF,
       discountPrice: discountPriceF,
-      stockQty,
+      currentStock,
       sortOrder: sortOrderN,
       categoryId,
       parentId,
@@ -318,7 +318,7 @@ export async function editProduct(formData: FormData) {
   const type = formData.get("type") as string;
   const priceRaw = formData.get("price") as string;
   const discountPriceRaw = formData.get("discountPrice") as string;
-  const stockQtyS = formData.get("stockQty") as string;
+  const currentStockS = formData.get("currentStock") as string;
   const sortOrderRaw = formData.get("sortOrder") as string;
   let categoryId = formData.get("categoryId") as string;
   const productDesc = formData.get("productDesc");
@@ -348,7 +348,7 @@ const publishStatus = (formData.get("status") as string) || "published";
     //searchCode,
     price: priceRaw,
     discountPrice: discountPriceRaw,
-    stockQty: stockQtyS,
+    currentStock: currentStockS,
     sortOrder: sortOrderRaw,
     categoryId,
     productDesc,
@@ -471,7 +471,7 @@ if (!result.success) {
     searchCode,
     price,
     discountPrice,
-    stockQty: Number(stockQtyS),
+    currentStock: Number(currentStockS),
     flavors: existingProduct?.flavors ?? false,
     sortOrder,
     categoryId,
@@ -760,13 +760,13 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
       | "published"
       | "draft"
       | "out_of_stock";
-    const stockQtyRaw = formData.get("stockQty") as string | null;
+    const currentStockRaw = formData.get("currentStock") as string | null;
 
     //  New tax fields
     const taxRateRaw = formData.get("taxRate") as string | null; // e.g. "5", "12", "18"
     const taxType = (formData.get("taxType") as string | null) || "GST"; // default to GST if empty
 
-    const stockQty = stockQtyRaw ? parseInt(stockQtyRaw, 10) : null;
+    const currentStock = currentStockRaw ? parseInt(currentStockRaw, 10) : null;
     const priceF = parseFloat(price.replace(/,/g, ".")) || 0;
     const discountPriceF = parseFloat(discountPrice.replace(/,/g, ".")) || 0;
     const sortOrderN = parseInt(sortOrder || "0", 10);
@@ -776,7 +776,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
       name,
       price: priceF,
       discountPrice: discountPriceF,
-      stockQty,
+      currentStock,
       sortOrder: sortOrderN,
       categoryId,
       productDesc,
@@ -824,7 +824,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
       name,
       price: priceF,
       discountPrice: discountPriceF,
-      stockQty,
+      currentStock,
       sortOrder: sortOrderN,
       categoryId,
       productCat,
@@ -874,12 +874,13 @@ export async function fetchProductById(
       id: docSnap.id,
       name: data?.name ?? "",
       price: data?.price ?? 0,
-      currentStock: data?.stockQty ?? 0,
+      currentStock: data?.currentStock ?? 0,
       discountPrice: data?.discountPrice ?? undefined,
       categoryId: data?.categoryId ?? "",
       productCat: data?.productCat ?? undefined,
       baseProductId: data?.baseProductId ?? "",
       productDesc: data?.productDesc ?? "",
+      quantity: 0,
       sortOrder: data?.sortOrder ?? 0,
       image: data?.image ?? "",
       isFeatured: data?.isFeatured ?? false,
@@ -984,7 +985,7 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     price: Number(data.price),
     discountPrice:
       data.discountPrice !== undefined ? Number(data.discountPrice) : 0,
-    // stockQty: data.stockQty ?? 0,
+    // currentStock: data.currentStock ?? 0,
     categoryId: data.categoryId ?? "",
     productCat: data.productCat ?? "",
     baseProductId: data.baseProductId ?? "",
@@ -993,10 +994,10 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     image: data.image ?? "",
     isFeatured: String(data.isFeatured).toLowerCase() === "true" ? true : false,
     purchaseSession: data.purchaseSession ?? null,
-    // quantity:
-    //   data.quantity !== undefined && data.quantity !== null
-    //     ? Number(data.quantity)
-    //     : null,
+    quantity:
+      data.quantity !== undefined && data.quantity !== null
+        ? Number(data.quantity)
+        : null,
     flavors: String(data.flavors).toLowerCase() === "true" ? true : false,
     publishStatus: data?.publishStatus ?? "draft",
     stockStatus: data.stockStatus ?? "out_of_stock",
@@ -1061,7 +1062,7 @@ export async function updateProductField(
     discountPrice: number;
     taxRate: number;
     taxType: "inclusive" | "exclusive";
-    stockQty: number;
+    currentStock: number;
     sortOrder: number;
   }>
 ) {
@@ -1124,110 +1125,7 @@ export async function updateProductField(
 
 
 
-export const fetchProducts_old = unstable_cache(
-  async (): Promise<ProductType[]> => {
-    try {
-      const snapshot =
-        await adminDb
-          .collection("products")
-          .get();
 
-      if (snapshot.empty) return [];
-
-      return snapshot.docs.map((doc) => {
-        const data =
-          doc.data() as Partial<ProductType> & {
-            updatedAt?: any;
-          };
-
-        let updatedAt: string | null =
-          null;
-
-        if (data.updatedAt) {
-          if (
-            typeof data.updatedAt
-              .toDate === "function"
-          ) {
-            updatedAt =
-              data.updatedAt
-                .toDate()
-                .toISOString();
-          } else if (
-            typeof data.updatedAt ===
-            "string"
-          ) {
-            updatedAt =
-              data.updatedAt;
-          }
-        }
-
-        return {
-          id: doc.id,
-          name: data.name ?? "",
-          price: data.price ?? 0,
-          currentStock:
-            data.currentStock ?? 0,
-          discountPrice:
-            data.discountPrice ?? 0,
-          categoryId:
-            data.categoryId ?? "",
-          parentId:
-            data.parentId ?? "",
-          hasVariants:
-            data.hasVariants ?? false,
-          hasModifier:
-            data.hasModifier ?? false,
-          type:
-            data.type ?? "parent",
-          productCat:
-            data.productCat ?? "",
-          flavors:
-            data.flavors ?? false,
-          publishStatus:
-            data.publishStatus ??
-            "published",
-          stockStatus:
-            data.stockStatus ??
-            "out_of_stock",
-          baseProductId:
-            data.baseProductId ?? "",
-          productDesc:
-            data.productDesc ?? "",
-          sortOrder:
-            data.sortOrder ?? 0,
-          image: data.image ?? "",
-          isFeatured:
-            data.isFeatured ?? false,
-          purchaseSession:
-            data.purchaseSession ??
-            null,
-        
-          updatedAt,
-          searchCode:
-            data.searchCode ?? "",
-          taxRate:
-            data.taxRate ?? undefined,
-          taxType: data.taxType,
-        };
-      });
-    } catch (error) {
-      console.error(
-        "Failed to fetch products:",
-        error
-      );
-
-      return [];
-    }
-  },
-
-  // CACHE KEY
-  ["products-cache"],
-
-  {
-    // cache for 1 hour
-    revalidate: 3600,
-  }
-);
 
 
 export const fetchProducts1 = cache(
@@ -1238,7 +1136,7 @@ export const fetchProducts1 = cache(
         .select(
           "name",
           "price",
-          "stockQty",
+          "currentStock",
           "type",
           "productCat",
           "searchCode",
@@ -1257,7 +1155,7 @@ export const fetchProducts1 = cache(
 
           price: data.price ?? 0,
 
-          stockQty: data.stockQty ?? 0,
+          currentStock: data.currentStock ?? 0,
 
           type: data.type ?? "parent",
 

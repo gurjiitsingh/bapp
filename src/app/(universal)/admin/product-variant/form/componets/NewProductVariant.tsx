@@ -61,7 +61,7 @@ const router = useRouter();
     defaultValues: {
       publishStatus: "published",
       discountPrice: 0,
-      stockQty: 0,
+      currentStock: 0,
       //  sortOrder: 0,
       //  taxRate: 0, //  default tax 0%
     },
@@ -118,7 +118,7 @@ formData.append("hasVariants", "false");
 formData.append("type", "variant");
 formData.append("price", String(data.price ?? 0));
 formData.append("discountPrice", String(data.discountPrice ?? 0));
-formData.append("stockQty", String(data.stockQty ?? -1));
+formData.append("currentStock", String(data.currentStock ?? -1));
 formData.append("sortOrder", String(data.sortOrder ?? 0));
 
 // ✅ FIXES
@@ -154,7 +154,7 @@ formData.append("taxRate", String(data.taxRate ?? 0));
         name: "",
         //  price: 0,
         // discountPrice: 0,
-        stockQty: 0,
+        currentStock: 0,
         sortOrder: Number(data.sortOrder) + 1 || 1,
         //  categoryId: "",
         productDesc: "",
@@ -291,7 +291,7 @@ formData.append("taxRate", String(data.taxRate ?? 0));
             <div>
               <label className="label-style">Stock Quantity</label>
               <input
-                {...register("stockQty")}
+                {...register("currentStock")}
                 onFocus={(e) => {
                   if (e.target.value === "0") e.target.value = "";
                 }}
@@ -299,7 +299,7 @@ formData.append("taxRate", String(data.taxRate ?? 0));
                 placeholder="Enter stock quantity"
               />
               <p className="text-xs text-destructive">
-                {errors.stockQty?.message}
+                {errors.currentStock?.message}
               </p>
             </div>
           </div>

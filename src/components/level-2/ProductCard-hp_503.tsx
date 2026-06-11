@@ -67,12 +67,12 @@ export default function ProductCardHorizontical({
   const handleProductClick = () => {
     if (!product.hasVariants || !defaultVariant) return;
 
-    if (defaultVariant.stockQty === 0) return;
+    if (defaultVariant.currentStock === 0) return;
 
     addProductToCart({
       id: defaultVariant.id,
       quantity: 1,
-      stockQty: defaultVariant.stockQty,
+      currentStock: defaultVariant.currentStock!,
       price: defaultVariant.price ?? 0,
       name: `${product.name} ${defaultVariant.name}`,
       image: product.image,
@@ -125,7 +125,7 @@ export default function ProductCardHorizontical({
                 cartProduct={{
                   id: product.id,
                   quantity: 1,
-                  stockQty: product.stockQty,
+                  currentStock: product.currentStock!,
                   price: priceTarget,
                   name: product.name,
                   image: product.image,
@@ -153,7 +153,7 @@ export default function ProductCardHorizontical({
         >
           {productVariants.map((variant) => {
             const isDefault = defaultVariant?.id === variant.id;
-            const outOfStock = variant.stockQty === 0;
+            const outOfStock = variant.currentStock === 0;
 
             return (
               <div
@@ -208,7 +208,7 @@ export default function ProductCardHorizontical({
                   cartProduct={{
                     id: variant.id,
                     quantity: 1,
-                    stockQty: variant.stockQty,
+                    currentStock: variant.currentStock!,
                     price: variant.price ?? 0,
                     name: `${product.name} ${variant.name}`,
                     image: product.image,

@@ -30,17 +30,18 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
+import { WholeCustomerType } from "@/lib/types/WholeSaleCustomerType";
 
 
 
 
 
 type Props = {
-  suppliers?: WholeSaleCustomerType[];
+  wholeSaleCustomer?: WholeCustomerType[];
 };
 
 export default function ListView({
-  suppliers = [],
+  wholeSaleCustomer = [],
 }: Props) {
 
   const [search, setSearch] =
@@ -50,16 +51,16 @@ export default function ListView({
   // SEARCH FILTER
   // =====================================================
 
-  const filteredSuppliers =
+  const filteredwholeSaleCustomer =
     useMemo(() => {
 
       const query =
         search.toLowerCase().trim();
 
       if (!query)
-        return suppliers;
+        return wholeSaleCustomer;
 
-      return suppliers.filter(
+      return wholeSaleCustomer.filter(
         (item) => {
 
           return (
@@ -89,17 +90,17 @@ export default function ListView({
           );
         }
       );
-    }, [suppliers, search]);
+    }, [wholeSaleCustomer, search]);
 
   // =====================================================
   // EMPTY STATE
   // =====================================================
 
-  if (suppliers.length === 0) {
+  if (wholeSaleCustomer.length === 0) {
     return (
       <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center">
         <h2 className="text-lg font-semibold text-gray-700">
-          No Suppliers Found
+          No wholeSaleCustomer Found
         </h2>
 
         <p className="text-sm text-gray-500 mt-2">
@@ -140,8 +141,8 @@ export default function ListView({
 
         <p className="text-xs text-gray-500 mt-2">
           Showing{" "}
-          {filteredSuppliers.length}{" "}
-          of {suppliers.length} suppliers
+          {filteredwholeSaleCustomer.length}{" "}
+          of {wholeSaleCustomer.length} wholeSaleCustomer
         </p>
 
       </div>
@@ -204,10 +205,10 @@ export default function ListView({
 
           <TableBody>
 
-            {filteredSuppliers.length >
+            {filteredwholeSaleCustomer.length >
             0 ? (
 
-              filteredSuppliers.map(
+              filteredwholeSaleCustomer.map(
                 (item) => (
 
                   <TableRow
@@ -352,7 +353,7 @@ export default function ListView({
                     </div>
 
                     <p className="font-medium text-gray-600">
-                      No suppliers found
+                      No wholeSaleCustomer found
                     </p>
 
                     <p className="text-sm text-gray-400">

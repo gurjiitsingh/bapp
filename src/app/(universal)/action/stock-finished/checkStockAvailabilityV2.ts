@@ -60,16 +60,16 @@ export async function checkStockAvailabilityV2(
       // =====================================================
 
       if (productMode === "simple") {
-        const stockQty =
-          Number(product?.stockQty) || 0;
+        const currentStock =
+          Number(product?.currentStock) || 0;
 
         // BLOCK ONLY IF NEGATIVE STOCK DISABLED
         if (
           !allowNegativeStock &&
-          orderedQty > stockQty
+          orderedQty > currentStock
         ) {
           insufficient.push(
-            `${productName} (Only ${stockQty} left)`
+            `${productName} (Only ${currentStock} left)`
           );
         }
 

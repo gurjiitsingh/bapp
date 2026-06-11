@@ -409,7 +409,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               <div className="text-2xl font-bold text-blue-700">
                 {selectedProduct.currentStock}
                 {/* {displayStock(
-                  selectedProduct.currentStock,
+                  selectedproduct.currentStock!,
                   selectedProduct.purchaseUnit,
                   selectedProduct.consumptionUnit,
                   selectedProduct.conversionFactor

@@ -13,7 +13,7 @@ import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventory
 
 
 export default async function Page() {
-  const suppliers =
+  const wholeSaleCustomer =
     await fetchCustomer();
 
   return (
@@ -41,8 +41,8 @@ export default async function Page() {
       {/* Content */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <ListView
-          suppliers={
-            suppliers
+          wholeSaleCustomer={
+            wholeSaleCustomer
           }
         />
       </div>

@@ -54,7 +54,7 @@ const Page = () => {
     defaultValues: {
       publishStatus: "published",
       discountPrice: 0,
-      stockQty: 0,
+      currentStock: 0,
       //  sortOrder: 0,
       //  taxRate: 0, //  default tax 0%
     },
@@ -86,7 +86,7 @@ const Page = () => {
     formData.append("hasVariants", "false");
     formData.append("type", "parent");
     formData.append("discountPrice", String(data.discountPrice ?? 0));
-    formData.append("stockQty", String(data.stockQty ?? -1));
+    formData.append("currentStock", String(data.currentStock ?? -1));
     formData.append("sortOrder", String(data.sortOrder ?? 0));
     formData.append("categoryId", data.categoryId || "");
     formData.append("productDesc", data.productDesc || "");
@@ -118,7 +118,7 @@ const Page = () => {
         name: "",
         //  price: 0,
         // discountPrice: 0,
-        stockQty: 0,
+        currentStock: 0,
         sortOrder: Number(data.sortOrder) + 1 || 1,
         //  categoryId: "",
         productDesc: "",
@@ -264,7 +264,7 @@ const Page = () => {
             <div>
               <label className="label-style">Stock Quantity</label>
               <input
-                {...register("stockQty")}
+                {...register("currentStock")}
                 onFocus={(e) => {
                   if (e.target.value === "0") e.target.value = "";
                 }}
@@ -272,7 +272,7 @@ const Page = () => {
                 placeholder="Enter stock quantity"
               />
               <p className="text-xs text-destructive">
-                {errors.stockQty?.message}
+                {errors.currentStock?.message}
               </p>
             </div>
           </div>

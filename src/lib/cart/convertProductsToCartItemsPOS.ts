@@ -16,7 +16,7 @@ export function convertProductsToCartItemsPOS(
     price: Number(product.price),
     quantity: product.quantity ?? 1,
 
-    stockQty: product.stockQty ?? null,
+    currentStock: product.currentStock ?? null,
 
     categoryId: product.categoryId ?? "",
     productCat: product.productCat ?? "",
