@@ -4,9 +4,11 @@ export type ProductType = {
   id: string;
   name: string;
   price: number;
-quantity:number | null;
+  quantity: number | null;
   discountPrice: number | undefined;
   categoryId: string;
+  masterCategoryId?: string;
+  masterCategoryName?: string;
   productCat: string | undefined;
   baseProductId: string;
   productDesc: string;
@@ -17,7 +19,7 @@ quantity:number | null;
   flavors: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
- 
+
 
   searchCode?: string | null;   // barcode / short code / SKU (nullable)
   // NEW FIELDS
@@ -30,13 +32,13 @@ quantity:number | null;
   type?: 'parent' | 'variant';
 
   purchaseSession: string | null;
-  
+
 
   // NEW STOCK MAINTAIN
- productMode?:
-| "recipe_live"
-| "stock_managed"
-| "simple";
+  productMode?:
+  | "recipe_live"
+  | "stock_managed"
+  | "simple";
 
   sku?: string;
   barcode?: string;
@@ -59,7 +61,7 @@ export const newProductSchema = z.object({
   parentId: z.string().optional(),
   hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
-searchCode: z.string().max(50).optional(),
+  searchCode: z.string().max(50).optional(),
   // --------------------------
   // MANDATORY
   // --------------------------
@@ -82,14 +84,14 @@ searchCode: z.string().max(50).optional(),
     }, { message: "Invalid sort order" }),
 
   categoryId: z.string().min(1, { message: "Please select category" }),
-
+masterCategoryId: z.string().optional(),
   // --------------------------
   // ✅ NEW STATUS FIELDS (CLEAN)
   // --------------------------
 
   publishStatus: z
-  .enum(["published", "draft"])
-  .default("published"),
+    .enum(["published", "draft"])
+    .default("published"),
 
   stockStatus: z
     .enum(["in_stock", "out_of_stock"])
@@ -158,7 +160,8 @@ export const editProductSchema = z.object({
   parentId: z.string().optional(),
   hasVariants: z.boolean().optional(),
   type: z.enum(["parent", "variant"]).optional(),
-searchCode: z.string().max(50).optional(),
+  masterCategoryId: z.string().optional(),
+  searchCode: z.string().max(50).optional(),
   // --------------------------
   // REQUIRED
   // --------------------------
@@ -215,9 +218,9 @@ searchCode: z.string().max(50).optional(),
   // ✅ NEW STATUS FIELDS (CLEAN)
   // --------------------------
 
-publishStatus: z
-  .enum(["published", "draft"])
-  .default("published"),
+  publishStatus: z
+    .enum(["published", "draft"])
+    .default("published"),
 
   stockStatus: z
     .enum(["in_stock", "out_of_stock"])
@@ -248,4 +251,4 @@ export type TeditProductSchema = z.infer<typeof editProductSchema>;
 
 
 
- 
+

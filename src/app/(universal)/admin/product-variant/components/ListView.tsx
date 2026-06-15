@@ -168,7 +168,7 @@ const goToAddVariant = () => {
 
       <div className="bg-slate-50 rounded-lg p-1 overflow-x-auto">
         <Table>
-          <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+          <TableHeader className="bg-gray-100 dark:border-zinc-200">
             <TableRow>
                <TableHead>Search Code</TableHead>
               <TableHead>Image</TableHead>

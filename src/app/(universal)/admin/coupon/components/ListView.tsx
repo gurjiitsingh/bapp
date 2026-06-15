@@ -34,10 +34,10 @@ const ListView = () => {
         Coupon List
       </h3>
 
-      <div className="rounded-xl bg-white dark:bg-zinc-800 shadow-sm p-2 overflow-x-auto">
+      <div className="rounded-xl bg-white dark:border-zinc-200 shadow-sm p-2 overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-100 dark:bg-zinc-800 text-gray-800 dark:text-gray-200">
+            <TableRow className="bg-gray-100 dark:border-zinc-200 text-gray-800 dark:text-gray-200">
               <TableHead className="hidden md:table-cell">Code</TableHead>
               <TableHead className="hidden md:table-cell">Discount</TableHead>
               <TableHead>Min Spend</TableHead>

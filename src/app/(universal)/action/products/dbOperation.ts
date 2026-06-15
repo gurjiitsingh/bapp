@@ -34,7 +34,7 @@ export type ProductSearchType = {
   searchCode: string;
 
   updatedAt: number;
-}; 
+};
 
 //  Cached version — reduces Firestore reads massively
 
@@ -88,6 +88,13 @@ export const fetchProducts = unstable_cache(
 
           categoryId:
             data.categoryId ?? "",
+
+          masterCategoryId:
+            data.masterCategoryId ?? "",
+
+          masterCategoryName:
+            data.masterCategoryName ?? "",
+
 
           parentId:
             data.parentId ?? "",
@@ -174,7 +181,7 @@ export const fetchProducts = unstable_cache(
 
 
 export async function addNewProduct(formData: FormData) {
-  
+  console.log("data-------------------", formData)
   try {
     const rawHasVariants = formData.get("hasVariants");
 
@@ -206,6 +213,15 @@ export async function addNewProduct(formData: FormData) {
     const discountPriceF = parseFloat(discountPrice.replace(/,/g, ".")) || 0;
     const sortOrderN = parseInt(sortOrder || "0", 10);
     const taxRate = taxRateRaw ? parseFloat(taxRateRaw) : null;
+    const masterCategoryId = formData.get("masterCategoryId") as string | null;
+
+    const masterCategoryDoc = await adminDb
+      .collection("masterCategories")
+      .doc(masterCategoryId!)
+      .get();
+
+    const masterCategoryName =
+      masterCategoryDoc.data()?.name || "";
 
     const receivedData = {
       name,
@@ -215,6 +231,7 @@ export async function addNewProduct(formData: FormData) {
       currentStock,
       sortOrder: sortOrderN,
       categoryId,
+      masterCategoryId,
       productDesc,
       image,
       isFeatured: featured_img,
@@ -265,6 +282,8 @@ export async function addNewProduct(formData: FormData) {
       hasVariants,
       type,
       productCat,
+      masterCategoryId,
+      masterCategoryName,
       productDesc,
       image: image ? imageUrl : null,
       isFeatured: featured_img,
@@ -278,7 +297,7 @@ export async function addNewProduct(formData: FormData) {
       createdAt: new Date().toISOString(),
     };
 
-   
+
 
     //  Save to Firestore
 
@@ -286,7 +305,7 @@ export async function addNewProduct(formData: FormData) {
 
     revalidateTag("products", "max");
     revalidateTag("featured-products", "max");
-revalidateTag("stock-products-updated", "max");
+    revalidateTag("stock-products-updated", "max");
     //    REVALIDATE ALL PRODUCT PAGES
     revalidatePath("/"); // storefront home
     revalidatePath("/products"); // storefront products page
@@ -321,6 +340,8 @@ export async function editProduct(formData: FormData) {
   const currentStockS = formData.get("currentStock") as string;
   const sortOrderRaw = formData.get("sortOrder") as string;
   let categoryId = formData.get("categoryId") as string;
+  const masterCategoryId =
+    formData.get("masterCategoryId") as string;
   const productDesc = formData.get("productDesc");
   const oldImageUrl = formData.get("oldImageUrl") as string;
   const image = formData.get("image");
@@ -338,9 +359,9 @@ export async function editProduct(formData: FormData) {
   const taxType = (formData.get("taxType") as string | null) ?? null;
 
 
-console.log("product data-------------")
-const publishStatus = (formData.get("status") as string) || "published";
-  
+  console.log("product data-------------")
+  const publishStatus = (formData.get("status") as string) || "published";
+
 
   //  Validate received data
   const receivedData = {
@@ -351,37 +372,38 @@ const publishStatus = (formData.get("status") as string) || "published";
     currentStock: currentStockS,
     sortOrder: sortOrderRaw,
     categoryId,
+    masterCategoryId,
     productDesc,
     image,
-    publishStatus:"published",
+    publishStatus: "published",
   };
 
-const result = editProductSchema.safeParse(receivedData);
+  const result = editProductSchema.safeParse(receivedData);
 
-if (!result.success) {
-  console.log("❌ ZOD VALIDATION FAILED");
+  if (!result.success) {
+    console.log("❌ ZOD VALIDATION FAILED");
 
-  // 🔍 Show full incoming data
-  console.log("📦 Received Data:", receivedData);
+    // 🔍 Show full incoming data
+  //  console.log("📦 Received Data:", receivedData);
 
-  // 🔍 Show formatted errors (clean)
-  console.log("🧾 Flattened Errors:", result.error.flatten());
+    // 🔍 Show formatted errors (clean)
+  //  console.log("🧾 Flattened Errors:", result.error.flatten());
 
-  // 🔍 Show detailed issues (best for debugging)
-  result.error.issues.forEach((issue, index) => {
-    console.log(`🔴 Issue ${index + 1}:`);
-    console.log("Field:", issue.path.join("."));
-    console.log("Message:", issue.message);
-  //  console.log("Received Value:", issue.path.reduce((obj, key) => obj?.[key], receivedData));
-  });
+    // 🔍 Show detailed issues (best for debugging)
+    result.error.issues.forEach((issue, index) => {
+      console.log(`🔴 Issue ${index + 1}:`);
+      console.log("Field:", issue.path.join("."));
+      console.log("Message:", issue.message);
+      //  console.log("Received Value:", issue.path.reduce((obj, key) => obj?.[key], receivedData));
+    });
 
-  const zodErrors: Record<string, string> = {};
-  result.error.issues.forEach((issue) => {
-    zodErrors[issue.path[0]] = issue.message;
-  });
+    const zodErrors: Record<string, string> = {};
+    result.error.issues.forEach((issue) => {
+      zodErrors[issue.path[0]] = issue.message;
+    });
 
-  return { errors: zodErrors };
-}
+    return { errors: zodErrors };
+  }
 
   // 🔹 Fetch existing product
 
@@ -440,6 +462,26 @@ if (!result.success) {
   if (categoryId === "0" || !categoryId) {
     categoryId = existingProduct?.categoryId || "";
   }
+  // Handle master category
+let masterCategoryName =
+  existingProduct?.masterCategoryName || "";
+
+if (masterCategoryId) {
+  try {
+    const masterCategoryDoc = await adminDb
+      .collection("masterCategories")
+      .doc(masterCategoryId)
+      .get();
+
+    masterCategoryName =
+      masterCategoryDoc.data()?.name || "";
+  } catch (error) {
+    console.error(
+      "Error fetching master category:",
+      error
+    );
+  }
+}
 
   // 🔹 Fetch category name
   let productCat = "Uncategorized";
@@ -476,6 +518,8 @@ if (!result.success) {
     sortOrder,
     categoryId,
     productCat,
+      masterCategoryId,
+  masterCategoryName,
     productDesc,
     image: imageUrl,
     status,
@@ -484,7 +528,7 @@ if (!result.success) {
     taxType: taxType ?? existingProduct?.taxType ?? null,
   };
 
- 
+
 
   //  Only overwrite isFeatured if explicitly sent
   if (typeof isFeatured !== "undefined") {
@@ -495,17 +539,17 @@ if (!result.success) {
 
   try {
     await productRef.update(productData);
- 
-// CLEAR PRODUCT CACHE
-revalidateTag("products", "max");
 
-// OPTIONAL FEATURED CACHE
-revalidateTag("featured-products", "max");
+    // CLEAR PRODUCT CACHE
+    revalidateTag("products", "max");
 
-// OPTIONAL PAGE RELOADS
-revalidatePath("/");
-revalidatePath("/products");
-revalidatePath("/admin/products");
+    // OPTIONAL FEATURED CACHE
+    revalidateTag("featured-products", "max");
+
+    // OPTIONAL PAGE RELOADS
+    revalidatePath("/");
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
 
 
     return { message: " Product updated successfully" };
@@ -878,6 +922,9 @@ export async function fetchProductById(
       discountPrice: data?.discountPrice ?? undefined,
       categoryId: data?.categoryId ?? "",
       productCat: data?.productCat ?? undefined,
+      masterCategoryId: data?.masterCategoryId ?? "",
+
+      masterCategoryName: data?.masterCategoryName ?? "",
       baseProductId: data?.baseProductId ?? "",
       productDesc: data?.productDesc ?? "",
       quantity: 0,

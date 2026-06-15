@@ -140,9 +140,9 @@ const Page = () => {
         </div>
 
         {/* Table Section */}
-        <div className="rounded-2xl overflow-hidden bg-white dark:bg-zinc-900">
+        <div className="rounded-2xl overflow-hidden bg-white dark:border-zinc-200">
           <Table>
-            <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+            <TableHeader className="bg-gray-100 dark:border-zinc-200">
               <TableRow>
                 <TableHead>Setting Name</TableHead>
                 <TableHead>Value</TableHead>

@@ -36,10 +36,10 @@ const ListView = ({ title }: productTableProps) => {
   return (
     <div className="mt-10 p-2">
       <h3 className="text-2xl mb-4 font-semibold">{title || "Users"}</h3>
-      <div className="bg-white dark:bg-zinc-900 rounded-lg p-1">
+      <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-100 dark:bg-zinc-800">
+            <TableRow className="bg-gray-100 dark:border-zinc-200">
               {/* <TableHead className="hidden md:table-cell">User ID</TableHead> */}
               <TableHead className="hidden md:table-cell">User Name</TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>

@@ -58,9 +58,9 @@ export default function ReservationListPage() {
 
   return (
     <div className="mt-4">
-      <div className="overflow-x-auto bg-white dark:bg-zinc-900 shadow rounded-xl border border-gray-200 dark:border-zinc-700">
-        <Table className="min-w-[1000px] text-sm text-left text-gray-700 dark:text-zinc-200">
-          <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+      <div className="overflow-x-auto bg-white dark:border-zinc-200 shadow rounded-xl border border-gray-200 dark:border-zinc-200">
+        <Table className="min-w-[1000px] text-sm text-left text-gray-700 dark:text-zinc-600">
+          <TableHeader className="bg-gray-100 dark:border-zinc-200">
             <TableRow>
               <TableHead>#</TableHead>
               <TableHead>{TEXT.name}</TableHead>
@@ -128,7 +128,7 @@ export default function ReservationListPage() {
         <button
           onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
           disabled={currentPage === 1}
-          className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:border-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50"
         >
           ⬅️ {TEXT.pagination_newer}
         </button>
@@ -136,7 +136,7 @@ export default function ReservationListPage() {
         <button
           onClick={() => setCurrentPage((prev) => prev + 1)}
           disabled={startIndex + RESERVATIONS_PER_PAGE >= reservations.length}
-          className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 disabled:opacity-50"
+          className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:border-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50"
         >
           {TEXT.pagination_older} ➡️
         </button>

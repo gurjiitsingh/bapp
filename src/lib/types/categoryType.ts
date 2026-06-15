@@ -3,6 +3,8 @@ import { z } from "zod";
 export type categoryType = {
   id: string;
   name: string;
+  masterCategoryId?: string;
+  masterCategoryName?: string;
   desc: string;
   productDesc?: string;
   slug?: string | undefined;
@@ -23,7 +25,9 @@ export const categorySchema = z.object({
     .trim()
     .min(1, { message: "Category name is required" })
     .max(70, { message: "Category name is to long" }),
+    masterCategoryId: z.string().optional(),
   sortOrder: z.string().optional(),
+  
   desc: z
     .string().optional(),    
     oldImageUrl: z.any().optional(),

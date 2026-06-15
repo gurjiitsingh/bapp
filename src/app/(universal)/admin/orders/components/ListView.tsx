@@ -57,9 +57,9 @@ const loadOrders = async (next = false, back = false) => {
 
   return (
     <div className="mt-2">
-      <div className="overflow-x-auto bg-white dark:bg-zinc-900 shadow rounded-xl border border-gray-200 dark:border-zinc-700">
-        <Table className="min-w-[800px] text-sm text-left text-gray-700 dark:text-zinc-200">
-          <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+      <div className="overflow-x-auto bg-white dark:border-zinc-200 shadow rounded-xl border border-gray-200 dark:border-zinc-200">
+        <Table className="min-w-[800px] text-sm text-left text-gray-700 dark:text-zinc-600">
+          <TableHeader className="bg-gray-100 dark:border-zinc-200">
             <TableRow>
               <TableHead className="hidden md:table-cell">Order No.1</TableHead>
               <TableHead className="hidden md:table-cell">Name</TableHead>
@@ -99,14 +99,14 @@ const loadOrders = async (next = false, back = false) => {
        <button
   onClick={() => loadOrders(false, true)}
   disabled={pageIndex === 0}
-  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 disabled:opacity-50"
+  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:border-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50"
 >
   ⬅️ Newer Orders
 </button>
        <button
   onClick={() => loadOrders(true, false)}
   disabled={orderData.length < ORDERS_PER_PAGE}
-  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 disabled:opacity-50"
+  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 dark:border-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50"
 >
   Older Orders ➡️
 </button>

@@ -76,9 +76,9 @@ const [orderData, setOrderData] = useState<orderMasterDataT[]>([]);
   return (
     <div className="mt-2">
        <audio ref={audioRef} src="/sounds/relaxing-guitar-loop-v5-245859g.mp3" preload="auto" />
-      <div className="overflow-x-auto bg-white dark:bg-zinc-900 shadow rounded-xl border border-gray-200 dark:border-zinc-700">
-        <Table className="min-w-[800px] text-sm text-left text-gray-700 dark:text-zinc-200">
-          <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+      <div className="overflow-x-auto bg-white dark:border-zinc-200 shadow rounded-xl border border-gray-200 dark:border-zinc-200">
+        <Table className="min-w-[800px] text-sm text-left text-gray-700 dark:text-zinc-600">
+          <TableHeader className="bg-gray-100 dark:border-zinc-200">
             <TableRow>
               <TableHead className="hidden md:table-cell">Order No.</TableHead>
               <TableHead className="hidden md:table-cell">Name</TableHead>

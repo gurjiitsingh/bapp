@@ -38,7 +38,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
   }
 
   return (
-    <TableRow className="bg-white dark:bg-zinc-800 hover:bg-amber-50 dark:hover:bg-zinc-700 transition duration-200">
+    <TableRow className="bg-white dark:border-zinc-200 hover:bg-amber-50 dark:hover:bg-zinc-700 transition duration-200">
       <TableCell>
         <Link
           href={{
@@ -68,7 +68,7 @@ function TableRows({ order }: { order: orderMasterDataT }) {
         </Link>
       </TableCell>
 
-      <TableCell className="text-gray-800 dark:text-zinc-200">
+      <TableCell className="text-gray-800 dark:text-zinc-600">
         {order.customerName}
       </TableCell>
 

@@ -42,8 +42,8 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-zinc-900 px-4">
-      <Card className="w-full max-w-md p-8 shadow-md border border-gray-200 dark:border-zinc-700">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:border-zinc-200 px-4">
+      <Card className="w-full max-w-md p-8 shadow-md border border-gray-200 dark:border-zinc-200">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
           Reset Password
         </h2>
@@ -56,7 +56,7 @@ export default function ResetPasswordPage() {
             <input
               id="password"
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-zinc-800 dark:border-zinc-700 dark:text-white focus:border-emerald-600 focus:ring-emerald-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:border-zinc-200 dark:border-zinc-200 dark:text-white focus:border-emerald-600 focus:ring-emerald-500 sm:text-sm"
               placeholder="Enter new password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -70,7 +70,7 @@ export default function ResetPasswordPage() {
             <input
               id="confirm"
               type="password"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:bg-zinc-800 dark:border-zinc-700 dark:text-white focus:border-emerald-600 focus:ring-emerald-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm dark:border-zinc-200 dark:border-zinc-200 dark:text-white focus:border-emerald-600 focus:ring-emerald-500 sm:text-sm"
               placeholder="Confirm new password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

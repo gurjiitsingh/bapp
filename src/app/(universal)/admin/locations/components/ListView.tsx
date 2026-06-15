@@ -35,10 +35,10 @@ const LocationsListView = () => {
         Delivery Locations
       </h3>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-lg p-1">
+      <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-100 dark:bg-zinc-800 text-slate-700 dark:text-white">
+            <TableRow className="bg-gray-100 dark:border-zinc-200 text-slate-700 dark:text-white">
               <TableHead>Locality</TableHead>
               <TableHead className="hidden md:table-cell">City</TableHead>
               <TableHead className="hidden md:table-cell">State</TableHead>

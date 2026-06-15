@@ -19,7 +19,13 @@ import { useState } from "react";
 import ModifierModal from "@/components/ModifierModal";
 
 
-function TableRows({ product }: { product: ProductType }) {
+function TableRows({
+  product,
+  index,
+}: {
+  product: ProductType;
+  index: number;
+}) {
   const { settings } = UseSiteContext();
   const { TEXT } = useLanguage();
   const [isFeatured, setIsFeatured] = useState(product.isFeatured);
@@ -42,11 +48,11 @@ const [showModifierModal, setShowModifierModal] = useState(false);
       : "";
 
   const statusLabel = product.publishStatus ?? "draft";
-  const statusStyles = {
-    published: "bg-green-100 text-green-800",
-    draft: "bg-yellow-100 text-yellow-800",
-    out_of_stock: "bg-red-100 text-red-800",
-  };
+ const statusStyles = {
+  published: "bg-emerald-50 text-emerald-700",
+  draft: "bg-amber-50 text-amber-700",
+  out_of_stock: "bg-rose-50 text-rose-700",
+};
 
   async function handleDelete(product: ProductType) {
     const confirmDelete = confirm(
@@ -92,9 +98,15 @@ const [showModifierModal, setShowModifierModal] = useState(false);
 )}
 
     <TableRow
-      key={product.id}
-      className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition rounded-xl"
-    >
+  key={product.id}
+  className={`
+    whitespace-nowrap
+    transition-colors
+    border-0
+    hover:bg-green-50
+    ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+  `}
+>
       <TableCell className="text-sm font-medium text-gray-700">
   {product.searchCode ? (
     <span>{product.searchCode}</span>
@@ -136,14 +148,15 @@ const [showModifierModal, setShowModifierModal] = useState(false);
       </TableCell>
 
       {/* 📂 Category */}
+      <TableCell> {product.masterCategoryName}</TableCell>
       <TableCell>{product.productCat}</TableCell>
-
+  
       {/* 💰 Prices */}
       <TableCell>{price}</TableCell>
       <TableCell>{discountedPrice}</TableCell>
 
       {/* 📦 Quantity */}
-      <TableCell>{product.currentStock}</TableCell>
+      {/* <TableCell>{product.currentStock}</TableCell> */}
 
       {/* 💸 Tax */}
       <TableCell>
@@ -199,30 +212,48 @@ const [showModifierModal, setShowModifierModal] = useState(false);
       {/* ⚙️ Actions */}
       <TableCell>
         <div className="flex gap-2">
-          <Button
+       <Button
   size="sm"
-  className="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-0"
+  className="
+    h-8
+    rounded-lg
+    bg-violet-50
+    hover:bg-violet-100
+    text-violet-700
+    border
+    border-violet-200
+    shadow-none
+  "
   onClick={() => setShowModifierModal(true)}
 >
   Modifiers
 </Button>
           {/* ✏️ Edit */}
-          <Link
+             <Link
             href={{
               pathname: "/admin/products/editform",
               query: { id: product.id },
             }}
           >
-            <Button
-              size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0 transition"
-            >
-              <CiEdit size={18} />
-            </Button>
-          </Link>
+      <Button
+  size="sm"
+  className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-blue-50
+    hover:bg-blue-100
+    text-blue-600
+    shadow-none
+  "
+>
+  <CiEdit size={18} />
+</Button>
+</Link>
 
           {/* 🧩 Variants */}
-        <Link
+              <Link
   href={{
     pathname: "/admin/product-variant",
     query: {
@@ -234,26 +265,41 @@ const [showModifierModal, setShowModifierModal] = useState(false);
     },
   }}
 >
-  <Button
-    size="sm"
-    className={`text-white px-2 py-0 transition ${
+      <Button
+  size="sm"
+  className={`
+    h-8
+    rounded-lg
+    border
+    shadow-none
+    ${
       product.hasVariants
-        ? "bg-green-500 hover:bg-green-600"
-        : "bg-amber-500 hover:bg-amber-600"
-    }`}
-  >
-    {TEXT.button_variants || "Variants"}
-  </Button>
+        ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+        : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+    }
+  `}
+>
+  {TEXT.button_variants || "Variants"}
+</Button>
 </Link>
 
           {/* 🗑 Delete */}
-          <Button
-            onClick={() => handleDelete(product)}
-            size="sm"
-            className="bg-rose-600 hover:bg-rose-700 text-white px-2 py-0 transition"
-          >
-            <MdDeleteForever size={18} />
-          </Button>
+      <Button
+  onClick={() => handleDelete(product)}
+  size="sm"
+  className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-red-50
+    hover:bg-red-100
+    text-red-600
+    shadow-none
+  "
+>
+  <MdDeleteForever size={18} />
+</Button>
         </div>
       </TableCell>
     </TableRow>  </>

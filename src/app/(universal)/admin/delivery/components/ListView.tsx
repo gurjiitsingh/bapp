@@ -32,10 +32,10 @@ const ListView = () => {
   return (
     <div className="mt-2">
       <h3 className="text-2xl mb-4 font-semibold">Delivery Zones</h3>
-      <div className="bg-white dark:bg-zinc-900 rounded-lg p-1">
+      <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-100 dark:bg-zinc-800 text-slate-700 dark:text-white">
+            <TableRow className="bg-gray-100 dark:border-zinc-200 text-slate-700 dark:text-white">
               <TableHead className="hidden md:table-cell">Zip Code</TableHead>
               <TableHead className="hidden md:table-cell">Cost </TableHead>
               <TableHead>Min Spend </TableHead>

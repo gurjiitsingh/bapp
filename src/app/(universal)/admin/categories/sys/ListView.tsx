@@ -43,9 +43,9 @@ useEffect(() => {
         🗂️ Categories
       </h3>
 
-      <div className="rounded-2xl shadow-md border border-gray-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-900">
+      <div className="rounded-2xl shadow-md border border-gray-200 dark:border-zinc-200 overflow-hidden bg-white dark:border-zinc-200">
         <Table>
-          <TableHeader className="bg-gray-100 dark:bg-zinc-800">
+          <TableHeader className="bg-gray-100 dark:border-zinc-200">
             <TableRow>
               <TableHead className="hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
                 Image

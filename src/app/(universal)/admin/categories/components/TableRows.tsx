@@ -60,7 +60,7 @@ function TableRows({ category }: { category: categoryType }) {
         <div className="flex justify-center items-center p-2">
           {category?.image && (
             <Image
-              className="h-12 w-12 object-cover rounded-md border border-gray-200 dark:border-zinc-700"
+              className="h-12 w-12 object-cover rounded-md border border-gray-200 dark:border-zinc-200"
               src={imageSrc}
               width={48}
               height={48}
