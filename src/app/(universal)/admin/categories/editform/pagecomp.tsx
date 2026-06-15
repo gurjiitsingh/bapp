@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,8 +12,18 @@ import {
   editCategory,
   fetchCategoryById,
 } from "@/app/(universal)/action/category/dbOperations";
+import Link from "next/link";
+import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
+import { MasterCategoryType } from "@/lib/types/masterCategoryType";
 
-const PageComp = () => {
+
+interface PageCompProps {
+  masterCategories: MasterCategoryType[];
+}
+
+const PageComp = ({
+  masterCategories,
+}: PageCompProps) => {
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
   const router = useRouter();
@@ -30,16 +40,30 @@ const PageComp = () => {
   useEffect(() => {
     async function prefetch() {
       const categoryData = await fetchCategoryById(id);
-     
+
       setValue("id", id);
       setValue("name", categoryData.name);
       setValue("desc", categoryData.desc);
       setValue("oldImageUrl", categoryData.image);
       setValue("sortOrder", categoryData.sortOrder!.toString());
       setValue("isFeatured", categoryData.isFeatured!.toString());
-       setValue("taxRate", categoryData.taxRate?.toString() ?? "");
-      setValue("taxType", categoryData.taxType ?? "inclusive");
+
+      setValue(
+        "masterCategoryId",
+        categoryData.masterCategoryId ?? ""
+      );
+
+      setValue(
+        "taxRate",
+        categoryData.taxRate?.toString() ?? ""
+      );
+
+      setValue(
+        "taxType",
+        categoryData.taxType ?? "inclusive"
+      );
     }
+
     prefetch();
   }, [id, setValue]);
 
@@ -52,8 +76,9 @@ const PageComp = () => {
     formData.append("isFeatured", data.isFeatured!);
     formData.append("id", data.id!);
     formData.append("sortOrder", data.sortOrder!);
-     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
-      formData.append("taxType", data.taxType as string);
+    formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
+    formData.append("taxType", data.taxType as string);
+    formData.append("masterCategoryId", data.masterCategoryId ?? "");
 
     const result = await editCategory(formData);
     if (!result?.errors) {
@@ -63,172 +88,257 @@ const PageComp = () => {
     }
   }
 
+
   return (
-    <form onSubmit={handleSubmit(onsubmit)} className="min-h-screen bg-gray-50">
-      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
-        {/* Page Title */}
-        <h1 className="text-xl sm:text-2xl font-semibold text-gray-800 border-b pb-3">
-          Edit Category
-        </h1>
+    <div className="my-5">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white rounded-2xl p-4 shadow-sm">
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Section */}
-          <div className="flex-1 flex flex-col gap-5">
-            <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">
-                Category Info
-              </h2>
+        {/* Left Side */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-2">
+            {/* Right Side */}
+            <Link href="/admin/master-category">
+              <Button
+                className="
+          h-10
+          rounded-xl
+          bg-slate-400
+          hover:bg-[#00796b]
+          text-slate-100
+          shadow-none
+        "
+              >
+                Master Category
+              </Button>
+            </Link>
 
-              <input {...register("id")} hidden />
 
-              {/* Name */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Name<span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("name")}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
-                />
-                {errors.name && (
-                  <p className="text-[0.8rem] text-red-500">
-                    {errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Sort Order */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Sort Order<span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("sortOrder")}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
-                />
-                {errors.sortOrder && (
-                  <p className="text-[0.8rem] text-red-500">
-                    {errors.sortOrder.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-              {/* General Info + Tax */}
-            <div className="bg-white rounded-xl p-4 border shadow-sm flex flex-col gap-3">
-              <h2 className="font-semibold text-lg text-gray-800">
-                Tax Details
-              </h2>
-
-              {/* TAX SECTION */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="label-style">Tax Rate (%)</label>
-                  <input
-                    {...register("taxRate")}
-                    className="input-style py-1"
-                    placeholder="e.g. 5, 12, 18"
-                  />
-                  <p className="text-xs text-destructive">
-                    {errors.taxRate?.message}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="label-style">Tax Type</label>
-                  <select {...register("taxType")} className="input-style py-1">
-                    <option value="inclusive">
-                      Inclusive (Deducted from total)
-                    </option>
-                    <option value="exclusive">
-                      Exclusive (Added on total)
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Right Section */}
-          <div className="flex-1 flex flex-col gap-5">
-            {/* Image Upload */}
-            <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-3">
-              <h2 className="text-lg font-semibold text-gray-700">Picture</h2>
-              <input {...register("oldImageUrl")} hidden />
+        </div>
+        <div className="flex gap-2">
+          {/* Right Side */}
+          <Link href="/admin/categories/display-category">
+            <Button
+              className="
+          h-10
+          rounded-xl
+          bg-slate-400
+          hover:bg-[#00796b]
+          text-white
+          shadow-none
+        "
+            >
+              Display Category
+            </Button>
+          </Link>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Image<span className="text-red-500">*</span>
-                </label>
-                <input
-                  {...register("image", { required: true })}
-                  type="file"
-                  className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                {errors.image && (
-                  <p className="text-[0.8rem] text-red-500">
-                    Select category image
-                  </p>
-                )}
+          <Link href="/admin/categories">
+            <Button
+              className="
+          h-10
+          rounded-xl
+          bg-slate-400
+          hover:bg-[#00796b]
+          text-white
+          shadow-none
+        "
+            >
+              All Category
+            </Button>
+          </Link>
+        </div>
+
+      </div>
+      <form onSubmit={handleSubmit(onsubmit)} className="min-h-screen bg-gray-50">
+        <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+          {/* Page Title */}
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-800   pb-3">
+            Edit Category
+          </h1>
+
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Left Section */}
+            <div className="flex-1 flex flex-col gap-5">
+              <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-4">
+                <h2 className="text-lg font-semibold text-gray-700">
+                  Category Info
+                </h2>
+
+                <input {...register("id")} hidden />
+
+                {/* Name */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Name<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("name")}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+                  />
+                  {errors.name && (
+                    <p className="text-[0.8rem] text-red-500">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="label-style">
+                    Master Category
+                  </label>
+
+                  <select
+                    {...register("masterCategoryId")}
+                    className="input-style"
+                  >
+                    <option value="">
+                      Select Master Category
+                    </option>
+
+                    {masterCategories.map((item) => (
+                      <option
+                        key={item.id}
+                        value={item.id}
+                      >
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sort Order */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Sort Order<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("sortOrder")}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+                  />
+                  {errors.sortOrder && (
+                    <p className="text-[0.8rem] text-red-500">
+                      {errors.sortOrder.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* General Info + Tax */}
+              <div className="bg-white rounded-xl p-4 border shadow-sm flex flex-col gap-3">
+                <h2 className="font-semibold text-lg text-gray-800">
+                  Tax Details
+                </h2>
+
+                {/* TAX SECTION */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="label-style">Tax Rate (%)</label>
+                    <input
+                      {...register("taxRate")}
+                      className="input-style py-1"
+                      placeholder="e.g. 5, 12, 18"
+                    />
+                    <p className="text-xs text-destructive">
+                      {errors.taxRate?.message}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="label-style">Tax Type</label>
+                    <select {...register("taxType")} className="input-style py-1">
+                      <option value="inclusive">
+                        Inclusive (Deducted from total)
+                      </option>
+                      <option value="exclusive">
+                        Exclusive (Added on total)
+                      </option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* General Detail */}
-            <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-700">
-                General Details
-              </h2>
+            {/* Right Section */}
+            <div className="flex-1 flex flex-col gap-5">
+              {/* Image Upload */}
+              <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-3">
+                <h2 className="text-lg font-semibold text-gray-700">Picture</h2>
+                <input {...register("oldImageUrl")} hidden />
 
-              {/* Description */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Description
-                </label>
-                <textarea
-                  {...register("desc")}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none text-gray-800"
-                />
-                {errors.desc && (
-                  <p className="text-[0.8rem] text-red-500">
-                    Category description is required
-                  </p>
-                )}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Image<span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    {...register("image", { required: true })}
+                    type="file"
+                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                  {errors.image && (
+                    <p className="text-[0.8rem] text-red-500">
+                      Select category image
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Active */}
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">
-                  Active<span className="text-red-500">*</span>
-                </label>
-                <select
-                  {...register("isFeatured")}
-                  className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
-                >
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-                {errors.isFeatured && (
-                  <p className="text-[0.8rem] text-red-500">
-                    {errors.isFeatured.message}
-                  </p>
-                )}
-              </div>
+              {/* General Detail */}
+              <div className="bg-white border rounded-2xl shadow-sm p-4 sm:p-6 space-y-4">
+                <h2 className="text-lg font-semibold text-gray-700">
+                  General Details
+                </h2>
 
-              {/* Submit Button */}
-              <div className="pt-3">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={`btn-save w-full ${isSubmitting ? "opacity-80" : ""}`}
-                >
-                  {isSubmitting ? "Saving..." : "Save"}
-                </Button>
+                {/* Description */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Description
+                  </label>
+                  <textarea
+                    {...register("desc")}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none h-24 resize-none text-gray-800"
+                  />
+                  {errors.desc && (
+                    <p className="text-[0.8rem] text-red-500">
+                      Category description is required
+                    </p>
+                  )}
+                </div>
+
+                {/* Active */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Active<span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    {...register("isFeatured")}
+                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none text-gray-800"
+                  >
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                  {errors.isFeatured && (
+                    <p className="text-[0.8rem] text-red-500">
+                      {errors.isFeatured.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Submit Button */}
+                <div className="pt-3">
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`btn-save w-full ${isSubmitting ? "opacity-80" : ""}`}
+                  >
+                    {isSubmitting ? "Saving..." : "Save"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 };
 

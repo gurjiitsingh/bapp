@@ -60,7 +60,7 @@ const ListView = () => {
           rounded-xl
           bg-slate-400
           hover:bg-[#00796b]
-          text-white
+          text-slate-100
           shadow-none
         "
                 >
@@ -89,7 +89,7 @@ const ListView = () => {
               </Button>
             </Link>
 
-            <Link href="/admin/categories/form">
+            <Link href="/admin/categories/add">
               <Button
                 className="
           h-10
@@ -107,39 +107,48 @@ const ListView = () => {
 
         </div>
       </div>
-      <h3 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+      <h3 className="text-3xl font-bold text-gray-800   mb-6">
         Categories
       </h3>
 
-      <div className="rounded-2xl shadow-md border border-gray-200 dark:border-zinc-200 overflow-hidden bg-white dark:border-zinc-200">
-        <Table>
-          <TableHeader className="bg-gray-100 dark:border-zinc-200">
+     <div className="overflow-hidden rounded-2xl bg-white border border-gray-100">   <Table>
+        <TableHeader className="bg-slate-50">
             <TableRow>
-              <TableHead className="hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="hidden md:table-cell text-sm text-gray-700 ">
                 Image
               </TableHead>
-              <TableHead className="hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="hidden md:table-cell text-sm text-gray-700 ">
                 Name
               </TableHead>
-              <TableHead className="hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
+                <TableHead className="hidden md:table-cell text-sm text-gray-700 ">
+                Master Category
+              </TableHead>
+              <TableHead className="hidden md:table-cell text-sm text-gray-700 ">
                 Active
               </TableHead>
-              <TableHead className="text-sm text-gray-700 dark:text-gray-300">
+              <TableHead className="text-sm text-gray-700 ">
                 Description
               </TableHead>
               <TableHead>Tax</TableHead>
-              <TableHead className="hidden md:table-cell text-sm text-gray-700 dark:text-gray-300">
-                Action
-              </TableHead>
-              <TableHead className="text-sm text-gray-700 dark:text-gray-300">
+             
+              <TableHead className="text-sm text-gray-700 ">
                 Related Products
+              </TableHead>
+               <TableHead className="hidden md:table-cell text-sm text-gray-700 ">
+                Action
               </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {categoryData.map((category) => (
-              <TableRows key={category.name} category={category} />
+
+
+            {categoryData.map((category, index) => (
+              <TableRows
+                key={category.id}
+                category={category}
+                index={index}
+              />
             ))}
           </TableBody>
         </Table>

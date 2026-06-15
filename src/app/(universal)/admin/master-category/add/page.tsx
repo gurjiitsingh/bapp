@@ -125,20 +125,7 @@ const Form = () => {
                 All Master Categories
               </Button>
             </Link>
-          {/* <Link href="/admin/categories/form">
-              <Button
-                className="
-          h-10
-          rounded-xl
-          bg-slate-400
-          hover:bg-[#00796b]
-          text-white
-          shadow-none
-        "
-              >
-                + Add Category
-              </Button>
-            </Link> */}
+          
         </div>
 
       </div>

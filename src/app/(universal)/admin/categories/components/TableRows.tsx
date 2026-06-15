@@ -14,7 +14,13 @@ import { deleteCategory } from "@/app/(universal)/action/category/dbOperations";
 import { fetchProductByCategoryId } from "@/app/(universal)/action/products/dbOperation";
 import { useLanguage } from '@/store/LanguageContext';
 
-function TableRows({ category }: { category: categoryType }) {
+function TableRows({
+  category,
+  index,
+}: {
+  category: categoryType;
+  index: number;
+}) {
 
 
   const { TEXT } = useLanguage();
@@ -52,15 +58,21 @@ function TableRows({ category }: { category: categoryType }) {
   }
 
   return (
-    <TableRow
-      key={category.id}
-      className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-800 transition rounded-xl"
-    >
+  <TableRow
+  key={category.id}
+  className={`
+    whitespace-nowrap
+    transition-colors
+    border-0
+    hover:bg-green-50
+    ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+  `}
+>
       <TableCell>
-        <div className="flex justify-center items-center p-2">
+        <div className="flex justify-start items-center p-2">
           {category?.image && (
-            <Image
-              className="h-12 w-12 object-cover rounded-md border border-gray-200 dark:border-zinc-200"
+          <Image
+  className="h-12 w-12 object-cover rounded-md shadow-sm"
               src={imageSrc}
               width={48}
               height={48}
@@ -70,44 +82,80 @@ function TableRows({ category }: { category: categoryType }) {
           {/* {category?.image} */}
         </div>
       </TableCell>
+      
 
-      <TableCell className="font-medium text-gray-800 dark:text-white">
-        {category.sortOrder}. {category.name}
+   <TableCell className="whitespace-normal break-words max-w-[220px]">
+  <div className="flex items-center gap-2">
+    <span className="font-medium text-gray-800">
+      {category.sortOrder}. {category.name}
+    </span>
+
+ 
+  </div>
+</TableCell>
+  <TableCell>
+        <div className="flex justify-start items-center p-2">
+        
+          {category?.masterCategoryName}
+        </div>
       </TableCell>
 
-      <TableCell className="text-center">
-        {category.isFeatured ? (
-          <span className="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-            {TEXT.featured_label}
-          </span>
-        ) : (
-          <span className="text-gray-500 text-sm">—</span>
-        )}
-      </TableCell>
+     <TableCell>
+  {category.isFeatured ? (
+    <span className="text-green-600 font-medium">Yes</span>
+  ) : (
+    <span className="text-gray-400">—</span>
+  )}
+</TableCell>
 
-      <TableCell className="text-sm text-gray-700 dark:text-gray-300">
+    <TableCell className="whitespace-normal break-words max-w-[250px] text-sm text-gray-700">
         {category.desc}
       </TableCell>
-            <TableCell>
-        {category.taxRate !== undefined && category.taxRate !== null ? (
-          <div className="flex flex-col">
-             <span
-              className={`text-[11px] text-[8px] px-1 py-[1px] rounded  w-fit ${
-               category.taxRate
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {category.taxType}
-            </span>
-            <span className="text-sm font-medium text-gray-800">
-              {category.taxRate}%
-            </span>
-           
-          </div>
-        ) : (
-          <span className="text-sm text-gray-400 italic">—</span>
-        )}
+       <TableCell>
+  {category.taxRate !== undefined &&
+  category.taxRate !== null ? (
+    <div className="flex flex-col">
+      <span
+        className={`text-[10px] px-2 py-[2px] rounded w-fit ${
+          category.taxRate
+            ? "bg-green-100 text-green-700"
+            : "bg-red-100 text-red-700"
+        }`}
+      >
+        {category.taxType}
+      </span>
+
+      <span className="text-sm font-medium text-gray-800">
+        {category.taxRate}%
+      </span>
+    </div>
+  ) : (
+    <span className="text-sm text-gray-400 italic">—</span>
+  )}
+</TableCell>
+    <TableCell>
+        <Link
+          href={{
+            pathname: `/admin/productsbase`,
+            query: { id: category?.id },
+          }}
+        >
+          <Button
+            size="sm"
+            className="
+    h-8
+    rounded-lg
+    border
+    border-indigo-200
+    bg-indigo-50
+    hover:bg-indigo-100
+    text-indigo-700
+    shadow-none
+  "
+          >
+            {TEXT.view_products_button}
+          </Button>
+        </Link>
       </TableCell>
 
       <TableCell>
@@ -120,7 +168,17 @@ function TableRows({ category }: { category: categoryType }) {
           >
             <Button
               size="sm"
-              className="bg-amber-500 hover:bg-amber-600 text-white px-2 py-1 rounded-md"
+              
+  className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-blue-50
+    hover:bg-blue-100
+    text-blue-600
+    shadow-none
+  "
             >
               <CiEdit size={18} />
             </Button>
@@ -129,28 +187,23 @@ function TableRows({ category }: { category: categoryType }) {
           <Button
             onClick={() => handleDelete(category)}
             size="sm"
-            className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-md"
+             className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-red-50
+    hover:bg-red-100
+    text-red-600
+    shadow-none
+  "
           >
             <MdDeleteForever size={18} />
           </Button>
         </div>
       </TableCell>
 
-      <TableCell>
-        <Link
-          href={{
-            pathname: `/admin/productsbase`,
-            query: { id: category?.id },
-          }}
-        >
-          <Button
-            size="sm"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
-          >
-            {TEXT.view_products_button}
-          </Button>
-        </Link>
-      </TableCell>
+  
     </TableRow>
   );
 }

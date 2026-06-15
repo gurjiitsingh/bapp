@@ -62,6 +62,7 @@ export const editCategorySchema = z.object({
     .trim()
     .min(1, { message: "Category name is required" })
     .max(70, { message: "Category name is to long" }),
+      masterCategoryId: z.string().optional(),
   desc: z
     .string()
    .optional(), 

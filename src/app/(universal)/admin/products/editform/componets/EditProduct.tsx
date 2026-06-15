@@ -16,12 +16,16 @@ import Link from "next/link";
 import { MasterCategoryType } from "@/lib/types/masterCategoryType";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 
-const EditProduct = () => {
+type Props = {
+  masterCategories: MasterCategoryType[];
+};
+
+const EditProduct = ({
+  masterCategories,
+}: Props) => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [masterCategories, setMasterCategories] = useState<
-  MasterCategoryType[]
->([]);
+ 
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
   const router = useRouter();
@@ -35,10 +39,7 @@ const EditProduct = () => {
     resolver: zodResolver(editProductSchema),
   });
 
-  async function loadMasterCategories() {
-  const data = await getMasterCategories();
-  setMasterCategories(data);
-}
+
 
   useEffect(() => {
     async function loadProduct() {
@@ -70,14 +71,11 @@ const EditProduct = () => {
       const categories = await fetchCategories();
       setCategoryData(categories);
     }
-      async function loadMasterCategories() {
-    const data = await getMasterCategories();
-    setMasterCategories(data);
-  }
+
 
     loadProduct();
     loadCategories();
-    loadMasterCategories();
+   
   }, [id, setValue]);
 
   async function onsubmit(data: TeditProductSchema) {

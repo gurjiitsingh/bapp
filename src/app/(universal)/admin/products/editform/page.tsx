@@ -1,10 +1,16 @@
-import React, { Suspense } from 'react'
-import EditProduct from './componets/EditProduct'
+import React, { Suspense } from "react";
 
-export default function page() {
+import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
+import EditProduct from "./componets/EditProduct";
+
+export default async function Page() {
+  const masterCategories = await getMasterCategories();
+
   return (
-  <Suspense>
-    <EditProduct />
-  </Suspense>
-  )
+    <Suspense>
+      <EditProduct
+        masterCategories={masterCategories}
+      />
+    </Suspense>
+  );
 }
