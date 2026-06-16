@@ -36,8 +36,8 @@ export type ProductType = {
 
   // NEW STOCK MAINTAIN
   productMode?:
-  | "recipe_live"
-  | "stock_managed"
+  | "raw_stock"
+  | "finished_stock"
   | "simple";
 
   sku?: string;

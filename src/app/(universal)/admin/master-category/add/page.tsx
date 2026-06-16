@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { addNewMasterCategory } from "@/app/(universal)/action/master-category/addNewMasterCategory";
 import { MdCategory, MdImage, MdSettings } from "react-icons/md";
 import Link from "next/link";
-
+import imageCompression from "browser-image-compression";
 
 
 
@@ -62,14 +62,20 @@ const Form = () => {
         data.isActive || "yes"
       );
 
-      if (!data.image?.[0]) {
-        formData.append("image", "0");
+      if (data.image?.[0]) {
+        const compressedFile =
+          await imageCompression(data.image[0], {
+            maxWidthOrHeight: 500,
+            useWebWorker: true,
+            initialQuality: 0.8,
+          });
+
+        formData.append("image", compressedFile);
       } else {
-        formData.append(
-          "image",
-          data.image[0]
-        );
+        formData.append("image", "0");
       }
+
+
 
       const result =
         await addNewMasterCategory(formData);
@@ -102,7 +108,7 @@ const Form = () => {
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex gap-2">
             {/* Right Side */}
-       
+
 
 
           </div>
@@ -110,10 +116,10 @@ const Form = () => {
         </div>
         <div className="flex gap-2">
           {/* Right Side */}
-     
-     <Link href="/admin/master-category">
-              <Button
-                className="
+
+          <Link href="/admin/master-category">
+            <Button
+              className="
           h-10
           rounded-xl
           bg-slate-400
@@ -121,11 +127,11 @@ const Form = () => {
           text-white
           shadow-none
         "
-              >
-                All Master Categories
-              </Button>
-            </Link>
-          
+            >
+              All Master Categories
+            </Button>
+          </Link>
+
         </div>
 
       </div>

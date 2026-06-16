@@ -88,7 +88,7 @@ export default function ListView({
   const lowStockItems = useMemo(() => {
     return products.filter(
       (item) =>
-        item.currentStock!! <= item.minStock!!
+        item.currentStock! <= item.minStock!!
     ).length;
   }, [products]);
 

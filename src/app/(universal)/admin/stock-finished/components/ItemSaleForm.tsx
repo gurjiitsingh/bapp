@@ -177,7 +177,7 @@ if (!data.price || Number(data.price) <= 0) {
 }
 
 // stock check
-if (selectedProduct && data.quantity > selectedProduct.currentStock!!) {
+if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
   alert("Not enough stock available");
   return;
 }

@@ -55,7 +55,7 @@ function TableRows({
     );
 
   const isLowStock =
-    item.currentStock!! <= item.minStock!!;
+    item.currentStock! <= item.minStock!!;
 
   async function handleDelete() {
     const confirmDelete = confirm(
@@ -144,7 +144,7 @@ function TableRows({
             { item.currentStock}
             
             {/* {displayStock(
-              item.currentStock,
+              item.currentStock!,
               item.purchaseUnit,
               item.consumptionUnit,
               item.conversionFactor
@@ -208,7 +208,7 @@ function TableRows({
 
   <TableCell>
   <select
-    value={item.productMode || "recipe_live"}
+    value={item.productMode || "raw_stock"}
     onChange={async (e) => {
       const newMode = e.target.value;
 
@@ -244,11 +244,11 @@ function TableRows({
       text-gray-700
     "
   >
-    <option value="recipe_live">
+    <option value="raw_stock">
       Raw Stock
     </option>
 
-    <option value="stock_managed">
+    <option value="finished_stock">
       Finished Product
     </option>
 

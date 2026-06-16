@@ -28,7 +28,9 @@ export async function addNewMasterCategory(
   };
 
   const result =
-    masterCategorySchema.safeParse(receivedData);
+    masterCategorySchema.safeParse(
+      receivedData
+    );
 
   let zodErrors = {};
 
@@ -45,30 +47,49 @@ export async function addNewMasterCategory(
 
   let imageUrl = "";
 
-  if (image !== "0") {
+  // Default image
+  if (
+    image === "0" ||
+    !image
+  ) {
+    imageUrl = "/com-1.jpg";
+  } else {
     try {
       imageUrl = await upload(image);
     } catch (error) {
-      console.log(error);
+      console.error(error);
 
       return {
-        errors: "Image upload failed",
+        errors:
+          "Image cannot be uploaded",
       };
     }
   }
 
-  try {
-    await adminDb.collection("masterCategories").add({
-      name,
-      description,
-      sortOrder: Number(sortOrder || 0),
-      image: imageUrl,
-      icon,
-      isActive,
-      createdAt: Date.now(),
-    });
+  const data = {
+    name,
+    description,
+    sortOrder: Number(sortOrder || 0),
+    image: imageUrl,
+    icon,
+    isActive,
+    createdAt: Date.now(),
+  };
 
-    revalidateTag("masterCategories", "max");
+  try {
+    const docRef = await adminDb
+      .collection("masterCategories")
+      .add(data);
+
+    console.log(
+      "Master Category Created:",
+      docRef.id
+    );
+
+    revalidateTag(
+      "masterCategories",
+      "max"
+    );
 
     return {
       message: {
@@ -80,7 +101,8 @@ export async function addNewMasterCategory(
     console.error(error);
 
     return {
-      errors: "Failed to create master category",
+      errors:
+        "Failed to create master category",
     };
   }
 }

@@ -62,7 +62,7 @@ const InventoryEditForm = ({
                 inventoryItem.conversionFactor,
 
             currentStock:
-                inventoryItem.currentStock,
+                inventoryItem.currentStock!,
 
             minStock:
                 inventoryItem.minStock,

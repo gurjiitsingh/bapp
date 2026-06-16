@@ -72,7 +72,7 @@ export default function ProductCardForSlider({
   const cartProduct: cartProductType = {
     id: product.id,
     quantity: 1,
-    currentStock :product.currentStock!,
+    currentStock:product.currentStock!,
     price: priceTarget,
     name: product.name,
     image: product.image,

@@ -75,11 +75,11 @@ export const fetchFinishedProducts = unstable_cache(
             data.parentId ?? "",
 
            productMode:
-  data.productMode === "stock_managed" ||
+  data.productMode === "finished_stock" ||
   data.productMode === "simple" ||
-  data.productMode === "recipe_live"
+  data.productMode === "raw_stock"
     ? data.productMode
-    : "recipe_live",
+    : "raw_stock",
 
           hasVariants:
             data.hasVariants ?? false,

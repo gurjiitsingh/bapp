@@ -15,8 +15,8 @@ const cartProduct: cartProductType = {
   basePrice: addOnData.price,
 
   quantity: 1,
-  currentStock: null,
-
+  
+currentStock: null,
   name: ProductName,
   image: addOnData.image,
 

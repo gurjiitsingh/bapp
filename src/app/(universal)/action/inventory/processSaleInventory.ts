@@ -76,7 +76,7 @@ export async function processSaleInventory(
 
       if (
         productMode ===
-        "stock_managed"
+        "finished_stock"
       ) {
         console.log(
           "📦 Stock managed product:",

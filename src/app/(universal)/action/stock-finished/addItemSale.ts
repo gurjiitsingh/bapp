@@ -129,7 +129,7 @@ const recipeSnapshot =
 
 if (
   productMode ===
-  "stock_managed"
+  "finished_stock"
 ) {
 
   await adminDb.runTransaction(

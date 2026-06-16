@@ -13,7 +13,7 @@ import { addOnType } from "@/lib/types/addOnType";
 //   price: number;
 //   image?: string;
 //   categoryId: string;
-//   sortOrder?: number;
+//   sortOrder?: number; 
 //   [key: string]: any;
 // };
 export default function Products({ initialProducts }: { initialProducts: ProductType[] }) {
@@ -217,7 +217,7 @@ const mappingData = await mappingRes.json();
   }
 
   return (
-    <div className="max-w-7xl mx-auto my-6">
+    <div className="max-w-8xl mx-auto my-6">
       <div className="px-4 sm:px-6 lg:px-12">
         <div className={containerClass}>
           {products.map((product, i) => (

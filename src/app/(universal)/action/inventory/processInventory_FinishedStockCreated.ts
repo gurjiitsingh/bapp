@@ -59,7 +59,7 @@ export async function processInventory_FinishedStockCreated(
 
       if (
         productData?.productMode !==
-        "stock_managed"
+        "finished_stock"
       ) {
         console.log(
           "⏭️ Skipping non stock managed product:",

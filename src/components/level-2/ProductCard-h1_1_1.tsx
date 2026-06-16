@@ -403,7 +403,7 @@ export default function ProductCardHorizontical({
                     name: selectedVariant?.name ?? product.name,
 
                     quantity: 1,
-                    currentStock: selectedVariant?.currentStock ?? product.currentStock!,
+                    currentStock: selectedVariant?.currentStock?? product.currentStock!,
 
                     image: product.image,
                     categoryId: product.categoryId,

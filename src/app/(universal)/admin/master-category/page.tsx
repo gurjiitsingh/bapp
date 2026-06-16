@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { FiEdit, FiPlus } from "react-icons/fi";
 
 import DeleteButton from "./components/delete";
+import Image from "next/image";
 
 const Page = async () => {
   const masterCategories =
@@ -137,6 +138,7 @@ const Page = async () => {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-100">
+              <TableHead>Image</TableHead>
               <TableHead>Name</TableHead>
 
               <TableHead>
@@ -186,6 +188,20 @@ const Page = async () => {
                       }
                     `}
                   >
+                    {/* 🖼 master category Image */}
+                        <TableCell>
+                          <div className="px-3 py-1 text-center min-w-[100px]">
+                            {item.image && (
+                              <Image
+                                className="h-12 w-12 object-cover rounded-md shadow-sm"
+                                src={item.image}
+                                width={100}
+                                height={100}
+                                alt={item.name}
+                              />
+                            )}
+                          </div>
+                        </TableCell>
                     <TableCell className="font-medium">
                       {item.name}
                     </TableCell>

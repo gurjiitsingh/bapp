@@ -16,7 +16,7 @@ export default function DownloadProductCSV() {
         id: p.id,
         name: p.name,
         price: p.price,
-        currentStock: p.currentStock,                 // ⬅️ new
+        currentStock: p.currentStock!,                 // ⬅️ new
         discountPrice: p.discountPrice,
         categoryId: p.categoryId,
         productCat: p.productCat,

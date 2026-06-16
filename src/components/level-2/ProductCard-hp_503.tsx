@@ -67,7 +67,7 @@ export default function ProductCardHorizontical({
   const handleProductClick = () => {
     if (!product.hasVariants || !defaultVariant) return;
 
-    if (defaultVariant.currentStock === 0) return;
+    if (defaultVariant.currentStock=== 0) return;
 
     addProductToCart({
       id: defaultVariant.id,
@@ -153,7 +153,7 @@ export default function ProductCardHorizontical({
         >
           {productVariants.map((variant) => {
             const isDefault = defaultVariant?.id === variant.id;
-            const outOfStock = variant.currentStock === 0;
+            const outOfStock = variant.currentStock=== 0;
 
             return (
               <div

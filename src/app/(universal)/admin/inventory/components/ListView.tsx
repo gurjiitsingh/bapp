@@ -87,7 +87,7 @@ const categoryMap = useMemo(() => {
   const lowStockItems = useMemo(() => {
     return inventoryItems.filter(
       (item) =>
-        item.currentStock!! <= item.minStock
+        item.currentStock! <= item.minStock
     ).length;
   }, [inventoryItems]);
 

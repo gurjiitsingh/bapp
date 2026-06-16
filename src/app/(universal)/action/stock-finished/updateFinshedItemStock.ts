@@ -61,7 +61,7 @@ export async function updateFinishedItemStock({
          // IMPORTANT:
   // If finished stock is maintained,
   // this product becomes stock managed
-  //productMode: "stock_managed",
+  //productMode: "finished_stock",
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import imageCompression from "browser-image-compression";
 import {
   masterCategorySchema,
   TMasterCategorySchema,
@@ -16,6 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { updateMasterCategory } from "@/app/(universal)/action/master-category/updateMasterCategory";
+import { MdImage } from "react-icons/md";
+import Image from "next/image";
 
 type Props = {
   category: any;
@@ -84,6 +86,25 @@ export default function EditForm({
         data.isActive || "yes"
       );
 
+       formData.append(
+  "oldImageUrl",
+  category.image || ""
+);
+
+if (data.image?.[0]) {
+  const compressedFile =
+    await imageCompression(data.image[0], {
+      maxWidthOrHeight: 500,
+      useWebWorker: true,
+      initialQuality: 0.8,
+    });
+
+  formData.append(
+    "image",
+    compressedFile
+  );
+}
+
       const result =
         await updateMasterCategory(
           category.id,
@@ -148,16 +169,38 @@ export default function EditForm({
             />
           </div>
 
-          <div>
-            <label className="label-style">
-              Icon
-            </label>
 
-            <input
-              {...register("icon")}
-              className="input-style"
-            />
-          </div>
+
+      <div className="bg-gray-50 rounded-xl border p-4">
+  <label className="label-style mb-3 block">
+    Category Image
+  </label>
+
+  {category.image && (
+    <div className="mb-4">
+      <Image
+        src={category.image}
+        alt={category.name}
+        width={120}
+        height={120}
+        className="rounded-xl border object-cover"
+      />
+      <p className="text-xs text-gray-500 mt-2">
+        Current image
+      </p>
+    </div>
+  )}
+
+  <input
+    type="file"
+    {...register("image")}
+    className="input-image-style"
+  />
+
+  <p className="text-xs text-gray-500 mt-2">
+    Leave empty to keep current image.
+  </p>
+</div>
 
           <div>
             <label className="label-style">

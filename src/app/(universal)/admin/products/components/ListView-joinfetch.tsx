@@ -124,11 +124,11 @@ export default function ListView() {
             </TableRow>
           </TableHeader>
 
-          <TableBody>
+          {/* <TableBody>
             {filtered.map((product) => (
               <TableRows key={product.id} product={product} />
             ))}
-          </TableBody>
+          </TableBody> */}
         </Table>
       </div>
     </div>

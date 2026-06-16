@@ -463,7 +463,7 @@ export default function StockAdjustmentForm({
 
               <div className="text-2xl font-bold text-blue-700">
                 {displayStock(
-                  selectedInventory.currentStock!!,
+                  selectedInventory.currentStock!,
                   selectedInventory.purchaseUnit,
                   selectedInventory.consumptionUnit,
                   selectedInventory.conversionFactor
