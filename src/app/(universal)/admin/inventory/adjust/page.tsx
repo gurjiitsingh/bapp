@@ -30,7 +30,7 @@ type FormType = {
     | "WASTAGE"
     | "RETURN";
 
-  stockDirection:
+  direction:
     | "IN"
     | "OUT";
 
@@ -68,7 +68,7 @@ export default function StockAdjustmentForm({
   } = useForm<FormType>({
     defaultValues: {
       transactionType: "PURCHASE",
-      stockDirection: "IN",
+      direction: "IN",
       quantity: 0,
       note: "",
     },
@@ -88,13 +88,13 @@ export default function StockAdjustmentForm({
       transactionType === "OPENING" ||
       transactionType === "RETURN"
     ) {
-      setValue("stockDirection", "IN");
+      setValue("direction", "IN");
     }
 
     if (
       transactionType === "WASTAGE"
     ) {
-      setValue("stockDirection", "OUT");
+      setValue("direction", "OUT");
     }
   }, [transactionType, setValue]);
 
@@ -144,7 +144,7 @@ export default function StockAdjustmentForm({
 
   transactionType: data.transactionType,
 
-  stockDirection: data.stockDirection,
+  direction: data.direction,
 
   quantity: Number(data.quantity),
 
@@ -170,7 +170,7 @@ export default function StockAdjustmentForm({
           transactionType:
             "PURCHASE",
 
-          stockDirection: "IN",
+          direction: "IN",
 
           quantity: 0,
 
@@ -420,7 +420,7 @@ export default function StockAdjustmentForm({
 
               <select
                 {...register(
-                  "stockDirection"
+                  "direction"
                 )}
                 className="input-style-4"
               >

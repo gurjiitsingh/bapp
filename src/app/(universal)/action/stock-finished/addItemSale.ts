@@ -15,7 +15,7 @@ type AdjustSaleStock = {
   wholeSaleCutomerName?: string;
 
   transactionType: "SALE" | "ADJUSTMENT" | "OPENING";
-  stockDirection: "IN" | "OUT";
+  direction: "IN" | "OUT";
 
   quantity: number;
   transactionUnit: InventoryUnit;
@@ -40,7 +40,7 @@ export async function addItemSale_({
   wholeSaleCutomerId,
   wholeSaleCutomerName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   price,
   transactionUnit,
@@ -83,7 +83,7 @@ export async function addItemSale_({
       const currentStock = Number(freshData?.currentStock) || 0;
 
       let newStock =
-        stockDirection === "OUT"
+        direction === "OUT"
           ? currentStock - quantity
           : currentStock + quantity;
 
@@ -112,7 +112,7 @@ export async function addItemSale_({
       tx.set(oldRef, {
         productId: id,
         transactionType,
-        stockDirection,
+        direction,
         quantity,
         transactionUnit,
         price,
@@ -142,7 +142,7 @@ export async function addItemSale_({
         productName: productData?.name || "",
 
         type: transactionType,
-        direction: stockDirection,
+        direction: direction,
 
         qty: quantity,
         price,
@@ -245,7 +245,7 @@ export async function addItemSale_2 ({
   wholeSaleCutomerId,
   wholeSaleCutomerName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   price,
   transactionUnit,
@@ -282,7 +282,7 @@ export async function addItemSale_2 ({
       const currentStock = Number(fresh.data()?.currentStock) || 0;
 
       const newStock =
-        stockDirection === "OUT"
+        direction === "OUT"
           ? currentStock - quantity
           : currentStock + quantity;
 
@@ -313,7 +313,7 @@ export async function addItemSale_2 ({
         productName: productData?.name || "",
 
         transactionType,
-        direction: stockDirection,
+        direction: direction,
 
         qty: quantity,
         price,
@@ -347,7 +347,7 @@ export async function addItemSale_2 ({
 
     const productMode = productData?.productMode;
 
-    if (productMode === "finished_stock" && stockDirection === "IN") {
+    if (productMode === "finished_stock" && direction === "IN") {
       const recipeSnapshot = await adminDb
         .collection("productRecipes")
         .where("productId", "==", id)
@@ -428,7 +428,7 @@ export async function updateFinishedItemStock_junk({
   wholeSaleCutomerId,
   wholeSaleCutomerName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   price,
   transactionUnit,
@@ -463,7 +463,7 @@ export async function updateFinishedItemStock_junk({
       const currentStock = Number(fresh.data()?.currentStock) || 0;
 
       const newStock =
-        stockDirection === "IN"
+        direction === "IN"
           ? currentStock + quantity
           : currentStock - quantity;
 
@@ -487,8 +487,8 @@ export async function updateFinishedItemStock_junk({
         productId: id,
         productName: productData?.name || "",
 
-        type: stockDirection === "IN" ? "PRODUCTION" : "ADJUSTMENT",
-        direction: stockDirection,
+        type: direction === "IN" ? "PRODUCTION" : "ADJUSTMENT",
+        direction: direction,
 
         qty: quantity,
 
@@ -507,7 +507,7 @@ export async function updateFinishedItemStock_junk({
     // 3. RAW MATERIAL CONSUMPTION (ONLY WHEN INCREASE STOCK)
     // =====================================================
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       const recipesSnapshot = await adminDb
         .collection("productRecipes")
         .where("productId", "==", id)
@@ -570,7 +570,7 @@ export async function addItemSale_only_ledger({
   wholeSaleCutomerId,
   wholeSaleCutomerName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   price,
   transactionUnit,
@@ -617,7 +617,7 @@ export async function addItemSale_only_ledger({
       productId: id,
       productName: productData?.name || "",
       transactionType,
-      direction: stockDirection, // IN / OUT
+      direction: direction, // IN / OUT
       qty: quantity,
       price,
       totalAmount: quantity * price,
@@ -643,7 +643,7 @@ export async function addItemSale_only_ledger({
     // 2. RAW MATERIAL CONSUMPTION (ONLY FOR RECIPES)
     // =====================================================
 
-    if (productMode === "finished_stock" && stockDirection === "IN") {
+    if (productMode === "finished_stock" && direction === "IN") {
       const recipeSnapshot = await adminDb
         .collection("productRecipes")
         .where("productId", "==", id)
@@ -730,7 +730,7 @@ export async function addItemSale ({
   wholeSaleCutomerId,
   wholeSaleCutomerName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   price,
   transactionUnit,
@@ -775,7 +775,7 @@ export async function addItemSale ({
 
     let newStock = currentStock;
 
-    if (stockDirection === "OUT") {
+    if (direction === "OUT") {
       newStock = currentStock - quantity;
     } else {
       newStock = currentStock + quantity;
@@ -847,7 +847,7 @@ if (
         freshStock;
 
       if (
-        stockDirection === "OUT"
+        direction === "OUT"
       ) {
         newStock =
           freshStock -
@@ -892,7 +892,7 @@ if (
         productId: id,
 
         transactionType,
-        stockDirection,
+        direction,
 
         quantity,
         transactionUnit,
@@ -1011,7 +1011,7 @@ else if (
           ) || 0;
 
         const newStock =
-          stockDirection ===
+          direction ===
           "OUT"
             ? previousStock -
               deductQty
@@ -1114,7 +1114,7 @@ else {
         ) || 0;
 
       const newStock =
-        stockDirection ===
+        direction ===
         "OUT"
           ? previousStock -
             quantity

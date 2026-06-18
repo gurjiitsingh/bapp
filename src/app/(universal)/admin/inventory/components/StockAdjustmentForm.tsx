@@ -33,7 +33,7 @@ type FormType = {
   | "SUPPLIER_RETURN"
   | "CUSTOMER_RETURN";
 
-  stockDirection:
+  direction:
   | "IN"
   | "OUT";
 
@@ -74,7 +74,7 @@ export default function StockAdjustmentForm({
   } = useForm<FormType>({
     defaultValues: {
       transactionType: "OPENING_STOCK",
-      stockDirection: "IN",
+      direction: "IN",
       quantity: 0,
       transactionUnit: "pcs",
       note: "",
@@ -99,13 +99,13 @@ export default function StockAdjustmentForm({
   //     transactionType === "OPENING_STOCK" ||
   //     transactionType === "CUSTOMER_RETURN"
   //   ) {
-  //     setValue("stockDirection", "IN");
+  //     setValue("direction", "IN");
   //   }
 
   //   if (
   //     transactionType === "WASTAGE"
   //   ) {
-  //     setValue("stockDirection", "OUT");
+  //     setValue("direction", "OUT");
   //   }
   // }, [transactionType, setValue]);
 
@@ -116,12 +116,12 @@ export default function StockAdjustmentForm({
       case "PURCHASE":
       case "OPENING_STOCK":
       case "CUSTOMER_RETURN":
-        setValue("stockDirection", "IN");
+        setValue("direction", "IN");
         break;
 
       case "WASTAGE":
       case "SUPPLIER_RETURN":
-        setValue("stockDirection", "OUT");
+        setValue("direction", "OUT");
         break;
 
       // ADJUSTMENT = manual selection
@@ -244,8 +244,8 @@ export default function StockAdjustmentForm({
           transactionType:
             data.transactionType,
 
-          stockDirection:
-            data.stockDirection,
+          direction:
+            data.direction,
 
           // =====================================
           // INTERNAL
@@ -281,7 +281,7 @@ export default function StockAdjustmentForm({
         let updatedStock =
           selectedInventory.currentStock;
 
-        if (data.stockDirection === "IN") {
+        if (data.direction === "IN") {
           updatedStock! += finalQuantity;
         } else {
           updatedStock! -= finalQuantity;
@@ -294,7 +294,7 @@ export default function StockAdjustmentForm({
 
         reset({
           transactionType: "OPENING_STOCK",
-          stockDirection: "IN",
+          direction: "IN",
           quantity: 0,
           note: "",
           inventoryItemId:
@@ -520,7 +520,7 @@ export default function StockAdjustmentForm({
                 </label>
 
                 <select
-                  {...register("stockDirection")}
+                  {...register("direction")}
                   className="input-style-4"
                 >
                   <option value="IN">

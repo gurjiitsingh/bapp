@@ -27,7 +27,7 @@ type AdjustInventoryStockType = {
  supplierName?: string;
   transactionType: InventoryTransactionNameType;
 
-  stockDirection:
+  direction:
     | "IN"
     | "OUT";
 
@@ -74,7 +74,7 @@ export async function adjustInventoryStock({
   supplierId,
   supplierName,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   unitCost,
 
@@ -130,7 +130,7 @@ export async function adjustInventoryStock({
     // ================= STOCK CALC =================
     let afterStock = previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       afterStock = previousStock + quantity;
     } else {
       afterStock = previousStock - quantity;
@@ -154,7 +154,7 @@ export async function adjustInventoryStock({
     const totalAmount = shouldApplyCost ? quantity * finalUnitCost : 0;
 
     // ================= PAYMENT =================
-    const isPurchase = transactionType === "PURCHASE" && stockDirection === "IN";
+    const isPurchase = transactionType === "PURCHASE" && direction === "IN";
 
     const paymentStatusSafe = paymentStatus || "PAID";
 
@@ -175,7 +175,7 @@ export async function adjustInventoryStock({
     let updatedCostPrice = oldCostPrice;
 
     if (
-      stockDirection === "IN" &&
+      direction === "IN" &&
       (transactionType === "PURCHASE" ||
         transactionType === "OPENING_STOCK" ||
         transactionType === "CUSTOMER_RETURN")
@@ -207,7 +207,7 @@ export async function adjustInventoryStock({
       supplierName: supplierName || "",
 
       transactionType,
-      stockDirection,
+      direction,
 
       purchaseQuantity: purchaseQuantity ?? quantity,
       purchaseUnit:
@@ -243,65 +243,112 @@ export async function adjustInventoryStock({
     // =====================================================
     // 2. NEW LEDGER (stockLedgerInventory) ✅ ADDED
     // =====================================================
-    const inventoryLedgerRef = adminDb
-      .collection("stockLedgerInventory")
-      .doc();
 
-    await inventoryLedgerRef.set({
-      transactionId: inventoryLedgerRef.id,
-  inventoryItemId,
-  inventoryItemName: inventoryData?.name || "",
+  await adminDb.collection("stockLedgerInventory").add({
+      inventoryItemId,
+      inventoryItemName: inventoryData?.name || "",
 
-  type: transactionType,
-  direction: stockDirection,
+      supplierId: supplierId || "",
+      supplierName: supplierName || "",
 
-  qty: quantity,
-  unit: inventoryData?.consumptionUnit || "pcs",
+      transactionType,
+      direction,
 
-  purchaseQuantity: purchaseQuantity ?? quantity,
-  purchaseUnit:
-    purchaseUnit ||
-    inventoryData?.purchaseUnit ||
-    inventoryData?.consumptionUnit,
+      purchaseQuantity: purchaseQuantity ?? quantity,
+      purchaseUnit:
+        purchaseUnit ||
+        inventoryData?.purchaseUnit ||
+        inventoryData?.consumptionUnit,
 
-  conversionFactor:
-    conversionFactor ??
-    inventoryData?.conversionFactor ??
-    1,
+      purchaseUnitCost: purchaseUnitCost ?? unitCost,
+      conversionFactor:
+        conversionFactor ?? inventoryData?.conversionFactor ?? 1,
 
-  beforeStock: previousStock,
-  afterStock,
+      quantity,
+      unit: inventoryData?.consumptionUnit || "pcs",
+      unitCost: finalUnitCost,
 
-  unitCost: finalUnitCost,
-  purchaseUnitCost:
-    purchaseUnitCost ?? unitCost,
+      beforeStock: previousStock,
+      afterStock,
 
-  totalAmount,
+      totalAmount,
+      paidAmount,
+      dueAmount,
+      paymentStatus: paymentStatusSafe,
+      paymentMethod: paymentMethod || null,
 
-  paidAmount,
-  dueAmount,
-  paymentStatus: paymentStatusSafe,
-  paymentMethod: paymentMethod || null,
+      referenceType,
+      referenceId: referenceId || "",
 
-  supplierId: supplierId || null,
-  supplierName: supplierName || null,
+      note: note || "Manual inventory adjustment",
+      createdBy: createdBy || "admin",
+      createdAt: now,
+    }); 
 
-  referenceType,
-  referenceId: referenceId || "",
+    // ENHANCED
+//     const inventoryLedgerRef = adminDb
+//       .collection("stockLedgerInventory")
+//       .doc();
 
-  note: note || "",
-  createdBy: createdBy || "admin",
+//     await inventoryLedgerRef.set({
+//       transactionId: inventoryLedgerRef.id,
+//   inventoryItemId,
+//   inventoryItemName: inventoryData?.name || "",
 
-  createdAt: now,
-  source: "WEB_ADMIN",
-});
+//   type: transactionType,
+//   direction: direction,
 
+//   qty: quantity,
+//   unit: inventoryData?.consumptionUnit || "pcs",
+
+//   purchaseQuantity: purchaseQuantity ?? quantity,
+//   purchaseUnit:
+//     purchaseUnit ||
+//     inventoryData?.purchaseUnit ||
+//     inventoryData?.consumptionUnit,
+
+//   conversionFactor:
+//     conversionFactor ??
+//     inventoryData?.conversionFactor ??
+//     1,
+
+//   beforeStock: previousStock,
+//   afterStock,
+
+//   unitCost: finalUnitCost,
+//   purchaseUnitCost:
+//     purchaseUnitCost ?? unitCost,
+
+//   totalAmount,
+
+//   paidAmount,
+//   dueAmount,
+//   paymentStatus: paymentStatusSafe,
+//   paymentMethod: paymentMethod || null,
+
+//   supplierId: supplierId || null,
+//   supplierName: supplierName || null,
+
+//   referenceType,
+//   referenceId: referenceId || "",
+
+//   note: note || "",
+//   createdBy: createdBy || "admin",
+
+//   createdAt: now,
+//   source: "WEB_ADMIN",
+// });
+
+
+
+
+//MINIMUL DATA
     // await inventoryLedgerRef.set({
     //   inventoryItemId,
     //   inventoryItemName: inventoryData?.name || "",
 
     //   type: transactionType,
-    //   direction: stockDirection,
+    //   direction: direction,
 
     //   qty: quantity,
 
@@ -389,7 +436,7 @@ export async function adjustInventoryStock_old({
   supplierId,
     supplierName,
   transactionType,
-  stockDirection,
+  direction,
 
   quantity,
   unitCost,
@@ -485,7 +532,7 @@ export async function adjustInventoryStock_old({
     let afterStock =
       previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
 
       afterStock =
         previousStock + quantity;
@@ -534,7 +581,7 @@ export async function adjustInventoryStock_old({
     const isPurchase =
       transactionType ===
         "PURCHASE" &&
-      stockDirection === "IN";
+      direction === "IN";
 
     const paymentStatusSafe =
       paymentStatus || "PAID";
@@ -598,7 +645,7 @@ export async function adjustInventoryStock_old({
       oldCostPrice;
 
     if (
-      stockDirection === "IN" &&
+      direction === "IN" &&
       (
         transactionType ===
           "PURCHASE" ||
@@ -684,7 +731,7 @@ export async function adjustInventoryStock_old({
 
         transactionType,
 
-        stockDirection,
+        direction,
 
         // =====================================
         // ORIGINAL PURCHASE VALUES

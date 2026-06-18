@@ -145,12 +145,12 @@ export default function InventoryTransactionTable({
               <TableCell>
                 <span
                   className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    tx.stockDirection === "IN"
+                    tx.direction === "IN"
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
                   }`}
                 >
-                  {tx.stockDirection}
+                  {tx.direction}
                 </span>
               </TableCell>
 

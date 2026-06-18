@@ -299,7 +299,7 @@ if (currentStock > 0) {
 
     transactionType: "OPENING_STOCK",
 
-    stockDirection: "IN",
+    direction: "IN",
 
     // Internal stock (already converted to consumption unit)
     quantity: currentStock,

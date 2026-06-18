@@ -26,7 +26,7 @@ export type InventoryTransactionType = {
 
   transactionType: InventoryTransactionNameType;
 
-  stockDirection:
+  direction:
     | "IN"
     | "OUT";
 

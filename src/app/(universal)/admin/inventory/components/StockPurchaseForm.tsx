@@ -32,7 +32,7 @@ type FormType = {
 supplierName?: string;
   transactionType: InventoryTransactionNameType;
 
-  stockDirection: "IN" | "OUT";
+  direction: "IN" | "OUT";
 
   quantity: number;
 
@@ -88,7 +88,7 @@ export default function StockPurchaseForm({
   } = useForm<FormType>({
     defaultValues: {
       transactionType: "PURCHASE",
-      stockDirection: "IN",
+      direction: "IN",
       quantity: 0,
       transactionUnit: "pcs",
       note: "",
@@ -111,13 +111,13 @@ export default function StockPurchaseForm({
       transactionType === "OPENING_STOCK" ||
       transactionType === "CUSTOMER_RETURN"
     ) {
-      setValue("stockDirection", "IN");
+      setValue("direction", "IN");
     }
 
     if (
       transactionType === "WASTAGE"
     ) {
-      setValue("stockDirection", "OUT");
+      setValue("direction", "OUT");
     }
   }, [transactionType, setValue]);
 
@@ -128,12 +128,12 @@ export default function StockPurchaseForm({
       case "PURCHASE":
       case "OPENING_STOCK":
       case "CUSTOMER_RETURN":
-        setValue("stockDirection", "IN");
+        setValue("direction", "IN");
         break;
 
       case "WASTAGE":
       case "SUPPLIER_RETURN":
-        setValue("stockDirection", "OUT");
+        setValue("direction", "OUT");
         break;
 
       // ADJUSTMENT = manual selection
@@ -275,7 +275,7 @@ if (data.transactionType === "PURCHASE") {
 
   transactionType: data.transactionType,
 
-  stockDirection: data.stockDirection,
+  direction: data.direction,
 
   // INTERNAL
   quantity: finalQuantity,
@@ -306,7 +306,7 @@ if (data.transactionType === "PURCHASE") {
         let updatedStock =
           selectedInventory.currentStock;
 
-        if (data.stockDirection === "IN") {
+        if (data.direction === "IN") {
           updatedStock! += finalQuantity;
         } else {
           updatedStock! -= finalQuantity;
@@ -319,7 +319,7 @@ if (data.transactionType === "PURCHASE") {
 
         reset({
           transactionType: "PURCHASE",
-          stockDirection: "IN",
+          direction: "IN",
           quantity: 0,
           note: "",
           unitCost:0,
@@ -569,7 +569,7 @@ if (data.transactionType === "PURCHASE") {
                 </label>
 
                 <select
-                  {...register("stockDirection")}
+                  {...register("direction")}
                   className="input-style-4"
                 >
                   <option value="IN">

@@ -53,8 +53,8 @@ export async function getfinishedStockTransactions({
         wholeSaleCutomerName:
           data.wholeSaleCutomerName || "",
 
-        stockDirection:
-          data.stockDirection || "",
+        direction:
+          data.direction || "",
 
         quantity:
           data.quantity || 0,

@@ -33,7 +33,7 @@ type FormType = {
   wholeSaleCutomerName?: string;
   transactionType: InventoryTransactionNameType;
 
-  stockDirection: "IN" | "OUT";
+  direction: "IN" | "OUT";
 
   quantity: number;
 
@@ -109,7 +109,7 @@ export default function ItemPurchaseForm({
   } = useForm<FormType>({
    defaultValues: {
   transactionType: "SALE",
-  stockDirection: "OUT",
+  direction: "OUT",
 },
   });
 
@@ -213,7 +213,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
         wholeSaleCutomerName:
         selectedCustomer?.companyName || "",
         transactionType: "SALE",
-        stockDirection: "OUT",//data.stockDirection,
+        direction: "OUT",//data.direction,
         // INTERNAL
         quantity: finalQuantity,
         price: finalUnitCost,
@@ -238,7 +238,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
         reset({
           transactionType: "PURCHASE",
-          stockDirection: "IN",
+          direction: "IN",
           quantity: 0,
           note: "",
           price: 0,

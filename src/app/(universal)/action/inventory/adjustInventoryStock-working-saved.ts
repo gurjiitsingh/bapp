@@ -18,7 +18,7 @@ type AdjustInventoryStockType = {
 
   transactionType: InventoryTransactionNameType;
 
-  stockDirection: "IN" | "OUT";
+  direction: "IN" | "OUT";
 
   // =====================================
   // INTERNAL STOCK VALUES (consumption)
@@ -53,7 +53,7 @@ export async function adjustInventoryStock({
   inventoryItemId,
   supplierId,
   transactionType,
-  stockDirection,
+  direction,
 
   quantity,
   unitCost,
@@ -113,7 +113,7 @@ export async function adjustInventoryStock({
 
     let afterStock = previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       afterStock = previousStock + quantity;
     } else {
       afterStock = previousStock - quantity;
@@ -155,7 +155,7 @@ export async function adjustInventoryStock({
 
 const isPurchase =
   transactionType === "PURCHASE" &&
-  stockDirection === "IN";
+  direction === "IN";
 const paymentStatusSafe = paymentStatus || "PAID";
 const paidAmountRaw =
   isPurchase && paymentStatusSafe === "PAID"
@@ -199,7 +199,7 @@ let updatedCostPrice =
 
 // Only recalculate average cost for stock IN
 if (
-  stockDirection === "IN" &&
+  direction === "IN" &&
   (
     transactionType === "PURCHASE" ||
     transactionType === "OPENING" ||
@@ -252,7 +252,7 @@ await inventoryRef.update({
 
     transactionType,
 
-    stockDirection,
+    direction,
 
     // =====================================
     // ORIGINAL PURCHASE VALUES

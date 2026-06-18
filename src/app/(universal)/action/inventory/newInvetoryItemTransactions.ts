@@ -27,7 +27,7 @@ type AdjustInventoryStockType = {
  supplierName?: string;
   transactionType: InventoryTransactionNameType;
 
-  stockDirection:
+  direction:
     | "IN"
     | "OUT";
 
@@ -73,7 +73,7 @@ export async function newInventoryItemAndTransaction({
   supplierId,
     supplierName,
   transactionType,
-  stockDirection,
+  direction,
 
   quantity,
   unitCost,
@@ -158,7 +158,7 @@ export async function newInventoryItemAndTransaction({
     let afterStock =
       previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
 
       afterStock =
         previousStock + quantity;
@@ -207,7 +207,7 @@ export async function newInventoryItemAndTransaction({
     const isPurchase =
       transactionType ===
         "PURCHASE" &&
-      stockDirection === "IN";
+      direction === "IN";
 
     const paymentStatusSafe =
       paymentStatus || "PAID";
@@ -271,7 +271,7 @@ export async function newInventoryItemAndTransaction({
       oldCostPrice;
 
     if (
-      stockDirection === "IN" &&
+      direction === "IN" &&
       (
         transactionType ===
           "PURCHASE" ||
@@ -357,7 +357,7 @@ export async function newInventoryItemAndTransaction({
 
         transactionType,
 
-        stockDirection,
+        direction,
 
         // =====================================
         // ORIGINAL PURCHASE VALUES

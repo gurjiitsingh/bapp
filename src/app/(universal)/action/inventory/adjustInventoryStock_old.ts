@@ -19,7 +19,7 @@ type AdjustInventoryStockType = {
   transactionType: InventoryTransactionNameType;
 
 
-  stockDirection:
+  direction:
   | "IN"
   | "OUT";
 
@@ -43,7 +43,7 @@ export async function adjustInventoryStock({
   inventoryItemId,
   supplierId,
   transactionType,
-  stockDirection,
+  direction,
   quantity,
   unitCost,
   paymentStatus,                 
@@ -92,7 +92,7 @@ export async function adjustInventoryStock({
 
     let afterStock = previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       afterStock = previousStock + quantity;
     } else {
       afterStock = previousStock - quantity;
@@ -134,7 +134,7 @@ export async function adjustInventoryStock({
 
 const isPurchase =
   transactionType === "PURCHASE" &&
-  stockDirection === "IN";
+  direction === "IN";
 const paymentStatusSafe = paymentStatus || "PAID";
 const paidAmountRaw =
   isPurchase && paymentStatusSafe === "PAID"
@@ -183,7 +183,7 @@ const dueAmount = isPurchase
     inventoryItemName: inventoryData?.name || "",
 
     transactionType,
-    stockDirection,
+    direction,
     quantity,
 
     beforeStock: previousStock,

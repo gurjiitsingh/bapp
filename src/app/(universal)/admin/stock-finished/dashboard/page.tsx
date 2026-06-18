@@ -247,7 +247,7 @@ export default async function InventoryDashboardPage() {
 
       const sign =
         trx.transactionType === "ADJUSTMENT"
-          ? trx.stockDirection === "IN"
+          ? trx.direction === "IN"
             ? "+"
             : "-"
           : style.sign;
@@ -315,7 +315,7 @@ export default async function InventoryDashboardPage() {
     case "ADJUSTMENT":
       return {
         color: "text-blue-600",
-        sign: "", // depends on stockDirection
+        sign: "", // depends on direction
       };
 
     case "RETURN":

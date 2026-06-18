@@ -7,7 +7,7 @@ import { processInventory_FinishedStockCreated } from "../inventory/processInven
 
 type AdjustStockType = {
   id: string;
-  stockDirection: "IN" | "OUT";
+  direction: "IN" | "OUT";
   quantity: number;
   note?: string;
   createdBy?: string;
@@ -19,7 +19,7 @@ type AdjustStockType = {
 
 export async function updateFinishedItemStock({
   id,
-  stockDirection,
+  direction,
   quantity,
   note,
   createdBy,
@@ -54,7 +54,7 @@ export async function updateFinishedItemStock({
 
     let newStock = previousStock;
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       newStock = previousStock + quantity;
     } else {
       newStock = previousStock - quantity;
@@ -79,11 +79,11 @@ export async function updateFinishedItemStock({
       productName: productData?.name || "",
 
       type:
-        stockDirection === "IN"
+        direction === "IN"
           ? "PRODUCTION"
           : "ADJUSTMENT",
 
-      direction: stockDirection,
+      direction: direction,
 
       qty: quantity,
 
@@ -109,7 +109,7 @@ export async function updateFinishedItemStock({
     // =========================================================
     // 4. RAW MATERIAL CONSUMPTION (ONLY WHEN INCREASE)
     // =========================================================
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       const recipesSnapshot = await adminDb
         .collection("productRecipes")
         .where("productId", "==", id)
@@ -176,7 +176,7 @@ export async function updateFinishedItemStock({
 
 export async function updateFinishedItemStock_only_ledger({
   id,
-  stockDirection,
+  direction,
   quantity,
   note,
   createdBy,
@@ -214,8 +214,8 @@ export async function updateFinishedItemStock_only_ledger({
  await productLedgerRef.set({
   productId: id,
   productName: productData?.name || "",
-  type: stockDirection === "IN" ? "PRODUCTION" : "ADJUSTMENT",
-  direction: stockDirection, // IN / OUT
+  type: direction === "IN" ? "PRODUCTION" : "ADJUSTMENT",
+  direction: direction, // IN / OUT
   qty: quantity,
   note: note || "",
   createdBy: createdBy || "system",
@@ -227,7 +227,7 @@ export async function updateFinishedItemStock_only_ledger({
     // 2. RAW MATERIAL CONSUMPTION (ONLY WHEN INCREASE STOCK)
     // =========================================================
 
-    if (stockDirection === "IN") {
+    if (direction === "IN") {
       const recipesSnapshot = await adminDb
         .collection("productRecipes")
         .where("productId", "==", id)
@@ -290,7 +290,7 @@ export async function updateFinishedItemStock_only_ledger({
 
 export async function updateFinishedItemStock_old({
   id,
-  stockDirection,
+  direction,
   quantity,
   note,
   createdBy,
@@ -320,7 +320,7 @@ export async function updateFinishedItemStock_old({
 
       let newStock = previousStock;
 
-      if (stockDirection === "IN") {
+      if (direction === "IN") {
         newStock = previousStock + quantity;
       } else {
         newStock = previousStock - quantity;
@@ -345,7 +345,7 @@ export async function updateFinishedItemStock_old({
 
       tx.set(logRef, {
         productId: id,
-        stockDirection,
+        direction,
         quantity,
         previousStock,
         newStock,
@@ -361,7 +361,7 @@ export async function updateFinishedItemStock_old({
 // ONLY WHEN NEW FINISHED STOCK IS CREATED
 // ==================================================
 
-if (stockDirection === "IN") {
+if (direction === "IN") {
   await processInventory_FinishedStockCreated(
     `production-${Date.now()}`,
     [
