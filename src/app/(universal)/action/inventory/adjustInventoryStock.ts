@@ -9,11 +9,13 @@ import {
   revalidateTag,
 } from "next/cache";
 
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
+
 
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { applyInventoryMovement } from "./applyInventoryMovement";
 
 type PaymentMethod =
   | "CASH"
@@ -190,11 +192,7 @@ export async function adjustInventoryStock({
     }
 
     // ================= UPDATE INVENTORY =================
-    await inventoryRef.update({
-      currentStock: afterStock,
-      costPrice: updatedCostPrice,
-      updatedAt: now,
-    });
+    
 
     // =====================================================
     // 1. EXISTING TRANSACTION LOG (KEEP AS IS)
@@ -244,132 +242,35 @@ export async function adjustInventoryStock({
     // 2. NEW LEDGER (stockLedgerInventory) ✅ ADDED
     // =====================================================
 
-  await adminDb.collection("stockLedgerInventory").add({
-      inventoryItemId,
-      inventoryItemName: inventoryData?.name || "",
+await applyInventoryMovement({
+  inventoryItemId,
+  type,
+  direction,
+  quantity,
+  unitCost: finalUnitCost,
 
-      supplierId: supplierId || "",
-      supplierName: supplierName || "",
+  purchaseQuantity,
+  purchaseUnit,
+  purchaseUnitCost,
+  conversionFactor,
 
-      type,
-      direction,
+  supplierId,
+  supplierName,
 
-      purchaseQuantity: purchaseQuantity ?? quantity,
-      purchaseUnit:
-        purchaseUnit ||
-        inventoryData?.purchaseUnit ||
-        inventoryData?.consumptionUnit,
+  totalAmount,
+  paidAmount,
+  dueAmount,
+  paymentStatus: paymentStatusSafe,
+  paymentMethod,
 
-      purchaseUnitCost: purchaseUnitCost ?? unitCost,
-      conversionFactor:
-        conversionFactor ?? inventoryData?.conversionFactor ?? 1,
+  referenceType,
+  referenceId,
 
-      quantity,
-      unit: inventoryData?.consumptionUnit || "pcs",
-      unitCost: finalUnitCost,
+  note: note || "Manual inventory adjustment",
+  createdBy: createdBy || "admin",
+  source: "WEB_ADMIN",
+});
 
-      beforeStock: previousStock,
-      afterStock,
-
-      totalAmount,
-      paidAmount,
-      dueAmount,
-      paymentStatus: paymentStatusSafe,
-      paymentMethod: paymentMethod || null,
-
-      referenceType,
-      referenceId: referenceId || "",
-
-      note: note || "Manual inventory adjustment",
-      createdBy: createdBy || "admin",
-      createdAt: now,
-    }); 
-
-    // ENHANCED
-//     const inventoryLedgerRef = adminDb
-//       .collection("stockLedgerInventory")
-//       .doc();
-
-//     await inventoryLedgerRef.set({
-//       transactionId: inventoryLedgerRef.id,
-//   inventoryItemId,
-//   inventoryItemName: inventoryData?.name || "",
-
-//   type: type,
-//   direction: direction,
-
-//   qty: quantity,
-//   unit: inventoryData?.consumptionUnit || "pcs",
-
-//   purchaseQuantity: purchaseQuantity ?? quantity,
-//   purchaseUnit:
-//     purchaseUnit ||
-//     inventoryData?.purchaseUnit ||
-//     inventoryData?.consumptionUnit,
-
-//   conversionFactor:
-//     conversionFactor ??
-//     inventoryData?.conversionFactor ??
-//     1,
-
-//   beforeStock: previousStock,
-//   afterStock,
-
-//   unitCost: finalUnitCost,
-//   purchaseUnitCost:
-//     purchaseUnitCost ?? unitCost,
-
-//   totalAmount,
-
-//   paidAmount,
-//   dueAmount,
-//   paymentStatus: paymentStatusSafe,
-//   paymentMethod: paymentMethod || null,
-
-//   supplierId: supplierId || null,
-//   supplierName: supplierName || null,
-
-//   referenceType,
-//   referenceId: referenceId || "",
-
-//   note: note || "",
-//   createdBy: createdBy || "admin",
-
-//   createdAt: now,
-//   source: "WEB_ADMIN",
-// });
-
-
-
-
-//MINIMUL DATA
-    // await inventoryLedgerRef.set({
-    //   inventoryItemId,
-    //   inventoryItemName: inventoryData?.name || "",
-
-    //   type: type,
-    //   direction: direction,
-
-    //   qty: quantity,
-
-    //   beforeStock: previousStock,
-    //   afterStock,
-
-    //   unitCost: finalUnitCost,
-    //   totalAmount,
-
-    //   supplierId: supplierId || null,
-    //   supplierName: supplierName || null,
-
-    //   referenceType,
-    //   referenceId: referenceId || "",
-
-    //   note: note || "",
-    //   createdBy: createdBy || "admin",
-
-    //   createdAt: now,
-    //   source: "WEB_ADMIN",
-    // });
 
     // ================= SUPPLIER LEDGER =================
     const isSupplierFlow =
