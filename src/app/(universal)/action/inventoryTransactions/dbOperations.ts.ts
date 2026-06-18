@@ -6,7 +6,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 import {
   newInventoryTransactionSchema,
-} from "@/lib/types/InventoryTransactionType";
+} from "@/lib/types/Inventorytype";
 
 import {
   revalidatePath,

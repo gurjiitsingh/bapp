@@ -9,7 +9,7 @@ import {
   revalidateTag,
 } from "next/cache";
 
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
@@ -25,7 +25,7 @@ type AdjustInventoryStockType = {
 
   supplierId?: string;
  supplierName?: string;
-  transactionType: InventoryTransactionNameType;
+  type: InventoryTransactionNameType;
 
   direction:
     | "IN"
@@ -72,7 +72,7 @@ export async function newInventoryItemAndTransaction({
   inventoryItemId,
   supplierId,
     supplierName,
-  transactionType,
+  type,
   direction,
 
   quantity,
@@ -189,9 +189,9 @@ export async function newInventoryItemAndTransaction({
           ) || 0;
 
     const shouldApplyCost =
-      transactionType === "PURCHASE" ||
-      transactionType === "OPENING_STOCK" ||
-      transactionType ===
+      type === "PURCHASE" ||
+      type === "OPENING_STOCK" ||
+      type ===
         "CUSTOMER_RETURN";
 
         const totalAmount = shouldApplyCost
@@ -205,7 +205,7 @@ export async function newInventoryItemAndTransaction({
     // =====================================================
 
     const isPurchase =
-      transactionType ===
+      type ===
         "PURCHASE" &&
       direction === "IN";
 
@@ -247,7 +247,7 @@ export async function newInventoryItemAndTransaction({
     // =====================================================
 
     if (
-      transactionType ===
+      type ===
         "PURCHASE" &&
       !supplierId
     ) {
@@ -273,11 +273,11 @@ export async function newInventoryItemAndTransaction({
     if (
       direction === "IN" &&
       (
-        transactionType ===
+        type ===
           "PURCHASE" ||
-        transactionType ===
+        type ===
           "OPENING_STOCK" ||
-        transactionType ===
+        type ===
           "CUSTOMER_RETURN"
       )
     ) {
@@ -355,7 +355,7 @@ export async function newInventoryItemAndTransaction({
         // TRANSACTION
         // =====================================
 
-        transactionType,
+        type,
 
         direction,
 
@@ -460,9 +460,9 @@ conversionFactor:
     const isSupplierFlow =
       supplierId &&
       (
-        transactionType ===
+        type ===
           "PURCHASE" ||
-        transactionType ===
+        type ===
           "SUPPLIER_RETURN"
       );
 
@@ -474,7 +474,7 @@ conversionFactor:
         "PURCHASE";
 
       if (
-        transactionType ===
+        type ===
         "SUPPLIER_RETURN"
       ) {
         ledgerType =

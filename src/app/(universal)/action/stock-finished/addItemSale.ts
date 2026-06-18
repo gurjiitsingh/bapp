@@ -14,7 +14,7 @@ type AdjustSaleStock = {
   wholeSaleCutomerId?: string;
   wholeSaleCutomerName?: string;
 
-  transactionType: "SALE" | "ADJUSTMENT" | "OPENING";
+  type: "SALE" | "ADJUSTMENT" | "OPENING";
   direction: "IN" | "OUT";
 
   quantity: number;
@@ -39,7 +39,7 @@ export async function addItemSale_({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
-  transactionType,
+  type,
   direction,
   quantity,
   price,
@@ -111,7 +111,7 @@ export async function addItemSale_({
 
       tx.set(oldRef, {
         productId: id,
-        transactionType,
+        type,
         direction,
         quantity,
         transactionUnit,
@@ -141,7 +141,7 @@ export async function addItemSale_({
         productId: id,
         productName: productData?.name || "",
 
-        type: transactionType,
+        type: type,
         direction: direction,
 
         qty: quantity,
@@ -206,12 +206,12 @@ export async function addItemSale_({
     // =====================================================
     // 5. CUSTOMER ACCOUNT
     // =====================================================
-    if (transactionType === "SALE" && wholeSaleCutomerId) {
+    if (type === "SALE" && wholeSaleCutomerId) {
       const totalAmount = quantity * price;
 
       await updateCustomerAccount({
         wholeSaleCutomerId,
-        transactionType,
+        type,
         totalAmount,
         paidAmount: paymentMethod ? totalAmount : 0,
         dueAmount: paymentMethod ? 0 : totalAmount,
@@ -244,7 +244,7 @@ export async function addItemSale_2 ({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
-  transactionType,
+  type,
   direction,
   quantity,
   price,
@@ -312,7 +312,7 @@ export async function addItemSale_2 ({
         productId: id,
         productName: productData?.name || "",
 
-        transactionType,
+        type,
         direction: direction,
 
         qty: quantity,
@@ -392,12 +392,12 @@ export async function addItemSale_2 ({
     // 4. CUSTOMER ACCOUNT
     // =====================================================
 
-    if (transactionType === "SALE" && wholeSaleCutomerId) {
+    if (type === "SALE" && wholeSaleCutomerId) {
       const totalAmount = quantity * price;
 
       await updateCustomerAccount({
         wholeSaleCutomerId,
-        transactionType,
+        type,
         totalAmount,
         paidAmount: paymentMethod ? totalAmount : 0,
         dueAmount: paymentMethod ? 0 : totalAmount,
@@ -427,7 +427,7 @@ export async function updateFinishedItemStock_junk({
    id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
-  transactionType,
+  type,
   direction,
   quantity,
   price,
@@ -569,7 +569,7 @@ export async function addItemSale_only_ledger({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
-  transactionType,
+  type,
   direction,
   quantity,
   price,
@@ -616,7 +616,7 @@ export async function addItemSale_only_ledger({
     await finishedLedgerRef.set({
       productId: id,
       productName: productData?.name || "",
-      transactionType,
+      type,
       direction: direction, // IN / OUT
       qty: quantity,
       price,
@@ -686,7 +686,7 @@ export async function addItemSale_only_ledger({
     // 3. CUSTOMER ACCOUNT (UNCHANGED BUSINESS LOGIC)
     // =====================================================
 
-    if (transactionType === "SALE" && wholeSaleCutomerId) {
+    if (type === "SALE" && wholeSaleCutomerId) {
       const totalAmount = quantity * price;
 
       const paid = paymentMethod ? totalAmount : 0;
@@ -694,7 +694,7 @@ export async function addItemSale_only_ledger({
 
       await updateCustomerAccount({
         wholeSaleCutomerId,
-        transactionType,
+        type,
         totalAmount,
         paidAmount: paid,
         dueAmount: due,
@@ -729,7 +729,7 @@ export async function addItemSale ({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
-  transactionType,
+  type,
   direction,
   quantity,
   price,
@@ -891,7 +891,7 @@ if (
       t.set(transactionRef, {
         productId: id,
 
-        transactionType,
+        type,
         direction,
 
         quantity,
@@ -1150,7 +1150,7 @@ else {
     // CUSTOMER ACCOUNT (ONLY FOR SALE)
     // =====================================================
 
-    if (transactionType === "SALE" && wholeSaleCutomerId) {
+    if (type === "SALE" && wholeSaleCutomerId) {
    const totalAmount = quantity * price;
 
 const paid = paymentMethod ? totalAmount : 0;
@@ -1158,7 +1158,7 @@ const due = totalAmount - paid;
 
 await updateCustomerAccount({
   wholeSaleCutomerId,
-  transactionType,
+  type,
   totalAmount,
   paidAmount: paid,
   dueAmount: due,

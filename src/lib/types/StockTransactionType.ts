@@ -1,5 +1,5 @@
 import { Timestamp, FieldValue, } from "firebase/firestore";
-export type StockTransactionType = {
+export type Stocktype = {
   id: string;
 
   inventoryItemId: string;

@@ -13,7 +13,7 @@ import {
 import {
   newInventoryTransactionSchema,
   TnewInventoryTransactionSchema,
-} from "@/lib/types/InventoryTransactionType";
+} from "@/lib/types/Inventorytype";
 import { addInventoryTransaction } from "@/app/(universal)/action/inventoryTransactions/dbOperations.ts";
 
 type Props = {

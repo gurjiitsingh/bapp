@@ -282,30 +282,30 @@ else {
 
 //       const credit = d.dueAmount || 0; // increases balance
 //       const debit =
-//         d.transactionType === "PAYMENT"
+//         d.type === "PAYMENT"
 //           ? d.paidAmount
-//           : d.transactionType === "SUPPLIER_RETURN"
+//           : d.type === "SUPPLIER_RETURN"
 //           ? d.totalAmount
 //           : 0;
 
 //       runningBalance += credit - debit;
 
-//       if (d.transactionType === "PURCHASE") {
+//       if (d.type === "PURCHASE") {
 //         totalPurchase += d.totalAmount || 0;
 //       }
 
-//       if (d.transactionType === "PAYMENT") {
+//       if (d.type === "PAYMENT") {
 //         totalPaid += d.paidAmount || 0;
 //       }
 
-//       if (d.transactionType === "SUPPLIER_RETURN") {
+//       if (d.type === "SUPPLIER_RETURN") {
 //         totalReturn += d.totalAmount || 0;
 //       }
 
 //       transactions.push({
 //         id: doc.id,
 //         date: d.createdAt?.toDate?.() || null,
-//         type: d.transactionType,
+//         type: d.type,
 //         note: d.note || "",
 //         totalAmount: d.totalAmount || 0,
 //         paidAmount: d.paidAmount || 0,

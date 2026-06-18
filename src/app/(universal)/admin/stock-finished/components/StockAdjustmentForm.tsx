@@ -27,7 +27,7 @@ type Props = {
 type FormType = {
   id: string;
 
-  transactionType:
+  type:
   | "PURCHASE"
   | "OPENING_STOCK"
   | "ADJUSTMENT"
@@ -75,7 +75,7 @@ export default function StockAdjustmentForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
-      transactionType: "OPENING_STOCK",
+      type: "OPENING_STOCK",
       direction: "IN",
       quantity: 0,
       transactionUnit: "pcs",
@@ -83,8 +83,8 @@ export default function StockAdjustmentForm({
     },
   });
 
-  const transactionType = watch(
-    "transactionType"
+  const type = watch(
+    "type"
   );
 
   const transactionUnit = watch("transactionUnit");
@@ -97,24 +97,24 @@ export default function StockAdjustmentForm({
 
   // React.useEffect(() => {
   //   if (
-  //     transactionType === "PURCHASE" ||
-  //     transactionType === "OPENING_STOCK" ||
-  //     transactionType === "CUSTOMER_RETURN"
+  //     type === "PURCHASE" ||
+  //     type === "OPENING_STOCK" ||
+  //     type === "CUSTOMER_RETURN"
   //   ) {
   //     setValue("direction", "IN");
   //   }
 
   //   if (
-  //     transactionType === "WASTAGE"
+  //     type === "WASTAGE"
   //   ) {
   //     setValue("direction", "OUT");
   //   }
-  // }, [transactionType, setValue]);
+  // }, [type, setValue]);
 
 
 
   React.useEffect(() => {
-    switch (transactionType) {
+    switch (type) {
       case "PURCHASE":
       case "OPENING_STOCK":
       case "CUSTOMER_RETURN":
@@ -128,7 +128,7 @@ export default function StockAdjustmentForm({
 
       // ADJUSTMENT = manual selection
     }
-  }, [transactionType, setValue]);
+  }, [type, setValue]);
 
   // =====================================================
   // FILTER INVENTORY
@@ -258,7 +258,7 @@ export default function StockAdjustmentForm({
         });
 
         reset({
-          transactionType: "OPENING_STOCK",
+          type: "OPENING_STOCK",
           direction: "IN",
           quantity: 0,
           note: "",
@@ -446,7 +446,7 @@ export default function StockAdjustmentForm({
               </label>
 
               <select
-                {...register("transactionType")}
+                {...register("type")}
                 className="input-style-4"
               >
                 {/* <option value="PURCHASE">
@@ -475,7 +475,7 @@ export default function StockAdjustmentForm({
               </select>
             </div>
 
-            {transactionType === "ADJUSTMENT" && (
+            {type === "ADJUSTMENT" && (
               <div className="flex flex-col gap-2">
                 <label className="label-style-4">
                   Stock Direction

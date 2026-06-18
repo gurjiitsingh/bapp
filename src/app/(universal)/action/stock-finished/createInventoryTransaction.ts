@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 
 import admin from "firebase-admin";
 

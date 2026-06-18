@@ -297,7 +297,7 @@ if (currentStock > 0) {
   await newInventoryItemAndTransaction({
     inventoryItemId,
 
-    transactionType: "OPENING_STOCK",
+    type: "OPENING_STOCK",
 
     direction: "IN",
 

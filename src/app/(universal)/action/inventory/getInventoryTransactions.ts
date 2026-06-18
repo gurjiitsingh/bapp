@@ -43,8 +43,8 @@ export async function getInventoryTransactions({
         inventoryItemName:
           data.inventoryItemName || "",
 
-        transactionType:
-          data.transactionType || "",
+        type:
+          data.type || "",
 
         supplierName:
           data.supplierName || "",

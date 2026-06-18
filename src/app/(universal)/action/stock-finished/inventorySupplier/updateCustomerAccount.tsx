@@ -4,7 +4,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 type UpdateSupplierAccountParams = {
   wholeSaleCutomerId?: string;
-  transactionType: string;
+  type: string;
   totalAmount: number;
   paidAmount: number;   // ✅ ADD
   dueAmount: number;    // ✅ ADD
@@ -13,7 +13,7 @@ type UpdateSupplierAccountParams = {
 
 export async function updateCustomerAccount({
   wholeSaleCutomerId,
-  transactionType,
+  type,
   totalAmount,
   paidAmount,
   dueAmount,
@@ -24,7 +24,7 @@ export async function updateCustomerAccount({
 let upi = 0;
 let card = 0;
 
-if (transactionType === "PURCHASE") {
+if (type === "PURCHASE") {
   if (paymentMethod === "CASH") cash = paidAmount;
   if (paymentMethod === "UPI") upi = paidAmount;
   if (paymentMethod === "CARD") card = paidAmount;
@@ -47,7 +47,7 @@ if (transactionType === "PURCHASE") {
     // LOGIC
     // ===============================
 
-    if (transactionType === "PURCHASE") {
+    if (type === "PURCHASE") {
       purchase = totalAmount;
       paid = paidAmount;
 
@@ -55,12 +55,12 @@ if (transactionType === "PURCHASE") {
       credit = dueAmount;
     }
 
-    if (transactionType === "SUPPLIER_RETURN") {
+    if (type === "SUPPLIER_RETURN") {
       debit = totalAmount;
       returnAmount = totalAmount;
     }
 
-    if (transactionType === "PAYMENT") {
+    if (type === "PAYMENT") {
   debit = paidAmount; // reduce balance
   paid = paidAmount;
 }

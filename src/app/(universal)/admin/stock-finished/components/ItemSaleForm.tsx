@@ -20,7 +20,7 @@ import {
   InventoryItemType,
   InventoryUnit,
 } from "@/lib/types/InventoryItemType";
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
@@ -31,7 +31,7 @@ type FormType = {
   id: string;
   wholeSaleCutomerId?: string;
   wholeSaleCutomerName?: string;
-  transactionType: InventoryTransactionNameType;
+  type: InventoryTransactionNameType;
 
   direction: "IN" | "OUT";
 
@@ -108,13 +108,13 @@ export default function ItemPurchaseForm({
     reset,
   } = useForm<FormType>({
    defaultValues: {
-  transactionType: "SALE",
+  type: "SALE",
   direction: "OUT",
 },
   });
 
-  const transactionType = watch(
-    "transactionType"
+  const type = watch(
+    "type"
   );
 
   const transactionUnit = watch("transactionUnit");
@@ -212,7 +212,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
         // ✅ ADD THIS
         wholeSaleCutomerName:
         selectedCustomer?.companyName || "",
-        transactionType: "SALE",
+        type: "SALE",
         direction: "OUT",//data.direction,
         // INTERNAL
         quantity: finalQuantity,
@@ -237,7 +237,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
         });
 
         reset({
-          transactionType: "PURCHASE",
+          type: "PURCHASE",
           direction: "IN",
           quantity: 0,
           note: "",

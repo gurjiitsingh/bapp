@@ -3,7 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
@@ -12,7 +12,7 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 type AdjustInventoryStockType = {
   inventoryItemId: string;
   supplierId?: string;
-  transactionType: InventoryTransactionNameType;
+  type: InventoryTransactionNameType;
 
   direction: "IN" | "OUT";
 
@@ -34,7 +34,7 @@ type AdjustInventoryStockType = {
 export async function adjustInventoryStock({
   inventoryItemId,
   supplierId,
-  transactionType,
+  type,
   direction,
   quantity,
   unitCost,
@@ -59,7 +59,7 @@ export async function adjustInventoryStock({
       return { success: false, message: "Quantity must be greater than 0" };
     }
 
-    if (transactionType === "PURCHASE" && !supplierId) {
+    if (type === "PURCHASE" && !supplierId) {
       return {
         success: false,
         message: "Supplier required for purchase",
@@ -95,9 +95,9 @@ export async function adjustInventoryStock({
           : Number(inventoryData?.costPrice) || 0;
 
       const shouldApplyCost =
-        transactionType === "PURCHASE" ||
-        transactionType === "OPENING_STOCK" ||
-        transactionType === "CUSTOMER_RETURN";
+        type === "PURCHASE" ||
+        type === "OPENING_STOCK" ||
+        type === "CUSTOMER_RETURN";
 
       const totalAmount = shouldApplyCost
         ? quantity * finalUnitCost
@@ -108,7 +108,7 @@ export async function adjustInventoryStock({
       // =========================
 
       const isPurchase =
-        transactionType === "PURCHASE" &&
+        type === "PURCHASE" &&
         direction === "IN";
 
       const paymentStatusSafe = paymentStatus || "PAID";
@@ -146,7 +146,7 @@ export async function adjustInventoryStock({
 
       tx.update(inventoryRef, {
         currentStock: afterStock,
-        ...(transactionType === "PURCHASE" && {
+        ...(type === "PURCHASE" && {
           costPrice: finalUnitCost,
         }),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -165,7 +165,7 @@ export async function adjustInventoryStock({
         supplierId: supplierId || "",
         inventoryItemName: inventoryData?.name || "",
 
-        transactionType,
+        type,
         direction,
         quantity,
 
@@ -196,7 +196,7 @@ export async function adjustInventoryStock({
       // =========================
 
       if (
-        transactionType === "PURCHASE" &&
+        type === "PURCHASE" &&
         supplierId &&
         totalAmount > 0
       ) {

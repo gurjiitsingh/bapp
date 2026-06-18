@@ -20,7 +20,7 @@ import {
   ArrowLeftRight,
 } from "lucide-react";
 import { addInventoryTransaction } from "@/app/(universal)/action/inventoryTransactions/dbOperations.ts";
-import { newInventoryTransactionSchema, TnewInventoryTransactionSchema } from "@/lib/types/InventoryTransactionType";
+import { newInventoryTransactionSchema, TnewInventoryTransactionSchema } from "@/lib/types/Inventorytype";
 
 export default function Page() {
   const [inventoryItems, setInventoryItems] =

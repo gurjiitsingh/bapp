@@ -30,7 +30,7 @@ export async function paySupplier({
     await adminDb.collection("inventoryTransactions").add({
       supplierId,
 
-      transactionType: "PAYMENT",
+      type: "PAYMENT",
 
       totalAmount: amount,
       paidAmount: amount,
@@ -50,7 +50,7 @@ export async function paySupplier({
 
     await updateSupplierAccount({
       supplierId,
-      transactionType: "PAYMENT",
+      type: "PAYMENT",
       totalAmount: 0,
       paidAmount: amount,
       dueAmount: 0,

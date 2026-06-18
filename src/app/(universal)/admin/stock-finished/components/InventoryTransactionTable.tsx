@@ -131,7 +131,7 @@ export default function InventoryTransactionTable({
               {/* TYPE */}
 
               <TableCell>
-                {tx.transactionType}
+                {tx.type}
               </TableCell>
 
               {/* SUPPLIER */}

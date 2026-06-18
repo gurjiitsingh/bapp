@@ -25,7 +25,7 @@ export async function getfinishedStockTransactions({
 
     // ✅ FILTER SALE ONLY
     const saleDocs = snapshot.docs.filter(
-      (doc) => doc.data().transactionType === "SALE"
+      (doc) => doc.data().type === "SALE"
     );
 
     // ✅ PAGINATION (after filter)
@@ -46,8 +46,8 @@ export async function getfinishedStockTransactions({
         inventoryItemName:
           data.inventoryItemName || "",
 
-        transactionType:
-          data.transactionType || "",
+        type:
+          data.type || "",
 
         // ✅ FIXED: customer instead of supplier
         wholeSaleCutomerName:

@@ -9,7 +9,7 @@ import {
   revalidateTag,
 } from "next/cache";
 
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
@@ -25,7 +25,7 @@ type AdjustInventoryStockType = {
 
   supplierId?: string;
  supplierName?: string;
-  transactionType: InventoryTransactionNameType;
+  type: InventoryTransactionNameType;
 
   direction:
     | "IN"
@@ -73,7 +73,7 @@ export async function adjustInventoryStock({
   inventoryItemId,
   supplierId,
   supplierName,
-  transactionType,
+  type,
   direction,
   quantity,
   unitCost,
@@ -147,14 +147,14 @@ export async function adjustInventoryStock({
         : Number(inventoryData?.costPrice) || 0;
 
     const shouldApplyCost =
-      transactionType === "PURCHASE" ||
-      transactionType === "OPENING_STOCK" ||
-      transactionType === "CUSTOMER_RETURN";
+      type === "PURCHASE" ||
+      type === "OPENING_STOCK" ||
+      type === "CUSTOMER_RETURN";
 
     const totalAmount = shouldApplyCost ? quantity * finalUnitCost : 0;
 
     // ================= PAYMENT =================
-    const isPurchase = transactionType === "PURCHASE" && direction === "IN";
+    const isPurchase = type === "PURCHASE" && direction === "IN";
 
     const paymentStatusSafe = paymentStatus || "PAID";
 
@@ -176,9 +176,9 @@ export async function adjustInventoryStock({
 
     if (
       direction === "IN" &&
-      (transactionType === "PURCHASE" ||
-        transactionType === "OPENING_STOCK" ||
-        transactionType === "CUSTOMER_RETURN")
+      (type === "PURCHASE" ||
+        type === "OPENING_STOCK" ||
+        type === "CUSTOMER_RETURN")
     ) {
       const oldStockValue = previousStock * oldCostPrice;
       const newStockValue = quantity * finalUnitCost;
@@ -206,7 +206,7 @@ export async function adjustInventoryStock({
       supplierId: supplierId || "",
       supplierName: supplierName || "",
 
-      transactionType,
+      type,
       direction,
 
       purchaseQuantity: purchaseQuantity ?? quantity,
@@ -251,7 +251,7 @@ export async function adjustInventoryStock({
       supplierId: supplierId || "",
       supplierName: supplierName || "",
 
-      transactionType,
+      type,
       direction,
 
       purchaseQuantity: purchaseQuantity ?? quantity,
@@ -295,7 +295,7 @@ export async function adjustInventoryStock({
 //   inventoryItemId,
 //   inventoryItemName: inventoryData?.name || "",
 
-//   type: transactionType,
+//   type: type,
 //   direction: direction,
 
 //   qty: quantity,
@@ -347,7 +347,7 @@ export async function adjustInventoryStock({
     //   inventoryItemId,
     //   inventoryItemName: inventoryData?.name || "",
 
-    //   type: transactionType,
+    //   type: type,
     //   direction: direction,
 
     //   qty: quantity,
@@ -374,13 +374,13 @@ export async function adjustInventoryStock({
     // ================= SUPPLIER LEDGER =================
     const isSupplierFlow =
       supplierId &&
-      (transactionType === "PURCHASE" ||
-        transactionType === "SUPPLIER_RETURN");
+      (type === "PURCHASE" ||
+        type === "SUPPLIER_RETURN");
 
     if (isSupplierFlow) {
       let ledgerType: "PURCHASE" | "RETURN" = "PURCHASE";
 
-      if (transactionType === "SUPPLIER_RETURN") {
+      if (type === "SUPPLIER_RETURN") {
         ledgerType = "RETURN";
       }
 
@@ -403,7 +403,7 @@ export async function adjustInventoryStock({
     if (supplierId && isPurchase) {
       await updateSupplierAccount({
         supplierId,
-        transactionType,
+        type,
         totalAmount,
         paidAmount,
         dueAmount,
@@ -435,7 +435,7 @@ export async function adjustInventoryStock_old({
   inventoryItemId,
   supplierId,
     supplierName,
-  transactionType,
+  type,
   direction,
 
   quantity,
@@ -563,9 +563,9 @@ export async function adjustInventoryStock_old({
           ) || 0;
 
     const shouldApplyCost =
-      transactionType === "PURCHASE" ||
-      transactionType === "OPENING_STOCK" ||
-      transactionType ===
+      type === "PURCHASE" ||
+      type === "OPENING_STOCK" ||
+      type ===
         "CUSTOMER_RETURN";
 
         const totalAmount = shouldApplyCost
@@ -579,7 +579,7 @@ export async function adjustInventoryStock_old({
     // =====================================================
 
     const isPurchase =
-      transactionType ===
+      type ===
         "PURCHASE" &&
       direction === "IN";
 
@@ -621,7 +621,7 @@ export async function adjustInventoryStock_old({
     // =====================================================
 
     if (
-      transactionType ===
+      type ===
         "PURCHASE" &&
       !supplierId
     ) {
@@ -647,11 +647,11 @@ export async function adjustInventoryStock_old({
     if (
       direction === "IN" &&
       (
-        transactionType ===
+        type ===
           "PURCHASE" ||
-        transactionType ===
+        type ===
           "OPENING_STOCK" ||
-        transactionType ===
+        type ===
           "CUSTOMER_RETURN"
       )
     ) {
@@ -729,7 +729,7 @@ export async function adjustInventoryStock_old({
         // TRANSACTION
         // =====================================
 
-        transactionType,
+        type,
 
         direction,
 
@@ -834,9 +834,9 @@ conversionFactor:
     const isSupplierFlow =
       supplierId &&
       (
-        transactionType ===
+        type ===
           "PURCHASE" ||
-        transactionType ===
+        type ===
           "SUPPLIER_RETURN"
       );
 
@@ -848,7 +848,7 @@ conversionFactor:
         "PURCHASE";
 
       if (
-        transactionType ===
+        type ===
         "SUPPLIER_RETURN"
       ) {
         ledgerType =
@@ -904,7 +904,7 @@ conversionFactor:
 
       await updateSupplierAccount({
         supplierId,
-        transactionType,
+        type,
         totalAmount,
         paidAmount,
         dueAmount,

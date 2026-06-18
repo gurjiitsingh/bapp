@@ -23,7 +23,7 @@ type Props = {
 type FormType = {
   inventoryItemId: string;
 
-  transactionType:
+  type:
     | "PURCHASE"
     | "OPENING"
     | "ADJUSTMENT"
@@ -67,15 +67,15 @@ export default function StockAdjustmentForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
-      transactionType: "PURCHASE",
+      type: "PURCHASE",
       direction: "IN",
       quantity: 0,
       note: "",
     },
   });
 
-  const transactionType = watch(
-    "transactionType"
+  const type = watch(
+    "type"
   );
 
   // =====================================================
@@ -84,19 +84,19 @@ export default function StockAdjustmentForm({
 
   React.useEffect(() => {
     if (
-      transactionType === "PURCHASE" ||
-      transactionType === "OPENING" ||
-      transactionType === "RETURN"
+      type === "PURCHASE" ||
+      type === "OPENING" ||
+      type === "RETURN"
     ) {
       setValue("direction", "IN");
     }
 
     if (
-      transactionType === "WASTAGE"
+      type === "WASTAGE"
     ) {
       setValue("direction", "OUT");
     }
-  }, [transactionType, setValue]);
+  }, [type, setValue]);
 
   // =====================================================
   // FILTER INVENTORY
@@ -142,7 +142,7 @@ export default function StockAdjustmentForm({
       const result = await adjustInventoryStock({
   inventoryItemId: data.inventoryItemId,
 
-  transactionType: data.transactionType,
+  type: data.type,
 
   direction: data.direction,
 
@@ -167,7 +167,7 @@ export default function StockAdjustmentForm({
         );
 
         reset({
-          transactionType:
+          type:
             "PURCHASE",
 
           direction: "IN",
@@ -387,7 +387,7 @@ export default function StockAdjustmentForm({
 
               <select
                 {...register(
-                  "transactionType"
+                  "type"
                 )}
                 className="input-style-4"
               >

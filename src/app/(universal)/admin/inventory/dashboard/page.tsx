@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 
-import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
 
 export default async function InventoryDashboardPage() {
 
@@ -243,10 +243,10 @@ export default async function InventoryDashboardPage() {
     </div>
   ) : (
     dashboard.recentTransactions.map((trx: any) => {
-      const style = getTransactionStyle(trx.transactionType);
+      const style = getTransactionStyle(trx.type);
 
       const sign =
-        trx.transactionType === "ADJUSTMENT"
+        trx.type === "ADJUSTMENT"
           ? trx.direction === "IN"
             ? "+"
             : "-"
@@ -276,7 +276,7 @@ export default async function InventoryDashboardPage() {
             </div>
 
             <div className="text-xs text-gray-400 mt-1 uppercase">
-              {trx.transactionType}
+              {trx.type}
             </div>
           </div>
         </div>
