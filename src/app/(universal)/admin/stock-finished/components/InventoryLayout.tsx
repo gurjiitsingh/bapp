@@ -38,16 +38,56 @@ export default function InventoryTabs() {
   const pathname = usePathname();
 
   return (
-   <div className="  p-2 pt-5 md:px-6">
+    <div className="  p-2 pt-5 md:px-6">
       <div className="w-full mx-auto flex flex-col gap-6">
-    
+
         {/* ===================================================== */}
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
         <div className="grid grid-cols-2 xl:grid-cols-7 gap-3">
 
-               <Link
+          <Link
+            href="/admin/stock-finished/production"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <BookOpen
+                size={22}
+                className="text-purple-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Production
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Produce Finished Goods
+            </p>
+          </Link>
+
+          {/* <Link
+            href="/admin/stock-finished/purchase"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <BookOpen
+                size={22}
+                className="text-purple-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Purcahse
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Purchase Finished Goods
+            </p>
+          </Link> */}
+
+          <Link
             href="/admin/stock-finished/sale/add"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
@@ -67,7 +107,7 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-    <Link
+          <Link
             href="/admin/stock-finished/customer"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
@@ -128,27 +168,9 @@ export default function InventoryTabs() {
             </p>
           </Link> */}
 
-         
 
-          <Link
-            href="/admin/stock-finished/adjust-stock"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
-                size={22}
-                className="text-orange-600"
-              />
-            </div>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Update Product Stock
-            </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Add or remove finished items stock
-            </p>
-          </Link>
 
           <Link
             href="/admin/stock-finished/transactions"
@@ -170,11 +192,48 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-        
-      
+          <Link
+            href="/admin/stock-finished/adjust-stock"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
+              <PackagePlus
+                size={22}
+                className="text-orange-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Update Product Stock
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Add or remove finished items stock
+            </p>
+          </Link>
+             <Link
+            href="/admin/stock-finished/customer/return"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
+              <BookOpen
+                size={22}
+                className="text-purple-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Cutomer Return
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Extra Finished Goods Return
+            </p>
+          </Link>
+
         </div>
 
-    </div>
+      </div>
     </div>
   );
 }

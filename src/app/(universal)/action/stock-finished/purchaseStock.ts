@@ -1,0 +1,149 @@
+"use server";
+
+import admin from "firebase-admin";
+import { adminDb } from "@/lib/firebaseAdmin";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { InventoryUnit } from "@/lib/types/InventoryItemType";
+import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
+import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedMovement";
+
+type PaymentMethod = "CASH" | "UPI" | "CARD";
+
+type PurchaseStockInput = {
+  id: string;
+
+  quantity: number;
+  transactionUnit: InventoryUnit;
+
+  unitPrice: number;
+
+  paymentMethod?: PaymentMethod;
+
+  note?: string;
+  createdBy?: string;
+
+  referenceId?: string;
+};
+
+export async function purchaseStock({
+  id,
+  quantity,
+  unitPrice,
+  transactionUnit,
+  paymentMethod,
+  note,
+  createdBy,
+  referenceId,
+}: PurchaseStockInput) {
+  try {
+    // =========================
+    // VALIDATION
+    // =========================
+    if (!id) {
+      return { success: false, message: "Product ID required" };
+    }
+
+    if (!quantity || quantity <= 0) {
+      return { success: false, message: "Invalid quantity" };
+    }
+
+    // =========================
+    // GET PRODUCT
+    // =========================
+    const productRef = adminDb.collection("products").doc(id);
+    const productSnap = await productRef.get();
+
+    if (!productSnap.exists) {
+      return { success: false, message: "Product not found" };
+    }
+
+    const productData = productSnap.data();
+    const currentStock = productData?.currentStock || 0;
+
+    // =========================
+    // PURCHASE = STOCK IN
+    // =========================
+    const newStock = currentStock + quantity;
+
+    // (optional future: update product stock here if you want direct field update)
+    // await productRef.update({ currentStock: newStock });
+
+    // =========================
+    // FINISHED STOCK MOVEMENT
+    // =========================
+    const totalAmount = quantity * unitPrice;
+
+    await applyFinishedMovement({
+      productId: id,
+      type: "PURCHASE",
+      direction: "IN",
+
+      quantity,
+      transactionUnit,
+
+      unitPrice,
+      totalAmount,
+
+      paidAmount: paymentMethod ? totalAmount : 0,
+      dueAmount: paymentMethod ? 0 : totalAmount,
+      paymentStatus: paymentMethod ? "PAID" : "CREDIT",
+      paymentMethod,
+
+      referenceId,
+      referenceType: "PURCHASE",
+
+      note: note || "Purchase entry",
+      createdBy: createdBy || "admin",
+      source: "ADMIN",
+    });
+
+    // =========================
+    // RAW MATERIAL STOCK IN (if product has recipe)
+    // =========================
+    const recipeSnapshot = await adminDb
+      .collection("productRecipes")
+      .where("productId", "==", id)
+      .get();
+
+    if (!recipeSnapshot.empty) {
+      for (const recipeDoc of recipeSnapshot.docs) {
+        const recipe = recipeDoc.data();
+
+        await applyInventoryMovement({
+          inventoryItemId: recipe.inventoryItemId,
+
+          type: "PURCHASE",
+          direction: "IN",
+
+          quantity: (Number(recipe.quantity) || 0) * quantity,
+
+          note: `Purchase stock inflow (${productData?.name})`,
+
+          referenceId: referenceId || "",
+          referenceType: "PURCHASE",
+
+          createdBy: createdBy || "admin",
+          source: "ADMIN",
+        });
+      }
+    }
+
+    // =========================
+    // CACHE
+    // =========================
+    revalidateTag("products","max");
+    revalidatePath("/admin/stock-finished");
+
+    return {
+      success: true,
+      message: "Purchase stock added successfully",
+    };
+  } catch (error) {
+    console.error("❌ purchaseStock failed:", error);
+
+    return {
+      success: false,
+      message: "Failed to process purchase",
+    };
+  }
+}

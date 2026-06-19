@@ -25,6 +25,7 @@ import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { customerReturn } from "@/app/(universal)/action/stock-finished/customerReturn";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -56,7 +57,7 @@ type Props = {
 };;
 
 
-export default function ItemPurchaseForm({
+export default function ItemReturnForm({
   products,
   customers
 }: Props) {
@@ -109,8 +110,11 @@ export default function ItemPurchaseForm({
     reset,
   } = useForm<FormType>({
    defaultValues: {
-  type: "SALE",
-  direction: "OUT",
+  type: "CUSTOMER_RETURN",
+  direction: "IN",
+  quantity: 0,
+ // unitPrice: 0,
+  transactionUnit: "pcs",
 },
   });
 
@@ -172,16 +176,16 @@ if (!data.wholeSaleCutomerId) {
   return;
 }
 
-if (!data.unitPrice || Number(data.unitPrice) <= 0) {
-  alert("Selling price must be greater than 0");
-  return;
-}
+// if (!data.unitPrice || Number(data.unitPrice) <= 0) {
+//   alert("Selling unitPrice must be greater than 0");
+//   return;
+// }
 
 // stock check
-if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
-  alert("Not enough stock available");
-  return;
-}
+// if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
+//   alert("Not enough stock available");
+//   return;
+// }
 
 // payment validation
 if (data.paymentStatus === "PAID" && !data.paymentMethod) {
@@ -205,7 +209,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
     
     try {
-      const result = await addItemSale({
+      const result = await customerReturn({
         id: data.id,
 
         wholeSaleCutomerId: data.wholeSaleCutomerId,
@@ -213,15 +217,15 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
         // ✅ ADD THIS
         wholeSaleCutomerName:
         selectedCustomer?.companyName || "",
-        type: "SALE",
-        direction: "OUT",//data.direction,
+        type: "RETURN",
+        direction: "IN",//data.direction,
         // INTERNAL
         quantity: finalQuantity,
         unitPrice: finalUnitCost,
         transactionUnit: transactionUnit,
       //   paymentStatus: data.paymentStatus,
         paymentMethod: data.paymentMethod,
-        paidAmount: Number(data.paidAmount || 0),
+      //  paidAmount: Number(data.paidAmount || 0),
         note: data.note,
         createdBy: "admin",
       });
@@ -266,16 +270,13 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
         {/* HEADER */}
         {/* ===================================================== */}
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Stock Sale
-          </h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+  Customer Return
+</h1>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Sale Item
-            stock manually
-          </p>
-        </div>
+<p className="text-sm text-gray-500 mt-1">
+  Receive returned items from customer.
+</p>
 
         {/* ===================================================== */}
         {/* FORM */}
@@ -591,7 +592,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 </select>
   </div>
 
-  {/* PRICE */}
+  {/* unitPrice */}
   <div className="flex flex-col gap-2">
     <label className="label-style-4">
       Unit Price
@@ -602,7 +603,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
       step="0.01"
       {...register("unitPrice")}
       className="input-style-4"
-      placeholder="Enter price"
+      placeholder="Enter Price"
     />
   </div>
 
@@ -638,7 +639,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
           >
             {isSubmitting
               ? "Saving..."
-              : "Save Stock Sale"}
+              : "Save Customer Return"}
           </Button>
         </form>
       </div >

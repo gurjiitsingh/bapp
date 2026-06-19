@@ -55,6 +55,8 @@ export default function StockAdjustmentForm({
 
   const [search, setSearch] =
     useState("");
+    const [selectedProduct, setSelectedProduct] =
+  useState<ProductType | null>(null);
 
   const [showDropdown, setShowDropdown] =
     useState(false);
@@ -202,40 +204,28 @@ export default function StockAdjustmentForm({
       Number(data.quantity);
 
     // convert purchase -> consumption
-  
+
 
     setIsSubmitting(true);
 
     let unitCost = 0;
 
-    
 
-   
+
+
 
 
 
     try {
       const result =
         await updateFinishedItemStock({
-          id:
-            data.id,        
+          id: data.id,
+          productName: "selectedProduct.name",
 
-          direction:
-            data.direction,
-
-          // =====================================
-          // INTERNAL
-          // =====================================
+          direction: data.direction,
 
           quantity: finalQuantity,
-
-         
-
-          // =====================================
-          // ORIGINAL
-          // =====================================   
-
-        
+          transactionUnit: data.transactionUnit,
 
           note: data.note,
 
@@ -258,12 +248,12 @@ export default function StockAdjustmentForm({
         });
 
         reset({
+          id: selectedProduct!.id,
           type: "OPENING_STOCK",
           direction: "IN",
           quantity: 0,
+          transactionUnit: "pcs",
           note: "",
-          id:
-            selectedInventory.id,
         });
       } else {
         alert(result.message);
@@ -286,14 +276,13 @@ export default function StockAdjustmentForm({
         {/* ===================================================== */}
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Item Stock updation
-          </h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+  Stock Adjustment
+</h1>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Add or remove items
-            stock manually
-          </p>
+<p className="text-sm text-gray-500 mt-1">
+  Manually add or remove finished product stock.
+</p>
         </div>
 
         {/* ===================================================== */}
@@ -364,7 +353,7 @@ export default function StockAdjustmentForm({
                           );
 
                           // default transaction unit
-                        
+
 
                           setSearch(item.name);
 
@@ -379,7 +368,7 @@ export default function StockAdjustmentForm({
                         <div className="text-xs text-gray-400">
                           Current:{" "}
                           {item.currentStock}{" "}
-                         
+
                         </div>
                       </button>
                     ))}
@@ -445,34 +434,34 @@ export default function StockAdjustmentForm({
                 Transaction Type
               </label>
 
-              <select
-                {...register("type")}
-                className="input-style-4"
-              >
-                {/* <option value="PURCHASE">
-                  Purchase
-                </option> */}
+        <select
+  {...register("type")}
+  className="input-style-4"
+>
+  <option value="OPENING_STOCK">
+    Opening Stock
+  </option>
 
-                <option value="OPENING_STOCK">
-                  Opening Stock
-                </option>
+  <option value="CUSTOMER_RETURN">
+    Customer Return
+  </option>
 
-                <option value="CUSTOMER_RETURN">
-                  Customer Return
-                </option>
+  <option value="SUPPLIER_RETURN">
+    Supplier Return
+  </option>
 
-                <option value="SUPPLIER_RETURN">
-                  Supplier Return
-                </option>
+  <option value="WASTAGE">
+    Wastage
+  </option>
 
-                <option value="WASTAGE">
-                  Wastage
-                </option>
+  <option value="ADJUSTMENT_IN">
+    Adjustment (Increase)
+  </option>
 
-                <option value="ADJUSTMENT">
-                  Adjustment
-                </option>
-              </select>
+  <option value="ADJUSTMENT_OUT">
+    Adjustment (Decrease)
+  </option>
+</select>
             </div>
 
             {type === "ADJUSTMENT" && (
@@ -504,6 +493,8 @@ export default function StockAdjustmentForm({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+            {/* Quantity */}
+
             <div className="flex flex-col gap-2">
               <label className="label-style-4">
                 Quantity
@@ -518,7 +509,29 @@ export default function StockAdjustmentForm({
               />
             </div>
 
-         
+            {/* Unit */}
+
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit
+              </label>
+
+              <select
+                {...register("transactionUnit")}
+                className="input-style-4"
+              >
+                <option value="pcs">Piece (pcs)</option>
+                <option value="box">Box</option>
+                <option value="pack">Pack</option>
+                <option value="bottle">Bottle</option>
+                <option value="dozen">Dozen</option>
+
+                <option value="kg">Kilogram (kg)</option>
+                <option value="gm">Gram (gm)</option>
+                <option value="ltr">Liter (ltr)</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
+            </div>
 
           </div>
 

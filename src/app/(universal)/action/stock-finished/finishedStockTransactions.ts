@@ -8,96 +8,98 @@ type Props = {
 
 const PAGE_SIZE = 14;
 
+
 export async function getfinishedStockTransactions({
   page = 1,
 }: Props = {}) {
-
-  console.log("page----------------", page);
+  console.log(
+    "Fetching finished stock transactions..."
+  );
 
   try {
-
-    // ✅ Fetch more data (to filter SALE later)
     const snapshot = await adminDb
-      .collection("finishedStockTransactions")
+      .collection("stockLedgerFinished")
       .orderBy("createdAt", "desc")
-      .limit(PAGE_SIZE * 3) // 🔥 important
+      .limit(PAGE_SIZE)
+      .offset((page - 1) * PAGE_SIZE)
       .get();
 
-    // ✅ FILTER SALE ONLY
-    const saleDocs = snapshot.docs.filter(
-      (doc) => doc.data().type === "SALE"
-    );
-
-    // ✅ PAGINATION (after filter)
-    const start = (page - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-
-    const paginatedDocs = saleDocs.slice(start, end);
-
-    const hasMore = saleDocs.length > end;
-
-    const transactions = paginatedDocs.map((doc) => {
-
+    const transactions = snapshot.docs.map((doc) => {
       const data = doc.data();
 
       return {
         id: doc.id,
 
-        inventoryItemName:
-          data.inventoryItemName || "",
+        // Product
+        productId: data.productId || "",
+        productName: data.productName || "",
 
-        type:
-          data.type || "",
+        // Transaction
+        type: data.type || "",
+        direction: data.direction || "",
 
-        // ✅ FIXED: customer instead of supplier
-        wholeSaleCutomerName:
-          data.wholeSaleCutomerName || "",
+        // Quantity
+        quantity: Number(data.quantity || 0),
+        transactionUnit:
+          data.transactionUnit || "",
 
-        direction:
-          data.direction || "",
+        // Pricing
+        unitPrice: Number(data.unitPrice || 0),
+        totalAmount: Number(
+          data.totalAmount || 0
+        ),
 
-        quantity:
-          data.quantity || 0,
+        // Stock
+        beforeStock: Number(
+          data.beforeStock || 0
+        ),
+        afterStock: Number(
+          data.afterStock || 0
+        ),
 
-        unit:
-          data.unit || "",
+        // Payment
+        paidAmount: Number(
+          data.paidAmount || 0
+        ),
+        dueAmount: Number(
+          data.dueAmount || 0
+        ),
+        paymentStatus:
+          data.paymentStatus || "",
+        paymentMethod:
+          data.paymentMethod || "",
 
-        unitCost:
-          data.unitCost || 0,
+        // Customer
+        customerId:
+          data.customerId || "",
+        customerName:
+          data.customerName || "",
 
-        totalAmount:
-          data.totalAmount || 0,
+        // Reference
+        referenceId:
+          data.referenceId || "",
+        referenceType:
+          data.referenceType || "",
 
-        beforeStock:
-          data.beforeStock || 0,
-
-        afterStock:
-          data.afterStock || 0,
-
-        purchaseUnit:
-          data.purchaseUnit || "",
-
-        conversionFactor:
-          data.conversionFactor || 1,
-
+        // Meta
+        note: data.note || "",
         createdBy:
           data.createdBy || "",
+        source: data.source || "",
 
-        createdAt:
-          data.createdAt?._seconds
-            ? data.createdAt._seconds * 1000
-            : null,
+        createdAt: data.createdAt?._seconds
+          ? data.createdAt._seconds * 1000
+          : null,
       };
     });
 
     return {
       success: true,
       data: transactions,
-      hasMore,
+      hasMore:
+        snapshot.size === PAGE_SIZE,
     };
-
   } catch (error) {
-
     console.error(error);
 
     return {
