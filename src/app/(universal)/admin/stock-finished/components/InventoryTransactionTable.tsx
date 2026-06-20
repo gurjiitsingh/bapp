@@ -45,7 +45,7 @@ export default function InventoryTransactionTable({
 }: Props) {
   const router = useRouter();
 
-  console.log("transaction-----------------", transactions)
+
 
   function goToPage(page: number) {
     router.push(

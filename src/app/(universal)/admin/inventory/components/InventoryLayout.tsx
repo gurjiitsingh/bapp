@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
+import { Settings } from "lucide-react";
 import {
   AlertTriangle,
   Boxes,
@@ -38,18 +38,18 @@ export default function InventoryTabs() {
   const pathname = usePathname();
 
   return (
-   <div className="bg-[#f6f8fb] p-2 pt-5 md:px-6">
-      <div className="w-full mx-auto flex flex-col gap-6">
-    
+    <div className="bg-[#f6f8fb] p-2 pt-5 md:px-3">
+      <div className="w-full mx-auto flex flex-col gap-2">
+
         {/* ===================================================== */}
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-2 xl:grid-cols-8 gap-3">
+        <div className="grid grid-cols-3 md:grid-cols-5 xl:grid-cols-9 gap-3">
 
-               <Link
+          <Link
             href="/admin/inventory/purchase/add"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
               <PackagePlus
@@ -67,9 +67,9 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-    <Link
+          <Link
             href="/admin/inventory/supplier"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <Truck
@@ -90,7 +90,7 @@ export default function InventoryTabs() {
 
           <Link
             href="/admin/inventory"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
               <ClipboardList
@@ -110,7 +110,7 @@ export default function InventoryTabs() {
 
           <Link
             href="/admin/inventory/new"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-blue-100 flex items-center justify-center">
               <Plus
@@ -128,11 +128,11 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-         
+
 
           <Link
             href="/admin/inventory/adjust-stock"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
               <PackagePlus
@@ -142,7 +142,7 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Stock Adjustment
+              Adjustment
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
@@ -152,7 +152,7 @@ export default function InventoryTabs() {
 
           <Link
             href="/admin/inventory/transactions"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <BookOpen
@@ -162,7 +162,7 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Stock Transactions
+              Transactions
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
@@ -172,7 +172,7 @@ export default function InventoryTabs() {
 
           <Link
             href="/admin/inventory/categories"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <Tags
@@ -182,17 +182,17 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Stock Categories
+              Categories
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              View
+              Stock Categories
             </p>
           </Link>
 
-           <Link
+          <Link
             href="/admin/inventory/product-recipes/recipes"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
               <Tags
@@ -209,10 +209,50 @@ export default function InventoryTabs() {
               View
             </p>
           </Link>
-      
+
+          <div className="relative group">
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-2 cursor-pointer hover:border-[#00897b]/30 hover:shadow-md transition">
+
+              <div className="h-12 w-8 rounded-2xl bg-gray-100 flex items-center justify-center">
+                <Settings size={22} className="text-gray-600" />
+              </div>
+
+              <h3 className="font-semibold text-gray-800 mt-4">
+                More
+              </h3>
+
+              <p className="text-sm text-gray-500 mt-1">
+                Advanced tools
+              </p>
+            </div>
+
+            {/* DROPDOWN */}
+            <div className="absolute hidden group-hover:block bg-white border rounded-xl shadow-md mt-2 w-56 z-50">
+
+              <Link
+                href="/admin/inventory/init"
+                className="block px-4 py-5  -mt-5 text-sm hover:bg-gray-100"
+              >
+                Product Stock Setup
+              </Link>
+
+              {/* future rare tools */}
+              {/* <Link
+      href="/admin/inventory/import"
+      className="block px-4 py-2 text-sm hover:bg-gray-100"
+    >
+      Import Data
+    </Link> */}
+
+            </div>
+          </div>
+
+
         </div>
 
-    </div>
+
+
+      </div>
     </div>
   );
 }

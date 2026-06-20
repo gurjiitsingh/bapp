@@ -79,7 +79,7 @@ export default function ListView({
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
-              Manage Recipe and components
+              Search product to view Recipes/components
             </p>
           </div>
 
@@ -216,7 +216,7 @@ export default function ListView({
 
                         <td className="px-5 py-4 text-right">
                           <Link
-                          href={`/admin/product-recipes/edit/${product.productId}`}
+                          href={`/admin/inventory/product-recipes/edit/${product.productId}`}
                             className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
                           >
                             View/Edit

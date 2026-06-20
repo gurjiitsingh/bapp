@@ -32,6 +32,12 @@ type Props = {
 
   hasMore: boolean;
 };
+const financialTypes = [
+  "SALE",
+  "PURCHASE",
+  "CUSTOMER_RETURN",
+  "RETURN",
+];
 
 export default function InventoryTransactionTable({
   transactions = [],
@@ -106,11 +112,14 @@ export default function InventoryTransactionTable({
           </TableRow>
         </TableHeader>
 
-        <TableBody>
+     
 
-          {transactions.map((tx) => (
+          <TableBody>
+  {transactions.map((tx) => {
+    const showFinancial = financialTypes.includes(tx.type);
 
-            <TableRow
+    return (
+           <TableRow
               key={tx.id}
               className="
                 whitespace-nowrap
@@ -156,39 +165,41 @@ export default function InventoryTransactionTable({
 
               {/* PRICE */}
 
-              <TableCell>
-                <div className="flex flex-col">
+         <TableCell>
+  {showFinancial ? (
+    <div className="flex flex-col">
 
-                  {tx.purchaseUnit &&
-                  tx.purchaseUnit !== tx.unit &&
-                  tx.conversionFactor ? (
-                    <>
-                      <span className="font-medium">
-                        {formatPrice(
-                          tx.unitCost *
-                            tx.conversionFactor
-                        )}{" "}
-                        / {tx.purchaseUnit}
-                      </span>
+      {tx.purchaseUnit &&
+      tx.purchaseUnit !== tx.unit &&
+      tx.conversionFactor ? (
+        <>
+          <span className="font-medium">
+            {tx.unitCost != null
+              ? `${formatPrice(
+                  tx.unitCost * tx.conversionFactor
+                )} / ${tx.purchaseUnit}`
+              : "-"}
+          </span>
 
-                      <span className="text-xs text-gray-500">
-                        {formatPriceS(
-                          tx.unitCost
-                        )}{" "}
-                        / {tx.unit}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="font-medium">
-                      {formatPrice(
-                        tx.unitCost
-                      )}{" "}
-                      / {tx.unit}
-                    </span>
-                  )}
+          <span className="text-xs text-gray-500">
+            {tx.unitCost != null
+              ? `${formatPriceS(tx.unitCost)} / ${tx.unit}`
+              : "-"}
+          </span>
+        </>
+      ) : (
+        <span className="font-medium">
+          {tx.unitCost != null
+            ? `${formatPrice(tx.unitCost)} / ${tx.unit}`
+            : "-"}
+        </span>
+      )}
 
-                </div>
-              </TableCell>
+    </div>
+  ) : (
+    "-"
+  )}
+</TableCell>
 
               {/* QUANTITY */}
 
@@ -232,7 +243,9 @@ export default function InventoryTransactionTable({
               {/* TOTAL */}
 
               <TableCell>
-                {formatPrice(tx.totalAmount)}
+                {showFinancial
+    ? formatPrice(tx.totalAmount)
+    : "-"}
               </TableCell>
 
               {/* BEFORE */}
@@ -330,9 +343,12 @@ export default function InventoryTransactionTable({
               </TableCell>
 
             </TableRow>
-          ))}
+    );
+  })}
+</TableBody>
 
-        </TableBody>
+     
+    
       </Table>
 
       {/* ===================================================== */}

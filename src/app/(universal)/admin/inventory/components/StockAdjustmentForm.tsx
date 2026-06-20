@@ -57,6 +57,8 @@ export default function StockAdjustmentForm({
   const [showDropdown, setShowDropdown] =
     useState(false);
 
+ 
+
   const [
     selectedInventory,
     setSelectedInventory,
@@ -109,9 +111,16 @@ export default function StockAdjustmentForm({
   //   }
   // }, [type, setValue]);
 
+   useEffect(() => {
+  if (selectedInventory) {
+    setValue(
+      "transactionUnit",
+      selectedInventory.purchaseUnit
+    );
+  }
+}, [selectedInventory, setValue]);
 
-
-  React.useEffect(() => {
+   useEffect(() => {
     switch (type) {
       case "PURCHASE":
       case "OPENING_STOCK":
@@ -199,6 +208,10 @@ export default function StockAdjustmentForm({
     let finalQuantity =
       Number(data.quantity);
 
+      if (!selectedInventory.conversionFactor) {
+  alert("Conversion factor missing");
+  return;
+}
     // convert purchase -> consumption
     if (
       data.transactionUnit ===
@@ -292,14 +305,14 @@ export default function StockAdjustmentForm({
           currentStock: updatedStock,
         });
 
-        reset({
-          type: "OPENING_STOCK",
-          direction: "IN",
-          quantity: 0,
-          note: "",
-          inventoryItemId:
-            selectedInventory.id,
-        });
+       reset({
+  type: "OPENING_STOCK",
+  direction: "IN",
+  quantity: 0,
+  note: "",
+  inventoryItemId: selectedInventory.id,
+  transactionUnit: selectedInventory.purchaseUnit, // ✅ FIX
+});
       } else {
         alert(result.message);
       }
@@ -390,24 +403,20 @@ export default function StockAdjustmentForm({
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => {
-                          setSelectedInventory(item);
+                     onClick={() => {
+  setSelectedInventory(item);
 
-                          setValue(
-                            "inventoryItemId",
-                            item.id
-                          );
+  setValue("inventoryItemId", item.id, {
+    shouldValidate: true,
+  });
 
-                          // default transaction unit
-                          setValue(
-                            "transactionUnit",
-                            item.purchaseUnit
-                          );
+  setValue("transactionUnit", item.purchaseUnit, {
+    shouldValidate: true,
+  });
 
-                          setSearch(item.name);
-
-                          setShowDropdown(false);
-                        }}
+  setSearch(item.name);
+  setShowDropdown(false);
+}}
                         className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
                       >
                         <div className="font-medium text-gray-800">
@@ -565,17 +574,20 @@ export default function StockAdjustmentForm({
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                {selectedInventory && (
-                  <option
-                    value={
-                      selectedInventory.purchaseUnit
-                    }
-                  >
-                    {
-                      selectedInventory.purchaseUnit
-                    }
-                  </option>
-                )}
+            {selectedInventory && (
+  <>
+    <option value={selectedInventory.purchaseUnit}>
+      {selectedInventory.purchaseUnit}
+    </option>
+
+    {selectedInventory.consumptionUnit !==
+      selectedInventory.purchaseUnit && (
+      <option value={selectedInventory.consumptionUnit}>
+        {selectedInventory.consumptionUnit}
+      </option>
+    )}
+  </>
+)}
 
                 {selectedInventory &&
                   selectedInventory.consumptionUnit !==
