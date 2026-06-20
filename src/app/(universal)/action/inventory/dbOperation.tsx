@@ -21,7 +21,7 @@ export const fetchInventoryItems = cache(
     try {
       const snapshot = await adminDb
         .collection("inventoryItems")
-        .orderBy("createdAt", "desc")
+       // .orderBy("createdAt", "desc")
         .get();
 
       const inventoryItems =
