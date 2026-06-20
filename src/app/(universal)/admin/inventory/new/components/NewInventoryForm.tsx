@@ -16,10 +16,7 @@ import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewIn
 
 
 
-type Props = {
-  categories: InventoryCategory[];
-  suppliers: SupplierType[];
-};
+
 
 const UNIT_PAIRS: Record<
   string,
@@ -109,7 +106,10 @@ const UNIT_PAIRS: Record<
     { unit: "pcs", factor: 1 },
   ],
 };
-
+type Props = {
+  categories: InventoryCategory[];
+  suppliers: SupplierType[];
+};
 
 export default function NewInventoryForm({
   categories,
@@ -118,6 +118,24 @@ export default function NewInventoryForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const inventoryUnits = [
+  "pcs",
+  "kg",
+  "gm",
+  "ltr",
+  "ml",
+  "dozen",
+  "pair",
+  "box",
+  "pack",
+  "carton",
+  "bag",
+  "bottle",
+  "can",
+  "jar",
+  "roll",
+  "tray",
+] as const;
 
   const {
     register,

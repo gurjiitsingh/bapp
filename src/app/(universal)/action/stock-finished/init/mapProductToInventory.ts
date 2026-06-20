@@ -1,63 +1,75 @@
-
+import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductType } from "@/lib/types/productType";
+import {
+  getConversionFactor,
+  getDefaultUnitPair,
+} from "@/utils/inventory/unitConversion";
+import admin from "firebase-admin";
 
-export type ProductStock = {
-  id: string;
-  name: string;
-  price: number;
-
-  productMode?: "raw_stock" | "finished_stock" | "simple";
-
-  currentStock: number;
-  minStock: number;
-
-  categoryId?: string;
-  categoryName?: string;
-
-  sku?: string;
-  barcode?: string;
-
-  updatedAt: number;
+type UnitConfig = {
+  purchaseUnit?: InventoryUnit;
+  consumptionUnit?: InventoryUnit;
+  conversionFactor?: number;
 };
-
-type InventoryItemType = {
-  id: string;
-
-  name: string;
-
-  categoryName?: string;
-
-
-  // costPrice?: number;
-
-  // sellingPrice?: number;
-
-  categoryId?: string;
-
-
-  isActive: boolean;
-
-  // createdAt: Timestamp | FieldValue;
-  // updatedAt?: Timestamp | FieldValue;
-};
-
 
 export function mapProductToInventory(
-  product: ProductType
-): InventoryItemType {
+  product: ProductType,
+  config?: UnitConfig,
+  categoryId?: string,
+  minStock?: number,
+  currentStock?: number
+): Partial<InventoryItemType> {
+  const name = product.name ?? "";
+
+  const defaultPair = getDefaultUnitPair(config?.purchaseUnit);
+
+  const purchaseUnit =
+    config?.purchaseUnit ??
+    defaultPair?.purchaseUnit ??
+    "pcs";
+
+  const consumptionUnit =
+    config?.consumptionUnit ??
+    defaultPair?.consumptionUnit ??
+    purchaseUnit;
+
+  const conversionFactor =
+    config?.conversionFactor ??
+    getConversionFactor(purchaseUnit, consumptionUnit);
+
   return {
-    // ✅ IMPORTANT: keep same ID as product
     id: product.id,
 
-    name: product.name ?? "",
+    name,
+    nameLower: name.toLowerCase(),
 
-    categoryId: product.categoryId ?? "",
+    sku: product.sku ?? "",
+    barcode: product.barcode ?? "",
 
-    // 👇 UI friendly
-    categoryName: product.productCat ?? "",
+    purchaseUnit,
+    consumptionUnit,
+    conversionFactor,
+
+    // ✅ ALWAYS ensure numbers (avoid undefined / NaN)
+    currentStock: Number(currentStock ?? 0),
+    minStock: Number(minStock ?? 0),
+
+    // ✅ safe category mapping
+    ...(categoryId && categoryId.trim() !== "" && { categoryId }),
+
+    ...(product.productCat && {
+      categoryName: product.productCat,
+    }),
 
     isActive: true,
 
+    /**
+     * ✅ CRITICAL FIX:
+     * createdAt should NOT overwrite existing doc
+     * So we REMOVE it from here
+     * and set ONLY in API when doc is new
+     */
 
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   };
 }

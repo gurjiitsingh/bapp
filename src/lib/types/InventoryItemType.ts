@@ -277,7 +277,7 @@ export type InventoryItemType = {
   id: string;
 
   name: string;
-
+nameLower?: string;
   categoryName?: string;
   supplierName?: string;
 
@@ -292,7 +292,7 @@ export type InventoryItemType = {
 
   currentStock?: number;
 
-  minStock: number;
+  minStock?: number;
 
   // costPrice?: number;
 

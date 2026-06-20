@@ -30,7 +30,7 @@ const InventoryEditForm = ({
     suppliers,
 }: Props) => {
 
-
+console.log("inventoryItem----------", inventoryItem)
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const router = useRouter();
