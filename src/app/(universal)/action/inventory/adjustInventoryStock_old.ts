@@ -5,10 +5,12 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
-import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
-import { PaymentStatus } from "@/lib/types/PaymentStatus";
+//import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
+import { PaymentStatus } from "@/lib/types/PaymentStatus";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+  import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
+//import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
 type AdjustInventoryStockType = {

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 export default async function InventoryDashboardPage() {
 

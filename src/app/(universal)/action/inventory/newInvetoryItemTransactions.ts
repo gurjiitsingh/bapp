@@ -9,7 +9,7 @@ import {
   revalidateTag,
 } from "next/cache";
 
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 

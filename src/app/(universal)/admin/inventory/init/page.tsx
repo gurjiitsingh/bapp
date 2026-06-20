@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getConsumptionOptions_, getConversionFactor, getDefaultUnitPair, } from "@/utils/inventory/unitConversion";
+import { InventoryUnit } from "@/lib/types/InventoryItemType";
 
 const inventoryUnits = [
   "pcs",
@@ -35,38 +36,46 @@ export default function ProductStockSetupPage() {
   const [loading, setLoading] = useState(true);
   const [copyLoading, setCopyLoading] = useState(false);
 
-  const [purchaseUnit, setPurchaseUnit] = useState("kg");
-  const [consumptionUnit, setConsumptionUnit] = useState("gm");
+
+const [purchaseUnit, setPurchaseUnit] = useState<InventoryUnit>("kg");
+const [consumptionUnit, setConsumptionUnit] = useState<InventoryUnit>("gm");
+
   const [conversionFactor, setConversionFactor] = useState(1000);
   const [minStock, setMinStock] = useState<number | undefined>(5);
   const [currentStock, setCurrentStock] = useState<number | undefined>(0);
  const [selectedInventoryCategory, setSelectedInventoryCategory] = useState<string>("");
+type InventoryUnit = typeof inventoryUnits[number];
 
+useEffect(() => {
+  const options = getConsumptionOptions_(purchaseUnit);
 
-  useEffect(() => {
-    const options = getConsumptionOptions_(purchaseUnit);
+  if (!options.length) return;
 
-    if (!options.length) return;
+  const exists = options.some(
+    (o) => o.unit === consumptionUnit
+  );
 
-    const exists = options.some(
-      (o) => o.unit === consumptionUnit
+  if (exists) {
+    const factor = getConversionFactor(
+      purchaseUnit,
+      consumptionUnit
     );
+    setConversionFactor(factor);
+  } else {
+    const defaultPair = getDefaultUnitPair(purchaseUnit);
 
-    if (exists) {
+    if (defaultPair) {
+      setConsumptionUnit(defaultPair.consumptionUnit);
+
       const factor = getConversionFactor(
-        purchaseUnit,
-        consumptionUnit
+        defaultPair.purchaseUnit,
+        defaultPair.consumptionUnit
       );
-      setConversionFactor(factor);
-    } else {
-      const defaultPair = getDefaultUnitPair(purchaseUnit);
 
-      if (defaultPair) {
-        setConsumptionUnit(defaultPair.unit);
-        setConversionFactor(defaultPair.factor);
-      }
+      setConversionFactor(factor);
     }
-  }, [purchaseUnit, consumptionUnit]);
+  }
+}, [purchaseUnit, consumptionUnit]);
   // ✅ Load data
   useEffect(() => {
     async function loadData() {
@@ -234,10 +243,9 @@ async function handleCopy() {
 
                 <select
                   value={purchaseUnit}
-                  onChange={(e) => {
-                    console.log("Selected Purchase:", e.target.value);
-                    setPurchaseUnit(e.target.value);
-                  }}
+                 onChange={(e) => {
+  setPurchaseUnit(e.target.value as InventoryUnit);
+}}
                   className="input-style-4 mt-1"
                 >
                   {inventoryUnits.map((u) => (
@@ -256,7 +264,7 @@ async function handleCopy() {
 
                 <select
                   value={consumptionUnit}
-                  onChange={(e) => setConsumptionUnit(e.target.value)}
+                  onChange={(e) => setConsumptionUnit(e.target.value as InventoryUnit)}
                   className="input-style-4 mt-1"
                 >
                   {consumptionOptions.map((opt) => (

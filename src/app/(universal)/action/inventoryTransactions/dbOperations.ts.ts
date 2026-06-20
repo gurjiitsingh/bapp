@@ -4,14 +4,13 @@ import admin from "firebase-admin";
 
 import { adminDb } from "@/lib/firebaseAdmin";
 
-import {
-  newInventoryTransactionSchema,
-} from "@/lib/types/Inventorytype";
+
 
 import {
   revalidatePath,
   revalidateTag,
 } from "next/cache";
+import { newInventoryTransactionSchema } from "@/lib/types/InventoryTransactionType";
 
 export async function addInventoryTransaction(
   formData: FormData

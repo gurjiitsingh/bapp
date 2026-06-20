@@ -20,7 +20,7 @@ import {
   InventoryItemType,
   InventoryUnit,
 } from "@/lib/types/InventoryItemType";
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { displayStock } from "@/utils/inventory/displayStock";
 

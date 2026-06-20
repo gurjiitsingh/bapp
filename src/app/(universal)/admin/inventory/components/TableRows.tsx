@@ -47,7 +47,7 @@ function TableRows({
    
 
   const isLowStock =
-    item.currentStock! <= item.minStock;
+    item.currentStock! <= item.minStock!;
 
   async function handleDelete() {
     const confirmDelete = confirm(
@@ -151,7 +151,7 @@ function TableRows({
       <TableCell>
         <span className="text-sm font-medium text-gray-700">
           {displayStock(
-            item.minStock,
+            item.minStock!,
             item.purchaseUnit,
             item.consumptionUnit,
             item.conversionFactor

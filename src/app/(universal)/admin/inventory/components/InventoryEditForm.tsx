@@ -65,7 +65,7 @@ console.log("inventoryItem----------", inventoryItem)
                 inventoryItem.currentStock!,
 
             minStock:
-                inventoryItem.minStock,
+                inventoryItem.minStock!,
 
             // costPrice:
             //     inventoryItem.costPrice,

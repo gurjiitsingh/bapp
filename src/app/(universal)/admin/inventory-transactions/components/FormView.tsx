@@ -10,11 +10,9 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import {
   ArrowLeftRight,
 } from "lucide-react";
-import {
-  newInventoryTransactionSchema,
-  TnewInventoryTransactionSchema,
-} from "@/lib/types/Inventorytype";
+
 import { addInventoryTransaction } from "@/app/(universal)/action/inventoryTransactions/dbOperations.ts";
+import { newInventoryTransactionSchema, TnewInventoryTransactionSchema } from "@/lib/types/InventoryTransactionType";
 
 type Props = {
   inventoryItems: InventoryItemType[];

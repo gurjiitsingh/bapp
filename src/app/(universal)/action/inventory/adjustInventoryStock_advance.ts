@@ -3,8 +3,9 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { InventoryTransactionNameType } from "@/lib/types/Inventorytype";
+
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 

@@ -8,7 +8,7 @@ import { InventoryUnit } from "@/lib/types/InventoryItemType";
 
 type ApplyFinishedMovementType = {
   productId: string;
-
+productName?: string;
   type: string;
   direction: "IN" | "OUT";
 

@@ -58,9 +58,14 @@ export async function POST(req: Request) {
         currentStock ?? 0       // ✅ safe default
       );
 
-      const ref = adminDb
-        .collection("inventoryItems")
-        .doc(stock.id);
+    if (!stock.id) {
+  console.warn("Missing stock id for product", product);
+  return; // skip this item
+}
+
+const ref = adminDb
+  .collection("inventoryItems")
+  .doc(stock.id);
 
       batch.set(ref, stock, { merge: true });
     });
