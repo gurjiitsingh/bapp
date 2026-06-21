@@ -64,9 +64,14 @@ export async function editCustomerAddress(formData: FormData) {
 
 //  Search address by email
 export async function searchAddressEmail(email: string): Promise<addressResType | null> {
+if (!email) return null;
+
+const value = email.trim();
+ const field = value.includes("@") ? "email" : "mobNo";
   const querySnapshot = await adminDb
     .collection("address")
-    .where("email", "==", email)
+     .where(field, "==", value)
+   // .where("email", "==", email)
     .get();
 
   if (querySnapshot.empty) return null;
@@ -252,7 +257,7 @@ export async function addCustomerAddressDirectPrimaryMOB(
     ...receivedData,
     createdAt: FieldValue.serverTimestamp(),
   };
-console.log("in address----------------",addressData)
+
   const docRef = await adminDb.collection("address").add(addressData);
 
   return docRef.id;

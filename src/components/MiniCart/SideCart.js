@@ -37,6 +37,7 @@ export const SideCart = () => {
 
   function pickUpHandle() {
     sideBarToggle();
+    
     if (!customerEmail) {
       emailFormToggle(true);
     } else {

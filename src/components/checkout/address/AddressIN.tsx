@@ -2,8 +2,9 @@
 
 import { useCartContext } from "@/store/CartContext";
 import { useForm } from "react-hook-form";
-import {
+import { 
   addressCheckoutSMALL,
+  addressResT,
   TAddressCheckoutSMALL,
 } from "@/lib/types/addressType";
 import { createNewOrderCustomerAddressSMALL } from "@/app/(universal)/action/orders/dbOperations";
@@ -18,8 +19,14 @@ import {
   fetchLocations,
   getLocationByName,
 } from "@/app/(universal)/action/location/dbOperation";
+import {
+  searchAddressEmail,
+  // searchAddressByUserId,
+} from "@/app/(universal)/action/address/dbOperations";
+
 import { FaCheck } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { fetchdeliveryByZip } from "@/app/(universal)/action/delivery/dbOperation";
 
 export default function AddressIN() {
   //const { setCustomerAddress } = useCartContext();
@@ -41,7 +48,55 @@ export default function AddressIN() {
     emailFormToggle,
   } = UseSiteContext();
 
+    async function getAddressByEmail(inputEmail: string) {
+      console.log("inputEmail------------------",inputEmail)
+      const addressRes = await searchAddressEmail(inputEmail);
+  console.log("address in IN------------------", addressRes)
+      if (addressRes) {
+        setAddress(addressRes);
+        const zipInfo = await fetchdeliveryByZip(addressRes.zipCode);
+        setdeliveryDis(zipInfo);
+      } else {
+        setAddressReset();
+        console.warn("No address found for email:", inputEmail);
+      }
+    }
+
+      function setAddressReset() {
+        setValue("email", customerEmail);
+        setValue("firstName", "");
+        setValue("lastName", "");
+        setValue("mobNo", "");
+        setValue("addressLine1", "");
+        setValue("addressLine2", "");
+        setValue("city", "");
+        setValue("state", "");
+        setValue("zipCode", "");
+      }
+    
+      function setAddress(addressRes: addressResT) {
+        setValue("email", addressRes.email);
+        setValue("firstName", addressRes.firstName);
+        setValue("lastName", addressRes.lastName);
+        setValue("mobNo", addressRes.mobNo);
+        setValue("addressLine1", addressRes.addressLine1);
+        setValue("addressLine2", addressRes.addressLine2);
+        setValue("city", addressRes.city);
+        setValue("state", addressRes.state);
+        setValue("zipCode", addressRes.zipCode);
+      }
+
  
+
+  useEffect(() => {
+     console.log("customerEmail----------", customerEmail)
+      if (customerEmail !== undefined) {
+        getAddressByEmail(customerEmail);
+      }
+      if (deliveryType === null) {
+        chageDeliveryType("pickup");
+      }
+     }, [customerEmail]);
 
   useEffect(() => {
    // setCustomerAddressIsComplete(false);
@@ -209,7 +264,7 @@ function handleVillageTownCostCheck(value: string) {
         zipCode: data.zipCode ?? "",
       };
 
-      console.log("cokies fill---------------------", customAddress)
+  //    console.log("cokies fill---------------------", customAddress)
       if (typeof window !== "undefined") {
         localStorage.setItem("customer_address", JSON.stringify(customAddress));
       }
