@@ -6,7 +6,7 @@ import { getAuth } from "firebase-admin/auth";
 export async function GET() {
   try {
     const snapshot = await adminDb
-      .collection("user")
+      .collection("users")
       .where("role", "==", "admin")
       .limit(1)
       .get();
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
 
     // Check if admin already exists
     const snapshot = await adminDb
-      .collection("user")
+      .collection("users")
       .where("role", "==", "admin")
       .limit(1)
       .get();
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     });
 
     // Add Firestore record with admin role
-    await adminDb.collection("user").doc(userRecord.uid).set({
+    await adminDb.collection("users").doc(userRecord.uid).set({
       name,
       email,
       role: "admin",

@@ -42,7 +42,7 @@ export default function ProductCardHorizontical({
   const shouldOpenPopup =
     product.hasVariants || product.hasModifier;
 
-    console.log("hasvariant  modifier---------",product)
+   
 
 
   const [simpleNoteOpen, setSimpleNoteOpen] = useState(false);

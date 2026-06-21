@@ -4,21 +4,15 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 
-export async function findCustomer(
-  identifier: string
-) {
-  const usersRef =
-    adminDb.collection("users");
+export async function findCustomer(identifier: string) {
+  const value = identifier.trim();
 
-  const isEmail =
-    identifier.includes("@");
+  const usersRef = adminDb.collection("users");
+
+  const field = value.includes("@") ? "email" : "phone";
 
   const snap = await usersRef
-    .where(
-      isEmail ? "email" : "phone",
-      "==",
-      identifier
-    )
+    .where(field, "==", value)
     .limit(1)
     .get();
 

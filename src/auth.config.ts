@@ -17,7 +17,7 @@ export const authConfig = {
         const password = credentials?.password as string;
         if (!email || !password) return null;
         const snapshot = await adminDb
-          .collection("user")
+          .collection("users")
           .where("email", "==", email)
           .limit(1)
           .get();

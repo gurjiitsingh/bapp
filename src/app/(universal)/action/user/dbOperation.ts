@@ -17,7 +17,7 @@ export async function addUserDirect(formData: FormData): Promise<string | undefi
   let username = (formData.get("username") || undefined) as string | undefined;
 
   const existing = await adminDb
-    .collection("user")
+    .collection("users")
     .where("email", "==", email)
     .get();
 
@@ -50,7 +50,7 @@ export async function addUserDirect(formData: FormData): Promise<string | undefi
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    const docRef = await adminDb.collection("user").add(newUser);
+    const docRef = await adminDb.collection("users").add(newUser);
     return docRef.id;
   } catch (e) {
     console.error("Error adding user:", e);
@@ -79,7 +79,7 @@ export async function addUserDirectPrimaryMOB(
  console.log("user data----",email,password,firstName,lastName,mobNo)
   // 🔍 1️⃣ Search existing user by mobile
   const existing = await adminDb
-    .collection("user")
+    .collection("users")
     .where("mobNo", "==", mobNo)
     .limit(1)
     .get();
@@ -115,7 +115,7 @@ export async function addUserDirectPrimaryMOB(
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    const docRef = await adminDb.collection("user").add(newUser);
+    const docRef = await adminDb.collection("users").add(newUser);
 
     return docRef.id;
 
@@ -132,7 +132,7 @@ export async function searchUserById(id: string | undefined): Promise<TuserSchem
   let data = {} as TuserSchem;
   if (id) {
     const snapshot = await adminDb
-      .collection("user")
+      .collection("users")
       .where("userId", "==", id)
       .get();
 
@@ -148,7 +148,7 @@ export async function searchUserById(id: string | undefined): Promise<TuserSchem
  */
 export async function fetchAllUsers(): Promise<userType[]> {
   const data: userType[] = [];
-  const snapshot = await adminDb.collection("user").get();
+  const snapshot = await adminDb.collection("users").get();
 
   snapshot.forEach((doc) => {
     const docData = doc.data();
@@ -173,7 +173,7 @@ export async function fetchAllUsers(): Promise<userType[]> {
  * Delete a user document by its Firestore ID.
  */
 export async function deleteUser(id: string): Promise<{ message: { success: string } }> {
-  await adminDb.collection("user").doc(id).delete();
+  await adminDb.collection("users").doc(id).delete();
   return { message: { success: "ok" } };
 }
 
