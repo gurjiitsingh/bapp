@@ -113,6 +113,21 @@ export const emailZ = z.object({
 
 export type TemailZ = z.infer<typeof emailZ>;
 
+
+
+export const customerLookupZ = z.object({
+  identifier: z
+    .string()
+    .trim()
+    .min(
+      3,
+      "Enter email or phone number"
+    ),
+});
+
+export type TCustomerLookup =
+  z.infer<typeof customerLookupZ>;
+
 export type TaddressCheckout ={
   id?:string;
   firstName:string;

@@ -37,7 +37,11 @@ setProductToSearchQuery: (e: string) => void;
   setAdminSideBarToggleG: (e: boolean) => void;
   setCustomerEmailG: (e: string) => void;
   customerEmail: string;
+  setCustomerData: (e: string) => void;
+  customerData: string;
+  
   setCustomerAddressIsComplete: (e: boolean) => void;
+  setCustomerAddressIsCompleteA: (e: boolean) => void;
   customerAddressIsComplete: boolean;
   productCategoryIdG: string;
   setProductCategoryIdG: (e: string) => void;
@@ -124,8 +128,15 @@ setProductToSearchQuery: (e: string) => e,
   setCustomerEmailG: (e) => {
     return e;
   },
+    setCustomerData: (e) => {
+    return e;
+  },
   customerEmail: "",
   setCustomerAddressIsComplete: (e) => {
+    return e;
+  },
+    customerData: "",
+  setCustomerAddressIsCompleteA: (e) => {
     return e;
   },
   customerAddressIsComplete: false,
