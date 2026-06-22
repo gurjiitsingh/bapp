@@ -11,10 +11,7 @@ import { newInventoryItemAndTransaction } from "./newInvetoryItemTransactions";
 export async function addNewInventoryItem(
   formData: FormData
 ) {
-  console.log(
-    "inventory save-------------",
-    formData
-  );
+ 
 
   try {
     // FORM VALUES
@@ -95,7 +92,7 @@ export async function addNewInventoryItem(
         minStock * conversionFactor;
     }
 
-console.log("currentStock--------------", currentStock)
+console.log("currentStock--------------",  minStock, conversionFactor)
 
     // VALIDATION OBJECT
  const receivedData = {

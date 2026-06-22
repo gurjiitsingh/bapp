@@ -2,7 +2,7 @@
 "use client";
 // name , category(liqued/non veg, bakery, veg, water, rice,readymade), Favorate,
 //  Available, Modify date, Created modify by, Action (view detail in popup, edit)
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -15,127 +15,28 @@ import { SupplierType } from "@/lib/types/SupplierType";
 import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewInventoryItem";
 
 
-
-
-
-const UNIT_PAIRS: Record<
-  string,
-  {
-    unit: string;
-    factor: number;
-  }[]
-> = {
-  kg: [
-    { unit: "kg", factor: 1 },
-    { unit: "gm", factor: 1000 },
-  ],
-
-  gm: [
-    { unit: "gm", factor: 1 },
-  ],
-
-  ltr: [
-    { unit: "ltr", factor: 1 },
-    { unit: "ml", factor: 1000 },
-  ],
-
-  ml: [
-    { unit: "ml", factor: 1 },
-  ],
-
-  dozen: [
-    { unit: "dozen", factor: 1 },
-    { unit: "pcs", factor: 12 },
-    { unit: "bottle", factor: 12 },
-    { unit: "can", factor: 12 },
-  ],
-
-  pair: [
-    { unit: "pair", factor: 1 },
-    { unit: "pcs", factor: 2 },
-  ],
-
-  carton: [
-    { unit: "carton", factor: 1 },
-    { unit: "pcs", factor: 24 },
-    { unit: "bottle", factor: 24 },
-    { unit: "can", factor: 24 },
-  ],
-
-  box: [
-    { unit: "box", factor: 1 },
-    { unit: "pcs", factor: 10 },
-  ],
-
-  pack: [
-    { unit: "pack", factor: 1 },
-    { unit: "pcs", factor: 6 },
-  ],
-
-  bag: [
-    { unit: "bag", factor: 1 },
-    { unit: "gm", factor: 5000 },
-  ],
-
-  bottle: [
-    { unit: "bottle", factor: 1 },
-    { unit: "ml", factor: 1000 },
-  ],
-
-  can: [
-    { unit: "can", factor: 1 },
-    { unit: "ml", factor: 330 },
-  ],
-
-  jar: [
-    { unit: "jar", factor: 1 },
-    { unit: "gm", factor: 500 },
-  ],
-
-  tray: [
-    { unit: "tray", factor: 1 },
-    { unit: "pcs", factor: 30 },
-  ],
-
-  roll: [
-    { unit: "roll", factor: 1 },
-    { unit: "pcs", factor: 1 },
-  ],
-
-  pcs: [
-    { unit: "pcs", factor: 1 },
-  ],
+type UnitConversion = {
+  id: string;
+  purchaseUnit: string;
+  consumptionUnit: string;
+  factor: number;
+  isActive?: boolean;
+  system?: boolean;
 };
+
 type Props = {
   categories: InventoryCategory[];
   suppliers: SupplierType[];
+  unitConversions: UnitConversion[];
 };
 
 export default function NewInventoryForm({
   categories,
-  suppliers
+  suppliers,
+  unitConversions,
 }: Props) {
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const inventoryUnits = [
-  "pcs",
-  "kg",
-  "gm",
-  "ltr",
-  "ml",
-  "dozen",
-  "pair",
-  "box",
-  "pack",
-  "carton",
-  "bag",
-  "bottle",
-  "can",
-  "jar",
-  "roll",
-  "tray",
-] as const;
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
 
   const {
     register,
@@ -145,152 +46,269 @@ export default function NewInventoryForm({
     handleSubmit,
     reset,
   } = useForm<TnewInventorySchema>({
-    resolver: zodResolver(newInventorySchema),
+    resolver: zodResolver(
+      newInventorySchema
+    ),
 
     defaultValues: {
-      //currentStock: 0,
-      // minStock: 0,
-      // costPrice: 0,
-      // sellingPrice: 0,
-
-      // purchaseUnit: "kg",
-      // consumptionUnit: "gm",
-      //conversionFactor: 1000,
-
       isActive: true,
     },
   });
 
-  const purchaseUnit = watch("purchaseUnit");
-  const consumptionUnit = watch("consumptionUnit");
 
 
-  // AUTO SET CONSUMPTION UNIT + FACTOR
-  useEffect(() => {
-    const pairs =
-      UNIT_PAIRS[purchaseUnit] || [];
+const purchaseUnit = watch("purchaseUnit");
+const consumptionUnit =
+  watch("consumptionUnit");
 
-    const selectedPair =
-      pairs.find(
+// =====================================
+// PURCHASE UNITS
+// =====================================
+
+const purchaseUnits = useMemo(
+  () =>
+    Array.from(
+      new Set(
+        unitConversions
+          .filter(
+            (item) =>
+              item.isActive !== false
+          )
+          .map(
+            (item) =>
+              item.purchaseUnit
+          )
+      )
+    ),
+  [unitConversions]
+);
+
+// =====================================
+// AVAILABLE CONVERSIONS
+// =====================================
+
+const availableConversions =
+  useMemo(
+    () =>
+      unitConversions.filter(
         (item) =>
-          item.unit ===
-          consumptionUnit
-      );
+          item.purchaseUnit ===
+            purchaseUnit &&
+          item.isActive !== false
+      ),
+    [
+      unitConversions,
+      purchaseUnit,
+    ]
+  );
 
-    if (selectedPair) {
-      setValue(
-        "conversionFactor",
-        selectedPair.factor
-      );
-    } else if (pairs.length > 0) {
-      setValue(
-        "consumptionUnit",
-        pairs[0].unit as any
-      );
+// =====================================
+// SET DEFAULT PURCHASE UNIT
+// =====================================
 
-      setValue(
-        "conversionFactor",
-        pairs[0].factor
-      );
-    }
-  }, [
-    purchaseUnit,
-    consumptionUnit,
-    setValue,
-  ]);
-
-
-  async function onSubmit(data: TnewInventorySchema) {
-    setIsSubmitting(true);
-
-
-
-    try {
-      const formData = new FormData();
-
-      formData.append("name", data.name);
-      formData.append("sku", data.sku || "");
-      formData.append("barcode", data.barcode || "");
-      formData.append(
-        "purchaseUnit",
-        data.purchaseUnit
-      );
-
-      formData.append(
-        "consumptionUnit",
-        data.consumptionUnit
-      );
-
-      formData.append(
-        "conversionFactor",
-        String(data.conversionFactor)
-      );
-      formData.append(
-        "currentStock",
-        String(data.currentStock ?? 0)
-      );
-
-      formData.append(
-        "minStock",
-        String(data.minStock ?? 0)
-      );
-
-      formData.append(
-        "costPrice",
-        String(data.costPrice ?? 0)
-      );
-
-      formData.append(
-        "sellingPrice",
-        String(data.sellingPrice ?? 0)
-      );
-
-      formData.append(
-        "categoryId",
-        data.categoryId || ""
-      );
-
-      data.supplierIds?.forEach(
-        (supplierId) => {
-          formData.append(
-            "supplierIds",
-            supplierId
-          );
-        }
-      );
-
-      formData.append(
-        "isActive",
-        data.isActive ? "true" : "false"
-      );
-
-      const result = await addNewInventoryItem(formData);
-
-      if (!result?.errors) {
-        reset({
-          name: "",
-          sku: "",
-          barcode: "",
-          currentStock: 0,
-          minStock: 0,
-          costPrice: 0,
-          sellingPrice: 0,
-          purchaseUnit: "kg",
-          consumptionUnit: "gm",
-          conversionFactor: 1000,
-          //   supplierIds: [],
-          isActive: true,
-        });
-      } else {
-        console.error(result.errors);
-        alert("Failed to save inventory item");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-
-    setIsSubmitting(false);
+useEffect(() => {
+  if (
+    !purchaseUnit &&
+    purchaseUnits.length > 0
+  ) {
+    setValue(
+      "purchaseUnit",
+      purchaseUnits[0]
+    );
   }
+}, [
+  purchaseUnit,
+  purchaseUnits,
+  setValue,
+]);
+
+// =====================================
+// AUTO SET CONSUMPTION UNIT + FACTOR
+// =====================================
+
+useEffect(() => {
+  if (
+    availableConversions.length === 0
+  ) {
+    return;
+  }
+
+  const selectedConversion =
+    availableConversions.find(
+      (item) =>
+        item.consumptionUnit ===
+        consumptionUnit
+    );
+
+  if (selectedConversion) {
+    setValue(
+      "conversionFactor",
+      selectedConversion.factor
+    );
+  } else {
+    setValue(
+      "consumptionUnit",
+      availableConversions[0]
+        .consumptionUnit as any
+    );
+
+    setValue(
+      "conversionFactor",
+      availableConversions[0]
+        .factor
+    );
+  }
+}, [
+  consumptionUnit,
+  availableConversions,
+  setValue,
+]);
+
+// =====================================
+// SUBMIT
+// =====================================
+
+async function onSubmit(
+  data: TnewInventorySchema
+) {
+  setIsSubmitting(true);
+
+  try {
+    const formData = new FormData();
+
+    formData.append(
+      "name",
+      data.name
+    );
+
+    formData.append(
+      "sku",
+      data.sku || ""
+    );
+
+    formData.append(
+      "barcode",
+      data.barcode || ""
+    );
+
+    formData.append(
+      "purchaseUnit",
+      data.purchaseUnit
+    );
+
+    formData.append(
+      "consumptionUnit",
+      data.consumptionUnit
+    );
+
+    formData.append(
+      "conversionFactor",
+      String(
+        data.conversionFactor
+      )
+    );
+
+    formData.append(
+      "currentStock",
+      String(
+        data.currentStock ?? 0
+      )
+    );
+
+    formData.append(
+      "minStock",
+      String(
+        data.minStock ?? 0
+      )
+    );
+
+    formData.append(
+      "costPrice",
+      String(
+        data.costPrice ?? 0
+      )
+    );
+
+    formData.append(
+      "sellingPrice",
+      String(
+        data.sellingPrice ?? 0
+      )
+    );
+
+    formData.append(
+      "categoryId",
+      data.categoryId || ""
+    );
+
+    data.supplierIds?.forEach(
+      (supplierId) => {
+        formData.append(
+          "supplierIds",
+          supplierId
+        );
+      }
+    );
+
+    formData.append(
+      "isActive",
+      data.isActive
+        ? "true"
+        : "false"
+    );
+
+    const result =
+      await addNewInventoryItem(
+        formData
+      );
+
+    if (!result?.errors) {
+      reset({
+        name: "",
+        sku: "",
+        barcode: "",
+        currentStock: 0,
+        minStock: 0,
+        costPrice: 0,
+        sellingPrice: 0,
+
+        purchaseUnit:
+          purchaseUnits[0] || "",
+
+        consumptionUnit:
+          unitConversions.find(
+            (x) =>
+              x.purchaseUnit ===
+              purchaseUnits[0]
+          )?.consumptionUnit || "",
+
+        conversionFactor:
+          unitConversions.find(
+            (x) =>
+              x.purchaseUnit ===
+              purchaseUnits[0]
+          )?.factor || 1,
+
+        supplierIds: [],
+        isActive: true,
+      });
+    } else {
+      console.error(
+        result.errors
+      );
+
+      alert(
+        "Failed to save inventory item"
+      );
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  setIsSubmitting(false);
+}
+
+
 
   return (
     <form
@@ -406,24 +424,18 @@ export default function NewInventoryForm({
                   {...register("purchaseUnit")}
                   className="input-style-4 mt-1"
                 >
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (gm)</option>
-                  <option value="ltr">Liter (ltr)</option>
-                  <option value="ml">Milliliter (ml)</option>
-                  <option value="pcs">Pieces (pcs)</option>
-                  <option value="dozen">Dozen</option>
-                  <option value="pair">Pair</option>
-                  <option value="box">Box</option>
-                  <option value="pack">Pack</option>
-                  <option value="carton">Carton</option>
-                  <option value="bag">Bag</option>
-                  <option value="bottle">Bottle</option>
-                  <option value="can">Can</option>
-                  <option value="jar">Jar</option>
-                  <option value="roll">Roll</option>
-                  <option value="tray">Tray</option>
+                  <option value="">
+                    Select Purchase Unit
+                  </option>
 
-
+                  {purchaseUnits.map((unit) => (
+                    <option
+                      key={unit}
+                      value={unit}
+                    >
+                      {unit.toUpperCase()}
+                    </option>
+                  ))}
                 </select>
 
                 <p className="text-xs text-gray-500 mt-1">
@@ -441,30 +453,30 @@ export default function NewInventoryForm({
                   {...register("consumptionUnit")}
                   className="input-style-4 mt-1"
                 >
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (gm)</option>
-                  <option value="ltr">Liter (ltr)</option>
-                  <option value="ml">Milliliter (ml)</option>
-                  <option value="pcs">Pieces (pcs)</option>
-                  <option value="dozen">Dozen</option>
-                  <option value="pair">Pair</option>
-                  <option value="box">Box</option>
-                  <option value="pack">Pack</option>
-                  <option value="carton">Carton</option>
-                  <option value="bag">Bag</option>
-                  <option value="bottle">Bottle</option>
-                  <option value="can">Can</option>
-                  <option value="jar">Jar</option>
-                  <option value="roll">Roll</option>
-                  <option value="tray">Tray</option>
+                  {availableConversions.length === 0 ? (
+                    <option value="">
+                      Select Purchase Unit First
+                    </option>
+                  ) : (
+                    availableConversions.map(
+                      (conversion) => (
+                        <option
+                          key={`${conversion.purchaseUnit}-${conversion.consumptionUnit}`}
+                          value={
+                            conversion.consumptionUnit
+                          }
+                        >
+                          {conversion.consumptionUnit.toUpperCase()}
+                        </option>
+                      )
+                    )
+                  )}
                 </select>
 
                 <p className="text-xs text-gray-500 mt-1">
                   Unit used in recipes
                 </p>
               </div>
-
-
 
               {/* Conversion Factor */}
               <div>
@@ -481,7 +493,7 @@ export default function NewInventoryForm({
                 />
 
                 <p className="text-xs text-gray-500 mt-1">
-                  Example: 1 kg = 1000 gm
+                  Auto-filled from unit conversion setup
                 </p>
 
                 <p className="text-xs text-red-500 mt-1">
@@ -515,7 +527,7 @@ export default function NewInventoryForm({
           </div>
 
 
-   <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Supplier Information
             </h2>
@@ -571,7 +583,7 @@ export default function NewInventoryForm({
         <div className="flex flex-col gap-5">
 
 
-       
+
           {/* Status Card */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -615,6 +627,7 @@ export default function NewInventoryForm({
       </div>
     </form>
   );
+
 };
 
 

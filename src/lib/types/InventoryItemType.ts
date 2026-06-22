@@ -5,6 +5,8 @@ import {
   FieldValue,
 } from "firebase/firestore";
 
+
+
 export const inventoryUnits = [
   "pcs",
   "kg",
@@ -14,7 +16,7 @@ export const inventoryUnits = [
   "dozen",
   "pair",
   "box",
-  "pack",
+  "pack", 
   "carton",
   "bag",
   "bottle",
@@ -23,6 +25,8 @@ export const inventoryUnits = [
   "roll",
   "tray",
 ] as const;
+
+
 
 export type InventoryUnit =
   (typeof inventoryUnits)[number];

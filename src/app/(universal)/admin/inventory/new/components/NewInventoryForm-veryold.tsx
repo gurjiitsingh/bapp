@@ -16,7 +16,10 @@ import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewIn
 
 
 
-
+type Props = {
+  categories: InventoryCategory[];
+  suppliers: SupplierType[];
+};
 
 const UNIT_PAIRS: Record<
   string,
@@ -106,18 +109,14 @@ const UNIT_PAIRS: Record<
     { unit: "pcs", factor: 1 },
   ],
 };
-type Props = {
-  categories: InventoryCategory[];
-  suppliers: SupplierType[];
-};
+
 
 export default function NewInventoryForm({
   categories,
-  suppliers 
+  suppliers
 }: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
 
   const {
@@ -186,7 +185,7 @@ export default function NewInventoryForm({
   async function onSubmit(data: TnewInventorySchema) {
     setIsSubmitting(true);
 
-
+    
 
     try {
       const formData = new FormData();
@@ -261,7 +260,7 @@ export default function NewInventoryForm({
           purchaseUnit: "kg",
           consumptionUnit: "gm",
           conversionFactor: 1000,
-          //   supplierIds: [],
+       //   supplierIds: [],
           isActive: true,
         });
       } else {
@@ -281,11 +280,10 @@ export default function NewInventoryForm({
       className="w-full  p-4 md:p-6"
     >
       {/* Header */}
-      {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            Update Inventory Item
+            Create Inventory Item
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
@@ -294,18 +292,18 @@ export default function NewInventoryForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* LEFT */}
-        <div className="xl:col-span-2 flex flex-col gap-5">
+        <div className="md:col-span-2 flex flex-col gap-5">
           {/* Inventory Details */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Inventory Details
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Name */}
-              <div className="md:col-span-1">
+              <div className="md:col-span-2">
                 <label className="label-style-4">
                   Item Name
                 </label>
@@ -320,12 +318,9 @@ export default function NewInventoryForm({
                   {errors.name?.message}
                 </p>
               </div>
-
-              {/* Current Stock */}
-              <div>
-                <label className="label-style-4">
-                  Category
-                </label>
+              <div>  <label className="label-style-4">
+                Category
+              </label>
 
                 <select
                   {...register("categoryId")}
@@ -347,9 +342,37 @@ export default function NewInventoryForm({
 
                 <p className="text-xs text-gray-500 mt-1">
                   Group inventory items into categories
-                </p>
+                </p></div>
 
-              </div>
+              {/* <div>  <label className="label-style-4">
+                Supplier
+              </label>
+
+                <select
+                  {...register("supplierIds")}
+                  className="input-style-4 mt-1"
+                >
+                  <option value="">
+                    Select Supplier
+                  </option>
+
+                  {suppliers.map((supplier) => (
+                    <option
+                      key={supplier.id}
+                      value={supplier.id}
+                    >
+                      {supplier.companyName}
+                    </option>
+                  ))}
+                </select>
+
+                <p className="text-xs text-gray-500 mt-1">
+                  Group inventory items into categories
+                </p></div> */}
+
+
+
+
 
               {/* SKU */}
               <div>
@@ -378,95 +401,110 @@ export default function NewInventoryForm({
               </div>
 
               {/* Unit */}
-
-              {/* Purchase Unit */}
               <div>
-                <label className="label-style-4">
-                  Purchase Unit
-                </label>
+                {/* Purchase Unit */}
+                <div>
+                  <label className="label-style-4">
+                    Purchase Unit
+                  </label>
 
-                <select
-                  {...register("purchaseUnit")}
-                  className="input-style-4 mt-1"
-                >
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (gm)</option>
-                  <option value="ltr">Liter (ltr)</option>
-                  <option value="ml">Milliliter (ml)</option>
-                  <option value="pcs">Pieces (pcs)</option>
-                  <option value="dozen">Dozen</option>
-                  <option value="pair">Pair</option>
-                  <option value="box">Box</option>
-                  <option value="pack">Pack</option>
-                  <option value="carton">Carton</option>
-                  <option value="bag">Bag</option>
-                  <option value="bottle">Bottle</option>
-                  <option value="can">Can</option>
-                  <option value="jar">Jar</option>
-                  <option value="roll">Roll</option>
-                  <option value="tray">Tray</option>
+                  <select
+                    {...register("purchaseUnit")}
+                    className="input-style-4 mt-1"
+                  >
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="gm">Gram (gm)</option>
+                    <option value="ltr">Liter (ltr)</option>
+                    <option value="ml">Milliliter (ml)</option>
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="dozen">Dozen</option>
+                    <option value="pair">Pair</option>
+                    <option value="box">Box</option>
+                    <option value="pack">Pack</option>
+                    <option value="carton">Carton</option>
+                    <option value="bag">Bag</option>
+                    <option value="bottle">Bottle</option>
+                    <option value="can">Can</option>
+                    <option value="jar">Jar</option>
+                    <option value="roll">Roll</option>
+                    <option value="tray">Tray</option>
 
 
-                </select>
+                  </select>
 
-                <p className="text-xs text-gray-500 mt-1">
-                  Unit used when purchasing stock
-                </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Unit used when purchasing stock
+                  </p>
+                </div>
+
+                {/* Consumption Unit */}
+                <div>
+                  <label className="label-style-4">
+                    Consumption Unit
+                  </label>
+
+                  <select
+                    {...register("consumptionUnit")}
+                    className="input-style-4 mt-1"
+                  >
+                    {(
+                      UNIT_PAIRS[purchaseUnit] || []
+                    ).map((item) => (
+                      <option
+                        key={item.unit}
+                        value={item.unit}
+                      >
+                        {item.unit}
+                      </option>
+                    ))}
+                  </select>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Unit used in recipes
+                  </p>
+                </div>
+
+                {/* Conversion Factor */}
+                <div>
+                  <label className="label-style-4">
+                    Conversion Factor
+                  </label>
+
+                  <input
+                    type="number"
+                    step="0.0001"
+                    {...register("conversionFactor")}
+                    className="input-style-4 mt-1"
+                    placeholder="1000"
+                  />
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Example: 1 kg = 1000 gm
+                  </p>
+
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.conversionFactor?.message}
+                  </p>
+                </div>
               </div>
 
-              {/* Consumption Unit */}
-              <div>
+              {/* Current Stock */}
+              {/* <div>
                 <label className="label-style-4">
-                  Consumption Unit
-                </label>
-
-             <select
-  {...register("consumptionUnit")}
-  className="input-style-4 mt-1"
->
-  {(UNIT_PAIRS[purchaseUnit] || []).map(
-    (item) => (
-      <option
-        key={item.unit}
-        value={item.unit}
-      >
-        {item.unit}
-      </option>
-    )
-  )}
-</select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Unit used in recipes
-                </p>
-              </div>
-
-
-
-              {/* Conversion Factor */}
-              <div>
-                <label className="label-style-4">
-                  Conversion Factor
+                  Current Stock
                 </label>
 
                 <input
+                  {...register("currentStock")}
                   type="number"
-                  step="0.0001"
-                  {...register("conversionFactor")}
+                  placeholder="0"
                   className="input-style-4 mt-1"
-                  placeholder="1000"
                 />
 
-                <p className="text-xs text-gray-500 mt-1">
-                  Example: 1 kg = 1000 gm
-                </p>
-
                 <p className="text-xs text-red-500 mt-1">
-                  {errors.conversionFactor?.message}
+                  {errors.currentStock?.message}
                 </p>
-              </div>
-
-
-
+              </div> */}
 
               {/* Min Stock */}
               <div>
@@ -486,68 +524,94 @@ export default function NewInventoryForm({
                 </p>
               </div>
             </div>
-
-
           </div>
 
 
-   <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Supplier Information
+        </div>
+
+        <div>
+
+
+          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <h2 className="text-lg font-semibold mb-4">
+              Suppliers
             </h2>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
-
-              {suppliers.length > 0 ? (
-                suppliers.map((supplier) => (
+            <div className="space-y-3">
+              {suppliers.map(
+                (supplier) => (
                   <label
                     key={supplier.id}
-                    className="
-                        flex items-center gap-2
-                        rounded-lg border border-gray-100
-                        px-2 py-2
-                        hover:bg-slate-50
-                        cursor-pointer
-                        transition
-                    "
+                    className="flex items-center gap-3"
                   >
                     <input
                       type="checkbox"
-                      value={supplier.id}
-                      {...register("supplierIds")}
-                      className="h-4 w-4 rounded border-gray-300 shrink-0"
+                      value={
+                        supplier.id
+                      }
+                      {...register(
+                        "supplierIds"
+                      )}
                     />
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs text-gray-800 truncate leading-tight">
-                        {supplier.companyName}
-                      </p>
-
-                      <p className="text-[11px] text-gray-500 truncate leading-tight">
-                        {supplier.phone || "No phone"}
-                      </p>
-                    </div>
+                    <span>
+                      {
+                        supplier.companyName
+                      }
+                    </span>
                   </label>
-                ))
-              ) : (
-                <div className="text-sm text-gray-400 text-center py-6 col-span-full">
-                  No suppliers found
-                </div>
+                )
               )}
-
             </div>
           </div>
 
+          {/* Pricing */}
+          {/* <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Pricing Information
+            </h2>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+             
+              <div>
+                <label className="label-style-4">
+                  Cost Price
+                </label>
 
+                <input
+                  {...register("costPrice")}
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.costPrice?.message}
+                </p>
+              </div>
+
+            
+              <div>
+                <label className="label-style-4">
+                  Selling Price
+                </label>
+
+                <input
+                  {...register("sellingPrice")}
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  className="input-style-4 mt-1"
+                />
+              </div>
+            </div>
+          </div> */}
 
         </div>
 
         {/* RIGHT */}
         <div className="flex flex-col gap-5">
-
-
-       
           {/* Status Card */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -570,11 +634,11 @@ export default function NewInventoryForm({
           {/* Save */}
           <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl shadow-sm p-5">
             <h3 className="text-lg font-semibold text-gray-800">
-              Update Inventory
+              Save Inventory
             </h3>
 
             <p className="text-sm text-gray-500 mt-1 mb-5">
-              Update this inventory item in your system
+              Save this inventory item to your system
             </p>
 
             <Button
@@ -583,8 +647,8 @@ export default function NewInventoryForm({
               className="btn-save-4 w-full"
             >
               {isSubmitting
-                ? "Updating Inventory..."
-                : "Update Inventory Item"}
+                ? "Saving Inventory..."
+                : "Save Inventory Item"}
             </Button>
           </div>
         </div>
