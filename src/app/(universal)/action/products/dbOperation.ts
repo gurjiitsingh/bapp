@@ -963,10 +963,42 @@ export async function fetchProductByCategoryId(
       return [];
     }
 
-    const products: ProductType[] = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as ProductType[];
+const products: ProductType[] = querySnapshot.docs.map((doc) => {
+  const data = doc.data();
+
+  return {
+    id: doc.id,
+    name: data.name ?? "",
+    price: data.price ?? 0,
+    currentStock: data.currentStock ?? 0,
+    discountPrice: data.discountPrice,
+    categoryId: data.categoryId ?? "",
+    masterCategoryId: data.masterCategoryId ?? "",
+    masterCategoryName: data.masterCategoryName ?? "",
+    productCat: data.productCat,
+    baseProductId: data.baseProductId ?? "",
+    productDesc: data.productDesc ?? "",
+    quantity: 0,
+    sortOrder: data.sortOrder ?? 0,
+    image: data.image ?? "",
+    isFeatured: data.isFeatured ?? false,
+    flavors: data.flavors ?? false,
+    publishStatus: data.publishStatus ?? "draft",
+    stockStatus: data.stockStatus ?? "out_of_stock",
+    searchCode: data.searchCode ?? "",
+    taxRate: data.taxRate,
+    taxType: data.taxType,
+    purchaseSession: data.purchaseSession ?? null,
+
+    sku: data.sku,
+    barcode: data.barcode,
+    minStock: data.minStock,
+    productMode: data.productMode,
+    inventoryItemId: data.inventoryItemId,
+    trackInventory: data.trackInventory,
+    allowNegativeStock: data.allowNegativeStock,
+  };
+});
 
     return products;
   } catch (error) {
@@ -1167,8 +1199,111 @@ export async function updateProductField(
 }
 
 
+ 
 
+export const fetchLatestProducts = unstable_cache(
+  async (): Promise<ProductType[]> => {
+    try {
+      const snapshot = await adminDb
+        .collection("products")
+       // .where("publishStatus", "==", "published")
+       // .where("type", "==", "parent")
+        .orderBy("updatedAt", "desc")
+        .limit(4)
+        .get();
 
+      if (snapshot.empty) return [];
+
+      return snapshot.docs.map((doc) => {
+        const data = doc.data() as Partial<ProductType> & {
+          updatedAt?: any;
+        };
+
+        let updatedAt: string | null = null;
+
+        if (data.updatedAt) {
+          if (typeof data.updatedAt.toDate === "function") {
+            updatedAt = data.updatedAt.toDate().toISOString();
+          } else if (typeof data.updatedAt === "string") {
+            updatedAt = data.updatedAt;
+          }
+        }
+
+        return {
+          id: doc.id,
+
+          name: data.name ?? "",
+
+          price: data.price ?? 0,
+
+          currentStock: data.currentStock ?? 0,
+
+          discountPrice: data.discountPrice ?? 0,
+
+          categoryId: data.categoryId ?? "",
+
+          masterCategoryId: data.masterCategoryId ?? "",
+
+          masterCategoryName: data.masterCategoryName ?? "",
+
+          parentId: data.parentId ?? "",
+
+          hasVariants: data.hasVariants ?? false,
+
+          hasModifier: data.hasModifier ?? false,
+
+          type: data.type ?? "parent",
+
+          productCat: data.productCat ?? "",
+
+          flavors: data.flavors ?? false,
+
+          publishStatus: data.publishStatus ?? "published",
+
+          stockStatus: data.stockStatus ?? "out_of_stock",
+
+          baseProductId: data.baseProductId ?? "",
+
+          productDesc: data.productDesc ?? "",
+
+          sortOrder: data.sortOrder ?? 0,
+
+          image: data.image ?? "",
+
+          isFeatured: data.isFeatured ?? false,
+
+          purchaseSession: data.purchaseSession ?? null,
+
+          quantity: data.currentStock ?? null,
+
+          updatedAt,
+
+          searchCode: data.searchCode ?? "",
+
+          taxRate: data.taxRate ?? undefined,
+
+          taxType: data.taxType,
+
+          sku: data.sku ?? "",
+          barcode: data.barcode ?? "",
+          productMode: data.productMode,
+          inventoryItemId: data.inventoryItemId,
+          trackInventory: data.trackInventory ?? false,
+          allowNegativeStock: data.allowNegativeStock ?? false,
+          minStock: data.minStock ?? 0,
+        };
+      });
+    } catch (error) {
+      console.error("Failed to fetch latest products:", error);
+      return [];
+    }
+  },
+  ["latest-products"],
+ {
+    tags: ["products"],
+    revalidate: 3600,
+  }
+);
 
 
 

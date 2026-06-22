@@ -37,8 +37,8 @@ export const BRANDING = {
 
   // Order complete
   order_complete_heading: "Ihre Bestellung ist abgeschlossen",
-  pickup_time: "Abholen: 20–25 Minuten",
-  delivery_time: "Lieferzeit: 40–55 Minuten",
+  pickup_time: "",
+  delivery_time: " ",
 shop_more_button_order_complete: "Mehr einkaufen",
 
 
