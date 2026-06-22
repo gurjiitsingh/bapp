@@ -15,13 +15,15 @@ import { useLanguage } from "@/store/LanguageContext";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 import SetDeliveryType from "./SetDeliveryType";
 
-type OrderSummaryProps = {
+const ENABLE_ORDER_SCHEDULE =
+  process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
+type OrderSummeryProcessProps = {
   //orderType: "delivery" | "pickup" | "dine_in" | "schedule" | string |;
   isStoreOpen?: boolean;
   // scheduledAt?: string | null;
 };
 
-export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
+export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProcessProps) {
   const { TEXT } = useLanguage();
   const {
     couponDisc,
@@ -301,17 +303,23 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
 
   async function proceedToOrder() {
     if (isLoading) return;
-    if (scheduledAt) {
-      const d = new Date(scheduledAt);
-      if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
-        toast.error("Scheduled time must be in the future");
+
+    if (ENABLE_ORDER_SCHEDULE) {
+      if (scheduledAt) {
+        const d = new Date(scheduledAt);
+
+        if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
+          toast.error("Scheduled time must be in the future");
+          return;
+        }
+      }
+
+      if (!isStoreOpen && !scheduledAt) {
+        toast.error(
+          "Now store is closed, please select a time when the store is open"
+        );
         return;
       }
-    }
-
-    if (!isStoreOpen && !scheduledAt) {
-      toast.error("Now store is close, slecet differen time when store open");
-      return;
     }
 
     setIsLoading(true);
@@ -391,7 +399,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
 
       const customerEmail = customerAddress?.email ?? "";
       const customerfirstName = customerAddress?.firstName ?? "";
-       const customerlastName = customerAddress?.lastName ?? "";
+      const customerlastName = customerAddress?.lastName ?? "";
       const customerPhone = customerAddress?.mobNo ?? "";
 
       const addressLine1 = customerAddress?.addressLine1 ?? "";
@@ -431,7 +439,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
         userId,
         customerName,
         customerPhone, //  ADDED
-        email:customerEmail,
+        email: customerEmail,
 
         orderType: "ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE"
         tableNo: orderType === "DINE_IN" ? tableNo : null,
@@ -536,7 +544,7 @@ export default function OrderSummaryMOB({ isStoreOpen }: OrderSummaryProps) {
         <div className="flex flex-col gap-2 items-center">
           <h2
             className="text-sm font-semibold text-gray-700 mb-4 w-full text-left"
-            // className="text-xl font-semibold border-b border-slate-200 py-3 w-full uppercase"
+          // className="text-xl font-semibold border-b border-slate-200 py-3 w-full uppercase"
           >
             {TEXT.cart_heading}
           </h2>

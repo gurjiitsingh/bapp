@@ -30,88 +30,6 @@ type FetchOrdersOptions = {
   pageSize?: number;
 };
 
-export async function createNewOrderCustomerAddress(
-  purchaseData: purchaseDataT
-) {
-  const { address } = purchaseData;
-  const { email, lastName, firstName } = address;
-
-  const password = "123456"; // default password
-  const username = `${firstName}${lastName}`;
-
-  // Step 1: Create user account
-  const formData = new FormData();
-  formData.append("username", username);
-  formData.append("email", email);
-  formData.append("password", password);
-  formData.append("confirmPassword", password);
-
-  const UserAddedId = (await addUserDirect(formData)) as string;
-
-  // Step 2: Add customer address
-  const formDataAdd = new FormData();
-  formDataAdd.append("firstName", firstName);
-  formDataAdd.append("lastName", lastName);
-  formDataAdd.append("userId", UserAddedId);
-  formDataAdd.append("email", email);
-  formDataAdd.append("mobNo", address.mobNo);
-  formDataAdd.append("password", password);
-  formDataAdd.append("addressLine1", address.addressLine1 || "");
-  formDataAdd.append("addressLine2", address.addressLine2 || "");
-  formDataAdd.append("city", address.city);
-  formDataAdd.append("state", address.state);
-  formDataAdd.append("zipCode", address.zipCode);
-
-  const addressAddedId = await addCustomerAddressDirect(formDataAdd);
-
-  const customerName = `${firstName} ${lastName}`;
-
-  return { addressAddedId, UserAddedId, customerName };
-}
-
-export async function createNewOrderCustomerAddressSMALL(
-  purchaseData: purchaseDataT
-) {
-  const { address } = purchaseData;
-  const { email = "", lastName, firstName, mobNo } = address;
-
-  const password = "123456";
-  const username = `${firstName}${lastName}`;
-
-  const finalEmail = email && email.trim() !== "" ? email : `${mobNo}@mail.com`;
-
-  // --- Create user ---
-  const formUser = new FormData();
-  formUser.append("username", username);
-  formUser.append("email", finalEmail);
-  formUser.append("password", password);
-  formUser.append("confirmPassword", password);
-  formUser.append("mobNo", mobNo);
-  formUser.append("firstName", firstName);
-  formUser.append("lastName", lastName);
-
-  const UserAddedId = (await addUserDirectPrimaryMOB(formUser)) as string;
-
-  // --- Add address ---
-  const formAddress = new FormData();
-  formAddress.append("firstName", firstName);
-  formAddress.append("lastName", lastName);
-  formAddress.append("userId", UserAddedId);
-  formAddress.append("email", finalEmail);
-  formAddress.append("mobNo", address.mobNo);
-  formAddress.append("password", password);
-  formAddress.append("addressLine1", address.addressLine1 ?? "");
-  formAddress.append("addressLine2", address.addressLine2 ?? "");
-  formAddress.append("city", address.city ?? "");
-  formAddress.append("state", address.state ?? "Punjab");
-  formAddress.append("zipCode", address.zipCode ?? "123");
-
-  const addressAddedId = await addCustomerAddressDirectPrimaryMOB(formAddress);
-
-  const customerName = `${firstName} ${lastName}`;
-
-  return { addressAddedId, UserAddedId, customerName };
-}
 
 const SHOULD_MAINTAIN_STOCK =
   process.env.NEXT_PUBLIC_MAINTAIN_STOCK === "true" ||
@@ -466,6 +384,91 @@ await processSaleInventory(
     orderId: orderMasterId,
   };
 }
+
+export async function createNewOrderCustomerAddress(
+  purchaseData: purchaseDataT
+) {
+  const { address } = purchaseData;
+  const { email, lastName, firstName } = address;
+
+  const password = "123456"; // default password
+  const username = `${firstName}${lastName}`;
+
+  // Step 1: Create user account
+  const formData = new FormData();
+  formData.append("username", username);
+  formData.append("email", email);
+  formData.append("password", password);
+  formData.append("confirmPassword", password);
+
+  const UserAddedId = (await addUserDirect(formData)) as string;
+
+  // Step 2: Add customer address
+  const formDataAdd = new FormData();
+  formDataAdd.append("firstName", firstName);
+  formDataAdd.append("lastName", lastName);
+  formDataAdd.append("userId", UserAddedId);
+  formDataAdd.append("email", email);
+  formDataAdd.append("mobNo", address.mobNo);
+  formDataAdd.append("password", password);
+  formDataAdd.append("addressLine1", address.addressLine1 || "");
+  formDataAdd.append("addressLine2", address.addressLine2 || "");
+  formDataAdd.append("city", address.city);
+  formDataAdd.append("state", address.state);
+  formDataAdd.append("zipCode", address.zipCode);
+
+  const addressAddedId = await addCustomerAddressDirect(formDataAdd);
+
+  const customerName = `${firstName} ${lastName}`;
+
+  return { addressAddedId, UserAddedId, customerName };
+}
+
+export async function createNewOrderCustomerAddressSMALL(
+  purchaseData: purchaseDataT
+) {
+  const { address } = purchaseData;
+  const { email = "", lastName, firstName, mobNo } = address;
+
+  const password = "123456";
+  const username = `${firstName}${lastName}`;
+
+  const finalEmail = email && email.trim() !== "" ? email : `${mobNo}@mail.com`;
+
+  // --- Create user ---
+  const formUser = new FormData();
+  formUser.append("username", username);
+  formUser.append("email", finalEmail);
+  formUser.append("password", password);
+  formUser.append("confirmPassword", password);
+  formUser.append("mobNo", mobNo);
+  formUser.append("firstName", firstName);
+  formUser.append("lastName", lastName);
+
+  const UserAddedId = (await addUserDirectPrimaryMOB(formUser)) as string;
+
+  // --- Add address ---
+  const formAddress = new FormData();
+  formAddress.append("firstName", firstName);
+  formAddress.append("lastName", lastName);
+  formAddress.append("userId", UserAddedId);
+  formAddress.append("email", finalEmail);
+  formAddress.append("mobNo", address.mobNo);
+  formAddress.append("password", password);
+  formAddress.append("addressLine1", address.addressLine1 ?? "");
+  formAddress.append("addressLine2", address.addressLine2 ?? "");
+  formAddress.append("city", address.city ?? "");
+  formAddress.append("state", address.state ?? "Punjab");
+  formAddress.append("zipCode", address.zipCode ?? "123");
+
+  const addressAddedId = await addCustomerAddressDirectPrimaryMOB(formAddress);
+
+  const customerName = `${firstName} ${lastName}`;
+
+  return { addressAddedId, UserAddedId, customerName };
+}
+
+
 
 /**
  * Save or update customer info in Firestore

@@ -6,10 +6,11 @@ import dynamic from "next/dynamic";
 import PaymentSelector from "./components/PaymentSelector";
 import OrderTypeSelector from "@/components/OrderTypeSelector";
 import AddressWrapper from "@/components/checkout/address/AddressWrapper";
-import OrderSummaryMOB from "./components/Cart/OrderSummaryMOB";
+import OrderSummeryProcess from "./components/Cart/OrderSummeryProcess";
 
 import { DaySchedule } from "@/lib/types/daySchedule";
-
+const ENABLE_ORDER_SCHEDULE =
+  process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
 // 🔥 Disable SSR
 const StoreOpenStatus = dynamic(
   () => import("@/components/StoreOpenStatus"),
@@ -52,36 +53,40 @@ const CheckoutClient = ({ weeklySchedule }: Props) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div translate="no" className="bg-white flex flex-col mt-2">
+      <div translate="no" className="bg-white flex flex-col mt-10">
         <div className="container mx-auto flex flex-col md:flex-row gap-6 p-2">
-          
+
           <div className="flex flex-col gap-3 w-full">
-            
-            <StoreOpenStatus onStatusChange={setIsStoreOpen} />
 
-            <OrderTypeSelector
-              isStoreOpen={isStoreOpen}
-              onSelect={setOrderType}
-            />
+            {ENABLE_ORDER_SCHEDULE && (
+              <>
+                <StoreOpenStatus onStatusChange={setIsStoreOpen} />
 
-            {orderType === "instant" && (
-              <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
-                Your order will be prepared in 30–45 minutes.
-              </div>
-            )}
+                <OrderTypeSelector
+                  isStoreOpen={isStoreOpen}
+                  onSelect={setOrderType}
+                />
 
-            {orderType === "schedule" && (
-              <SchedulePicker
-                onChange={setScheduledAt}
-                schedule={weeklySchedule} // ✅ from server
-              />
+                {orderType === "instant" && (
+                  <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
+                    Your order will be prepared in 30–45 minutes.
+                  </div>
+                )}
+
+                {orderType === "schedule" && (
+                  <SchedulePicker
+                    onChange={setScheduledAt}
+                    schedule={weeklySchedule}
+                  />
+                )}
+              </>
             )}
 
             <AddressWrapper country="IN" />
             <PaymentSelector />
           </div>
 
-          <OrderSummaryMOB isStoreOpen={isStoreOpen} />
+          <OrderSummeryProcess isStoreOpen={isStoreOpen} />
         </div>
       </div>
     </Suspense>
