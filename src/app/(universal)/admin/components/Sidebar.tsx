@@ -38,6 +38,8 @@ type SidebarFlagKey =
   | "SHOW_CATEGORIES"
   | "SHOW_PICKUP_DISCOUNT"
   | "SHOW_PRODUCTS"
+  | "SHOW_INVENTORY_RAW"
+  | "SHOW_INVENTORY_FINISHED"
   | "SHOW_VARIANTS"
   | "SHOW_COUPON"
   | "SHOW_DELIVERY"
@@ -75,6 +77,8 @@ export const sidebarFlags: Record<SidebarFlagKey, boolean> = {
   SHOW_CATEGORIES: flag(process.env.NEXT_PUBLIC_SHOW_CATEGORIES),
   SHOW_PICKUP_DISCOUNT: flag(process.env.NEXT_PUBLIC_SHOW_PICKUP_DISCOUNT),
   SHOW_PRODUCTS: flag(process.env.NEXT_PUBLIC_SHOW_PRODUCTS),
+  SHOW_INVENTORY_RAW: flag(process.env.NEXT_PUBLIC_SHOW_RAW_INVENTORY),
+  SHOW_INVENTORY_FINISHED: flag(process.env.NEXT_PUBLIC_SHOW_FINISHED_INVENTORY), 
   SHOW_VARIANTS: flag(process.env.NEXT_PUBLIC_SHOW_VARIANTS),
   SHOW_COUPON: flag(process.env.NEXT_PUBLIC_SHOW_COUPON),
   SHOW_DELIVERY: flag(process.env.NEXT_PUBLIC_SHOW_DELIVERY),
@@ -171,14 +175,14 @@ const Sidebar = () => {
    
    
 {
-  key: "SHOW_INVENTORY",
+  key: "SHOW_INVENTORY_RAW",
   name: "Raw Stock",
   link: "/admin/inventory/dashboard",
   icon: <MdOutlineInventory2 />,
 },
 
 {
-  key: "SHOW_INVENTORY",
+  key: "SHOW_INVENTORY_RAW",
   name: "Finished Stock",
   link: "/admin/stock-finished/sale/add",
   icon: <MdInventory />,
