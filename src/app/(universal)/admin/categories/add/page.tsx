@@ -39,7 +39,7 @@ const Form = () => {
       if (data.image?.[0]) {
         const compressedFile =
           await imageCompression(data.image[0], {
-            maxWidthOrHeight: 550,
+            maxWidthOrHeight: 500,
             maxSizeMB: 0.2,
             initialQuality: 0.8,
             useWebWorker: true,
