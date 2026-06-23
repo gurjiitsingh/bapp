@@ -155,7 +155,7 @@ export default function ListView() {
           </div>
 
           {/* Right Side */}
-          <Link href="/admin/products/form">
+          <Link href="/admin/products/add">
             <Button
               className="
           h-10

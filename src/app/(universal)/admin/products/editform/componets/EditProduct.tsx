@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { MasterCategoryType } from "@/lib/types/masterCategoryType";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
+import imageCompression from "browser-image-compression";
 
 type Props = {
   masterCategories: MasterCategoryType[];
@@ -25,7 +26,7 @@ const EditProduct = ({
 }: Props) => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
- 
+
   const searchParams = useSearchParams();
   const id = searchParams.get("id") || "";
   const router = useRouter();
@@ -44,7 +45,7 @@ const EditProduct = ({
   useEffect(() => {
     async function loadProduct() {
       const data = await fetchProductById(id);
-      console.log("data----------------",data)
+      console.log("data----------------", data)
       if (!data) return;
 
       setValue("id", id);
@@ -57,10 +58,10 @@ const EditProduct = ({
       setValue("publishStatus", data.publishStatus ?? "published");
       setValue("sortOrder", data.sortOrder?.toString() ?? "0");
       setValue("categoryId", data.categoryId);
-        setValue(
-      "masterCategoryId",
-      data.masterCategoryId ?? ""
-    );
+      setValue(
+        "masterCategoryId",
+        data.masterCategoryId ?? ""
+      );
       setValue("isFeatured", data.isFeatured);
       setValue("taxRate", data.taxRate?.toString() ?? "");
       setValue("taxType", data.taxType ?? "inclusive");
@@ -75,7 +76,7 @@ const EditProduct = ({
 
     loadProduct();
     loadCategories();
-   
+
   }, [id, setValue]);
 
   async function onsubmit(data: TeditProductSchema) {
@@ -89,9 +90,9 @@ const EditProduct = ({
     formData.append("currentStock", data.currentStock ?? "-1");
     formData.append("categoryId", data.categoryId!);
     formData.append(
-  "masterCategoryId",
-  data.masterCategoryId ?? ""
-);
+      "masterCategoryId",
+      data.masterCategoryId ?? ""
+    );
     formData.append("sortOrder", data.sortOrder);
     formData.append("productDesc", data.productDesc ?? "");
     formData.append("status", data.publishStatus ?? "published");
@@ -104,8 +105,19 @@ const EditProduct = ({
     formData.append("taxRate", data.taxRate ?? "");
     formData.append("taxType", data.taxType ?? "inclusive");
 
-    if (data.image && data.image[0]) {
-      formData.append("image", data.image[0]);
+
+    if (data.image?.[0]) {
+      const compressedFile =
+        await imageCompression(data.image[0], {
+          maxWidthOrHeight: 550,
+          maxSizeMB: 0.2,
+          initialQuality: 0.8,
+          useWebWorker: true,
+        });
+
+      formData.append("image", compressedFile);
+    } else {
+      formData.append("image", "0");
     }
 
     const result = await editProduct(formData);
@@ -195,12 +207,12 @@ const EditProduct = ({
                 <p className="text-xs text-destructive">{errors.name?.message}</p>
               </div>
 
-              
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
                 <div className="flex flex-col gap-1">
-                   <label className="label-style">Master Category</label>
+                  <label className="label-style">Master Category</label>
                   <select
                     {...register("masterCategoryId")}
                     className="input-style"
@@ -210,13 +222,13 @@ const EditProduct = ({
                     </option>
 
                     {masterCategories.map((item) => (
-                    <option
-                      key={item.id}
-                      value={item.id}
-                    >
-                      {item.name}
-                    </option>
-                  ))}
+                      <option
+                        key={item.id}
+                        value={item.id}
+                      >
+                        {item.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex flex-col gap-1">

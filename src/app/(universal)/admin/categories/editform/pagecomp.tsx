@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import imageCompression from "browser-image-compression";
 import {
   editCategorySchema,
   TeditCategorySchema,
@@ -72,13 +73,26 @@ const PageComp = ({
     formData.append("name", data.name);
     formData.append("oldImageUrl", data.oldImageUrl);
     formData.append("desc", data.desc ?? "");
-    formData.append("image", data.image[0]);
     formData.append("isFeatured", data.isFeatured!);
     formData.append("id", data.id!);
     formData.append("sortOrder", data.sortOrder!);
     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
     formData.append("taxType", data.taxType as string);
     formData.append("masterCategoryId", data.masterCategoryId ?? "");
+
+    if (data.image?.[0]) {
+      const compressedFile =
+        await imageCompression(data.image[0], {
+          maxWidthOrHeight: 550,
+          maxSizeMB: 0.2,
+          initialQuality: 0.8,
+          useWebWorker: true,
+        });
+
+      formData.append("image", compressedFile);
+    } else {
+      formData.append("image", "0");
+    }
 
     const result = await editCategory(formData);
     if (!result?.errors) {

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { addNewCategory } from "@/app/(universal)/action/category/dbOperations";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 import Link from "next/link";
+import imageCompression from "browser-image-compression";
 const masterCategories =
   await getMasterCategories();
 const Form = () => {
@@ -35,10 +36,18 @@ const Form = () => {
       formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
       formData.append("taxType", data.taxType as string);
 
-      if (data.image?.[0] === undefined) {
-        formData.append("image", "0");
+      if (data.image?.[0]) {
+        const compressedFile =
+          await imageCompression(data.image[0], {
+            maxWidthOrHeight: 550,
+            maxSizeMB: 0.2,
+            initialQuality: 0.8,
+            useWebWorker: true,
+          });
+
+        formData.append("image", compressedFile);
       } else {
-        formData.append("image", data.image[0]);
+        formData.append("image", "0");
       }
 
       const result = await addNewCategory(formData);
@@ -267,8 +276,8 @@ const Form = () => {
           </div>
         </div>
       </form>
-</div>
-      );
+    </div>
+  );
 };
 
-      export default Form;
+export default Form;

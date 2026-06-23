@@ -86,24 +86,25 @@ export default function EditForm({
         data.isActive || "yes"
       );
 
-       formData.append(
-  "oldImageUrl",
-  category.image || ""
-);
+      formData.append(
+        "oldImageUrl",
+        category.image || ""
+      );
 
-if (data.image?.[0]) {
-  const compressedFile =
-    await imageCompression(data.image[0], {
-      maxWidthOrHeight: 500,
-      useWebWorker: true,
-      initialQuality: 0.8,
-    });
+      if (data.image?.[0]) {
+        const compressedFile =
+          await imageCompression(data.image[0], {
+            maxWidthOrHeight: 550,
+            maxSizeMB: 0.2,
+            initialQuality: 0.8,
+            useWebWorker: true,
+          });
 
-  formData.append(
-    "image",
-    compressedFile
-  );
-}
+        formData.append(
+          "image",
+          compressedFile
+        );
+      }
 
       const result =
         await updateMasterCategory(
@@ -171,36 +172,36 @@ if (data.image?.[0]) {
 
 
 
-      <div className="bg-gray-50 rounded-xl border p-4">
-  <label className="label-style mb-3 block">
-    Category Image
-  </label>
+          <div className="bg-gray-50 rounded-xl border p-4">
+            <label className="label-style mb-3 block">
+              Category Image
+            </label>
 
-  {category.image && (
-    <div className="mb-4">
-      <Image
-        src={category.image}
-        alt={category.name}
-        width={120}
-        height={120}
-        className="rounded-xl border object-cover"
-      />
-      <p className="text-xs text-gray-500 mt-2">
-        Current image
-      </p>
-    </div>
-  )}
+            {category.image && (
+              <div className="mb-4">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  width={120}
+                  height={120}
+                  className="rounded-xl border object-cover"
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Current image
+                </p>
+              </div>
+            )}
 
-  <input
-    type="file"
-    {...register("image")}
-    className="input-image-style"
-  />
+            <input
+              type="file"
+              {...register("image")}
+              className="input-image-style"
+            />
 
-  <p className="text-xs text-gray-500 mt-2">
-    Leave empty to keep current image.
-  </p>
-</div>
+            <p className="text-xs text-gray-500 mt-2">
+              Leave empty to keep current image.
+            </p>
+          </div>
 
           <div>
             <label className="label-style">

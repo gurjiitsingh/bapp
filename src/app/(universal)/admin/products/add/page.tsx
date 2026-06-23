@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { newProductSchema, TnewProductSchema } from "@/lib/types/productType";
 import { categoryType } from "@/lib/types/categoryType";
-import { resizeImage } from "@/utils/resizeImage";
+import imageCompression from "browser-image-compression";
 import { addNewProduct } from "@/app/(universal)/action/products/dbOperation";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 import Link from "next/link";
@@ -100,19 +100,24 @@ const Page = () => {
     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
     formData.append("taxType", data.taxType as string);
     formData.append("searchCode", data.searchCode || "");
-    if (data.image && data.image[0]) {
-      try {
-        const resizedImage = await resizeImage(data.image[0], 400);
-        formData.append("image", resizedImage);
-      } catch (error) {
-        console.error("Image resize failed:", error);
-        alert("Image resize failed. Please try again.");
-        setIsSubmitting(false);
-        return;
-      }
-    } else {
-      formData.append("image", "0");
-    }
+   
+
+         if (data.image?.[0]) {
+            const compressedFile =
+              await imageCompression(data.image[0], {
+               maxWidthOrHeight: 550,
+                 maxSizeMB: 0.2,
+  initialQuality: 0.8,
+  useWebWorker: true,
+              });
+    
+            formData.append("image", compressedFile);
+          } else {
+            formData.append("image", "0");
+          }
+
+
+
 
     const result = await addNewProduct(formData);
     setIsSubmitting(false);
