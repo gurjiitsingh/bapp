@@ -13,7 +13,7 @@ import ProductsWrapper from "@/components/ProductsWrapper";
 export default function Page() {
   return (
     <main className="text-gray-900 font-sans">
-      
+
       {/* ✅ Client-only animation init */}
       {/* <AOSInit /> */}
 
@@ -21,9 +21,9 @@ export default function Page() {
       <HeroSectionCustom />
       <BestOfMonth />
       <CategorySliderLight />
-     <Suspense fallback={<div>Loading...</div>}>
-  <ProductsWrapper />
-</Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProductsWrapper />
+      </Suspense>
 
       {/* ✅ Server async component with streaming */}
       <Suspense fallback={<div className="h-40" />}>

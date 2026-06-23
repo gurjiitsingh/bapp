@@ -29,7 +29,7 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 type FormType = {
   inventoryItemId: string;
   supplierId?: string;
-supplierName?: string;
+  supplierName?: string;
   type: InventoryTransactionNameType;
 
   direction: "IN" | "OUT";
@@ -40,6 +40,7 @@ supplierName?: string;
 
   // ✅ ADD THIS
   unitCost: number;
+  totalAmount: number; // NEW
   paymentStatus: PaymentStatus; // 
   paymentMethod?: PaymentMethod;
   paidAmount?: number;          // 
@@ -77,6 +78,10 @@ export default function StockPurchaseForm({
       null
     );
 
+  const [lastEdited, setLastEdited] = useState<
+    "unitCost" | "totalAmount"
+  >("unitCost");
+
   const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];
 
   const {
@@ -87,9 +92,17 @@ export default function StockPurchaseForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
+      // type: "PURCHASE",
+      // direction: "IN",
+      // quantity: 0,
+      // transactionUnit: "pcs",
+      // note: "",
+
       type: "PURCHASE",
       direction: "IN",
       quantity: 0,
+      unitCost: 0,
+      totalAmount: 0,
       transactionUnit: "pcs",
       note: "",
     },
@@ -99,7 +112,13 @@ export default function StockPurchaseForm({
     "type"
   );
 
+  const quantity = watch("quantity");
+  const unitCost = watch("unitCost");
+  const totalAmount = watch("totalAmount");
+
   const transactionUnit = watch("transactionUnit");
+
+
 
   // =====================================================
   // AUTO SET STOCK DIRECTION
@@ -140,6 +159,36 @@ export default function StockPurchaseForm({
     }
   }, [type, setValue]);
 
+  useEffect(() => {
+    const qty = Number(quantity || 0);
+
+    if (qty <= 0) return;
+
+    if (lastEdited === "unitCost") {
+      setValue(
+        "totalAmount",
+        Number((qty * Number(unitCost || 0)).toFixed(2))
+      );
+    }
+
+    if (lastEdited === "totalAmount") {
+      setValue(
+        "unitCost",
+        Number(
+          (
+            Number(totalAmount || 0) / qty
+          ).toFixed(4)
+        )
+      );
+    }
+  }, [
+    quantity,
+    unitCost,
+    totalAmount,
+    lastEdited,
+    setValue,
+  ]);
+
   // =====================================================
   // FILTER INVENTORY
   // =====================================================
@@ -174,32 +223,32 @@ export default function StockPurchaseForm({
     }
 
     // =====================================
-// PURCHASE VALIDATIONS
-// =====================================
+    // PURCHASE VALIDATIONS
+    // =====================================
 
-if (data.type === "PURCHASE") {
+    if (data.type === "PURCHASE") {
 
-  // supplier required
-  if (!data.supplierId) {
-    alert("Please select supplier");
-    return;
-  }
+      // supplier required
+      if (!data.supplierId) {
+        alert("Please select supplier");
+        return;
+      }
 
-  // price required
-  if (!data.unitCost || Number(data.unitCost) <= 0) {
-    alert("Unit cost must be greater than 0");
-    return;
-  }
+      // price required
+      if (!data.unitCost || Number(data.unitCost) <= 0) {
+        alert("Unit cost must be greater than 0");
+        return;
+      }
 
-  // payment method required
-  if (
-    data.paymentStatus === "PAID" &&
-    !data.paymentMethod
-  ) {
-    alert("Please select payment method");
-    return;
-  }
-}
+      // payment method required
+      if (
+        data.paymentStatus === "PAID" &&
+        !data.paymentMethod
+      ) {
+        alert("Please select payment method");
+        return;
+      }
+    }
 
     const decimalAllowedUnits = [
       "kg",
@@ -225,9 +274,9 @@ if (data.type === "PURCHASE") {
     }
 
     const selectedSupplier =
-  linkedSuppliers.find(
-    (s) => s.id === data.supplierId
-  );
+      linkedSuppliers.find(
+        (s) => s.id === data.supplierId
+      );
 
     let finalQuantity =
       Number(data.quantity);
@@ -264,44 +313,44 @@ if (data.type === "PURCHASE") {
     console.log("paymentMethod--------------", data)
 
     try {
-   const result = await adjustInventoryStock({
-  inventoryItemId: data.inventoryItemId,
+      const result = await adjustInventoryStock({
+        inventoryItemId: data.inventoryItemId,
 
-  supplierId: data.supplierId,
+        supplierId: data.supplierId,
 
-  // ✅ ADD THIS
-  supplierName:
-    selectedSupplier?.companyName || "",
+        // ✅ ADD THIS
+        supplierName:
+          selectedSupplier?.companyName || "",
 
-  type: data.type,
+        type: data.type,
 
-  direction: data.direction,
+        direction: data.direction,
 
-  // INTERNAL
-  quantity: finalQuantity,
+        // INTERNAL
+        quantity: finalQuantity,
 
-  unitCost: finalUnitCost,
+        unitCost: finalUnitCost,
 
-  // ORIGINAL
-  purchaseQuantity: originalQuantity,
+        // ORIGINAL
+        purchaseQuantity: originalQuantity,
 
-  purchaseUnit: data.transactionUnit,
+        purchaseUnit: data.transactionUnit,
 
-  purchaseUnitCost: originalUnitCost,
+        purchaseUnitCost: originalUnitCost,
 
-  conversionFactor:
-    selectedInventory.conversionFactor,
+        conversionFactor:
+          selectedInventory.conversionFactor,
 
-  paymentStatus: data.paymentStatus,
+        paymentStatus: data.paymentStatus,
 
-  paymentMethod: data.paymentMethod,
+        paymentMethod: data.paymentMethod,
 
-  paidAmount: Number(data.paidAmount || 0),
+        paidAmount: Number(data.paidAmount || 0),
 
-  note: data.note,
+        note: data.note,
 
-  createdBy: "admin",
-});
+        createdBy: "admin",
+      });
       if (result.success) {
         let updatedStock =
           selectedInventory.currentStock;
@@ -322,7 +371,7 @@ if (data.type === "PURCHASE") {
           direction: "IN",
           quantity: 0,
           note: "",
-          unitCost:0,
+          unitCost: 0,
           inventoryItemId: selectedInventory.id,
         });
       } else {
@@ -336,7 +385,24 @@ if (data.type === "PURCHASE") {
     setIsSubmitting(false);
   }
 
- 
+  useEffect(() => {
+    const qty = Number(quantity || 0);
+    const rate = Number(unitCost || 0);
+
+    if (qty > 0 && rate > 0) {
+      setValue(
+        "totalAmount",
+        Number((qty * rate).toFixed(2))
+      );
+    }
+  }, [quantity, unitCost, setValue]);
+
+  const [pricingMode, setPricingMode] = useState<
+    "RATE" | "AMOUNT"
+  >("RATE");
+
+
+
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -527,61 +593,7 @@ if (data.type === "PURCHASE") {
               </div>
             )}
 
-            {/* <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Transaction Type
-              </label>
 
-              <select
-                {...register("type")}
-                className="input-style-4"
-              >
-                <option value="PURCHASE">
-                  Purchase
-                </option>
-
-                <option value="OPENING_STOCK">
-                  OPENING_STOCK Stock
-                </option>
-
-                <option value="CUSTOMER_RETURN">
-                  Customer Return
-                </option>
-
-                <option value="SUPPLIER_RETURN">
-                  Supplier Return
-                </option>
-
-                <option value="WASTAGE">
-                  Wastage
-                </option>
-
-                <option value="ADJUSTMENT">
-                  Adjustment
-                </option>
-              </select>
-            </div> */}
-
-            {/* {type === "ADJUSTMENT" && (
-              <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Stock Direction
-                </label>
-
-                <select
-                  {...register("direction")}
-                  className="input-style-4"
-                >
-                  <option value="IN">
-                    Add Stock
-                  </option>
-
-                  <option value="OUT">
-                    Remove Stock
-                  </option>
-                </select>
-              </div>
-            )} */}
           </div>
 
           {/* ===================================================== */}
@@ -634,19 +646,49 @@ if (data.type === "PURCHASE") {
 
 
             </div>
-
             <div className="flex flex-col gap-2">
               <label className="label-style-4">
-                Unit Cost
+                Total Amount
               </label>
+
 
               <input
                 type="number"
                 step="0.01"
-                {...register("unitCost")}
+                value={totalAmount || ""}
+                onChange={(e) => {
+                  setLastEdited("totalAmount");
+
+                  setValue(
+                    "totalAmount",
+                    Number(e.target.value || 0)
+                  );
+                }}
                 className="input-style-4"
-                placeholder="Enter unit cost"
+                placeholder="Total invoice amount"
               />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Price per {transactionUnit}
+              </label>
+
+              <input
+                type="number"
+                step="0.0001"
+                value={unitCost || ""}
+                onChange={(e) => {
+                  setLastEdited("unitCost");
+
+                  setValue(
+                    "unitCost",
+                    Number(e.target.value || 0)
+                  );
+                }}
+                className="input-style-4"
+                placeholder={`Cost per ${transactionUnit}`}
+              />
+
             </div>
 
 

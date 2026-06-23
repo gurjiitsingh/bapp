@@ -101,7 +101,7 @@ const availableConversions =
       purchaseUnit,
     ]
   );
-
+console.log("availableConversions--------------", availableConversions)
 // =====================================
 // SET DEFAULT PURCHASE UNIT
 // =====================================
