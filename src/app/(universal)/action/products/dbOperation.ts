@@ -988,7 +988,7 @@ const products: ProductType[] = querySnapshot.docs.map((doc) => {
     searchCode: data.searchCode ?? "",
     taxRate: data.taxRate,
     taxType: data.taxType,
-    purchaseSession: data.purchaseSession ?? null,
+    purchaseSession: data.purchaseSession ?? null, 
 
     sku: data.sku,
     barcode: data.barcode,
