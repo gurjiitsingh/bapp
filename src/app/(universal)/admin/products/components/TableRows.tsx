@@ -127,7 +127,7 @@ const [showModifierModal, setShowModifierModal] = useState(false);
             />
           )}
         </div>
-        {product.image}
+      
       </TableCell>
 
       {/* 🏷 Name + Featured */}

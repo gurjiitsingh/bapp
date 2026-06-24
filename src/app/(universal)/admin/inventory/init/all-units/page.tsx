@@ -1,5 +1,5 @@
 import { getUnitConversions } from "@/app/(universal)/action/inventory/init/unit-conversion/getUnitConversions";
-import InitButton from "../add-pre-unit/InitButton";
+import InitButton from "../add-pre-units/InitButton";
 import DeleteUnitButton from "../components/DeleteUnitButton";
 
 export default async function Page() {
