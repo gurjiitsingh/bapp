@@ -122,24 +122,28 @@ console.log("currentStock--------------",  minStock, conversionFactor)
         receivedData
       );
 
-    if (!result.success) {
-      const zodErrors: Record<
-        string,
-        string
-      > = {};
+      if (!result.success) {
+  console.log(result.error.issues);
+}
 
-      result.error.issues.forEach(
-        (issue) => {
-          zodErrors[
-            issue.path[0] as string
-          ] = issue.message;
-        }
-      );
+    // if (!result.success) {
+    //   const zodErrors: Record<
+    //     string,
+    //     string
+    //   > = {};
 
-      return {
-        errors: zodErrors,
-      };
-    }
+    //   result.error.issues.forEach(
+    //     (issue) => {
+    //       zodErrors[
+    //         issue.path[0] as string
+    //       ] = issue.message;
+    //     }
+    //   );
+
+    //   return {
+    //     errors: zodErrors,
+    //   };
+    // }
 
     // NORMALIZED NAME
     const normalizedName =

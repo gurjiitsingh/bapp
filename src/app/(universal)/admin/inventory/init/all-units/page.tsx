@@ -1,5 +1,6 @@
 import { getUnitConversions } from "@/app/(universal)/action/inventory/init/unit-conversion/getUnitConversions";
-import InitButton from "../addunit/InitButton";
+import InitButton from "../add-pre-unit/InitButton";
+import DeleteUnitButton from "../components/DeleteUnitButton";
 
 export default async function Page() {
   const units = await getUnitConversions();
@@ -62,6 +63,9 @@ export default async function Page() {
               <th className="p-4 text-left text-sm font-semibold text-slate-700">
                 Status
               </th>
+              <th className="p-4 text-center text-sm font-semibold text-slate-700">
+  Action
+</th>
             </tr>
           </thead>
 
@@ -120,6 +124,19 @@ export default async function Page() {
                       </span>
                     )}
                   </td>
+
+                  <td className="p-4 text-center">
+  {!unit.system &&
+  !String(unit.id).startsWith("universal-") ? (
+    <DeleteUnitButton
+      id={unit.id}
+    />
+  ) : (
+    <span className="text-slate-300">
+      —
+    </span>
+  )}
+</td>
                 </tr>
               ))
             )}

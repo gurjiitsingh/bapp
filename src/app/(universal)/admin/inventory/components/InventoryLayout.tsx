@@ -26,7 +26,7 @@ import {
 const tabs = [
   { name: "Dashboard", href: "/admin/inventory" },
   { name: "Items", href: "/admin/inventory" },
-  { name: "New Item", href: "/admin/inventory/new" },
+  { name: "New Item", href: "/admin/inventory/add" },
   { name: "Purchase", href: "/admin/inventory/purchase/add" },
   { name: "Adjust", href: "/admin/inventory/adjust-stock" },
   { name: "Transactions", href: "/admin/inventory/transactions" },
@@ -109,7 +109,7 @@ export default function InventoryTabs() {
           </Link>
 
           <Link
-            href="/admin/inventory/new"
+            href="/admin/inventory/add"
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-blue-100 flex items-center justify-center">

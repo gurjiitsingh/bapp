@@ -101,7 +101,7 @@ const availableConversions =
       purchaseUnit,
     ]
   );
-console.log("availableConversions--------------", availableConversions)
+
 // =====================================
 // SET DEFAULT PURCHASE UNIT
 // =====================================
@@ -149,7 +149,7 @@ useEffect(() => {
     setValue(
       "consumptionUnit",
       availableConversions[0]
-        .consumptionUnit as any
+        .consumptionUnit
     );
 
     setValue(
@@ -168,10 +168,26 @@ useEffect(() => {
 // SUBMIT
 // =====================================
 
+
+
 async function onSubmit(
   data: TnewInventorySchema
 ) {
-  setIsSubmitting(true);
+  const selectedConversion =
+  unitConversions.find(
+    (x) =>
+      x.purchaseUnit === data.purchaseUnit &&
+      x.consumptionUnit === data.consumptionUnit
+  );
+
+if (!selectedConversion) {
+  alert("Invalid unit conversion");
+  return;
+}
+
+setIsSubmitting(true);
+
+
 
   try {
     const formData = new FormData();
@@ -308,13 +324,35 @@ async function onSubmit(
   setIsSubmitting(false);
 }
 
+const values = watch();
 
+useEffect(() => {
+  console.log(
+    "FORM VALUES ================="
+  );
+
+  console.log(values);
+}, [values]);
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full  p-4 md:p-6"
-    >
+  onSubmit={handleSubmit(
+    onSubmit,
+    (errors) => {
+      console.log(
+        "FORM VALIDATION ERRORS ================="
+      );
+
+      console.log(errors);
+
+    Object.entries(errors).forEach(
+  ([key, value]) => {
+    console.log(key, value?.message);
+  }
+);
+    }
+  )}
+>
       {/* Header */}
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
