@@ -41,7 +41,7 @@ setProductToSearchQuery: (e: string) => void;
   customerData: string;
   
   setCustomerAddressIsComplete: (e: boolean) => void;
-  setCustomerAddressIsCompleteA: (e: boolean) => void;
+ 
   customerAddressIsComplete: boolean;
   productCategoryIdG: string;
   setProductCategoryIdG: (e: string) => void;
@@ -136,9 +136,7 @@ setProductToSearchQuery: (e: string) => e,
     return e;
   },
     customerData: "",
-  setCustomerAddressIsCompleteA: (e) => {
-    return e;
-  },
+  
   customerAddressIsComplete: false,
   productCategoryIdG: "",
   setProductCategoryIdG: (e) => {

@@ -65,7 +65,7 @@ useEffect(() => {
     const defaultPair = getDefaultUnitPair(purchaseUnit);
 
     if (defaultPair) {
-      setConsumptionUnit(defaultPair.consumptionUnit);
+      setConsumptionUnit(defaultPair.consumptionUnit as InventoryUnit);
 
       const factor = getConversionFactor(
         defaultPair.purchaseUnit,

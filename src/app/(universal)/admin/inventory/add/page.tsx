@@ -12,7 +12,7 @@ export default async function Page() {
     const suppliers = await fetchSuppliers();
 
   return (
-    <NewInventoryForm
+    <NewInventoryForm 
       categories={categories}
       suppliers={suppliers}
       unitConversions={unitConversions}

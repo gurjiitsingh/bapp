@@ -13,16 +13,10 @@ import { newInventorySchema, TnewInventorySchema } from "@/lib/types/InventoryIt
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { SupplierType } from "@/lib/types/SupplierType";
 import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewInventoryItem";
+import { UnitConversion } from "@/lib/types/UnitConversion";
 
 
-type UnitConversion = {
-  id: string;
-  purchaseUnit: string;
-  consumptionUnit: string;
-  factor: number;
-  isActive?: boolean;
-  system?: boolean;
-};
+
 
 type Props = {
   categories: InventoryCategory[];

@@ -51,31 +51,35 @@ export const SiteProvider: React.FC<Props> = ({
     useState<string[]>([]);
   const [allProduct, setAllProduct] = useState<ProductType[]>([]);
   const [productToSearchQuery, setProductToSearchQuery] = useState("");
+  const [customerData, setCustomerData] = useState<any>(null);
+
+  const [customerAddressIsCompleteA, setCustomerAddressIsCompleteA] =
+    useState<boolean>(false);
   // useEffect(() => {
   //   getAllSettings().then(setSettings).catch(console.error);
   // }, []);
-useEffect(() => {
-  getAllSettings()
-    .then((fetched) => {
-      setSettings({
-        // Default values from .env
-        currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY as string,
-        locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE as string,
+  useEffect(() => {
+    getAllSettings()
+      .then((fetched) => {
+        setSettings({
+          // Default values from .env
+          currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY as string,
+          locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE as string,
 
-        // Now include everything from Firestore
-        ...fetched,  // this overwrites defaults if Firestore has values
-      });
-    })
-    .catch((err) => {
-      console.error("Error fetching settings:", err);
+          // Now include everything from Firestore
+          ...fetched,  // this overwrites defaults if Firestore has values
+        });
+      })
+      .catch((err) => {
+        console.error("Error fetching settings:", err);
 
-      // Fallback to .env if Firestore fails
-      setSettings({
-        currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY as string,
-        locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE as string,
+        // Fallback to .env if Firestore fails
+        setSettings({
+          currency: process.env.NEXT_PUBLIC_DEFAULT_CURRENCY as string,
+          locale: process.env.NEXT_PUBLIC_DEFAULT_LOCALE as string,
+        });
       });
-    });
-}, []);
+  }, []);
 
 
 
@@ -172,6 +176,12 @@ useEffect(() => {
     setDisablePickupCatDiscountIdsL(CatIds);
     localStorage.setItem("disablePickupCatDiscountIds", JSON.stringify(CatIds));
   }
+
+  function setCustomer(data: any) {
+    setCustomerData(data);
+  }
+
+ 
   return (
     <SiteContext.Provider
       value={{
@@ -207,6 +217,8 @@ useEffect(() => {
         setAdminSideBarToggleG,
         setCustomerEmailG,
         customerEmail,
+        customerData,
+        setCustomerData,
         setCustomerAddressIsComplete,
         customerAddressIsComplete,
         setProductCategoryIdG,

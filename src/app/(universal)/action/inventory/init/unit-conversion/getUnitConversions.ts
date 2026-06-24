@@ -1,41 +1,70 @@
 "use server";
 
+"use server";
+
 import { adminDb } from "@/lib/firebaseAdmin";
 import { UNIVERSAL_UNIT_CONVERSIONS } from "@/lib/inventory/defaultUnitConversions";
+import { UnitConversion } from "@/lib/types/UnitConversion";
 
-export async function getUnitConversions() {
+export async function getUnitConversions(): Promise<UnitConversion[]> {
   try {
     const snapshot = await adminDb
       .collection("inventoryUnitConversions")
       .orderBy("purchaseUnit")
       .get();
 
-    const firestoreUnits = snapshot.docs.map((doc) => {
-      const data = doc.data();
+    const firestoreUnits: UnitConversion[] =
+      snapshot.docs.map((doc) => {
+        const data = doc.data();
 
-      return {
-        id: doc.id,
-        ...data,
+        return {
+          id: doc.id,
 
-        createdAt: data.createdAt
-          ? data.createdAt.toDate().toISOString()
-          : null,
+          purchaseUnit: data.purchaseUnit || "",
+          consumptionUnit:
+            data.consumptionUnit || "",
 
-        updatedAt: data.updatedAt
-          ? data.updatedAt.toDate().toISOString()
-          : null,
-      };
-    });
+          factor: Number(data.factor || 1),
 
-    const universalUnits =
+          isActive:
+            data.isActive ?? true,
+
+          system:
+            data.system ?? false,
+
+          createdAt: data.createdAt
+            ? data.createdAt
+                .toDate()
+                .toISOString()
+            : null,
+
+          updatedAt: data.updatedAt
+            ? data.updatedAt
+                .toDate()
+                .toISOString()
+            : null,
+        };
+      });
+
+    const universalUnits: UnitConversion[] =
       UNIVERSAL_UNIT_CONVERSIONS.map(
         (item, index) => ({
           id: `universal-${index}`,
-          ...item,
+
+          purchaseUnit:
+            item.purchaseUnit,
+
+          consumptionUnit:
+            item.consumptionUnit,
+
+          factor: item.factor,
+
+          isActive: true,
+          system: true,
+
           type: "UNIVERSAL",
           isEditable: false,
 
-          // keep structure same as firestore
           createdAt: null,
           updatedAt: null,
         })
@@ -51,9 +80,21 @@ export async function getUnitConversions() {
     return UNIVERSAL_UNIT_CONVERSIONS.map(
       (item, index) => ({
         id: `universal-${index}`,
-        ...item,
+
+        purchaseUnit:
+          item.purchaseUnit,
+
+        consumptionUnit:
+          item.consumptionUnit,
+
+        factor: item.factor,
+
+        isActive: true,
+        system: true,
+
         type: "UNIVERSAL",
         isEditable: false,
+
         createdAt: null,
         updatedAt: null,
       })
