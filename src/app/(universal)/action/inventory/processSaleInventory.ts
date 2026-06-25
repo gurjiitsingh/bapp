@@ -7,15 +7,9 @@ type OrderItemType = {
   quantity: number;
   name?: string;
 };
-
-
-
-
-
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { applyInventoryMovement } from "./applyInventoryMovement";
-
 
 export async function processSaleInventory(
   orderId: string,
@@ -249,3 +243,4 @@ export async function processSaleInventory(
   }
 }
 
+ 
