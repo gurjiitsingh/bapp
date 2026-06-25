@@ -36,7 +36,7 @@ export async function deleteInventoryItemSupplier(
       return {
         errors: {
           general:
-            "Supplier mapping not found",
+            "Customer mapping not found",
         },
       };
     }

@@ -65,6 +65,7 @@ export async function updateFinishedItemStock({
         direction,
 
         quantity,
+        unitPrice:0,
         transactionUnit,
 
         note,
@@ -135,7 +136,7 @@ export async function updateFinishedItemStock({
 
           source: "ADMIN",
         });
-      }
+     }
     }
 
     // =========================================================

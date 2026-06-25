@@ -366,7 +366,7 @@ const currentRecipes = useMemo(() => {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
-      <div className="max-w-7xl mx-auto flex flex-col gap-6">
+      <div className="mw-full flex flex-col gap-6">
 
         {/* TOP SEARCH */}
 

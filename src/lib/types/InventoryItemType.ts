@@ -206,9 +206,9 @@ export const newInventorySchema =
       categoryId:
         z.string().optional(),
 
-      supplierIds: z
-        .array(z.string())
-        .default([]),
+       supplierIds: z
+  .array(z.string())
+  .min(1, "Please select at least one supplier"),
 
       isActive:
         z.boolean().default(

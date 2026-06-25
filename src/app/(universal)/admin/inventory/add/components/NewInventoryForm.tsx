@@ -51,302 +51,306 @@ export default function NewInventoryForm({
 
 
 
-const purchaseUnit = watch("purchaseUnit");
-const consumptionUnit =
-  watch("consumptionUnit");
+  const purchaseUnit = watch("purchaseUnit");
+  const consumptionUnit =
+    watch("consumptionUnit");
 
-// =====================================
-// PURCHASE UNITS
-// =====================================
+  // =====================================
+  // PURCHASE UNITS
+  // =====================================
 
-const purchaseUnits = useMemo(
-  () =>
-    Array.from(
-      new Set(
-        unitConversions
-          .filter(
-            (item) =>
-              item.isActive !== false
-          )
-          .map(
-            (item) =>
-              item.purchaseUnit
-          )
-      )
-    ),
-  [unitConversions]
-);
-
-// =====================================
-// AVAILABLE CONVERSIONS
-// =====================================
-
-const availableConversions =
-  useMemo(
+  const purchaseUnits = useMemo(
     () =>
-      unitConversions.filter(
-        (item) =>
-          item.purchaseUnit ===
-            purchaseUnit &&
-          item.isActive !== false
+      Array.from(
+        new Set(
+          unitConversions
+            .filter(
+              (item) =>
+                item.isActive !== false
+            )
+            .map(
+              (item) =>
+                item.purchaseUnit
+            )
+        )
       ),
-    [
-      unitConversions,
-      purchaseUnit,
-    ]
+    [unitConversions]
   );
 
-// =====================================
-// SET DEFAULT PURCHASE UNIT
-// =====================================
+  // =====================================
+  // AVAILABLE CONVERSIONS
+  // =====================================
 
-useEffect(() => {
-  if (
-    !purchaseUnit &&
-    purchaseUnits.length > 0
-  ) {
-    setValue(
-      "purchaseUnit",
-      purchaseUnits[0]
-    );
-  }
-}, [
-  purchaseUnit,
-  purchaseUnits,
-  setValue,
-]);
-
-// =====================================
-// AUTO SET CONSUMPTION UNIT + FACTOR
-// =====================================
-
-useEffect(() => {
-  if (
-    availableConversions.length === 0
-  ) {
-    return;
-  }
-
-  const selectedConversion =
-    availableConversions.find(
-      (item) =>
-        item.consumptionUnit ===
-        consumptionUnit
+  const availableConversions =
+    useMemo(
+      () =>
+        unitConversions.filter(
+          (item) =>
+            item.purchaseUnit ===
+            purchaseUnit &&
+            item.isActive !== false
+        ),
+      [
+        unitConversions,
+        purchaseUnit,
+      ]
     );
 
-  if (selectedConversion) {
-    setValue(
-      "conversionFactor",
-      selectedConversion.factor
-    );
-  } else {
-    setValue(
-      "consumptionUnit",
-      availableConversions[0]
-        .consumptionUnit
-    );
-
-    setValue(
-      "conversionFactor",
-      availableConversions[0]
-        .factor
-    );
-  }
-}, [
-  consumptionUnit,
-  availableConversions,
-  setValue,
-]);
-
-// =====================================
-// SUBMIT
-// =====================================
 
 
 
-async function onSubmit(
-  data: TnewInventorySchema
-) {
-  const selectedConversion =
-  unitConversions.find(
-    (x) =>
-      x.purchaseUnit === data.purchaseUnit &&
-      x.consumptionUnit === data.consumptionUnit
-  );
+  // =====================================
+  // SET DEFAULT PURCHASE UNIT
+  // =====================================
 
-if (!selectedConversion) {
-  alert("Invalid unit conversion");
-  return;
-}
-
-setIsSubmitting(true);
-
-
-
-  try {
-    const formData = new FormData();
-
-    formData.append(
-      "name",
-      data.name
-    );
-
-    formData.append(
-      "sku",
-      data.sku || ""
-    );
-
-    formData.append(
-      "barcode",
-      data.barcode || ""
-    );
-
-    formData.append(
-      "purchaseUnit",
-      data.purchaseUnit
-    );
-
-    formData.append(
-      "consumptionUnit",
-      data.consumptionUnit
-    );
-
-    formData.append(
-      "conversionFactor",
-      String(
-        data.conversionFactor
-      )
-    );
-
-    formData.append(
-      "currentStock",
-      String(
-        data.currentStock ?? 0
-      )
-    );
-
-    formData.append(
-      "minStock",
-      String(
-        data.minStock ?? 0
-      )
-    );
-
-    formData.append(
-      "costPrice",
-      String(
-        data.costPrice ?? 0
-      )
-    );
-
-    formData.append(
-      "sellingPrice",
-      String(
-        data.sellingPrice ?? 0
-      )
-    );
-
-    formData.append(
-      "categoryId",
-      data.categoryId || ""
-    );
-
-    data.supplierIds?.forEach(
-      (supplierId) => {
-        formData.append(
-          "supplierIds",
-          supplierId
-        );
-      }
-    );
-
-    formData.append(
-      "isActive",
-      data.isActive
-        ? "true"
-        : "false"
-    );
-
-    const result =
-      await addNewInventoryItem(
-        formData
-      );
-
-    if (!result?.errors) {
-      reset({
-        name: "",
-        sku: "",
-        barcode: "",
-        currentStock: 0,
-        minStock: 0,
-        costPrice: 0,
-        sellingPrice: 0,
-
-        purchaseUnit:
-          purchaseUnits[0] || "",
-
-        consumptionUnit:
-          unitConversions.find(
-            (x) =>
-              x.purchaseUnit ===
-              purchaseUnits[0]
-          )?.consumptionUnit || "",
-
-        conversionFactor:
-          unitConversions.find(
-            (x) =>
-              x.purchaseUnit ===
-              purchaseUnits[0]
-          )?.factor || 1,
-
-        supplierIds: [],
-        isActive: true,
-      });
-    } else {
-      console.error(
-        result.errors
-      );
-
-      alert(
-        "Failed to save inventory item"
+  useEffect(() => {
+    if (
+      !purchaseUnit &&
+      purchaseUnits.length > 0
+    ) {
+      setValue(
+        "purchaseUnit",
+        purchaseUnits[0]
       );
     }
-  } catch (error) {
-    console.error(error);
+  }, [
+    purchaseUnit,
+    purchaseUnits,
+    setValue,
+  ]);
+
+  // =====================================
+  // AUTO SET CONSUMPTION UNIT + FACTOR
+  // =====================================
+
+  useEffect(() => {
+    if (
+      availableConversions.length === 0
+    ) {
+      return;
+    }
+
+    const selectedConversion =
+      availableConversions.find(
+        (item) =>
+          item.consumptionUnit ===
+          consumptionUnit
+      );
+
+    if (selectedConversion) {
+      setValue(
+        "conversionFactor",
+        selectedConversion.factor
+      );
+    } else {
+      setValue(
+        "consumptionUnit",
+        availableConversions[0]
+          .consumptionUnit
+      );
+
+      setValue(
+        "conversionFactor",
+        availableConversions[0]
+          .factor
+      );
+    }
+  }, [
+    consumptionUnit,
+    availableConversions,
+    setValue,
+  ]);
+
+  // =====================================
+  // SUBMIT
+  // =====================================
+
+
+
+  async function onSubmit(
+    data: TnewInventorySchema
+  ) {
+    const selectedConversion =
+      unitConversions.find(
+        (x) =>
+          x.purchaseUnit === data.purchaseUnit &&
+          x.consumptionUnit === data.consumptionUnit
+      );
+
+    if (!selectedConversion) {
+      alert("Invalid unit conversion");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const supplierIds = Array.isArray(data.supplierIds)
+      ? data.supplierIds
+      : data.supplierIds
+        ? [data.supplierIds]
+        : [];
+
+
+
+    try {
+      const formData = new FormData();
+
+      formData.append(
+        "name",
+        data.name
+      );
+
+      formData.append(
+        "sku",
+        data.sku || ""
+      );
+
+      formData.append(
+        "barcode",
+        data.barcode || ""
+      );
+
+      formData.append(
+        "purchaseUnit",
+        data.purchaseUnit
+      );
+
+      formData.append(
+        "consumptionUnit",
+        data.consumptionUnit
+      );
+
+      formData.append(
+        "conversionFactor",
+        String(
+          data.conversionFactor
+        )
+      );
+
+      formData.append(
+        "currentStock",
+        String(
+          data.currentStock ?? 0
+        )
+      );
+
+      formData.append(
+        "minStock",
+        String(
+          data.minStock ?? 0
+        )
+      );
+
+      formData.append(
+        "costPrice",
+        String(
+          data.costPrice ?? 0
+        )
+      );
+
+      formData.append(
+        "sellingPrice",
+        String(
+          data.sellingPrice ?? 0
+        )
+      );
+
+      formData.append(
+        "categoryId",
+        data.categoryId || ""
+      );
+
+      supplierIds.forEach((supplierId) => {
+        formData.append("supplierIds", supplierId);
+      });
+
+      formData.append(
+        "isActive",
+        data.isActive
+          ? "true"
+          : "false"
+      );
+
+      const result =
+        await addNewInventoryItem(
+          formData
+        );
+
+      if (!result?.errors) {
+        reset({
+          name: "",
+          sku: "",
+          barcode: "",
+          currentStock: 0,
+          minStock: 0,
+          costPrice: 0,
+          sellingPrice: 0,
+
+          purchaseUnit:
+            purchaseUnits[0] || "",
+
+          consumptionUnit:
+            unitConversions.find(
+              (x) =>
+                x.purchaseUnit ===
+                purchaseUnits[0]
+            )?.consumptionUnit || "",
+
+          conversionFactor:
+            unitConversions.find(
+              (x) =>
+                x.purchaseUnit ===
+                purchaseUnits[0]
+            )?.factor || 1,
+
+          supplierIds: [],
+          isActive: true,
+        });
+      } else {
+        console.error(
+          result.errors
+        );
+
+        alert(
+          "Failed to save inventory item"
+        );
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    setIsSubmitting(false);
   }
 
-  setIsSubmitting(false);
-}
+  const values = watch();
 
-const values = watch();
+  useEffect(() => {
+    console.log(
+      "FORM VALUES ================="
+    );
 
-useEffect(() => {
-  console.log(
-    "FORM VALUES ================="
-  );
-
-  console.log(values);
-}, [values]);
+    console.log(values);
+  }, [values]);
 
   return (
     <form
-  onSubmit={handleSubmit(
-    onSubmit,
-    (errors) => {
-      console.log(
-        "FORM VALIDATION ERRORS ================="
-      );
+      onSubmit={handleSubmit(
+        onSubmit,
+        (errors) => {
+          console.log(
+            "FORM VALIDATION ERRORS ================="
+          );
 
-      console.log(errors);
+          console.log(errors);
 
-    Object.entries(errors).forEach(
-  ([key, value]) => {
-    console.log(key, value?.message);
-  }
-);
-    }
-  )}
->
+          Object.entries(errors).forEach(
+            ([key, value]) => {
+              console.log(key, value?.message);
+            }
+          );
+        }
+      )}
+    >
       {/* Header */}
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
@@ -563,14 +567,14 @@ useEffect(() => {
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Supplier Information
             </h2>
+            <div className="">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
-
-              {suppliers.length > 0 ? (
-                suppliers.map((supplier) => (
-                  <label
-                    key={supplier.id}
-                    className="
+                {suppliers.length > 0 ? (
+                  suppliers.map((supplier) => (
+                    <label
+                      key={supplier.id}
+                      className="
                         flex items-center gap-2
                         rounded-lg border border-gray-100
                         px-2 py-2
@@ -578,31 +582,54 @@ useEffect(() => {
                         cursor-pointer
                         transition
                     "
-                  >
-                    <input
-                      type="checkbox"
-                      value={supplier.id}
-                      {...register("supplierIds")}
-                      className="h-4 w-4 rounded border-gray-300 shrink-0"
-                    />
+                    >
+                      <input
+                        type="checkbox"
+                        value={supplier.id}
+                        checked={watch("supplierIds")?.includes(supplier.id) || false}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          const value = supplier.id;
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-xs text-gray-800 truncate leading-tight">
-                        {supplier.companyName}
-                      </p>
+                          const current = watch("supplierIds") || [];
 
-                      <p className="text-[11px] text-gray-500 truncate leading-tight">
-                        {supplier.phone || "No phone"}
-                      </p>
-                    </div>
-                  </label>
-                ))
-              ) : (
-                <div className="text-sm text-gray-400 text-center py-6 col-span-full">
-                  No suppliers found
-                </div>
+                          if (checked) {
+                            setValue("supplierIds", [...current, value]);
+                          } else {
+                            setValue(
+                              "supplierIds",
+                              current.filter((v) => v !== value)
+                            );
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 shrink-0"
+                      />
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-xs text-gray-800 truncate leading-tight">
+                          {supplier.companyName}
+                        </p>
+
+                        <p className="text-[11px] text-gray-500 truncate leading-tight">
+                          {supplier.phone || "No phone"}
+                        </p>
+                      </div>
+                    </label>
+                  ))
+                ) : (
+                  <div className="text-sm text-gray-400 text-center py-6 col-span-full">
+                    No suppliers found
+                  </div>
+                )}
+
+
+              </div>
+
+              {errors.supplierIds && (
+                <p className="text-red-500 text-sm mt-2">
+                  {errors.supplierIds.message}
+                </p>
               )}
-
             </div>
           </div>
 

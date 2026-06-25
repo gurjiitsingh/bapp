@@ -12,6 +12,8 @@ import {
 export async function deleteInventoryItemSupplier(
   id: string
 ) {
+
+  console.log("id--------------------",id)
   try {
     if (!id) {
       return {
@@ -25,7 +27,7 @@ export async function deleteInventoryItemSupplier(
     const docRef =
       adminDb
         .collection(
-          "inventoryItemSuppliers"
+          "suppliers"
         )
         .doc(id);
 
