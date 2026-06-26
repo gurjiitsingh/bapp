@@ -197,46 +197,46 @@ export async function adjustInventoryStock({
     // =====================================================
     // 1. EXISTING TRANSACTION LOG (KEEP AS IS)
     // =====================================================
-    await adminDb.collection("inventoryTransactions").add({
-      inventoryItemId,
-      inventoryItemName: inventoryData?.name || "",
+    // await adminDb.collection("inventoryTransactions").add({
+    //   inventoryItemId,
+    //   inventoryItemName: inventoryData?.name || "",
 
-      supplierId: supplierId || "",
-      supplierName: supplierName || "",
+    //   supplierId: supplierId || "",
+    //   supplierName: supplierName || "",
 
-      type,
-      direction,
+    //   type,
+    //   direction,
 
-      purchaseQuantity: purchaseQuantity ?? quantity,
-      purchaseUnit:
-        purchaseUnit ||
-        inventoryData?.purchaseUnit ||
-        inventoryData?.consumptionUnit,
+    //   purchaseQuantity: purchaseQuantity ?? quantity,
+    //   purchaseUnit:
+    //     purchaseUnit ||
+    //     inventoryData?.purchaseUnit ||
+    //     inventoryData?.consumptionUnit,
 
-      purchaseUnitCost: purchaseUnitCost ?? unitCost,
-      conversionFactor:
-        conversionFactor ?? inventoryData?.conversionFactor ?? 1,
+    //   purchaseUnitCost: purchaseUnitCost ?? unitCost,
+    //   conversionFactor:
+    //     conversionFactor ?? inventoryData?.conversionFactor ?? 1,
 
-      quantity,
-      unit: inventoryData?.consumptionUnit || "pcs",
-      unitCost: finalUnitCost,
+    //   quantity,
+    //   unit: inventoryData?.consumptionUnit || "pcs",
+    //   unitCost: finalUnitCost,
 
-      beforeStock: previousStock,
-      afterStock,
+    //   beforeStock: previousStock,
+    //   afterStock,
 
-      totalAmount,
-      paidAmount,
-      dueAmount,
-      paymentStatus: paymentStatusSafe,
-      paymentMethod: paymentMethod || null,
+    //   totalAmount,
+    //   paidAmount,
+    //   dueAmount,
+    //   paymentStatus: paymentStatusSafe,
+    //   paymentMethod: paymentMethod || null,
 
-      referenceType,
-      referenceId: referenceId || "",
+    //   referenceType,
+    //   referenceId: referenceId || "",
 
-      note: note || "Manual inventory adjustment",
-      createdBy: createdBy || "admin",
-      createdAt: now,
-    });
+    //   note: note || "Manual inventory adjustment",
+    //   createdBy: createdBy || "admin",
+    //   createdAt: now,
+    // });
 
     // =====================================================
     // 2. NEW LEDGER (stockLedgerInventory) ✅ ADDED

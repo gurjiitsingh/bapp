@@ -1,12 +1,11 @@
 "use server";
 
-import admin from "firebase-admin";
+
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { updateCustomerAccount } from "./inventorySupplier/updateCustomerAccount";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
-import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
-import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedMovement";
+import { applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -38,7 +37,7 @@ type AdjustSaleStock = {
 
 
 
-export async function addItemSale ({
+export async function addItemSale({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
@@ -54,7 +53,7 @@ export async function addItemSale ({
   referenceType = "MANUAL",
 }: AdjustSaleStock) {
 
-  console.log("unitunitPrice main---------------", unitPrice)
+
   try {
     // =====================================================
     // VALIDATION
@@ -68,148 +67,70 @@ export async function addItemSale ({
       return { success: false, message: "Invalid quantity" };
     }
 
-    // =====================================================
-    // GET PRODUCT
-    // =====================================================
-
-    const productRef = adminDb.collection("products").doc(id);
-
-    const productSnap = await productRef.get();
-
-    if (!productSnap.exists) {
-      return { success: false, message: "Product not found" };
-    }
-
-    const productData = productSnap.data();
-
-    const currentStock = productData?.currentStock || 0;
-
-    // =====================================================
-    // CALCULATE NEW STOCK
-    // =====================================================
-
-    let newStock = currentStock;
-
-    if (direction === "OUT") {
-      newStock = currentStock - quantity;
-    } else {
-      newStock = currentStock + quantity;
-    }
-
-    // OPTIONAL: prevent negative stock
-    if (newStock < 0 && !productData?.allowNegativeStock) {
-      return {
-        success: false,
-        message: "Insufficient stock",
-      };
-    }
-
+    
     // =====================================================
     // FIRESTORE TRANSACTION (IMPORTANT)
+    // UPDATE FINISHED PRODUCT
     // =====================================================
-// =====================================================
-// UPDATE FINISHED PRODUCT
-// =====================================================
 
-const totalAmount = quantity * unitPrice;
+    const totalAmount = quantity * unitPrice;
 
-const paidAmount = paymentMethod ? totalAmount : 0;
+    const paidAmount = paymentMethod ? totalAmount : 0;
 
-const dueAmount = totalAmount - paidAmount;
+    const dueAmount = totalAmount - paidAmount;
 
-const paymentStatus =
-    paidAmount >= totalAmount ? "PAID" : "CREDIT";
+    const paymentStatus =
+      paidAmount >= totalAmount ? "PAID" : "CREDIT";
 
-const movement = await applyFinishedMovement({
-  productId: id,
+await adminDb.runTransaction(async (tx) => {
+  await applyFinishedTransactions(tx, {
+    productId: id,
+    type: "SALE",
+    direction: "OUT",
 
-  type,
-  direction,
+    quantity,
+    transactionUnit,
 
-  quantity,
+    unitPrice,
+    totalAmount,
 
- transactionUnit,
-
-  unitPrice,
-
-   totalAmount,
     paidAmount,
     dueAmount,
     paymentStatus,
     paymentMethod,
 
-  
+    referenceId,
+    referenceType,
 
-  //wholeSaleCutomerId,
-  //wholeSaleCutomerName,
+    note,
+    createdBy: createdBy || "admin",
+    source: "ADMIN",
+  });
 
-  referenceId,
-  referenceType,
-
-  note,
-
-  createdBy: createdBy || "admin",
-
-  source: "ADMIN",
-});
-
-
-const recipeSnapshot = await adminDb
-  .collection("productRecipes")
-  .where("productId", "==", id)
-  .get();
-
-if (!recipeSnapshot.empty) {
-  for (const recipeDoc of recipeSnapshot.docs) {
-    const recipe = recipeDoc.data();
-
-    await applyInventoryMovement({
-      inventoryItemId: recipe.inventoryItemId,
-
-      type: "CONSUMPTION",
-      direction: "OUT",
-
-      quantity:
-        (Number(recipe.quantity) || 0) * quantity,
-
-      note: `Wholesale sale (${productData?.name})`,
-
-      referenceId: "movement.transactionId",
-      referenceType: "SALE",
-
-      createdBy: createdBy || "admin",
-
-      source: "ADMIN",
+  if (type === "SALE" && wholeSaleCutomerId) {
+    await updateCustomerAccount(tx, {
+      wholeSaleCutomerId,
+      type: "SALE",
+      totalAmount,
+      paidAmount,
+      dueAmount,
+      paymentMethod,
     });
   }
-}
-
-    if (type === "SALE" && wholeSaleCutomerId) {
-   const totalAmount = quantity * unitPrice;
-
-const paid = paymentMethod ? totalAmount : 0;
-const due = totalAmount - paid;
-
-await updateCustomerAccount({
-  wholeSaleCutomerId,
-  type,
-  totalAmount,
-  paidAmount: paid,
-  dueAmount: due,
-  paymentMethod,
 });
-    }
+
+
 
     // =====================================================
     // CACHE
     // =====================================================
- revalidateTag("products", "max");
- 
+    revalidateTag("products", "max");
+
     // revalidateTag("inventory-items", "max");
     // revalidatePath("/admin/inventory");
     // revalidatePath("/admin/inventory/dashboard");
 
-      revalidatePath("/admin/stock-finished");
+    revalidatePath("/admin/stock-finished");
 
     return {
       success: true,

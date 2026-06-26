@@ -14,7 +14,7 @@ import { Search, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { addItemSale } from "@/app/(universal)/action/stock-finished/addItemSale";
-import { WholeCustomerType  } from "@/lib/types/WholeSaleCustomerType";
+import { WholeCustomerType } from "@/lib/types/WholeSaleCustomerType";
 
 import {
   InventoryItemType,
@@ -85,12 +85,7 @@ export default function ItemPurchaseForm({
   const [customerSearch, setCustomerSearch] =
     useState("");
 
-  const [
-    selectedCustomer,
-    setSelectedCustomer,
-  ] = useState<WholeCustomerType | null>(
-    null
-  );
+
 
   const filteredCustomers =
     customers.filter((customer) =>
@@ -108,11 +103,17 @@ export default function ItemPurchaseForm({
     watch,
     reset,
   } = useForm<FormType>({
-   defaultValues: {
-  type: "SALE",
-  direction: "OUT",
-},
+    defaultValues: {
+      type: "SALE",
+      direction: "OUT",
+    },
   });
+
+  const customerId = watch("wholeSaleCutomerId");
+
+  const selectedCustomer = useMemo(() => {
+    return customers.find((c) => c.id === customerId) || null;
+  }, [customerId, customers]);
 
   const type = watch(
     "type"
@@ -120,11 +121,13 @@ export default function ItemPurchaseForm({
 
   const transactionUnit = watch("transactionUnit");
 
+
+
   // =====================================================
   // AUTO SET STOCK DIRECTION
   // =====================================================
 
- 
+
 
 
 
@@ -137,7 +140,7 @@ export default function ItemPurchaseForm({
   const filteredItem =
     useMemo(() => {
       if (!search.trim()) return [];
-      
+
       return products
         .filter((item) =>
           item.name
@@ -150,7 +153,7 @@ export default function ItemPurchaseForm({
         )
         .slice(0, 20);
 
-      
+
     }, [search, products]);
 
   // =====================================================
@@ -165,32 +168,38 @@ export default function ItemPurchaseForm({
       return;
     }
 
-   // SALE VALIDATION
+    // SALE VALIDATION
 
-if (!data.wholeSaleCutomerId) {
-  alert("Please select customer");
-  return;
-}
+    // if (!data.wholeSaleCutomerId) {
+    //   alert("Please select customer");
+    //   return;
+    // }
 
-if (!data.unitPrice || Number(data.unitPrice) <= 0) {
-  alert("Selling price must be greater than 0");
-  return;
-}
+    if (!data.quantity || Number(data.quantity) <= 0) {
+      alert("Enter valid quantity");
+      return;
+    }
 
-// stock check
-if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
-  alert("Not enough stock available");
-  return;
-}
 
-// payment validation
-if (data.paymentStatus === "PAID" && !data.paymentMethod) {
-  alert("Select payment method");
-  return;
-}
- 
+    if (!data.unitPrice || Number(data.unitPrice) <= 0) {
+      alert("Selling price must be greater than 0");
+      return;
+    }
 
-   
+    // stock check
+    if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
+      alert("Not enough stock available");
+      return;
+    }
+
+    // payment validation
+    if (data.paymentStatus === "PAID" && !data.paymentMethod) {
+      alert("Select payment method");
+      return;
+    }
+
+
+
 
 
     let finalQuantity =
@@ -199,27 +208,27 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
     let finalUnitCost =
       Number(data.unitPrice);
 
-   
+    const finalCustomerId = customerId || undefined;
+    const finalCustomerName =
+      selectedCustomer?.companyName || "Walk-in Customer";
 
     setIsSubmitting(true);
-
-    
     try {
       const result = await addItemSale({
         id: data.id,
 
-        wholeSaleCutomerId: data.wholeSaleCutomerId,
+        wholeSaleCutomerId: finalCustomerId,
+        wholeSaleCutomerName: finalCustomerName,
 
         // ✅ ADD THIS
-        wholeSaleCutomerName:
-        selectedCustomer?.companyName || "",
+
         type: "SALE",
         direction: "OUT",//data.direction,
         // INTERNAL
         quantity: finalQuantity,
         unitPrice: finalUnitCost,
         transactionUnit: transactionUnit,
-      //   paymentStatus: data.paymentStatus,
+        //   paymentStatus: data.paymentStatus,
         paymentMethod: data.paymentMethod,
         paidAmount: Number(data.paidAmount || 0),
         note: data.note,
@@ -231,15 +240,15 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
       if (result.success) {
         let updatedStock =
-          selectedProduct.currentStock;
-         setselectedProduct({
+          selectedProduct.currentStock! - finalQuantity;
+        setselectedProduct({
           ...selectedProduct,
           currentStock: updatedStock,
         });
 
         reset({
-          type: "PURCHASE",
-          direction: "IN",
+          type: "SALE",
+          direction: "OUT",
           quantity: 0,
           note: "",
           unitPrice: 0,
@@ -256,7 +265,18 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
     setIsSubmitting(false);
   }
 
+  useEffect(() => {
+    const saved = localStorage.getItem("lastCustomerId");
+    if (saved) {
+      setValue("wholeSaleCutomerId", saved);
+    }
+  }, []);
 
+  useEffect(() => {
+    if (customerId) {
+      localStorage.setItem("lastCustomerId", customerId);
+    }
+  }, [customerId]);
 
   return (
     <div className="min-h-screen  p-4 md:p-6">
@@ -287,6 +307,116 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
           className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5"
         >
 
+
+
+          {/* Customer Selection */}
+          <div className="bg-white   border-gray-100  ">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                {/* <h2 className="text-lg font-semibold text-gray-800">
+                  Wholesale Customer
+                </h2> */}
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Select customer for wholesale sale
+                </p>
+              </div>
+            </div>
+
+
+
+            {/* ===================================================== */}
+            {/* CUSTOMER */}
+            {/* ===================================================== */}
+
+            <div className="bg-white  ">
+
+              <div className="flex items-center justify-between mb-4">
+
+
+
+
+
+                {selectedCustomer && (
+                  <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    {selectedCustomer.companyName}
+                  </div>
+                )}
+              </div>
+
+              {/* SEARCH */}
+              <div className="relative">
+
+                <Search
+                  size={18}
+                  className="absolute right-2 top-3 text-gray-400"
+                />
+
+                <input
+                  type="text"
+                  value={customerSearch}
+                  onChange={(e) =>
+                    setCustomerSearch(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Search customer..."
+                  className="input-style-4 pl-10"
+                />
+              </div>
+
+              {/* LIST */}
+              <div className="mt-3 max-h-64 overflow-y-auto rounded-xl border border-gray-200">
+
+                {filteredCustomers.length > 0 ? (
+
+                  filteredCustomers.map(
+                    (customer) => (
+
+                      <button
+                        key={customer.id}
+                        type="button"
+                        onClick={() => {
+                          setValue("wholeSaleCutomerId", customer.id);
+                          setCustomerSearch(customer.companyName);
+                          setShowDropdown(false);
+                        }}
+                        className={`
+              w-full text-left px-4 py-3
+              border-b border-gray-100
+              hover:bg-slate-50
+              transition
+              ${selectedCustomer?.id ===
+                            customer.id
+                            ? "bg-blue-50"
+                            : ""
+                          }
+            `}
+                      >
+
+                        <div className="font-medium text-sm text-gray-800">
+                          {customer.companyName}
+                        </div>
+
+                        <div className="text-xs text-gray-500">
+                          {customer.phone || "No phone"}
+                        </div>
+
+                      </button>
+                    )
+                  )
+
+                ) : (
+
+                  <div className="p-4 text-sm text-gray-400 text-center">
+                    No customer found
+                  </div>
+
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* ===================================================== */}
           {/* INVENTORY SEARCH */}
           {/* ===================================================== */}
@@ -301,7 +431,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               {!search.trim() && (
                 <Search
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                 />
               )}
 
@@ -362,7 +492,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
                         <div className="text-xs text-gray-400">
                           Current:{" "}
                           {item.currentStock}{" "}
-                        
+
                         </div>
                       </button>
                     ))}
@@ -422,190 +552,79 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
           {/* TYPE */}
           {/* ===================================================== */}
 
-          {/* Customer Selection */}
-          <div className="bg-white   border-gray-100  ">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                {/* <h2 className="text-lg font-semibold text-gray-800">
-                  Wholesale Customer
-                </h2> */}
 
-                <p className="text-sm text-gray-500 mt-1">
-                  Select customer for wholesale sale
-                </p>
-              </div>
-            </div>
-
-
-
-            {/* ===================================================== */}
-            {/* CUSTOMER */}
-            {/* ===================================================== */}
-
-            <div className="bg-white  ">
-
-              <div className="flex items-center justify-between mb-4">
-
-              
-
-                {selectedCustomer && (
-                  <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    Selected
-                  </div>
-                )}
-              </div>
-
-              {/* SEARCH */}
-              <div className="relative">
-
-                <Search
-                  size={18}
-                  className="absolute left-3 top-3 text-gray-400"
-                />
-
-                <input
-                  type="text"
-                  value={customerSearch}
-                  onChange={(e) =>
-                    setCustomerSearch(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Search customer..."
-                  className="input-style-4 pl-10"
-                />
-              </div>
-
-              {/* LIST */}
-              <div className="mt-3 max-h-64 overflow-y-auto rounded-xl border border-gray-200">
-
-                {filteredCustomers.length > 0 ? (
-
-                  filteredCustomers.map(
-                    (customer) => (
-
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() => {
-
-                          setSelectedCustomer(
-                            customer
-                          );
-
-                          setValue(
-                            "wholeSaleCutomerId",
-                            customer.id
-                          );
-
-                          setCustomerSearch(
-                            customer.companyName
-                          );
-                        }}
-                        className={`
-              w-full text-left px-4 py-3
-              border-b border-gray-100
-              hover:bg-slate-50
-              transition
-              ${selectedCustomer?.id ===
-                            customer.id
-                            ? "bg-blue-50"
-                            : ""
-                          }
-            `}
-                      >
-
-                        <div className="font-medium text-sm text-gray-800">
-                          {customer.companyName}
-                        </div>
-
-                        <div className="text-xs text-gray-500">
-                          {customer.phone || "No phone"}
-                        </div>
-
-                      </button>
-                    )
-                  )
-
-                ) : (
-
-                  <div className="p-4 text-sm text-gray-400 text-center">
-                    No customer found
-                  </div>
-
-                )}
-              </div>
-            </div>
-          </div>
 
           {/* ===================================================== */}
           {/* QUANTITY */}
           {/* ===================================================== */}
 
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-  
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Quantity
-    </label>
 
-    <input
-      type="number"
-      step="0.001"
-      {...register("quantity")}
-      className="input-style-4"
-      placeholder="0"
-    />
-  </div>
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Quantity
+              </label>
 
-  {/* UNIT SELECTOR */}
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Unit
-    </label>
+              <input
+                type="number"
+                step="0.001"
+                {...register("quantity")}
+                className="input-style-4"
+                placeholder="0"
+              />
+            </div>
 
-<select
-  {...register("transactionUnit")}
-  className="input-style-4"
->
-  <option value="pcs">Piece (pcs)</option>
-  <option value="box">Box</option>
-  <option value="pack">Pack</option>
-  <option value="bottle">Bottle</option>
-  <option value="can">Can</option>
-  <option value="jar">Jar</option>
-  <option value="bag">Bag</option>
-  <option value="carton">Carton</option>
-  <option value="tray">Tray</option>
-  <option value="roll">Roll</option>
-  <option value="pair">Pair</option>
-  <option value="dozen">Dozen</option>
+            {/* PRICE */}
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Price
+              </label>
 
-  <option value="kg">Kilogram (kg)</option>
-  <option value="gm">Gram (g)</option>
-  <option value="ltr">Liter (L)</option>
-  <option value="ml">Milliliter (ml)</option>
-</select>
-  </div>
+              <input
+                type="number"
+                step="0.01"
+                {...register("unitPrice")}
+                className="input-style-4"
+                placeholder="Enter price"
+              />
+            </div>
 
-  {/* PRICE */}
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Unit Price
-    </label>
+            {/* UNIT SELECTOR */}
+            <div className="flex flex-col gap-2">
+              <label className="label-style-4">
+                Unit
+              </label>
 
-    <input
-      type="number"
-      step="0.01"
-      {...register("unitPrice")}
-      className="input-style-4"
-      placeholder="Enter price"
-    />
-  </div>
+              <select
+                {...register("transactionUnit")}
+                className="input-style-4"
+              >
+                <option value="kg">Kilogram (kg)</option>
+                <option value="pcs">Piece (pcs)</option>
+                <option value="box">Box</option>
+                <option value="pack">Pack</option>
+                <option value="bottle">Bottle</option>
+                <option value="can">Can</option>
+                <option value="jar">Jar</option>
+                <option value="bag">Bag</option>
+                <option value="carton">Carton</option>
+                <option value="tray">Tray</option>
+                <option value="roll">Roll</option>
+                <option value="pair">Pair</option>
+                <option value="dozen">Dozen</option>
 
-</div>
+
+                <option value="gm">Gram (g)</option>
+                <option value="ltr">Liter (L)</option>
+                <option value="ml">Milliliter (ml)</option>
+              </select>
+            </div>
+
+
+
+          </div>
 
           {/* ===================================================== */}
           {/* NOTE */}
@@ -618,9 +637,8 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
             <textarea
               {...register("note")}
-              rows={4}
               placeholder="Optional note..."
-              className="input-style-4 resize-none"
+              className="input-style-4 h-10 overflow-hidden resize-none"
             />
           </div>
 

@@ -3,14 +3,16 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 
 
-export async function getSupplierAccount(
-  supplierId: string
+export async function getCustomerAccount(
+  customerId: string 
 ) {
-  if (!supplierId) return null;
+
+  console.log("co---------------", customerId)
+  if (!customerId) return null;
 
   const doc = await adminDb
-    .collection("supplierAccounts")
-    .doc(supplierId)
+    .collection("customerAccounts") 
+    .doc(customerId)
     .get();
 
   if (!doc.exists) return null;
@@ -18,7 +20,7 @@ export async function getSupplierAccount(
   const data = doc.data();
 
   return {
-    supplierId,
+    customerId,
 
     ...data,
 
