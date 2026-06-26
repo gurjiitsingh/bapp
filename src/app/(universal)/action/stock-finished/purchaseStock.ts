@@ -5,7 +5,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
-import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedMovement";
+import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedTransactions";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 

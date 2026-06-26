@@ -99,11 +99,11 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Stock Sell
+              Sell Products
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              Sale items
+              Sale Finished Products
             </p>
           </Link>
 

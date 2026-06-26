@@ -83,7 +83,7 @@ export async function processRawInventory(
       updatedAt: now,
     });
 
-    const ledgerRef = adminDb.collection("inventoryLedger").doc();
+    const ledgerRef = adminDb.collection("stockLedgerInventory").doc();
 
     tx.set(ledgerRef, {
       ...u.ledger,

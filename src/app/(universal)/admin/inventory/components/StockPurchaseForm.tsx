@@ -414,12 +414,12 @@ export default function StockPurchaseForm({
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
-            Raw Stock Purchase
+             Purchase
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Purchase inventory
-            stock manually
+            Purchase raw 
+            stock 
           </p>
         </div>
 

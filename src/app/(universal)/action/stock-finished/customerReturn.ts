@@ -6,7 +6,9 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { updateCustomerAccount } from "./inventorySupplier/updateCustomerAccount";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
-import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedMovement";
+import { applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
+
+
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -83,29 +85,31 @@ export async function customerReturn({
     const totalAmount = quantity * unitPrice;
     
 
-    const movement = await applyFinishedMovement({
-      productId: id,
-      type: "RETURN",
-      direction: "IN",
+   await adminDb.runTransaction(async (tx) => {
+  const movement = await applyFinishedTransactions(tx, {
+    productId: id,
+    type: "RETURN",
+    direction: "IN",
 
-      quantity,
-      transactionUnit,
+    quantity,
+    transactionUnit,
 
-      unitPrice,
-      totalAmount,
+    unitPrice,
+    totalAmount,
 
-      paidAmount: paymentMethod ? totalAmount : 0,
-      dueAmount: paymentMethod ? 0 : totalAmount,
-      paymentStatus: paymentMethod ? "PAID" : "CREDIT",
-      paymentMethod,
+    paidAmount: paymentMethod ? totalAmount : 0,
+    dueAmount: paymentMethod ? 0 : totalAmount,
+    paymentStatus: paymentMethod ? "PAID" : "CREDIT",
+    paymentMethod,
 
-      referenceId,
-      referenceType,
+    referenceId,
+    referenceType,
 
-      note,
-      createdBy: createdBy || "admin",
-      source: "ADMIN",
-    });
+    note,
+    createdBy: createdBy || "admin",
+    source: "ADMIN",
+  });
+});
 
     // =========================
     // REVERSE RAW MATERIAL CONSUMPTION

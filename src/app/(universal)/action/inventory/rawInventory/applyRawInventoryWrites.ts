@@ -9,6 +9,8 @@ export async function applyRawInventoryWrites(
   updates: any[],
   orderId: string
 ) {
+
+  console.log("rawUpdates FINAL:", updates);
   const now = admin.firestore.FieldValue.serverTimestamp();
 
   for (const u of updates) {
@@ -19,14 +21,14 @@ export async function applyRawInventoryWrites(
     });
 
     // ✅ create ledger
-    const ledgerRef = adminDb.collection("inventoryLedger").doc();
+    const ledgerRef = adminDb.collection("stockLedgerInventory").doc();
 
     tx.set(ledgerRef, {
       inventoryItemId: u.inventoryItemId,
-      itemName: u.itemName,
+      inventoryItemName: u.itemName,
       type: "CONSUMPTION",
       direction: "OUT",
-      qty: u.required,
+      quantity: u.required,
       beforeStock: u.prev,
       afterStock: u.next,
       referenceId: orderId,

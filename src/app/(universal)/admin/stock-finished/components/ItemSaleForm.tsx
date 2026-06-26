@@ -268,12 +268,11 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
-            Stock Sale
+            Finished Product Sale
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Sale Item
-            stock manually
+            Sale Finished stock manually
           </p>
         </div>
 

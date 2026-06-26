@@ -18,7 +18,7 @@ export async function getInventoryTransactions({
 //
     const snapshot = await adminDb
       //  .collection("inventoryTransactions")
-        .collection("stockLedgerInventory")
+        .collection("stockLedgerInventory") 
       .orderBy("createdAt", "desc")
       .offset((page - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE + 1)

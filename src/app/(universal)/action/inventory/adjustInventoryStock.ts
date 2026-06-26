@@ -1,5 +1,5 @@
 "use server";
-
+// update raw inventory and raw invenotrory transacitons
 import admin from "firebase-admin";
 
 import { adminDb } from "@/lib/firebaseAdmin";

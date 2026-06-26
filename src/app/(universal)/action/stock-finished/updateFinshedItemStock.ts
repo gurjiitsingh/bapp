@@ -3,7 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedMovement";
+import {   applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
 import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { processSaleInventory } from "../inventory/processSaleInventory";
@@ -11,6 +11,7 @@ import { processRawInventory } from "../inventory/processRawInventory";
 import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
+import { applyInventoryTransactionTx } from "../inventory/rawInventoryTransactions/applyInventoryTransactionTx";
 
 
 type AdjustStockType = {
@@ -56,7 +57,7 @@ export async function updateFinishedItemStock({
       { productId: id, quantity }
     ]);
   }
-
+ 
   // =========================
   // ✅ 2. VALIDATE
   // =========================
@@ -67,7 +68,9 @@ export async function updateFinishedItemStock({
   // =========================
   // ✅ 3. WRITE
   // =========================
-  const movement = await applyFinishedMovement(tx, {
+// 1 ✅ Update stock (finished currentStock)
+// 2 ✅ Create ledger entry (stockLedgerFinished transactions)
+  const movement = await applyFinishedTransactions(tx, {
   productId: id,
   productName,
   type: "PRODUCTION",
@@ -80,7 +83,10 @@ export async function updateFinishedItemStock({
   source: "ADMIN",
 });
 
-  if (direction === "IN") {
+
+// 1 ✅ Update stock (inventroy currentStock)
+// 2 ✅ Create ledger entry (stockLedgerInventory transactions)
+if (direction === "IN") {
     await applyRawInventoryWrites(
       tx,
       rawUpdates,
