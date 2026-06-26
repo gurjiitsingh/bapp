@@ -124,28 +124,37 @@ export async function deleteInventoryItem(
     // CHECK TRANSACTIONS
     // ==========================
 
-    const transactionSnapshot =
-      await adminDb
-        .collection(
-          "inventoryTransactions"
-        )
-        .where(
-          "inventoryItemId",
-          "==",
-          id
-        )
-        .limit(1)
-        .get();
+const transactionSnapshot =
+  await adminDb
+    .collection("stockLedgerInventory")
+    .where(
+      "inventoryItemId",
+      "==",
+      id
+    )
+    .limit(1)
+    .get();
 
-    if (
-      !transactionSnapshot.empty
-    ) {
-      return {
-        success: false,
-        message:
-          "Inventory item has transaction history and cannot be deleted.",
-      };
+if (!transactionSnapshot.empty) {
+
+  transactionSnapshot.docs.forEach(
+    (doc) => {
+      console.log(
+        "Inventory transaction found:",
+        {
+          id: doc.id,
+          ...doc.data(),
+        }
+      );
     }
+  );
+
+  return {
+    success: false,
+    message:
+      "Inventory item has transaction history and cannot be deleted.",
+  };
+}
 
     // ==========================
     // DELETE INVENTORY
