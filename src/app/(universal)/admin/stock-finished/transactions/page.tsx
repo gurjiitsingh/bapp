@@ -31,15 +31,13 @@ export default async function Page({
 
       {/* HEADER */}
 
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">
-          Inventory Transactions
-        </h1>
+     <h1 className="text-3xl font-bold">
+  Product Transactions
+</h1>
 
-        <p className="text-sm text-muted-foreground">
-          Complete inventory stock history
-        </p>
-      </div>
+<p className="text-sm text-muted-foreground">
+  Complete transaction history for finished products.
+</p>
 
       {/* TABLE */}
 

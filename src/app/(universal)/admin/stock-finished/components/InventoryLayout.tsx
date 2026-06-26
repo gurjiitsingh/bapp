@@ -140,11 +140,11 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Inventory Items
+              Finished Products
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              View all inventory
+             View all products
             </p>
           </Link>
 
@@ -184,11 +184,11 @@ export default function InventoryTabs() {
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
-              Item Transactions logs
+             Product Transactions
             </h3>
 
             <p className="text-sm text-gray-500 mt-1">
-              View stock history
+              View all stock movements/transactions.
             </p>
           </Link>
 

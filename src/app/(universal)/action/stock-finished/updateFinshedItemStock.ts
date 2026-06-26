@@ -8,6 +8,9 @@ import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { processSaleInventory } from "../inventory/processSaleInventory";
 import { processRawInventory } from "../inventory/processRawInventory";
+import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
+import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
+import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
 
 
 type AdjustStockType = {
@@ -40,111 +43,53 @@ export async function updateFinishedItemStock({
       return { success: false, message: "Invalid quantity" };
     }
 
+
     await db.runTransaction(async (tx) => {
-      // =====================================================
-      // 1. CREATE FINISHED PRODUCT MOVEMENT (WITH TX)
-      // =====================================================
-      // const movement = await applyFinishedMovement({
-      //   tx, // ✅ IMPORTANT
-      //   productId: id,
-      //   productName,
-      //   type: direction === "IN" ? "PRODUCTION" : "ADJUSTMENT",
-      //   direction,
-      //   quantity,
-      //   unitPrice: 0,
-      //   transactionUnit,
-      //   note,
-      //   createdBy: createdBy || "system",
-      //   source: "ADMIN",
-      // });
 
-      // =====================================================
-      // 2. HANDLE RAW MATERIAL CONSUMPTION
-      // =====================================================
+  // =========================
+  // ✅ 1. READ
+  // =========================
+  let rawUpdates: any[] = [];
 
-await db.runTransaction(async (tx) => {
-
-  // 🟢 FIRST: Add finished stock movement (optional)
-  // await applyFinishedMovement({ tx, ... })
-
-  // 🟢 SECOND: consume raw materials ONLY when producing
   if (direction === "IN") {
-    await processRawInventory(tx, "production-" + id, [
-      {
-        productId: id,
-        quantity,
-      },
+    rawUpdates = await getRawInventoryData(tx, [
+      { productId: id, quantity }
     ]);
   }
 
+  // =========================
+  // ✅ 2. VALIDATE
+  // =========================
+  if (direction === "IN") {
+    validateRawStock(rawUpdates);
+  }
+
+  // =========================
+  // ✅ 3. WRITE
+  // =========================
+  const movement = await applyFinishedMovement(tx, {
+  productId: id,
+  productName,
+  type: "PRODUCTION",
+  direction,
+  quantity,
+  unitPrice: 0,
+  transactionUnit,
+  note,
+  createdBy: createdBy || "system",
+  source: "ADMIN",
 });
 
-      // if (direction === "IN") {
-      //   const productRef = db.collection("products").doc(id);
-      //   const productSnap = await tx.get(productRef);
+  if (direction === "IN") {
+    await applyRawInventoryWrites(
+      tx,
+      rawUpdates,
+      "production-" + id
+    );
+  }
+});
 
-      //   if (!productSnap.exists) {
-      //     throw new Error("Product not found");
-      //   }
-
-      //   const productData = productSnap.data();
-
-      //   // ✅ QUERY INSIDE TRANSACTION
-      //   const recipesQuery = db
-      //     .collection("productRecipes")
-      //     .where("productId", "==", id);
-
-      //   const recipesSnapshot = await tx.get(recipesQuery);
-
-      //   for (const doc of recipesSnapshot.docs) {
-      //     const recipe = doc.data();
-
-      //     const requiredQty =
-      //       (Number(recipe.quantity) || 0) * quantity;
-
-      //     const inventoryRef = db
-      //       .collection("inventory")
-      //       .doc(recipe.inventoryItemId);
-
-      //     const inventorySnap = await tx.get(inventoryRef);
-
-      //     if (!inventorySnap.exists) {
-      //       throw new Error(
-      //         `Raw material not found: ${recipe.inventoryItemId}`
-      //       );
-      //     }
-
-      //     const inventoryData = inventorySnap.data();
-      //     const currentStock =
-      //       Number(inventoryData?.currentStock) || 0;
-
-      //     // =================================================
-      //     // 3. PREVENT NEGATIVE STOCK
-      //     // =================================================
-      //     if (currentStock < requiredQty) {
-      //       throw new Error(
-      //         `Not enough stock for ${inventoryData?.name}`
-      //       );
-      //     }
-
-      //     // =================================================
-      //     // 4. APPLY INVENTORY MOVEMENT (WITH TX)
-      //     // =================================================
-      //     // await applyInventoryMovement({
-      //     //   tx, // ✅ IMPORTANT
-      //     //   inventoryItemId: recipe.inventoryItemId,
-      //     //   type: "CONSUMPTION",
-      //     //   direction: "OUT",
-      //     //   quantity: requiredQty,
-      //     //   note: `Used for production of ${productData?.name}`,
-      //     //   referenceId: movement?.transactionId || null,
-      //     //   referenceType: "PRODUCTION",
-      //     //   createdBy: createdBy || "system",
-      //     //   source: "ADMIN",
-      //     // });
-      //   }
-      // }
-    });
+   
 
     // =====================================================
     // CACHE

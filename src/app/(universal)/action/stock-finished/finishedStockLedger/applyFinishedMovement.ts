@@ -36,130 +36,122 @@ productName?: string;
   source?: string;
 };
 
-export async function applyFinishedMovement({
-  productId,
+export async function applyFinishedMovement(
+  tx: FirebaseFirestore.Transaction, // ✅ pass tx explicitly
+  {
+    productId,
+    productName,
 
-  type,
-  direction,
+    type,
+    direction,
 
-  quantity,
-  transactionUnit,
+    quantity,
+    transactionUnit,
 
-  unitPrice,
+    unitPrice,
 
-  customerId,
-  customerName,
+    customerId,
+    customerName,
 
-  totalAmount = 0,
-  paidAmount = 0,
-  dueAmount = 0,
+    totalAmount = 0,
+    paidAmount = 0,
+    dueAmount = 0,
 
-  paymentStatus = "PAID",
-  paymentMethod = null,
+    paymentStatus = "PAID",
+    paymentMethod = null,
 
-  referenceType = "MANUAL",
-  referenceId = "",
+    referenceType = "MANUAL",
+    referenceId = "",
 
-  note = "",
-  createdBy = "system",
+    note = "",
+    createdBy = "system",
 
-  source = "SYSTEM",
-}: ApplyFinishedMovementType) {
+    source = "SYSTEM",
+  }: ApplyFinishedMovementType
+) {
+  const now = admin.firestore.FieldValue.serverTimestamp();
 
-  console.log("unitPrice in appy---------------", unitPrice)
+  const productRef = adminDb.collection("products").doc(productId);
 
-  const now =
-    admin.firestore.FieldValue.serverTimestamp();
+  // ✅ READ (allowed here because still in READ phase of main flow)
+  const snap = await tx.get(productRef);
 
-  const productRef =
-    adminDb.collection("products").doc(productId);
+  if (!snap.exists) {
+    throw new Error("Product not found");
+  }
 
-  return adminDb.runTransaction(async (tx) => {
-    const snap = await tx.get(productRef);
+  const product = snap.data()!;
 
-    if (!snap.exists) {
-      throw new Error("Product not found");
-    }
+  const beforeStock = Number(product.currentStock) || 0;
 
-    const product = snap.data()!;
+  const afterStock =
+    direction === "IN"
+      ? beforeStock + quantity
+      : beforeStock - quantity;
 
-    const beforeStock =
-      Number(product.currentStock) || 0;
+  if (
+    direction === "OUT" &&
+    afterStock < 0 &&
+    !product.allowNegativeStock
+  ) {
+    throw new Error("Insufficient stock");
+  }
 
-    const afterStock =
-      direction === "IN"
-        ? beforeStock + quantity
-        : beforeStock - quantity;
+  const finalUnitPrice =
+    unitPrice ?? Number(product.price) ?? 0;
 
-    if (
-      direction === "OUT" &&
-      afterStock < 0 &&
-      !product.allowNegativeStock
-    ) {
-      throw new Error("Insufficient stock");
-    }
-
-    const finalUnitPrice =
-      unitPrice ??
-      Number(product.price) ??
-      0;
-
-    tx.update(productRef, {
-      currentStock: afterStock,
-
-      stockStatus:
-        afterStock > 0
-          ? "in_stock"
-          : "out_of_stock",
-
-      updatedAt: now,
-    });
-
-    const ledgerRef =
-      adminDb.collection("stockLedgerFinished").doc();
-
-    tx.set(ledgerRef, {
-      transactionId: ledgerRef.id,
-
-      productId,
-      productName: product.name || "",
-
-      type,
-      direction,
-
-      quantity,
-      transactionUnit,
-
-      unitPrice: unitPrice,
-      productSnapshotPrice: Number(product.price) || 0,
-      totalAmount,
-
-      beforeStock,
-      afterStock,
-
-      customerId: customerId || "",
-      customerName: customerName || "",
-
-      paidAmount,
-      dueAmount,
-
-      paymentStatus,
-      paymentMethod,
-
-      referenceType,
-      referenceId,
-
-      note,
-      createdBy,
-
-      createdAt: now,
-      source,
-    });
-
-    return {
-      beforeStock,
-      afterStock,
-      unitPrice: finalUnitPrice,
-    };
+  // ✅ WRITE
+  tx.update(productRef, {
+    currentStock: afterStock,
+    stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
+    updatedAt: now,
   });
+
+  const ledgerRef =
+    adminDb.collection("stockLedgerFinished").doc();
+
+  tx.set(ledgerRef, {
+    transactionId: ledgerRef.id,
+
+    productId,
+    productName: product.name || "",
+
+    type,
+    direction,
+
+    quantity,
+    transactionUnit,
+
+    unitPrice: finalUnitPrice,
+    productSnapshotPrice: Number(product.price) || 0,
+    totalAmount,
+
+    beforeStock,
+    afterStock,
+
+    customerId: customerId || "",
+    customerName: customerName || "",
+
+    paidAmount,
+    dueAmount,
+
+    paymentStatus,
+    paymentMethod,
+
+    referenceType,
+    referenceId,
+
+    note,
+    createdBy,
+
+    createdAt: now,
+    source,
+  });
+
+  return {
+    transactionId: ledgerRef.id, // ✅ IMPORTANT (you need this)
+    beforeStock,
+    afterStock,
+    unitPrice: finalUnitPrice,
+  };
 }
