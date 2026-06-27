@@ -140,7 +140,7 @@ export default function ProductionForm({
               {!search.trim() && (
                 <Search
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                 />
               )}
 
@@ -246,15 +246,20 @@ export default function ProductionForm({
                 Production Quantity
               </label>
 
-              <input
-                type="number"
-                step="0.001"
-                min="0.001"
-                {...register("quantity", {
-                  valueAsNumber: true,
-                })}
-                className="input-style-4"
-              />
+           <input
+  type="number"
+  step="0.001"
+  min="0.001"
+  {...register("quantity", {
+    valueAsNumber: true,
+  })}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  className="input-style-4"
+/>
             </div>
 
             {/* Unit */}

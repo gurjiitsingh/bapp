@@ -607,13 +607,18 @@ export default function StockPurchaseForm({
                 Quantity
               </label>
 
-              <input
-                type="number"
-                step="0.001"
-                {...register("quantity")}
-                className="input-style-4"
-                placeholder="0"
-              />
+          <input
+  type="number"
+  step="0.001"
+  {...register("quantity")}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  className="input-style-4"
+  placeholder="0"
+/>
             </div>
 
             <div className="flex flex-col gap-2">
