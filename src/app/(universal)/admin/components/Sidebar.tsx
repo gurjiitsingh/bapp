@@ -145,7 +145,20 @@ const Sidebar = () => {
     },
     { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
     { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
-    
+
+
+{
+  key: "SHOW_INVENTORY_RAW",
+  name: "Products Stock",
+  link: "/admin/stock-finished/sale/add",
+  icon: <MdInventory />,
+},
+    {
+  key: "SHOW_INVENTORY_RAW",
+  name: "Raw Stock",
+  link: "/admin/inventory/dashboard",
+  icon: <MdOutlineInventory2 />,
+},
 
       {
     key: "SHOW_MODIFIER_GROUPS",
@@ -174,19 +187,7 @@ const Sidebar = () => {
 
    
    
-{
-  key: "SHOW_INVENTORY_RAW",
-  name: "Raw Stock",
-  link: "/admin/inventory/dashboard",
-  icon: <MdOutlineInventory2 />,
-},
 
-{
-  key: "SHOW_INVENTORY_RAW",
-  name: "Finished Stock",
-  link: "/admin/stock-finished/sale/add",
-  icon: <MdInventory />,
-},
 
 // {
 //   key: "SHOW_INVENTORY_TRANSACTIONS",

@@ -414,19 +414,26 @@ export default function ItemPurchaseForm({
             {/* ===================================================== */}
 
             <div className="bg-white  ">
-
+<div className="flex mb-3 justify-between"> 
               <div className="flex items-center justify-between mb-4">
-
-
-
-
-
                 {selectedCustomer && (
                   <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                     {selectedCustomer.companyName}
                   </div>
                 )}
               </div>
+
+              <Button
+            type="submit"
+            disabled={
+              isSubmitting
+            }
+            className="btn-save-4 h-11"
+          >
+            {isSubmitting
+              ? "Saving..."
+              : "Save Sale"}
+          </Button></div>
 
               {/* SEARCH */}
               <div className="relative">
@@ -848,17 +855,7 @@ export default function ItemPurchaseForm({
           {/* SAVE */}
           {/* ===================================================== */}
 
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting
-            }
-            className="btn-save-4 h-11"
-          >
-            {isSubmitting
-              ? "Saving..."
-              : "Save Stock Sale"}
-          </Button>
+         
         </form>
       </div >
     </div >

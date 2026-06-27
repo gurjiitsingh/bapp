@@ -1,6 +1,6 @@
 "use client";
 
-import { paySupplierDue } from "@/app/(universal)/action/inventorySupplier/paySupplierDue";
+import { payCustomerDue } from "@/app/(universal)/action/stock-finished/customer/payCustomerDue";
 import { useState } from "react";
 
 
@@ -11,6 +11,8 @@ export default function CustomerPaymentForm({
   customerId : string;
   onSuccess?: () => void;
 }) {
+
+
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: any) {
@@ -18,11 +20,12 @@ export default function CustomerPaymentForm({
 
     const formData = new FormData(e.target);
 
-    formData.append("customerId ", customerId );
+    
+    formData.append("customerId", customerId);
 
     setLoading(true);
 
-    const res = await paySupplierDue(formData);
+    const res = await payCustomerDue(formData);
 
     if (res?.success) {
       e.target.reset();

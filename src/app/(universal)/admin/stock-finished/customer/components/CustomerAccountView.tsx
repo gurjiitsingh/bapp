@@ -225,9 +225,9 @@ export default function CustomerAccountView({
             Due
           </th>
 
-          {/* <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
             Balance
-          </th> */}
+          </th>
 
         </tr>
 
@@ -339,13 +339,13 @@ export default function CustomerAccountView({
 
               {/* BALANCE */}
 
-              {/* <td className="px-4 py-3 text-right whitespace-nowrap">
+              <td className="px-4 py-3 text-right whitespace-nowrap">
 
                 <span className="font-bold text-gray-800">
                   ₹ {t.balance || 0}
                 </span>
 
-              </td> */}
+              </td>
 
             </tr>
           ))

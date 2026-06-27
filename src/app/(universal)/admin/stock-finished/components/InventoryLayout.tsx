@@ -37,6 +37,22 @@ const tabs = [
 export default function InventoryTabs() {
   const pathname = usePathname();
 
+  const isProduction =
+  pathname ===
+  "/admin/stock-finished/production";
+
+  const isSale = pathname.startsWith(
+  "/admin/stock-finished/sale"
+);
+
+const isCustomer = pathname.startsWith(
+  "/admin/stock-finished/customer"
+);
+
+const isProducts =
+  pathname === "/admin/stock-finished/" ||
+  pathname === "/admin/stock-finished";
+
   return (
     <div className="  p-2 pt-5 md:px-6">
       <div className="w-full mx-auto flex flex-col gap-6">
@@ -47,106 +63,192 @@ export default function InventoryTabs() {
 
         <div className="grid grid-cols-2 xl:grid-cols-7 gap-3">
 
-          <Link
-            href="/admin/stock-finished/production"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <BookOpen
-                size={22}
-                className="text-purple-600"
-              />
-            </div>
+         <Link
+  href="/admin/stock-finished/production"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isProduction
+      ? "bg-purple-50 border-purple-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isProduction
+        ? "bg-purple-600"
+        : "bg-purple-100"
+    }`}
+  >
+    <BookOpen
+      size={22}
+      className={
+        isProduction
+          ? "text-white"
+          : "text-purple-600"
+      }
+    />
+  </div>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Production
-            </h3>
+  <h3
+    className={`font-semibold mt-4 ${
+      isProduction
+        ? "text-purple-700"
+        : "text-gray-800"
+    }`}
+  >
+    Production
+  </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Produce Finished Goods
-            </p>
-          </Link>
+  <p
+    className={`text-sm mt-1 ${
+      isProduction
+        ? "text-purple-500"
+        : "text-gray-500"
+    }`}
+  >
+    Produce Finished Goods
+  </p>
+</Link>
 
-          {/* <Link
-            href="/admin/stock-finished/purchase"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <BookOpen
-                size={22}
-                className="text-purple-600"
-              />
-            </div>
+        
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Purcahse
-            </h3>
+      <Link
+  href="/admin/stock-finished/sale/add"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isSale
+      ? "bg-orange-50 border-orange-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isSale
+        ? "bg-orange-500"
+        : "bg-orange-100"
+    }`}
+  >
+    <PackagePlus
+      size={22}
+      className={
+        isSale
+          ? "text-white"
+          : "text-orange-600"
+      }
+    />
+  </div>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Purchase Finished Goods
-            </p>
-          </Link> */}
+  <h3
+    className={`font-semibold mt-4 ${
+      isSale
+        ? "text-orange-700"
+        : "text-gray-800"
+    }`}
+  >
+    Sell Products
+  </h3>
 
-          <Link
-            href="/admin/stock-finished/sale/add"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
-                size={22}
-                className="text-orange-600"
-              />
-            </div>
+  <p
+    className={`text-sm mt-1 ${
+      isSale
+        ? "text-orange-600"
+        : "text-gray-500"
+    }`}
+  >
+    Sale Finished Products
+  </p>
+</Link>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Sell Products
-            </h3>
+   <Link
+  href="/admin/stock-finished/customer"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isCustomer
+      ? "bg-violet-50 border-violet-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isCustomer
+        ? "bg-violet-500"
+        : "bg-purple-100"
+    }`}
+  >
+    <Truck
+      size={22}
+      className={
+        isCustomer
+          ? "text-white"
+          : "text-violet-600"
+      }
+    />
+  </div>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Sale Finished Products
-            </p>
-          </Link>
+  <h3
+    className={`font-semibold mt-4 ${
+      isCustomer
+        ? "text-violet-700"
+        : "text-gray-800"
+    }`}
+  >
+    Customers
+  </h3>
 
-          <Link
-            href="/admin/stock-finished/customer"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <Truck
-                size={22}
-                className="text-violet-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Customers
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              View
-            </p>
-          </Link>
+  <p
+    className={`text-sm mt-1 ${
+      isCustomer
+        ? "text-violet-600"
+        : "text-gray-500"
+    }`}
+  >
+    View customers and manage accounts
+  </p>
+</Link>
 
 
-          <Link
-            href="/admin/stock-finished/"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
-              <ClipboardList
-                size={22}
-                className="text-[#00897b]"
-              />
-            </div>
+   <Link
+  href="/admin/stock-finished/"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isProducts
+      ? "bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
+      : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isProducts
+        ? "bg-[#00897b]"
+        : "bg-[#00897b]/10"
+    }`}
+  >
+    <ClipboardList
+      size={22}
+      className={
+        isProducts
+          ? "text-white"
+          : "text-[#00897b]"
+      }
+    />
+  </div>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Finished Products
-            </h3>
+  <h3
+    className={`font-semibold mt-4 ${
+      isProducts
+        ? "text-[#00897b]"
+        : "text-gray-800"
+    }`}
+  >
+    Finished Products
+  </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
-             View all products
-            </p>
-          </Link>
+  <p
+    className={`text-sm mt-1 ${
+      isProducts
+        ? "text-[#00897b]/80"
+        : "text-gray-500"
+    }`}
+  >
+    View all products
+  </p>
+</Link>
 
           {/* <Link
             href="/admin/stock-finished/new"

@@ -1,16 +1,7 @@
 import Link from "next/link";
-
 import { Button } from "@/components/ui/button";
-
-import { adminDb } from "@/lib/firebaseAdmin";
-
 import ListView from "./components/ListView";
 import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventorySupplier/fetchCustomer";
-
-
-
-
-
 
 export default async function Page() {
   const wholeSaleCustomer =
@@ -26,8 +17,7 @@ export default async function Page() {
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Manage Customer and
-            vendor information
+            Manage Customer information
           </p>
         </div>
 
