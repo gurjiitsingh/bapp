@@ -2,6 +2,7 @@
 
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { ApplyInventoryTansactrionType } from "@/lib/types/ApplyInventoryTansactrionType";
 
 export async function applyInventoryTransactionTx(
   tx: FirebaseFirestore.Transaction,
@@ -27,7 +28,7 @@ export async function applyInventoryTransactionTx(
     note = "",
     createdBy = "system",
     source = "SYSTEM",
-  }: ApplyInventoryMovementType
+  }: ApplyInventoryTansactrionType
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
 
@@ -57,7 +58,11 @@ export async function applyInventoryTransactionTx(
   if (direction === "OUT" && afterStock < 0) {
     throw new Error("Insufficient stock");
   }
-
+const COST_TYPES = new Set([
+            "PURCHASE",
+            "OPENING_STOCK",
+            "CUSTOMER_RETURN",
+        ]);
   const isCostMovement = COST_TYPES.has(type);
 
   const finalUnitCost = isCostMovement

@@ -15,6 +15,8 @@ export default async function Page({
 
   const account = await getCustomerAccount(id);
 
+  console.log("customer account--------------", account)
+
   return (
     <CustomerAccountView 
       account={account}

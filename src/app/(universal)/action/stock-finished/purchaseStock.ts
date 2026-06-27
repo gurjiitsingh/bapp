@@ -5,7 +5,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { applyInventoryMovement } from "../inventory/applyInventoryMovement";
-import { applyFinishedMovement } from "./finishedStockLedger/applyFinishedTransactions";
+import {  applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -68,35 +68,38 @@ export async function purchaseStock({
     // (optional future: update product stock here if you want direct field update)
     // await productRef.update({ currentStock: newStock });
 
-    // =========================
-    // FINISHED STOCK MOVEMENT
-    // =========================
-    const totalAmount = quantity * unitPrice;
+  
 
-    await applyFinishedMovement({
-      productId: id,
-      type: "PURCHASE",
-      direction: "IN",
+  // =========================
+// FINISHED STOCK MOVEMENT
+// =========================
+const totalAmount = quantity * unitPrice;
 
-      quantity,
-      transactionUnit,
+await adminDb.runTransaction(async (tx) => {
+  await applyFinishedTransactions(tx, {
+    productId: id,
+    type: "PURCHASE",
+    direction: "IN",
 
-      unitPrice,
-      totalAmount,
+    quantity,
+    transactionUnit,
 
-      paidAmount: paymentMethod ? totalAmount : 0,
-      dueAmount: paymentMethod ? 0 : totalAmount,
-      paymentStatus: paymentMethod ? "PAID" : "CREDIT",
-      paymentMethod,
+    unitPrice,
+    totalAmount,
 
-      referenceId,
-      referenceType: "PURCHASE",
+    paidAmount: paymentMethod ? totalAmount : 0,
+    dueAmount: paymentMethod ? 0 : totalAmount,
+    paymentStatus: paymentMethod ? "PAID" : "CREDIT",
+    paymentMethod,
 
-      note: note || "Purchase entry",
-      createdBy: createdBy || "admin",
-      source: "ADMIN",
-    });
+    referenceId,
+    referenceType: "PURCHASE",
 
+    note: note || "Purchase entry",
+    createdBy: createdBy || "admin",
+    source: "ADMIN",
+  });
+});
     // =========================
     // RAW MATERIAL STOCK IN (if product has recipe)
     // =========================

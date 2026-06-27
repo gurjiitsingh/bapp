@@ -23,6 +23,8 @@ export default async function Page({
 
   const data = res?.data;
 
+  console.log("Data----------------", data)
+
   return (
     <div style={{ padding: 20 }}>
       <h2>Supplier Ledger</h2>
@@ -52,7 +54,7 @@ export default async function Page({
             <th>Total</th>
             <th>Paid</th>
             <th>Due</th>
-            <th>Balance</th>
+            {/* <th>Balance</th> */}
           </tr>
         </thead>
         <tbody>
@@ -68,7 +70,7 @@ export default async function Page({
               <td>₹ {t.totalAmount}</td>
               <td>₹ {t.paidAmount}</td>
               <td>₹ {t.dueAmount}</td>
-              <td>₹ {t.balance}</td>
+              {/* <td>₹ {t.balance}</td> */}
             </tr>
           ))}
         </tbody>

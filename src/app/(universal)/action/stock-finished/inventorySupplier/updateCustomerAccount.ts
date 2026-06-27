@@ -55,9 +55,11 @@ export async function updateCustomerAccount(
     // Customer owes only unpaid amount
     debit = dueAmount;
 
-    if (paymentMethod === "CASH") cash = paidAmount;
-    if (paymentMethod === "UPI") upi = paidAmount;
-    if (paymentMethod === "CARD") card = paidAmount;
+ if (paid > 0) {
+  if (paymentMethod === "CASH") cash = paid;
+  if (paymentMethod === "UPI") upi = paid;
+  if (paymentMethod === "CARD") card = paid;
+}
   }
 
   // ===============================

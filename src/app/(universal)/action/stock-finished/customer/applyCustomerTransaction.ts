@@ -47,6 +47,8 @@ export async function applyCustomerTransaction(
 ) {
   if (!customerId) return;
 
+  console.log("paymentMethod-------------", paymentMethod)
+
   const ledgerRef = adminDb.collection("customerLedger").doc();
 
   tx.set(ledgerRef, {

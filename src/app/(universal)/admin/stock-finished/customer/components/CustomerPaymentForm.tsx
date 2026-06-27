@@ -46,7 +46,7 @@ return (
     {/* HEADER */}
     <div className="flex justify-between items-center">
       <h3 className="text-sm font-semibold">
-        Pay Supplier
+        Receive Payment
       </h3>
     </div>
 

@@ -1,1 +1,1 @@
-export type PaymentStatus = "PAID" | "PARTIAL" | "DUE";
+export type PaymentStatus = "PAID" | "PARTIAL" | "DUE" | "CREDIT";

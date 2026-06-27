@@ -418,8 +418,7 @@ export default function StockPurchaseForm({
           </h1>
 
           <p className="text-sm text-gray-500 mt-1">
-            Purchase raw 
-            stock 
+            Purchase raw stock 
           </p>
         </div>
 

@@ -85,7 +85,7 @@ export async function customerReturn({
     const totalAmount = quantity * unitPrice;
     
 
-   await adminDb.runTransaction(async (tx) => {
+  await adminDb.runTransaction(async (tx) => {
   const movement = await applyFinishedTransactions(tx, {
     productId: id,
     type: "RETURN",
@@ -109,6 +109,20 @@ export async function customerReturn({
     createdBy: createdBy || "admin",
     source: "ADMIN",
   });
+
+  // =========================
+  // CUSTOMER ACCOUNT REVERSAL
+  // =========================
+  if (wholeSaleCutomerId) {
+    await updateCustomerAccount(tx, {
+      wholeSaleCutomerId,
+      type: "CUSTOMER_RETURN",
+      totalAmount,
+      paidAmount: paymentMethod ? totalAmount : 0,
+      dueAmount: paymentMethod ? 0 : totalAmount,
+      paymentMethod,
+    });
+  }
 });
 
     // =========================
@@ -142,21 +156,7 @@ export async function customerReturn({
       }
     }
 
-    // =========================
-    // CUSTOMER ACCOUNT REVERSAL
-    // =========================
-    if (wholeSaleCutomerId) {
-      const totalAmount = quantity * unitPrice;
 
-      await updateCustomerAccount({
-        wholeSaleCutomerId,
-        type: "RETURN",
-        totalAmount,
-        paidAmount: paymentMethod ? totalAmount : 0,
-        dueAmount: paymentMethod ? 0 : totalAmount,
-        paymentMethod,
-      });
-    }
 
     // =========================
     // CACHE REFRESH

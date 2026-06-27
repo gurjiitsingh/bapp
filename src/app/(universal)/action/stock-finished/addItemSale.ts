@@ -1,14 +1,21 @@
 "use server";
 
-
 import { adminDb } from "@/lib/firebaseAdmin";
-import { revalidatePath, revalidateTag } from "next/cache";
+import {
+  revalidatePath,
+  revalidateTag,
+} from "next/cache";
+
 import { updateCustomerAccount } from "./inventorySupplier/updateCustomerAccount";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
 import { applyCustomerTransaction } from "./customer/applyCustomerTransaction";
+import { PaymentStatus } from "@/lib/types/PaymentStatus";
 
-type PaymentMethod = "CASH" | "UPI" | "CARD";
+type PaymentMethod =
+  | "CASH"
+  | "UPI"
+  | "CARD";
 
 type AdjustSaleStock = {
   id: string;
@@ -16,158 +23,215 @@ type AdjustSaleStock = {
   wholeSaleCutomerId?: string;
   wholeSaleCutomerName?: string;
 
-  type: "SALE" | "ADJUSTMENT" | "OPENING";
+  type:
+    | "SALE"
+    | "ADJUSTMENT"
+    | "OPENING";
+
   direction: "IN" | "OUT";
 
   quantity: number;
+
   transactionUnit: InventoryUnit;
 
   unitPrice: number;
 
-  // ✅ ADD THESE
-  paymentStatus?: "PAID" | "CREDIT";
+  paymentStatus?: PaymentStatus;
   paymentMethod?: PaymentMethod;
+
   paidAmount?: number;
+  dueAmount?: number;
 
   note?: string;
   createdBy?: string;
 
   referenceId?: string;
-  referenceType?: "MANUAL" | "SALE";
+  referenceType?:
+    | "MANUAL"
+    | "SALE";
 };
-
-
 
 export async function addItemSale({
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
+
   type,
   direction,
+
   quantity,
   unitPrice,
   transactionUnit,
+
+  paymentStatus,
   paymentMethod,
+
+  paidAmount = 0,
+  dueAmount = 0,
+
   note,
   createdBy,
+
   referenceId,
   referenceType = "MANUAL",
 }: AdjustSaleStock) {
-
-
   try {
-    // =====================================================
+    // ==========================================
     // VALIDATION
-    // =====================================================
+    // ==========================================
 
     if (!id) {
-      return { success: false, message: "Product ID required" };
+      return {
+        success: false,
+        message: "Product ID required",
+      };
     }
 
     if (!quantity || quantity <= 0) {
-      return { success: false, message: "Invalid quantity" };
+      return {
+        success: false,
+        message: "Invalid quantity",
+      };
     }
 
-    
-    // =====================================================
-    // FIRESTORE TRANSACTION (IMPORTANT)
-    // UPDATE FINISHED PRODUCT
-    // =====================================================
+    const totalAmount =
+      quantity * unitPrice;
 
-    const totalAmount = quantity * unitPrice;
+    // Safety checks
 
-    const paidAmount = paymentMethod ? totalAmount : 0;
+    if (paidAmount < 0) {
+      paidAmount = 0;
+    }
 
-    const dueAmount = totalAmount - paidAmount;
+    if (paidAmount > totalAmount) {
+      paidAmount = totalAmount;
+    }
 
-    const paymentStatus =
-      paidAmount >= totalAmount ? "PAID" : "CREDIT";
+    dueAmount =
+      Math.max(
+        totalAmount - paidAmount,
+        0
+      );
 
-await adminDb.runTransaction(async (tx) => {
-  await applyFinishedTransactions(tx, {
-    productId: id,
-    type: "SALE",
-    direction: "OUT",
+    if (!paymentStatus) {
+      if (paidAmount >= totalAmount) {
+        paymentStatus = "PAID";
+      } else if (paidAmount > 0) {
+        paymentStatus = "PARTIAL";
+      } else {
+        paymentStatus = "CREDIT";
+      }
+    }
 
-    quantity,
-    transactionUnit,
+    await adminDb.runTransaction(
+      async (tx) => {
+        // ==========================================
+        // FINISHED PRODUCT LEDGER
+        // ==========================================
 
-    unitPrice,
-    totalAmount,
+        await applyFinishedTransactions(
+          tx,
+          {
+            productId: id,
 
-    paidAmount,
-    dueAmount,
-    paymentStatus,
-    paymentMethod,
+            type: "SALE",
+            direction: "OUT",
 
-    referenceId,
-    referenceType,
+            quantity,
+            transactionUnit,
 
-    note,
-    createdBy: createdBy || "admin",
-    source: "ADMIN",
-  });
+            unitPrice,
+            totalAmount,
 
- // ==========================================
-  // CUSTOMER ACCOUNT + CUSTOMER LEDGER
-  // ==========================================
+            paidAmount,
+            dueAmount,
 
-  if (type === "SALE" && wholeSaleCutomerId) {
-    await updateCustomerAccount(tx, {
-      wholeSaleCutomerId,
-      type: "SALE",
-      totalAmount,
-      paidAmount,
-      dueAmount,
-      paymentMethod,
-    });
+            paymentStatus,
+            paymentMethod,
 
-    await applyCustomerTransaction(tx, {
-      customerId: wholeSaleCutomerId,
-      customerName: wholeSaleCutomerName,
+            referenceId,
+            referenceType,
 
-      type: "SALE",
+            note,
+            createdBy:
+              createdBy || "admin",
 
-      totalAmount,
-      paidAmount,
-      dueAmount,
+            source: "ADMIN",
+          }
+        );
 
-      paymentMethod,
+        // ==========================================
+        // CUSTOMER ACCOUNT
+        // ==========================================
 
-      referenceType,
-      referenceId,
+        if (
+          type === "SALE" &&
+          wholeSaleCutomerId
+        ) {
+          await updateCustomerAccount(tx, {
+            wholeSaleCutomerId,
 
-      note,
-      createdBy: createdBy || "admin",
-      source: "ADMIN",
-    });
-  }
-});
+            type: "SALE",
 
+            totalAmount,
+            paidAmount,
+            dueAmount,
 
+            paymentMethod,
+          });
 
-    // =====================================================
-    // CACHE
-    // =====================================================
+          await applyCustomerTransaction(
+            tx,
+            {
+              customerId:
+                wholeSaleCutomerId,
+
+              customerName:
+                wholeSaleCutomerName,
+
+              type: "SALE",
+
+              totalAmount,
+              paidAmount,
+              dueAmount,
+
+              paymentMethod,
+
+              referenceId,
+              referenceType,
+
+              note,
+
+              createdBy:
+                createdBy || "admin",
+
+              source: "ADMIN",
+            }
+          );
+        }
+      }
+    );
+
     revalidateTag("products", "max");
-
-    // revalidateTag("inventory-items", "max");
-    // revalidatePath("/admin/inventory");
-    // revalidatePath("/admin/inventory/dashboard");
-
-    revalidatePath("/admin/stock-finished");
+    revalidatePath(
+      "/admin/stock-finished"
+    );
 
     return {
       success: true,
-      message: "Stock updated successfully",
+      message:
+        "Stock updated successfully",
     };
-
   } catch (error) {
-    console.error("❌ addItemSale failed:", error);
+    console.error(
+      "❌ addItemSale failed:",
+      error
+    );
 
     return {
       success: false,
-      message: "Failed to update stock",
+      message:
+        "Failed to update stock",
     };
   }
 }
