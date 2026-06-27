@@ -77,9 +77,7 @@ export default function InventoryTransactionTable({
               Supplier
             </TableHead>
 
-            <TableHead>
-              Direction
-            </TableHead>
+         
 
             <TableHead>
               Price
@@ -134,7 +132,17 @@ export default function InventoryTransactionTable({
               {/* ITEM */}
 
               <TableCell className="font-medium">
-                {tx.inventoryItemName}
+             <span className="mr-1">{tx.inventoryItemName}</span>   
+
+                    <span
+                  className={`text-xs px-1 px-2 py-1 rounded-full font-medium ${
+                    tx.direction === "IN"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
+                  {tx.direction}
+                </span>
               </TableCell>
 
               {/* TYPE */}
@@ -149,19 +157,9 @@ export default function InventoryTransactionTable({
                 {tx.supplierName || "-"}
               </TableCell>
 
-              {/* DIRECTION */}
+             
 
-              <TableCell>
-                <span
-                  className={`text-xs px-2 py-1 rounded-full font-medium ${
-                    tx.direction === "IN"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {tx.direction}
-                </span>
-              </TableCell>
+            
 
               {/* PRICE */}
 

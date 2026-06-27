@@ -6,6 +6,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { updateCustomerAccount } from "./inventorySupplier/updateCustomerAccount";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { applyFinishedTransactions } from "./finishedStockLedger/applyFinishedTransactions";
+import { applyCustomerTransaction } from "./customer/applyCustomerTransaction";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -107,6 +108,10 @@ await adminDb.runTransaction(async (tx) => {
     source: "ADMIN",
   });
 
+ // ==========================================
+  // CUSTOMER ACCOUNT + CUSTOMER LEDGER
+  // ==========================================
+
   if (type === "SALE" && wholeSaleCutomerId) {
     await updateCustomerAccount(tx, {
       wholeSaleCutomerId,
@@ -115,6 +120,26 @@ await adminDb.runTransaction(async (tx) => {
       paidAmount,
       dueAmount,
       paymentMethod,
+    });
+
+    await applyCustomerTransaction(tx, {
+      customerId: wholeSaleCutomerId,
+      customerName: wholeSaleCutomerName,
+
+      type: "SALE",
+
+      totalAmount,
+      paidAmount,
+      dueAmount,
+
+      paymentMethod,
+
+      referenceType,
+      referenceId,
+
+      note,
+      createdBy: createdBy || "admin",
+      source: "ADMIN",
     });
   }
 });

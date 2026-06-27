@@ -46,7 +46,7 @@ export default function ProductionForm({
   } = useForm<FormType>({
     defaultValues: {
       quantity: 0,
-      transactionUnit: "pcs",
+      transactionUnit: "kg",
       note: "",
     },
   });
@@ -268,6 +268,7 @@ export default function ProductionForm({
   {...register("transactionUnit")}
   className="input-style-4"
 >
+  <option value="kg">Kilogram (kg)</option>
   <option value="pcs">Piece (pcs)</option>
   <option value="box">Box</option>
   <option value="pack">Pack</option>
@@ -281,7 +282,7 @@ export default function ProductionForm({
   <option value="pair">Pair</option>
   <option value="dozen">Dozen</option>
 
-  <option value="kg">Kilogram (kg)</option>
+  
   <option value="gm">Gram (g)</option>
   <option value="ltr">Liter (L)</option>
   <option value="ml">Milliliter (ml)</option>

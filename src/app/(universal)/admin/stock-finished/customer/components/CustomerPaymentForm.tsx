@@ -5,10 +5,10 @@ import { useState } from "react";
 
 
 export default function CustomerPaymentForm({
-  supplierId,
+  customerId ,
   onSuccess,
 }: {
-  supplierId: string;
+  customerId : string;
   onSuccess?: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function CustomerPaymentForm({
 
     const formData = new FormData(e.target);
 
-    formData.append("supplierId", supplierId);
+    formData.append("customerId ", customerId );
 
     setLoading(true);
 

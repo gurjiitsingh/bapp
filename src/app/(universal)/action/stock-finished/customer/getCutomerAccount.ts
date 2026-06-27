@@ -7,7 +7,7 @@ export async function getCustomerAccount(
   customerId: string 
 ) {
 
-  console.log("co---------------", customerId)
+ 
   if (!customerId) return null;
 
   const doc = await adminDb

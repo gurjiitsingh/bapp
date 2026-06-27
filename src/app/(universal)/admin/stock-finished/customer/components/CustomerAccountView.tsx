@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import CustomerPaymentForm from "./CustomerPaymentForm";
 
 
-type SupplierAccountType = {
-  supplierId: string;
+type CustomerAccountType = {
+  customerId: string;
   totalPurchase?: number;
   totalReturn?: number;
   totalPaid?: number;
@@ -20,10 +20,10 @@ type SupplierAccountType = {
 
 export default function CustomerAccountView({
   account,
-  supplierId,
+  customerId,
 }: {
-  account: SupplierAccountType | null;
-  supplierId: string;
+  account: CustomerAccountType | null;
+  customerId: string;
 }) {
   const searchParams = useSearchParams();
 
@@ -41,10 +41,10 @@ export default function CustomerAccountView({
   const fetchTransactions = async (from?: any, to?: any) => {
     setLoading(true);
 
-    const res = await fetch("/api/supplier-ledger", {
+    const res = await fetch("/api/customer-ledger", {
       method: "POST",
       body: JSON.stringify({
-        supplierId,
+        customerId,
         fromDate: from,
         toDate: to,
       }),
@@ -75,7 +75,7 @@ export default function CustomerAccountView({
 
   return (
     <div className="p-4 border rounded-xl space-y-4">
-      <h2 className="text-lg font-semibold">Supplier Account</h2>
+      <h2 className="text-lg font-semibold">Customer  Account</h2>
 
 
 
@@ -163,7 +163,7 @@ export default function CustomerAccountView({
 
           {balance > 0 && (
             <CustomerPaymentForm
-              supplierId={supplierId}
+              customerId={customerId}
               onSuccess={() => {
                 fetchTransactions(fromDate, toDate);
               }}
@@ -370,7 +370,7 @@ export default function CustomerAccountView({
                 </p>
 
                 <p className="text-sm text-gray-400">
-                  Supplier transaction history will appear here
+                  Customer  transaction history will appear here
                 </p>
 
               </div>

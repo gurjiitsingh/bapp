@@ -1,5 +1,6 @@
-import CustomerAccountView from "../components/CustomerAccountView";
+
 import { getCustomerAccount } from "@/app/(universal)/action/stock-finished/customer/getCutomerAccount";
+import CustomerAccountView from "../components/CustomerAccountView";
 
 
  
@@ -17,7 +18,7 @@ export default async function Page({
   return (
     <CustomerAccountView 
       account={account}
-      supplierId={id}   // ✅ PASS HERE
+      customerId ={id}   // ✅ PASS HERE
     />
   );
 }
