@@ -17,7 +17,7 @@ type SupplierAccountType = {
   balance?: number;
 };
 
-export default function SupplierAccountView({
+export default function SupplierAccountView_copy({
   account,
   supplierId,
 }: {

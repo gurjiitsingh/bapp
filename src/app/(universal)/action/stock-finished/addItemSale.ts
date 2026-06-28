@@ -125,6 +125,25 @@ export async function addItemSale({
 
     await adminDb.runTransaction(
       async (tx) => {
+
+          // ============================
+  // READ CUSTOMER ACCOUNT FIRST
+  // ============================
+
+  let currentBalance = 0;
+
+  if (type === "SALE" && wholeSaleCutomerId) {
+    const accountRef = adminDb
+      .collection("customerAccounts")
+      .doc(wholeSaleCutomerId);
+
+    const accountSnap = await tx.get(accountRef);
+
+    currentBalance = Number(
+      accountSnap.data()?.balance || 0
+    );
+  }
+
         // ==========================================
         // FINISHED PRODUCT LEDGER
         // ==========================================
@@ -170,13 +189,13 @@ export async function addItemSale({
         ) {
           await updateCustomerAccount(tx, {
             wholeSaleCutomerId,
-
+wholeSaleCutomerName,
             type: "SALE",
 
             totalAmount,
             paidAmount,
             dueAmount,
-
+          currentBalance,
             paymentMethod,
           });
 
@@ -194,7 +213,7 @@ export async function addItemSale({
               totalAmount,
               paidAmount,
               dueAmount,
-
+              currentBalance,
               paymentMethod,
 
               referenceId,

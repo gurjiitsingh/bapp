@@ -2,39 +2,9 @@
 
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { ApplyInventoryTransactionType } from "@/lib/types/ApplyInventoryTransactionType";
 
-type ApplyInventoryMovementType = {
-    inventoryItemId: string;
 
-    type: string;
-    direction: "IN" | "OUT";
-
-    quantity: number;
-
-    unitCost?: number;
-
-    purchaseQuantity?: number;
-    purchaseUnit?: string;
-    purchaseUnitCost?: number;
-    conversionFactor?: number;
-
-    supplierId?: string;
-    supplierName?: string;
-
-    totalAmount?: number;
-    paidAmount?: number;
-    dueAmount?: number;
-    paymentStatus?: string;
-    paymentMethod?: string | null;
-
-    referenceType?: string;
-    referenceId?: string;
-
-    note?: string;
-    createdBy?: string;
-
-    source?: string;
-};
 
  const COST_TYPES = new Set([
             "PURCHASE",
@@ -42,7 +12,9 @@ type ApplyInventoryMovementType = {
             "CUSTOMER_RETURN",
         ]);
 
-export async function applyInventoryMovement({
+export async function applyInventoryMovement(
+  tx: FirebaseFirestore.Transaction,
+  {
     inventoryItemId,
 
     type,
@@ -73,7 +45,9 @@ export async function applyInventoryMovement({
     createdBy = "system",
 
     source = "SYSTEM",
-}: ApplyInventoryMovementType) {
+}: ApplyInventoryTransactionType) {
+
+    
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     if (quantity <= 0) {
@@ -83,7 +57,7 @@ export async function applyInventoryMovement({
     const inventoryRef =
         adminDb.collection("inventoryItems").doc(inventoryItemId);
 
-    return adminDb.runTransaction(async (tx) => {
+   
         const snap = await tx.get(inventoryRef);
 
         if (!snap.exists) {
@@ -209,5 +183,5 @@ export async function applyInventoryMovement({
         };
 
 
-    });
+    
 }

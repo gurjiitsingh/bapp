@@ -6,6 +6,7 @@ import SupplierPaymentForm from "./SupplierPaymentForm";
 
 type SupplierAccountType = {
   supplierId: string;
+  supplierName?: string;
   totalPurchase?: number;
   totalReturn?: number;
   totalPaid?: number;
@@ -20,13 +21,17 @@ type SupplierAccountType = {
 export default function SupplierAccountView({
   account,
   supplierId,
+  initialTransactions,
 }: {
   account: SupplierAccountType | null;
   supplierId: string;
+  initialTransactions: any[];
 }) {
   const searchParams = useSearchParams();
 
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState(
+  initialTransactions
+);
   const [loading, setLoading] = useState(false);
 
   if (!account) return <p>No data found</p>;
@@ -37,11 +42,18 @@ export default function SupplierAccountView({
   const toDate = searchParams.get("to") || "";
 
   // ✅ FETCH FUNCTION
-  const fetchTransactions = async (from?: any, to?: any) => {
-    setLoading(true);
+  const fetchTransactions = async (
+  from?: string,
+  to?: string
+) => {
+  setLoading(true);
 
+  try {
     const res = await fetch("/api/supplier-ledger", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         supplierId,
         fromDate: from,
@@ -50,31 +62,34 @@ export default function SupplierAccountView({
     });
 
     const json = await res.json();
-    console.log("res----------------", json?.data?.transactions)
-    setTransactions(json?.data?.transactions || []);
 
+    console.log("transactions:", json.transactions);
+
+    setTransactions(json.transactions || []);
+  } catch (err) {
+    console.error(err);
+    setTransactions([]);
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   // ✅ ON FORM SUBMIT
-  const handleFilter = (e: any) => {
-    e.preventDefault();
+ const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    const formData = new FormData(e.target);
-    const from = formData.get("from");
-    const to = formData.get("to");
+  const formData = new FormData(e.currentTarget);
 
-    fetchTransactions(from, to);
-  };
+  fetchTransactions(
+    formData.get("from") as string,
+    formData.get("to") as string
+  );
+};
 
-  // ✅ INITIAL LOAD (optional)
-  useEffect(() => {
-    fetchTransactions(fromDate, toDate);
-  }, []);
 
   return (
     <div className="p-4 border rounded-xl space-y-4">
-      <h2 className="text-lg font-semibold">Supplier Account</h2>
+      <h2 className="text-lg font-semibold">{account.supplierName} </h2>
 
 
 
@@ -94,11 +109,6 @@ export default function SupplierAccountView({
           </p>
         </div>
       </div>
-
-
-
-
-
       <div className="flex justify-between">
         <div>
 
@@ -224,9 +234,9 @@ export default function SupplierAccountView({
             Due
           </th>
 
-          {/* <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
             Balance
-          </th> */}
+          </th>
 
         </tr>
 
@@ -338,13 +348,13 @@ export default function SupplierAccountView({
 
               {/* BALANCE */}
 
-              {/* <td className="px-4 py-3 text-right whitespace-nowrap">
+              <td className="px-4 py-3 text-right whitespace-nowrap">
 
                 <span className="font-bold text-gray-800">
                   ₹ {t.balance || 0}
                 </span>
 
-              </td> */}
+              </td>
 
             </tr>
           ))

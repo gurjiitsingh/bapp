@@ -12,9 +12,7 @@ type ApplyCustomerTransactionParams = {
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
-
   currentBalance: number;
-
   paymentMethod?: PaymentMethod;
 
   referenceType?: string;
@@ -25,7 +23,7 @@ type ApplyCustomerTransactionParams = {
   source?: "SYSTEM" | "ADMIN" | "POS";
 };
 
-export async function applyCustomerTransaction(
+export async function applyCustomerTransaction_old(
   tx: FirebaseFirestore.Transaction,
   {
     customerId,
@@ -36,9 +34,7 @@ export async function applyCustomerTransaction(
     totalAmount,
     paidAmount,
     dueAmount,
-
     currentBalance,
-
     paymentMethod,
 
     referenceType = "MANUAL",
@@ -51,84 +47,55 @@ export async function applyCustomerTransaction(
 ) {
   if (!customerId) return;
 
+console.log("currentBalance-----------", currentBalance)
+console.log("totalAmount-----------",  totalAmount)
+console.log("paidAmount-----------", paidAmount)
+console.log("dueAmount-----------", dueAmount)
+console.log("type-----------", type)
   // ==========================================
-  // NORMALIZE VALUES
-  // ==========================================
-
-  const total = Number(totalAmount || 0);
-  const paid = Number(paidAmount || 0);
-  const due = Number(dueAmount || 0);
-
-  // ==========================================
-  // CALCULATE BALANCE CHANGE
+  // CALCULATE NEW BALANCE
   // ==========================================
 
-  let balanceChange = 0;
+  let balance = currentBalance;
 
-  switch (type) {
-    case "SALE":
-      // Customer owes the unpaid amount
-      balanceChange = due;
-      break;
-
-    case "CUSTOMER_RETURN":
-      // Reduce customer's outstanding balance
-      balanceChange = -total;
-      break;
-
-    case "PAYMENT":
-      // Customer payment reduces outstanding balance
-      balanceChange = -paid;
-      break;
+  if (type === "SALE") {
+    balance += dueAmount;
   }
 
-  // ==========================================
-  // RUNNING BALANCE
-  // ==========================================
+  if (type === "CUSTOMER_RETURN") {
+    balance -= totalAmount;
+  }
 
-  const balance = currentBalance + balanceChange;
+  if (type === "PAYMENT") {
+    balance -= paidAmount;
+  }
 
   // ==========================================
   // CUSTOMER LEDGER
   // ==========================================
 
-  const ledgerRef = adminDb
-    .collection("customerLedger")
-    .doc();
+
+  const ledgerRef = adminDb.collection("customerLedger").doc();
 
   tx.set(ledgerRef, {
     transactionId: ledgerRef.id,
-
     customerId,
     customerName: customerName || "",
-
     type,
-
-    totalAmount: total,
-    paidAmount: paid,
-    dueAmount: due,
-
-    previousBalance: currentBalance,
-    balanceChange,
+    totalAmount,
+    paidAmount,
+    dueAmount,
     balance,
-
     paymentMethod: paymentMethod || null,
-
     referenceType,
     referenceId,
-
     note,
-
     createdBy,
     source,
-
-    status: "ACTIVE",
-
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 
   return {
     transactionId: ledgerRef.id,
-    balance,
   };
 }

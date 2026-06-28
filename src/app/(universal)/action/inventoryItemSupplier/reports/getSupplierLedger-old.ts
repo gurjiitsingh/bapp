@@ -6,7 +6,7 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
 
 
-export async function getSupplierLedger({
+export async function getSupplierLedger_old({
   supplierId,
   fromDate,
   toDate,
@@ -20,31 +20,81 @@ export async function getSupplierLedger({
     // 1️⃣ MAIN QUERY (ASC for correct calculation)
     // ===============================
     let query = adminDb
-      .collection("customerLedger")
+      .collection("supplierLedger")
       .where("supplierId", "==", supplierId)
       .orderBy("createdAt", "asc"); // ✅ IMPORTANT
 
     // ===============================
     // 2️⃣ DATE FILTER
     // ===============================
-    if (fromDate) {
-      query = query.where(
-        "createdAt",
-        ">=",
-        new Date(fromDate)
-      );
-    }
+ // ===============================
+// 2️⃣ DATE FILTER
+// ===============================
 
-    if (toDate) {
-      const end = new Date(toDate);
-      end.setHours(23, 59, 59, 999);
+// ✅ if no date selected -> today only
+if (!fromDate && !toDate) {
 
-      query = query.where(
-        "createdAt",
-        "<=",
-        end
-      );
-    }
+  const todayStart = new Date();
+
+  todayStart.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  const todayEnd = new Date();
+
+  todayEnd.setHours(
+    23,
+    59,
+    59,
+    999
+  );
+
+  query = query
+    .where(
+      "createdAt",
+      ">=",
+      todayStart
+    )
+    .where(
+      "createdAt",
+      "<=",
+      todayEnd
+    );
+}
+
+// ✅ custom range
+else {
+
+  if (fromDate) {
+    query = query.where(
+      "createdAt",
+      ">=",
+      new Date(fromDate)
+    );
+  }
+
+  if (toDate) {
+    const end = new Date(
+      toDate
+    );
+
+    end.setHours(
+      23,
+      59,
+      59,
+      999
+    );
+
+    query = query.where(
+      "createdAt",
+      "<=",
+      end
+    );
+  }
+}
 
     // ===============================
     // 3️⃣ OPENING BALANCE (before fromDate)
@@ -53,7 +103,7 @@ export async function getSupplierLedger({
 
     if (fromDate) {
       const prevSnap = await adminDb
-        .collection("customerLedger")
+        .collection("supplierLedger")
         .where("supplierId", "==", supplierId)
         .where("createdAt", "<", new Date(fromDate))
         .get();

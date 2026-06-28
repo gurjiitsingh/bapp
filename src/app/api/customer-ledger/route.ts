@@ -3,22 +3,28 @@ import { getCustomerLedger } from "@/app/(universal)/action/stock-finished/custo
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const { customerId, fromDate, toDate } =
+      await req.json();
 
-    const res = await getCustomerLedger({
-      customerId : body.customerId ,
-      fromDate: body.fromDate,
-      toDate: body.toDate,
+    const result = await getCustomerLedger({
+      customerId,
+      fromDate,
+      toDate,
     });
 
-    console.log("customerId------------",body.customerId)
-
-    return NextResponse.json(res);
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("API ERROR:", error);
+    console.error(
+      "❌ Customer Ledger API Error:",
+      error
+    );
 
     return NextResponse.json(
-      { success: false, message: "Something went wrong" },
+      {
+        success: false,
+        transactions: [],
+        message: "Something went wrong",
+      },
       { status: 500 }
     );
   }

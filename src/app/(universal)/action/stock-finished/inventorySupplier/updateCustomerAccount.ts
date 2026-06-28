@@ -5,28 +5,44 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 
 type UpdateCustomerAccountParams = {
   wholeSaleCutomerId?: string;
-
+wholeSaleCutomerName?: string;
   type: "SALE" | "CUSTOMER_RETURN" | "PAYMENT";
 
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
-
-  paymentMethod?: PaymentMethod;
+  currentBalance: number;
+  paymentMethod?: PaymentMethod; 
 };
 
 export async function updateCustomerAccount(
   tx: FirebaseFirestore.Transaction,
   {
     wholeSaleCutomerId,
+    wholeSaleCutomerName,
     type,
     totalAmount,
     paidAmount,
     dueAmount,
+    currentBalance,
     paymentMethod,
   }: UpdateCustomerAccountParams
 ) {
   if (!wholeSaleCutomerId) return;
+
+  let balance = currentBalance;
+
+if (type === "SALE") {
+  balance += dueAmount;
+}
+
+if (type === "CUSTOMER_RETURN") {
+  balance -= totalAmount;
+}
+
+if (type === "PAYMENT") {
+  balance -= paidAmount;
+}
 
   const accountRef = adminDb
     .collection("customerAccounts")
@@ -87,12 +103,12 @@ export async function updateCustomerAccount(
   // ===============================
   // UPDATE ACCOUNT (TRANSACTION)
   // ===============================
-
+console.log("wholeSaleCutomerName,------------",wholeSaleCutomerName)
   tx.set(
     accountRef,
     {
       wholeSaleCutomerId,
-
+      wholeSaleCutomerName,
       totalCredit: admin.firestore.FieldValue.increment(credit),
       totalDebit: admin.firestore.FieldValue.increment(debit),
 
@@ -107,7 +123,8 @@ export async function updateCustomerAccount(
 
       // debit increases receivable
       // credit decreases receivable
-      balance: admin.firestore.FieldValue.increment(debit - credit),
+      balance,
+      // : admin.firestore.FieldValue.increment(debit - credit),
 
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     },

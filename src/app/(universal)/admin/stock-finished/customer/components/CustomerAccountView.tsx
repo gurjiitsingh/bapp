@@ -7,27 +7,35 @@ import CustomerPaymentForm from "./CustomerPaymentForm";
 
 type CustomerAccountType = {
   customerId: string;
-  totalPurchase?: number;
+  wholeSaleCutomerName?: string;
+
+  totalSales?: number;
   totalReturn?: number;
   totalPaid?: number;
+
   totalCredit?: number;
   totalDebit?: number;
+
   cashPaid?: number;
   upiPaid?: number;
   cardPaid?: number;
+
   balance?: number;
 };
 
 export default function CustomerAccountView({
   account,
   customerId,
+  initialTransactions,
 }: {
   account: CustomerAccountType | null;
   customerId: string;
+  initialTransactions: any[];
 }) {
   const searchParams = useSearchParams();
 
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactions, setTransactions] =
+  useState(initialTransactions);
   const [loading, setLoading] = useState(false);
 
   if (!account) return <p>No data found</p>;
@@ -38,11 +46,18 @@ export default function CustomerAccountView({
   const toDate = searchParams.get("to") || "";
 
   // ✅ FETCH FUNCTION
-  const fetchTransactions = async (from?: any, to?: any) => {
-    setLoading(true);
+  const fetchTransactions = async (
+  from?: string,
+  to?: string
+) => {
+  setLoading(true);
 
+  try {
     const res = await fetch("/api/customer-ledger", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         customerId,
         fromDate: from,
@@ -51,11 +66,15 @@ export default function CustomerAccountView({
     });
 
     const json = await res.json();
-    
-    setTransactions(json?.data?.transactions || []);
 
+    setTransactions(json.transactions || []);
+  } catch (err) {
+    console.error(err);
+    setTransactions([]);
+  } finally {
     setLoading(false);
-  };
+  }
+};
 
   // ✅ ON FORM SUBMIT
   const handleFilter = (e: any) => {
@@ -65,23 +84,28 @@ export default function CustomerAccountView({
     const from = formData.get("from");
     const to = formData.get("to");
 
-    fetchTransactions(from, to);
+    fetchTransactions(
+  (formData.get("from") as string) || undefined,
+  (formData.get("to") as string) || undefined
+);
   };
 
-  // ✅ INITIAL LOAD (optional)
-  useEffect(() => {
-    fetchTransactions(fromDate, toDate);
-  }, []);
+
 
   return (
     <div className="p-4 border rounded-xl space-y-4">
-      <h2 className="text-lg font-semibold">Customer  Account</h2>
+     <h2 className="text-lg font-semibold">
+  {account.wholeSaleCutomerName || "Customer Account"}
+</h2>
 
 
 
       {/* ================= SUMMARY ================= */}
       <div className="grid grid-cols-5 gap-4">
-        <Card title="Total Purchase" value={account.totalPurchase} />
+       <Card
+  title="Total Sales"
+  value={account.totalSales}
+/>
         <Card title="Total Return" value={account.totalReturn} />
         <Card title="Total Paid" value={account.totalPaid} />
 
@@ -274,11 +298,11 @@ export default function CustomerAccountView({
                   className={`
                     px-2 py-1 rounded-full text-xs font-medium
                     ${
-                      t.type === "PURCHASE"
-                        ? "bg-blue-100 text-blue-700"
-                        : t.type === "RETURN"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-gray-100 text-gray-700"
+                    t.type === "SALE"
+  ? "bg-blue-100 text-blue-700"
+  : t.type === "CUSTOMER_RETURN"
+  ? "bg-orange-100 text-orange-700"
+  : "bg-gray-100 text-gray-700"
                     }
                   `}
                 >

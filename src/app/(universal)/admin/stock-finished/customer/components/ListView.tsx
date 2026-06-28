@@ -296,7 +296,7 @@ export default function ListView({
                         {/* ACCOUNT */}
 
                         <Link
-                         href={`/admin/stock-finished/customer/${item.id}`}
+                         href={`/admin/stock-finished/customer/ledger/${item.id}`}
                         >
                           <Button
                             type="button"

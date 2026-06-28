@@ -11,11 +11,13 @@ import {
 
 
 
-import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
+
 
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { applyInventoryMovement } from "./applyInventoryMovement";
+import { applySupplierTransaction } from "../inventorySupplier/applySupplierTransaction";
+import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
 
 type PaymentMethod =
   | "CASH"
@@ -25,7 +27,7 @@ type PaymentMethod =
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
-  supplierId?: string;
+  supplierId: string;
  supplierName?: string;
   type: InventoryTransactionNameType;
 
@@ -94,6 +96,26 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
+  console.log("ad inve---------------------", inventoryItemId,
+  supplierId,
+  supplierName,
+  type,
+  direction,
+  quantity,
+  unitCost,
+
+  purchaseQuantity,
+  purchaseUnit,
+  purchaseUnitCost,
+  conversionFactor,
+
+  paymentStatus,
+  paymentMethod,
+  paidAmountInput,
+
+  note,
+  createdBy,
+  referenceId,)
   try {
     if (!inventoryItemId) {
       return { success: false, message: "Inventory item required" };
@@ -103,150 +125,90 @@ export async function adjustInventoryStock({
       return { success: false, message: "Quantity must be greater than 0" };
     }
 
-    const now = admin.firestore.FieldValue.serverTimestamp();
 
-    // ================= GET INVENTORY =================
-    const inventoryRef = adminDb.collection("inventoryItems").doc(inventoryItemId);
-    const inventorySnap = await inventoryRef.get();
 
-    if (!inventorySnap.exists) {
-      return { success: false, message: "Inventory item not found" };
-    }
+  
+await adminDb.runTransaction(async (tx) => {
 
-    const inventoryData = inventorySnap.data();
 
-    const previousStock = Number(inventoryData?.currentStock) || 0;
+  
+  // ================= GET INVENTORY =================
+  const inventoryRef = adminDb
+    .collection("inventoryItems")
+    .doc(inventoryItemId);
 
-    // ================= SUPPLIER =================
-    if (supplierId) {
-      const supplierSnap = await adminDb
-        .collection("inventorySuppliers")
-        .doc(supplierId)
-        .get();
+  const inventorySnap = await tx.get(inventoryRef);
 
-      if (supplierSnap.exists) {
-        supplierName = supplierSnap.data()?.companyName || "";
-      }
-    }
+  if (!inventorySnap.exists) {
+    throw new Error("Inventory item not found");
+  }
 
-    // ================= STOCK CALC =================
-    let afterStock = previousStock;
+  const inventoryData = inventorySnap.data();
 
-    if (direction === "IN") {
-      afterStock = previousStock + quantity;
-    } else {
-      afterStock = previousStock - quantity;
+  const previousStock =
+    Number(inventoryData?.currentStock) || 0;
 
-      if (afterStock < 0) {
-        return { success: false, message: "Insufficient stock" };
-      }
-    }
+  // ================= SUPPLIER =================
+  let currentBalance = 0;
+  if (supplierId) {
+    const supplierRef = adminDb
+      .collection("supplierAccounts")
+      .doc(supplierId);
 
-    // ================= COST =================
-    const finalUnitCost =
-      unitCost !== undefined
-        ? unitCost
-        : Number(inventoryData?.costPrice) || 0;
+    const supplierSnap = await tx.get(supplierRef);
 
-    const shouldApplyCost =
-      type === "PURCHASE" ||
-      type === "OPENING_STOCK" ||
-      type === "CUSTOMER_RETURN";
+    supplierName =
+      supplierSnap.data()?.supplierName || supplierName || "";
 
-    const totalAmount = shouldApplyCost ? quantity * finalUnitCost : 0;
+     currentBalance =
+      Number(supplierSnap.data()?.balance || 0);
 
-    // ================= PAYMENT =================
-    const isPurchase = type === "PURCHASE" && direction === "IN";
+    // Save for later
+  }
 
-    const paymentStatusSafe = paymentStatus || "PAID";
+   // ================= COST =================
+  const finalUnitCost =
+    unitCost ?? Number(inventoryData?.costPrice) ?? 0;
 
-    const paidAmountRaw =
-      isPurchase && paymentStatusSafe === "PAID"
-        ? totalAmount
-        : Number(paidAmountInput || 0);
+  const shouldApplyCost =
+    type === "PURCHASE"
+    //  ||
+    // type === "OPENING_STOCK" ||
+    // type === "CUSTOMER_RETURN";
 
-    const paidAmount = paidAmountRaw;
+  const totalAmount = shouldApplyCost
+    ? quantity * finalUnitCost
+    : 0;
 
-    const dueAmount = isPurchase
-      ? Math.max(0, totalAmount - paidAmount)
-      : 0;
+  // ================= PAYMENT =================
+  const isPurchase =
+    type === "PURCHASE" && direction === "IN";
 
-    // ================= COST AVG =================
-    const oldCostPrice = Number(inventoryData?.costPrice) || 0;
+  const paymentStatusSafe =
+    paymentStatus || "PAID";
 
-    let updatedCostPrice = oldCostPrice;
+  const paidAmount =
+    isPurchase && paymentStatusSafe === "PAID"
+      ? totalAmount
+      : Number(paidAmountInput || 0);
 
-    if (
-      direction === "IN" &&
-      (type === "PURCHASE" ||
-        type === "OPENING_STOCK" ||
-        type === "CUSTOMER_RETURN")
-    ) {
-      const oldStockValue = previousStock * oldCostPrice;
-      const newStockValue = quantity * finalUnitCost;
-      const totalStock = previousStock + quantity;
+  const dueAmount = isPurchase
+    ? Math.max(0, totalAmount - paidAmount)
+    : 0;
 
-      if (totalStock > 0) {
-        updatedCostPrice = (oldStockValue + newStockValue) / totalStock;
-      }
-    }
+ 
+  
+  // ================= UPDATE INVENTORY =================
+  
 
-    // ================= UPDATE INVENTORY =================
-    
-
-    // =====================================================
-    // 1. EXISTING TRANSACTION LOG (KEEP AS IS)
-    // =====================================================
-    // await adminDb.collection("inventoryTransactions").add({
-    //   inventoryItemId,
-    //   inventoryItemName: inventoryData?.name || "",
-
-    //   supplierId: supplierId || "",
-    //   supplierName: supplierName || "",
-
-    //   type,
-    //   direction,
-
-    //   purchaseQuantity: purchaseQuantity ?? quantity,
-    //   purchaseUnit:
-    //     purchaseUnit ||
-    //     inventoryData?.purchaseUnit ||
-    //     inventoryData?.consumptionUnit,
-
-    //   purchaseUnitCost: purchaseUnitCost ?? unitCost,
-    //   conversionFactor:
-    //     conversionFactor ?? inventoryData?.conversionFactor ?? 1,
-
-    //   quantity,
-    //   unit: inventoryData?.consumptionUnit || "pcs",
-    //   unitCost: finalUnitCost,
-
-    //   beforeStock: previousStock,
-    //   afterStock,
-
-    //   totalAmount,
-    //   paidAmount,
-    //   dueAmount,
-    //   paymentStatus: paymentStatusSafe,
-    //   paymentMethod: paymentMethod || null,
-
-    //   referenceType,
-    //   referenceId: referenceId || "",
-
-    //   note: note || "Manual inventory adjustment",
-    //   createdBy: createdBy || "admin",
-    //   createdAt: now,
-    // });
-
-    // =====================================================
-    // 2. NEW LEDGER (stockLedgerInventory) ✅ ADDED
-    // =====================================================
-
-await applyInventoryMovement({
+await applyInventoryMovement(tx, {
   inventoryItemId,
+
   type,
   direction,
+
   quantity,
+
   unitCost: finalUnitCost,
 
   purchaseQuantity,
@@ -260,6 +222,7 @@ await applyInventoryMovement({
   totalAmount,
   paidAmount,
   dueAmount,
+
   paymentStatus: paymentStatusSafe,
   paymentMethod,
 
@@ -268,49 +231,56 @@ await applyInventoryMovement({
 
   note: note || "Manual inventory adjustment",
   createdBy: createdBy || "admin",
+
   source: "WEB_ADMIN",
 });
 
+  await updateSupplierAccount(tx, {
+  supplierId,
+supplierName,
+  type:
+    type === "PURCHASE"
+      ? "PURCHASE"
+      : type === "SUPPLIER_RETURN"
+      ? "SUPPLIER_RETURN"
+      : "PAYMENT",
 
-    // ================= SUPPLIER LEDGER =================
-    const isSupplierFlow =
-      supplierId &&
-      (type === "PURCHASE" ||
-        type === "SUPPLIER_RETURN");
+  totalAmount,
+  paidAmount,
+  dueAmount,
 
-    if (isSupplierFlow) {
-      let ledgerType: "PURCHASE" | "RETURN" = "PURCHASE";
+  paymentMethod,
+});
 
-      if (type === "SUPPLIER_RETURN") {
-        ledgerType = "RETURN";
-      }
+ await applySupplierTransaction(tx, {
+  supplierId,
+  supplierName,
 
-      await adminDb.collection("supplierLedger").add({
-        supplierId,
-        supplierName,
-        type: ledgerType,
-        totalAmount,
-        paidAmount,
-        dueAmount,
-        paymentMethod: paymentMethod || null,
-        referenceType,
-        referenceId: referenceId || "",
-        note: note || "Inventory transaction",
-        createdAt: now,
-      });
-    }
+  type:
+  type === "PURCHASE"
+    ? "PURCHASE"
+    : type === "SUPPLIER_RETURN"
+    ? "SUPPLIER_RETURN"
+    : "PAYMENT",
 
-    // ================= SUPPLIER ACCOUNT =================
-    if (supplierId && isPurchase) {
-      await updateSupplierAccount({
-        supplierId,
-        type,
-        totalAmount,
-        paidAmount,
-        dueAmount,
-        paymentMethod,
-      });
-    }
+  totalAmount,
+  paidAmount,
+  dueAmount,
+
+  currentBalance,
+
+  paymentMethod,
+
+  referenceType,
+  referenceId,
+
+  note,
+  createdBy,
+
+  source: "WEB_ADMIN",
+  });
+
+});
 
     // ================= CACHE =================
     revalidateTag("inventory-items", "max");
@@ -332,521 +302,3 @@ await applyInventoryMovement({
 }
 
 
-export async function adjustInventoryStock_old({
-  inventoryItemId,
-  supplierId,
-    supplierName,
-  type,
-  direction,
-
-  quantity,
-  unitCost,
-
-  // ✅ ORIGINAL PURCHASE VALUES
-  purchaseQuantity,
-  purchaseUnit,
-  purchaseUnitCost,
-  conversionFactor,
-
-  paymentStatus,
-  paymentMethod,
-  paidAmount: paidAmountInput,
-
-  note,
-  createdBy,
-  referenceId,
-  referenceType = "MANUAL",
-}: AdjustInventoryStockType) {
-
-  try {
-
-    // =====================================================
-    // VALIDATION
-    // =====================================================
-
-    if (!inventoryItemId) {
-      return {
-        success: false,
-        message:
-          "Inventory item required",
-      };
-    }
-
-    if (!quantity || quantity <= 0) {
-      return {
-        success: false,
-        message:
-          "Quantity must be greater than 0",
-      };
-    }
-
-    // =====================================================
-    // GET INVENTORY
-    // =====================================================
-
-    const inventoryRef = adminDb
-      .collection("inventoryItems")
-      .doc(inventoryItemId);
-
-    const inventorySnap =
-      await inventoryRef.get();
-
-    if (!inventorySnap.exists) {
-      return {
-        success: false,
-        message:
-          "Inventory item not found",
-      };
-    }
-
-    const inventoryData =
-      inventorySnap.data();
-
-    const previousStock =
-      Number(
-        inventoryData?.currentStock
-      ) || 0;
-
-    // =====================================================
-    // GET SUPPLIER
-    // =====================================================
-
-   
-
-    if (supplierId) {
-      const supplierSnap =
-        await adminDb
-          .collection("inventorySuppliers")
-          .doc(supplierId)
-          .get();
-
-      if (supplierSnap.exists) {
-        supplierName =
-          supplierSnap.data()?.companyName || "";
-      }
-    }
-
-    // =====================================================
-    // STOCK CALCULATION
-    // =====================================================
-
-    let afterStock =
-      previousStock;
-
-    if (direction === "IN") {
-
-      afterStock =
-        previousStock + quantity;
-
-    } else {
-
-      afterStock =
-        previousStock - quantity;
-
-      if (afterStock < 0) {
-        return {
-          success: false,
-          message:
-            "Insufficient stock",
-        };
-      }
-    }
-
-    // =====================================================
-    // COST CALCULATION
-    // =====================================================
-
-    const finalUnitCost =
-      unitCost !== undefined
-        ? unitCost
-        : Number(
-            inventoryData?.costPrice
-          ) || 0;
-
-    const shouldApplyCost =
-      type === "PURCHASE" ||
-      type === "OPENING_STOCK" ||
-      type ===
-        "CUSTOMER_RETURN";
-
-        const totalAmount = shouldApplyCost
-  ? quantity * finalUnitCost
-  : 0;
-
-    
-
-    // =====================================================
-    // PAYMENT CALCULATION
-    // =====================================================
-
-    const isPurchase =
-      type ===
-        "PURCHASE" &&
-      direction === "IN";
-
-    const paymentStatusSafe =
-      paymentStatus || "PAID";
-
-    const paidAmountRaw =
-      isPurchase &&
-      paymentStatusSafe === "PAID"
-        ? totalAmount
-        : Number(
-            paidAmountInput || 0
-          );
-
-    if (
-      paidAmountRaw > totalAmount
-    ) {
-      return {
-        success: false,
-        message:
-          "Paid amount cannot exceed total amount",
-      };
-    }
-
-    const paidAmount =
-      paidAmountRaw;
-
-    const dueAmount =
-      isPurchase
-        ? Math.max(
-            0,
-            totalAmount -
-              paidAmount
-          )
-        : 0;
-
-    // =====================================================
-    // PURCHASE VALIDATION
-    // =====================================================
-
-    if (
-      type ===
-        "PURCHASE" &&
-      !supplierId
-    ) {
-      return {
-        success: false,
-        message:
-          "Supplier required for purchase",
-      };
-    }
-
-    // =====================================================
-    // AVERAGE COST CALCULATION
-    // =====================================================
-
-    const oldCostPrice =
-      Number(
-        inventoryData?.costPrice
-      ) || 0;
-
-    let updatedCostPrice =
-      oldCostPrice;
-
-    if (
-      direction === "IN" &&
-      (
-        type ===
-          "PURCHASE" ||
-        type ===
-          "OPENING_STOCK" ||
-        type ===
-          "CUSTOMER_RETURN"
-      )
-    ) {
-
-      const oldStockValue =
-        previousStock *
-        oldCostPrice;
-
-      const newStockValue =
-        quantity *
-        finalUnitCost;
-
-      const totalStock =
-        previousStock +
-        quantity;
-
-      if (totalStock > 0) {
-
-        updatedCostPrice =
-          (
-            oldStockValue +
-            newStockValue
-          ) / totalStock;
-      }
-    }
-
-    // =====================================================
-    // UPDATE INVENTORY
-    // =====================================================
-
-    await inventoryRef.update({
-      currentStock:
-        afterStock,
-
-      costPrice:
-        updatedCostPrice,
-
-      updatedAt:
-        admin.firestore
-          .FieldValue
-          .serverTimestamp(),
-    });
-
-    // =====================================================
-    // CREATE TRANSACTION
-    // =====================================================
-
-    await adminDb
-      .collection(
-        "inventoryTransactions"
-      )
-      .add({
-
-        // =====================================
-        // ITEM
-        // =====================================
-
-        inventoryItemId,
-
-        inventoryItemName:
-          inventoryData?.name ||
-          "",
-
-        // =====================================
-        // SUPPLIER
-        // =====================================
-
-        supplierId:
-          supplierId || "",
-
-        supplierName:
-          supplierName || "",
-
-        // =====================================
-        // TRANSACTION
-        // =====================================
-
-        type,
-
-        direction,
-
-        // =====================================
-        // ORIGINAL PURCHASE VALUES
-        // =====================================
-
-        purchaseQuantity:
-  purchaseQuantity ?? quantity,
-
-        purchaseUnit:
-          purchaseUnit ||
-          inventoryData?.purchaseUnit ||
-          inventoryData?.consumptionUnit,
-
-        // purchaseUnitCost:
-        //   purchaseUnitCost ||
-        //   unitCost,
-
-        // conversionFactor:
-        //   conversionFactor ||
-        //   inventoryData?.conversionFactor ||
-        //   1,
-
-        purchaseUnitCost:
-  purchaseUnitCost ?? unitCost,
-
-conversionFactor:
-  conversionFactor ??
-  inventoryData?.conversionFactor ??
-  1,
-
-        // =====================================
-        // INTERNAL STOCK VALUES
-        // =====================================
-
-        quantity,
-
-        unit:
-          inventoryData?.consumptionUnit ||
-          "pcs",
-
-        unitCost:
-          finalUnitCost,
-
-        // =====================================
-        // STOCK SNAPSHOT
-        // =====================================
-
-        beforeStock:
-          previousStock,
-
-        afterStock,
-
-        // =====================================
-        // PAYMENT
-        // =====================================
-
-        totalAmount,
-
-        paidAmount,
-
-        dueAmount,
-
-        paymentStatus:
-          paymentStatusSafe,
-
-        paymentMethod:
-          paymentMethod ||
-          null,
-
-        // =====================================
-        // REFERENCES
-        // =====================================
-
-        referenceType,
-
-        referenceId:
-          referenceId || "",
-
-        // =====================================
-        // META
-        // =====================================
-
-        note:
-          note ||
-          "Manual inventory adjustment",
-
-        createdBy:
-          createdBy || "admin",
-
-        createdAt:
-          admin.firestore
-            .FieldValue
-            .serverTimestamp(),
-      });
-
-    // =====================================================
-    // SUPPLIER LEDGER
-    // =====================================================
-
-    const isSupplierFlow =
-      supplierId &&
-      (
-        type ===
-          "PURCHASE" ||
-        type ===
-          "SUPPLIER_RETURN"
-      );
-
-    if (isSupplierFlow) {
-
-      let ledgerType:
-        | "PURCHASE"
-        | "RETURN" =
-        "PURCHASE";
-
-      if (
-        type ===
-        "SUPPLIER_RETURN"
-      ) {
-        ledgerType =
-          "RETURN";
-      }
-
-      await adminDb
-        .collection(
-          "supplierLedger"
-        )
-        .add({
-
-          supplierId,
-
-          supplierName,
-
-          type: ledgerType,
-
-          totalAmount,
-
-          paidAmount,
-
-          dueAmount,
-
-          paymentMethod:
-            paymentMethod ||
-            null,
-
-          referenceType,
-
-          referenceId:
-            referenceId || "",
-
-          note:
-            note ||
-            "Inventory transaction",
-
-          createdAt:
-            admin.firestore
-              .FieldValue
-              .serverTimestamp(),
-        });
-    }
-
-    // =====================================================
-    // UPDATE SUPPLIER ACCOUNT
-    // =====================================================
-
-    if (
-      supplierId &&
-      isPurchase
-    ) {
-
-      await updateSupplierAccount({
-        supplierId,
-        type,
-        totalAmount,
-        paidAmount,
-        dueAmount,
-        paymentMethod,
-      });
-    }
-
-    // =====================================================
-    // REVALIDATE
-    // =====================================================
-
-    revalidateTag(
-      "inventory-items",
-      "max"
-    );
-
-    revalidatePath(
-      "/admin/inventory"
-    );
-
-    revalidatePath(
-      "/admin/inventory/dashboard"
-    );
-
-    return {
-      success: true,
-      message:
-        "Inventory updated successfully",
-    };
-
-  } catch (error) {
-
-    console.error(
-      "❌ adjustInventoryStock failed:",
-      error
-    );
-
-    return {
-      success: false,
-      message:
-        "Failed to update inventory",
-    };
-  }
-}

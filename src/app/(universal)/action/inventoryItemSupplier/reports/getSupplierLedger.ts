@@ -1,333 +1,109 @@
-
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-
-import admin from "firebase-admin";
-
 
 export async function getSupplierLedger({
   supplierId,
   fromDate,
   toDate,
 }: {
-  supplierId: string;
+  supplierId: string; 
   fromDate?: string;
   toDate?: string;
 }) {
+
+ 
   try {
     // ===============================
-    // 1️⃣ MAIN QUERY (ASC for correct calculation)
+    // MAIN QUERY
     // ===============================
     let query = adminDb
       .collection("supplierLedger")
       .where("supplierId", "==", supplierId)
-      .orderBy("createdAt", "asc"); // ✅ IMPORTANT
+      .orderBy("createdAt", "asc");
 
     // ===============================
-    // 2️⃣ DATE FILTER
+    // DATE FILTER
     // ===============================
- // ===============================
-// 2️⃣ DATE FILTER
-// ===============================
 
-// ✅ if no date selected -> today only
-if (!fromDate && !toDate) {
+    // No dates -> today only
+    if (!fromDate && !toDate) {
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
 
-  const todayStart = new Date();
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
 
-  todayStart.setHours(
-    0,
-    0,
-    0,
-    0
-  );
+      query = query
+        .where("createdAt", ">=", todayStart)
+        .where("createdAt", "<=", todayEnd);
+    } else {
+      if (fromDate) {
+        query = query.where(
+          "createdAt",
+          ">=",
+          new Date(fromDate)
+        );
+      }
 
-  const todayEnd = new Date();
+      if (toDate) {
+        const end = new Date(toDate);
+        end.setHours(23, 59, 59, 999);
 
-  todayEnd.setHours(
-    23,
-    59,
-    59,
-    999
-  );
-
-  query = query
-    .where(
-      "createdAt",
-      ">=",
-      todayStart
-    )
-    .where(
-      "createdAt",
-      "<=",
-      todayEnd
-    );
-}
-
-// ✅ custom range
-else {
-
-  if (fromDate) {
-    query = query.where(
-      "createdAt",
-      ">=",
-      new Date(fromDate)
-    );
-  }
-
-  if (toDate) {
-    const end = new Date(
-      toDate
-    );
-
-    end.setHours(
-      23,
-      59,
-      59,
-      999
-    );
-
-    query = query.where(
-      "createdAt",
-      "<=",
-      end
-    );
-  }
-}
-
-    // ===============================
-    // 3️⃣ OPENING BALANCE (before fromDate)
-    // ===============================
-    let openingBalance = 0;
-
-    if (fromDate) {
-      const prevSnap = await adminDb
-        .collection("supplierLedger")
-        .where("supplierId", "==", supplierId)
-        .where("createdAt", "<", new Date(fromDate))
-        .get();
-
-      prevSnap.forEach((doc) => {
-        const d = doc.data();
-
-        const credit =
-          d.type === "PURCHASE"
-            ? Number(d.dueAmount || 0)
-            : 0;
-
-        const debit =
-          d.type === "PAYMENT"
-            ? Number(d.paidAmount || 0)
-            : d.type === "RETURN"
-            ? Number(d.totalAmount || 0)
-            : 0;
-
-        openingBalance += credit - debit;
-      });
+        query = query.where(
+          "createdAt",
+          "<=",
+          end
+        );
+      }
     }
 
     // ===============================
-    // 4️⃣ FETCH DATA
+    // FETCH DATA
     // ===============================
     const snap = await query.get();
 
-    let runningBalance = openingBalance;
-
-    const transactions: any[] = [];
-
-    let totalPurchase = 0;
-    let totalPaid = 0;
-    let totalReturn = 0;
-
-    // ===============================
-    // 5️⃣ PROCESS TRANSACTIONS
-    // ===============================
-    snap.forEach((doc) => {
+    const transactions = snap.docs.map((doc) => {
       const d = doc.data();
 
-      const isPurchase = d.type === "PURCHASE";
-      const isPayment = d.type === "PAYMENT";
-      const isReturn = d.type === "RETURN";
+      return {
+        id: doc.id,
 
-      const credit = isPurchase
-        ? Number(d.dueAmount || 0)
-        : 0;
+        date: d.createdAt?.toDate() ?? null,
 
-      const debit = isPayment
-        ? Number(d.paidAmount || 0)
-        : isReturn
-        ? Number(d.totalAmount || 0)
-        : 0;
+        type: d.type,
 
-      runningBalance += credit - debit;
+        note: d.note ?? "",
 
-      // ✅ SUMMARY
-      if (isPurchase) {
-        totalPurchase += Number(d.totalAmount || 0);
-      }
+        paymentMethod: d.paymentMethod ?? "",
 
-      if (isPayment) {
-        totalPaid += Number(d.paidAmount || 0);
-      }
+        totalAmount: Number(d.totalAmount ?? 0),
 
-      if (isReturn) {
-        totalReturn += Number(d.totalAmount || 0);
-      }
+        paidAmount: Number(d.paidAmount ?? 0),
 
-     transactions.push({
-  id: doc.id,
+        dueAmount: Number(d.dueAmount ?? 0),
 
-  date:
-    d.createdAt?.toDate?.() || null,
-
-  type: d.type,
-
-  note: d.note || "",
-
-  paymentMethod:
-    d.paymentMethod || "",
-
-  totalAmount:
-    Number(d.totalAmount || 0),
-
-  paidAmount:
-    Number(d.paidAmount || 0),
-
-  dueAmount:
-    Number(d.dueAmount || 0),
-
-  credit,
-  debit,
-
-  balance: runningBalance,
-});
+        // Already stored in Firestore
+        balance: Number(d.balance ?? 0),
+      };
     });
 
-    // ===============================
-    // 6️⃣ SHOW LATEST FIRST (UI FIX)
-    // ===============================
-    transactions.reverse(); // ✅ IMPORTANT
+    // Latest first for UI
+    transactions.reverse();
 
-    // ===============================
-    // 7️⃣ RETURN
-    // ===============================
     return {
       success: true,
-      data: {
-        openingBalance, // ✅ useful for UI
-        transactions,
-        summary: {
-          totalPurchase,
-          totalPaid,
-          totalReturn,
-          balance: runningBalance, // final balance
-        },
-      },
+      transactions,
     };
   } catch (error) {
-    console.error("❌ getSupplierLedger failed:", error);
-    return { success: false };
+    console.error(
+      "❌ getSupplierLedgerByLimit failed:",
+      error
+    );
+
+    return {
+      success: false,
+      transactions: [],
+    };
   }
 }
-
-// export async function getSupplierLedger({
-//   supplierId,
-//   fromDate,
-//   toDate,
-// }: {
-//   supplierId: string;
-//   fromDate?: string;
-//   toDate?: string;
-// }) {
-//   console.log("supplierId------------", supplierId);
-//   try {
-//     let query = adminDb
-//       .collection("inventoryTransactions")
-//       .where("supplierId", "==", supplierId)
-//       .orderBy("createdAt", "asc");
-
-//     // ✅ Date filter
-//     if (fromDate) {
-//       query = query.where(
-//         "createdAt",
-//         ">=",
-//         new Date(fromDate)
-//       );
-//     }
-
-//     if (toDate) {
-//       const end = new Date(toDate);
-//       end.setHours(23, 59, 59, 999);
-
-//       query = query.where(
-//         "createdAt",
-//         "<=",
-//         end
-//       );
-//     }
-
-//     const snap = await query.get();
-
-//     let runningBalance = 0;
-
-//     const transactions: any[] = [];
-
-//     let totalPurchase = 0;
-//     let totalPaid = 0;
-//     let totalReturn = 0;
-
-//     snap.forEach((doc) => {
-//       const d = doc.data();
-
-//       const credit = d.dueAmount || 0; // increases balance
-//       const debit =
-//         d.type === "PAYMENT"
-//           ? d.paidAmount
-//           : d.type === "SUPPLIER_RETURN"
-//           ? d.totalAmount
-//           : 0;
-
-//       runningBalance += credit - debit;
-
-//       if (d.type === "PURCHASE") {
-//         totalPurchase += d.totalAmount || 0;
-//       }
-
-//       if (d.type === "PAYMENT") {
-//         totalPaid += d.paidAmount || 0;
-//       }
-
-//       if (d.type === "SUPPLIER_RETURN") {
-//         totalReturn += d.totalAmount || 0;
-//       }
-
-//       transactions.push({
-//         id: doc.id,
-//         date: d.createdAt?.toDate?.() || null,
-//         type: d.type,
-//         note: d.note || "",
-//         totalAmount: d.totalAmount || 0,
-//         paidAmount: d.paidAmount || 0,
-//         dueAmount: d.dueAmount || 0,
-//         balance: runningBalance,
-//       });
-//     });
-
-//     return {
-//       success: true,
-//       data: {
-//         transactions,
-//         summary: {
-//           totalPurchase,
-//           totalPaid,
-//           totalReturn,
-//           balance: runningBalance,
-//         },
-//       },
-//     };
-//   } catch (error) {
-//     console.error("❌ getSupplierLedger failed:", error);
-//     return { success: false };
-//   }
-// }

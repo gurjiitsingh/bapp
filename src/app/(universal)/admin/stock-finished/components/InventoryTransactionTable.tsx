@@ -61,7 +61,6 @@ export default function InventoryTransactionTable({
             <TableHead>Item</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Supplier</TableHead>
-            <TableHead>Direction</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Qty</TableHead>
             <TableHead>Order Amount</TableHead>
@@ -92,7 +91,16 @@ export default function InventoryTransactionTable({
         {/* ITEM */}
 
         <TableCell className="font-medium">
-          {tx.productName}
+        <span className="mr-2"> {tx.productName}</span> 
+            <span
+            className={`text-xs px-2 py-1 rounded-full font-medium ${
+              tx.direction === "IN"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {tx.direction}
+          </span>
         </TableCell>
 
         {/* TYPE */}
@@ -107,19 +115,7 @@ export default function InventoryTransactionTable({
           {tx.customerName || "-"}
         </TableCell>
 
-        {/* DIRECTION */}
-
-        <TableCell>
-          <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
-              tx.direction === "IN"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
-            {tx.direction}
-          </span>
-        </TableCell>
+    
 
         {/* UNIT PRICE */}
 

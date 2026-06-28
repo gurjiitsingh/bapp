@@ -11,7 +11,7 @@ type UpdateSupplierAccountParams = {
     paymentMethod?: PaymentMethod;
 };
 
-export async function updateSupplierAccount({
+export async function updateSupplierAccount_old({
   supplierId,
   type,
   totalAmount,

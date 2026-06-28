@@ -310,7 +310,7 @@ export default function StockPurchaseForm({
 
     setIsSubmitting(true);
 
-    console.log("paymentMethod--------------", data)
+
 
     try {
       const result = await adjustInventoryStock({

@@ -2,39 +2,26 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 
-export async function getCustomerLedger({
-  customerId,
+export async function getSupplierLedgerByLimit({
+  supplierId,
   fromDate,
   toDate,
 }: {
-  customerId: string;
+  supplierId: string;
   fromDate?: string;
   toDate?: string;
 }) {
   try {
-    // ===============================
-    // MAIN QUERY
-    // ===============================
-
     let query = adminDb
-      .collection("customerLedger")
-      .where("customerId", "==", customerId)
-      .orderBy("createdAt", "asc");
+      .collection("supplierLedger")
+      .where("supplierId", "==", supplierId)
+      .orderBy("createdAt", "desc");
 
-    // ===============================
-    // DATE FILTER
-    // ===============================
-
+    // ==========================
+    // LAST 20 (no date filter)
+    // ==========================
     if (!fromDate && !toDate) {
-      const todayStart = new Date();
-      todayStart.setHours(0, 0, 0, 0);
-
-      const todayEnd = new Date();
-      todayEnd.setHours(23, 59, 59, 999);
-
-      query = query
-        .where("createdAt", ">=", todayStart)
-        .where("createdAt", "<=", todayEnd);
+      query = query.limit(20);
     } else {
       if (fromDate) {
         query = query.where(
@@ -55,10 +42,6 @@ export async function getCustomerLedger({
         );
       }
     }
-
-    // ===============================
-    // FETCH DATA
-    // ===============================
 
     const snap = await query.get();
 
@@ -82,20 +65,9 @@ export async function getCustomerLedger({
 
         dueAmount: Number(d.dueAmount ?? 0),
 
-        previousBalance: Number(
-          d.previousBalance ?? 0
-        ),
-
-        balanceChange: Number(
-          d.balanceChange ?? 0
-        ),
-
         balance: Number(d.balance ?? 0),
       };
     });
-
-    // Latest first for UI
-    transactions.reverse();
 
     return {
       success: true,
@@ -103,7 +75,7 @@ export async function getCustomerLedger({
     };
   } catch (error) {
     console.error(
-      "❌ getCustomerLedger failed:",
+      "❌ getSupplierLedgerByLimit failed:",
       error
     );
 

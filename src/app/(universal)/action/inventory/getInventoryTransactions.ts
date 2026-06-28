@@ -12,7 +12,7 @@ export async function getInventoryTransactions({
   page = 1,
 }: Props = {}) {
 
-  console.log("page----------------", page);
+
 
   try {
 //
