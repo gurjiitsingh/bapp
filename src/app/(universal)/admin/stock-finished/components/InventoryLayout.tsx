@@ -31,7 +31,7 @@ const tabs = [
   { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
   { name: "Transactions", href: "/admin/stock-finished/transactions" },
   { name: "Categories", href: "/admin/stock-finished/categories" },
-  { name: "wholesaleCustomer", href: "/admin/stock-finished/customer" },
+  { name: "wholesaleCustomer", href: "/admin/stock-finished/customer/all" },
 ];
 
 export default function InventoryTabs() {
@@ -46,12 +46,24 @@ export default function InventoryTabs() {
 );
 
 const isCustomer = pathname.startsWith(
-  "/admin/stock-finished/customer"
+  "/admin/stock-finished/customer/all"
 );
 
 const isProducts =
   pathname === "/admin/stock-finished/" ||
   pathname === "/admin/stock-finished";
+
+  const isTransactions = pathname.startsWith(
+  "/admin/stock-finished/transactions"
+);
+
+const isAdjustStock = pathname.startsWith(
+  "/admin/stock-finished/adjust-stock"
+);
+
+const isCustomerReturn = pathname.startsWith(
+  "/admin/stock-finished/customer/return"
+);
 
   return (
     <div className="  p-2 pt-5 md:px-6">
@@ -157,19 +169,19 @@ const isProducts =
   </p>
 </Link>
 
-   <Link
-  href="/admin/stock-finished/customer"
+<Link
+  href="/admin/stock-finished/customer/all"
   className={`group rounded-3xl border shadow-sm p-5 transition ${
     isCustomer
-      ? "bg-violet-50 border-violet-300 shadow-md"
-      : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
+      ? "bg-yellow-50 border-yellow-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
   }`}
 >
   <div
     className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
       isCustomer
-        ? "bg-violet-500"
-        : "bg-purple-100"
+        ? "bg-yellow-500"
+        : "bg-yellow-100"
     }`}
   >
     <Truck
@@ -177,7 +189,7 @@ const isProducts =
       className={
         isCustomer
           ? "text-white"
-          : "text-violet-600"
+          : "text-yellow-600"
       }
     />
   </div>
@@ -185,7 +197,7 @@ const isProducts =
   <h3
     className={`font-semibold mt-4 ${
       isCustomer
-        ? "text-violet-700"
+        ? "text-yellow-700"
         : "text-gray-800"
     }`}
   >
@@ -195,7 +207,7 @@ const isProducts =
   <p
     className={`text-sm mt-1 ${
       isCustomer
-        ? "text-violet-600"
+        ? "text-yellow-600"
         : "text-gray-500"
     }`}
   >
@@ -250,88 +262,151 @@ const isProducts =
   </p>
 </Link>
 
-          {/* <Link
-            href="/admin/stock-finished/new"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-blue-100 flex items-center justify-center">
-              <Plus
-                size={22}
-                className="text-blue-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              New Item
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Create inventory item
-            </p>
-          </Link> */}
+        
 
 
 
+   <Link
+  href="/admin/stock-finished/transactions"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isTransactions
+      ? "bg-amber-500/10 border-amber-500/40 shadow-md"
+      : "bg-white border-gray-100 hover:border-amber-500/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isTransactions
+        ? "bg-amber-500"
+        : "bg-amber-100"
+    }`}
+  >
+    <BookOpen
+      size={22}
+      className={
+        isTransactions
+          ? "text-white"
+          : "text-amber-600"
+      }
+    />
+  </div>
+
+  <h3
+    className={`font-semibold mt-4 ${
+      isTransactions
+        ? "text-amber-600"
+        : "text-gray-800"
+    }`}
+  >
+    Product Transactions
+  </h3>
+
+  <p
+    className={`text-sm mt-1 ${
+      isTransactions
+        ? "text-amber-600/80"
+        : "text-gray-500"
+    }`}
+  >
+    View all stock movements/transactions.
+  </p>
+</Link>
+   <Link
+  href="/admin/stock-finished/adjust-stock"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isAdjustStock
+      ? "bg-blue-500/10 border-blue-500/40 shadow-md"
+      : "bg-white border-gray-100 hover:border-blue-500/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isAdjustStock
+        ? "bg-blue-500"
+        : "bg-blue-100"
+    }`}
+  >
+    <PackagePlus
+      size={22}
+      className={
+        isAdjustStock
+          ? "text-white"
+          : "text-blue-600"
+      }
+    />
+  </div>
+
+  <h3
+    className={`font-semibold mt-4 ${
+      isAdjustStock
+        ? "text-blue-600"
+        : "text-gray-800"
+    }`}
+  >
+    Update Product Stock
+  </h3>
+
+  <p
+    className={`text-sm mt-1 ${
+      isAdjustStock
+        ? "text-blue-600/80"
+        : "text-gray-500"
+    }`}
+  >
+    Add or remove finished items stock
+  </p>
+</Link>
 
 
-          <Link
-            href="/admin/stock-finished/transactions"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <BookOpen
-                size={22}
-                className="text-purple-600"
-              />
-            </div>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-             Product Transactions
-            </h3>
 
-            <p className="text-sm text-gray-500 mt-1">
-              View all stock movements/transactions.
-            </p>
-          </Link>
 
-          <Link
-            href="/admin/stock-finished/adjust-stock"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
-                size={22}
-                className="text-orange-600"
-              />
-            </div>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Update Product Stock
-            </h3>
+     <Link
+  href="/admin/stock-finished/customer/return"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isCustomerReturn
+      ? "bg-red-500/10 border-red-500/40 shadow-md"
+      : "bg-white border-gray-100 hover:border-red-500/30 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isCustomerReturn
+        ? "bg-red-500"
+        : "bg-red-100"
+    }`}
+  >
+    <BookOpen
+      size={22}
+      className={
+        isCustomerReturn
+          ? "text-white"
+          : "text-red-600"
+      }
+    />
+  </div>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Add or remove finished items stock
-            </p>
-          </Link>
-             <Link
-            href="/admin/stock-finished/customer/return"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-5 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <BookOpen
-                size={22}
-                className="text-purple-600"
-              />
-            </div>
+  <h3
+    className={`font-semibold mt-4 ${
+      isCustomerReturn
+        ? "text-red-600"
+        : "text-gray-800"
+    }`}
+  >
+    Customer Return
+  </h3>
 
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Cutomer Return
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Extra Finished Goods Return
-            </p>
-          </Link>
+  <p
+    className={`text-sm mt-1 ${
+      isCustomerReturn
+        ? "text-red-600/80"
+        : "text-gray-500"
+    }`}
+  >
+    Extra Finished Goods Return
+  </p>
+</Link>
 
         </div>
 

@@ -130,18 +130,20 @@ export async function addItemSale({
   // READ CUSTOMER ACCOUNT FIRST
   // ============================
 
-  let currentBalance = 0;
+ let currentBalance = 0;
+let currentCreditBalance = 0;
 
   if (type === "SALE" && wholeSaleCutomerId) {
     const accountRef = adminDb
-      .collection("customerAccounts")
-      .doc(wholeSaleCutomerId);
+    .collection("customerAccounts")
+    .doc(wholeSaleCutomerId);
 
-    const accountSnap = await tx.get(accountRef);
+  const accountSnap = await tx.get(accountRef);
 
-    currentBalance = Number(
-      accountSnap.data()?.balance || 0
-    );
+  const data = accountSnap.data() || {};
+
+  currentBalance = Number(data.balance || 0);
+  currentCreditBalance = Number(data.creditBalance || 0);
   }
 
         // ==========================================
@@ -195,6 +197,7 @@ wholeSaleCutomerName,
             totalAmount,
             paidAmount,
             dueAmount,
+            currentCreditBalance,
           currentBalance,
             paymentMethod,
           });
@@ -214,6 +217,7 @@ wholeSaleCutomerName,
               paidAmount,
               dueAmount,
               currentBalance,
+              creditAmount: 0,
               paymentMethod,
 
               referenceId,

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import ListView from "./components/ListView";
+
 import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventorySupplier/fetchCustomer";
+import ListView from "../components/ListView";
 
 export default async function Page() {
   const wholeSaleCustomer =

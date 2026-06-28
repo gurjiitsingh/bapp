@@ -12,7 +12,7 @@ type ApplyCustomerTransactionParams = {
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
-
+ creditAmount?: number;
   currentBalance: number;
 
   paymentMethod?: PaymentMethod;
@@ -30,20 +30,15 @@ export async function applyCustomerTransaction(
   {
     customerId,
     customerName,
-
     type,
-
     totalAmount,
     paidAmount,
-    dueAmount,
-
+    dueAmount = 0,
+    creditAmount = 0,
     currentBalance,
-
     paymentMethod,
-
     referenceType = "MANUAL",
     referenceId = "",
-
     note = "",
     createdBy = "system",
     source = "SYSTEM",
@@ -51,45 +46,57 @@ export async function applyCustomerTransaction(
 ) {
   if (!customerId) return;
 
+  
   // ==========================================
-  // NORMALIZE VALUES
+  // LOGIC
   // ==========================================
+const total = Number(totalAmount || 0);
+const paid = Number(paidAmount || 0);
+const due = Number(dueAmount || 0);
+const credit = Number(creditAmount || 0);
 
-  const total = Number(totalAmount || 0);
-  const paid = Number(paidAmount || 0);
-  const due = Number(dueAmount || 0);
+let balance = currentBalance;
+let balanceChange = 0;
 
-  // ==========================================
-  // CALCULATE BALANCE CHANGE
-  // ==========================================
+let creditRemaining = 0;
 
-  let balanceChange = 0;
+if (type === "SALE") {
+  // ✅ apply existing credit first (IMPORTANT FEATURE)
+  let effectiveDue = due;
 
-  switch (type) {
-    case "SALE":
-      // Customer owes the unpaid amount
-      balanceChange = due;
-      break;
-
-    case "CUSTOMER_RETURN":
-      // Reduce customer's outstanding balance
-      balanceChange = -total;
-      break;
-
-    case "PAYMENT":
-      // Customer payment reduces outstanding balance
-      balanceChange = -paid;
-      break;
+  if (credit > 0) {
+    if (credit >= due) {
+      creditRemaining = credit - due;
+      effectiveDue = 0;
+    } else {
+      effectiveDue = due - credit;
+      creditRemaining = 0;
+    }
   }
 
-  // ==========================================
-  // RUNNING BALANCE
-  // ==========================================
+  balanceChange = effectiveDue;
+  balance = currentBalance + effectiveDue;
+}
 
-  const balance = currentBalance + balanceChange;
+else if (type === "PAYMENT") {
+  balanceChange = -paid;
+  balance = currentBalance - paid;
+}
 
+else if (type === "CUSTOMER_RETURN") {
+  if (credit <= currentBalance) {
+    balanceChange = -credit;
+    balance = currentBalance - credit;
+  } else {
+    balanceChange = -credit; // ✅ FIXED
+    creditRemaining = credit - currentBalance;
+    balance = 0;
+  }
+}
+
+console.log("con -----------------", type, creditRemaining)
   // ==========================================
-  // CUSTOMER LEDGER
+  // SAVE LEDGER
   // ==========================================
 
   const ledgerRef = adminDb
@@ -106,7 +113,9 @@ export async function applyCustomerTransaction(
 
     totalAmount: total,
     paidAmount: paid,
+
     dueAmount: due,
+    creditAmount: creditRemaining, // ✅ only extra stored
 
     previousBalance: currentBalance,
     balanceChange,
@@ -118,12 +127,10 @@ export async function applyCustomerTransaction(
     referenceId,
 
     note,
-
     createdBy,
     source,
 
     status: "ACTIVE",
-
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 

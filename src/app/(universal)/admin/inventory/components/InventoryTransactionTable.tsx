@@ -114,6 +114,8 @@ export default function InventoryTransactionTable({
 
           <TableBody>
   {transactions.map((tx) => {
+
+   
     const showFinancial = financialTypes.includes(tx.type);
 
     return (
@@ -208,6 +210,7 @@ export default function InventoryTransactionTable({
                   tx.purchaseUnit !== tx.unit &&
                   tx.conversionFactor ? (
                     <>
+               
                       <span className="font-medium">
                         {formatQuantity(
                           tx.quantity /

@@ -63,7 +63,7 @@ export default function InventoryTransactionTable({
             <TableHead>Supplier</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Qty</TableHead>
-            <TableHead>Order Amount</TableHead>
+            <TableHead>Amount</TableHead>
             <TableHead>Before</TableHead>
             <TableHead>After</TableHead>
             <TableHead>User</TableHead>

@@ -4,7 +4,7 @@ import { paySupplierDue } from "@/app/(universal)/action/inventorySupplier/paySu
 import { useState } from "react";
 
 
-export default function SupplierPaymentForm({
+export default function SupplierPaymentForm({ 
   supplierId,
   onSuccess,
 }: {

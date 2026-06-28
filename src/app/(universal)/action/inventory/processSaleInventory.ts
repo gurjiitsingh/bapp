@@ -140,44 +140,44 @@ export async function processSaleInventory(
           // ==================================================
           // UPDATE INVENTORY + STOCK LEDGER
           // ==================================================
-       await applyInventoryMovement({
-            inventoryItemId,
+      //  await applyInventoryMovement({
+      //       inventoryItemId,
 
-            type: "CONSUMPTION",
-            direction: "OUT",
+      //       type: "CONSUMPTION",
+      //       direction: "OUT",
 
-            quantity: deductQty,
+      //       quantity: deductQty,
 
-            unitCost:   0,
+      //       unitCost:   0,
 
-           purchaseQuantity: undefined,
+      //      purchaseQuantity: undefined,
 
-            purchaseUnit:
-              inventoryData?.purchaseUnit ??
-              inventoryData?.consumptionUnit,
+      //       purchaseUnit:
+      //         inventoryData?.purchaseUnit ??
+      //         inventoryData?.consumptionUnit,
 
-            // purchaseUnitCost:
-            //   Number(inventoryData?.costPrice) || 0,
+      //       // purchaseUnitCost:
+      //       //   Number(inventoryData?.costPrice) || 0,
 
-            conversionFactor:
-              Number(inventoryData?.conversionFactor) || 1,
+      //       conversionFactor:
+      //         Number(inventoryData?.conversionFactor) || 1,
 
-            supplierId: "",
-            supplierName: "",
+      //       supplierId: "",
+      //       supplierName: "",
 
-            totalAmount: 0,
-            paidAmount: 0,
-            dueAmount: 0,
-            paymentStatus: "PAID",
+      //       totalAmount: 0,
+      //       paidAmount: 0,
+      //       dueAmount: 0,
+      //       paymentStatus: "PAID",
 
-            referenceId: orderId,
-            referenceType: "ORDER",
+      //       referenceId: orderId,
+      //       referenceType: "ORDER",
 
-            note: `Recipe consumption (${productData?.name})`,
+      //       note: `Recipe consumption (${productData?.name})`,
 
-            createdBy: "web store",
-            source: "SYSTEM",
-          });
+      //       createdBy: "web store",
+      //       source: "SYSTEM",
+      //     });
 
           
         }

@@ -1,26 +1,33 @@
 "use server";
 
-import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function getRawInventoryData(
   tx: FirebaseFirestore.Transaction,
-  orderItems: { productId: string; quantity: number }[]
+  orderItems: {
+    productId: string;
+    quantity: number;
+  }[]
 ) {
   const updates: any[] = [];
 
   for (const item of orderItems) {
     const soldQty = Number(item.quantity) || 0;
+
     if (soldQty <= 0) continue;
 
-    const productRef = adminDb.collection("products").doc(item.productId);
+    const productRef = adminDb
+      .collection("products")
+      .doc(item.productId);
+
     const productSnap = await tx.get(productRef);
 
     if (!productSnap.exists) {
-      throw new Error(`Product not found: ${item.productId}`);
+      throw new Error(
+        `Product not found: ${item.productId}`
+      );
     }
 
-    // ⚠️ IMPORTANT: move this into tx later if needed
     const recipeSnapshot = await adminDb
       .collection("productRecipes")
       .where("productId", "==", item.productId)
@@ -36,25 +43,52 @@ export async function getRawInventoryData(
       const invSnap = await tx.get(inventoryRef);
 
       if (!invSnap.exists) {
-        throw new Error(`Inventory missing: ${recipe.inventoryItemId}`);
+        throw new Error(
+          `Inventory missing: ${recipe.inventoryItemId}`
+        );
       }
 
-      const invData = invSnap.data();
-      const prev = Number(invData?.currentStock) || 0;
+      const invData = invSnap.data()!;
+
+      const beforeStock =
+        Number(invData.currentStock) || 0;
 
       const required =
         (Number(recipe.quantity) || 0) * soldQty;
 
-      const next = prev - required;
+      const afterStock =
+        beforeStock - required;
 
-      // 👉 STORE ONLY (NO WRITE)
       updates.push({
         ref: inventoryRef,
+
         inventoryItemId: recipe.inventoryItemId,
-        itemName: invData?.name || "",
-        required,
-        prev,
-        next,
+        itemName: invData.name || "",
+
+        // ===== Units =====
+        purchaseQuantity: 0,
+        purchaseUnit:
+          invData.purchaseUnit ||
+          invData.consumptionUnit ||
+          "pcs",
+
+        conversionFactor:
+          Number(invData.conversionFactor) || 1,
+
+        quantity: required,
+
+        transactionUnit:
+          invData.consumptionUnit || "pcs",
+
+        // ===== Cost =====
+        unitCost:
+          Number(invData.costPrice) || 0,
+
+        purchaseUnitCost: 0,
+
+        // ===== Stock =====
+        prev: beforeStock,
+        next: afterStock,
       });
     }
   }

@@ -11,7 +11,6 @@ import { processRawInventory } from "../inventory/processRawInventory";
 import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
-import { applyInventoryTransactionTx } from "../inventory/rawInventoryTransactions/applyInventoryTransactionTx";
 
 
 type AdjustStockType = {
@@ -86,6 +85,8 @@ export async function updateFinishedItemStock({
 
 // 1 ✅ Update stock (inventroy currentStock)
 // 2 ✅ Create ledger entry (stockLedgerInventory transactions)
+
+
 if (direction === "IN") {
     await applyRawInventoryWrites(
       tx,
@@ -93,6 +94,8 @@ if (direction === "IN") {
       "production-" + id
     );
   }
+
+  
 });
 
    

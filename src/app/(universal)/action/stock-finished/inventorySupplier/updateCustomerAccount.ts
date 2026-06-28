@@ -11,7 +11,9 @@ wholeSaleCutomerName?: string;
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
+  creditAmount?: number;
   currentBalance: number;
+     currentCreditBalance: number;
   paymentMethod?: PaymentMethod; 
 };
 
@@ -23,87 +25,105 @@ export async function updateCustomerAccount(
     type,
     totalAmount,
     paidAmount,
-    dueAmount,
+    dueAmount = 0,
+    creditAmount = 0,
     currentBalance,
+       currentCreditBalance,
     paymentMethod,
   }: UpdateCustomerAccountParams
 ) {
   if (!wholeSaleCutomerId) return;
 
-  let balance = currentBalance;
+ 
 
+
+
+let balance = currentBalance;
+let creditBalance = currentCreditBalance; // ✅ NEW
+
+let credit = 0;
+let debit = 0;
+
+let sale = 0;
+let returnAmount = 0;
+let paid = 0;
+
+let cash = 0;
+let upi = 0;
+let card = 0;
+
+// =========================
+// SALE
+// =========================
 if (type === "SALE") {
-  balance += dueAmount;
+  sale = totalAmount;
+  paid = paidAmount;
+
+  let remainingDue = dueAmount;
+
+  // ✅ APPLY CREDIT FIRST
+  if (creditBalance > 0) {
+    const usedCredit = Math.min(creditBalance, remainingDue);
+
+    remainingDue -= usedCredit;
+    creditBalance -= usedCredit;
+  }
+
+  debit = remainingDue;
+  balance += remainingDue;
+
+  if (paid > 0) {
+    if (paymentMethod === "CASH") cash = paid;
+    else if (paymentMethod === "UPI") upi = paid;
+    else if (paymentMethod === "CARD") card = paid;
+  }
 }
 
-if (type === "CUSTOMER_RETURN") {
-  balance -= totalAmount;
+// =========================
+// CUSTOMER RETURN
+// =========================
+else if (type === "CUSTOMER_RETURN") {
+  const returnValue = Number(creditAmount || 0);
+
+  returnAmount = returnValue;
+
+  if (returnValue <= balance) {
+    // reduce balance
+    credit = returnValue;
+    balance -= returnValue;
+  } else {
+    // extra goes to creditBalance
+    const extra = returnValue - balance;
+
+    credit = balance;
+    balance = 0;
+
+    creditBalance += extra; // ✅ STORE CREDIT
+  }
 }
 
-if (type === "PAYMENT") {
+// =========================
+// PAYMENT
+// =========================
+else if (type === "PAYMENT") {
+  credit = paidAmount;
+  paid = paidAmount;
+
   balance -= paidAmount;
+
+  if (paymentMethod === "CASH") cash = paidAmount;
+  else if (paymentMethod === "UPI") upi = paidAmount;
+  else if (paymentMethod === "CARD") card = paidAmount;
 }
 
   const accountRef = adminDb
     .collection("customerAccounts")
     .doc(wholeSaleCutomerId);
 
-  let credit = 0;
-  let debit = 0;
-
-  let sale = 0;
-  let returnAmount = 0;
-  let paid = 0;
-
-  let cash = 0;
-  let upi = 0;
-  let card = 0;
-
-  // ===============================
-  // CUSTOMER SALE
-  // ===============================
-
-  if (type === "SALE") {
-    sale = totalAmount;
-
-    paid = paidAmount;
-
-    // Customer owes only unpaid amount
-    debit = dueAmount;
-
- if (paid > 0) {
-  if (paymentMethod === "CASH") cash = paid;
-  if (paymentMethod === "UPI") upi = paid;
-  if (paymentMethod === "CARD") card = paid;
-}
-  }
-
-  // ===============================
-  // CUSTOMER RETURN
-  // ===============================
-
-  if (type === "CUSTOMER_RETURN") {
-    credit = totalAmount;
-    returnAmount = totalAmount;
-  }
-
-  // ===============================
-  // CUSTOMER PAYMENT
-  // ===============================
-
-  if (type === "PAYMENT") {
-    credit = paidAmount;
-    paid = paidAmount;
-
-    if (paymentMethod === "CASH") cash = paidAmount;
-    if (paymentMethod === "UPI") upi = paidAmount;
-    if (paymentMethod === "CARD") card = paidAmount;
-  }
-
   // ===============================
   // UPDATE ACCOUNT (TRANSACTION)
   // ===============================
-console.log("wholeSaleCutomerName,------------",wholeSaleCutomerName)
+
   tx.set(
     accountRef,
     {
@@ -124,6 +144,7 @@ console.log("wholeSaleCutomerName,------------",wholeSaleCutomerName)
       // debit increases receivable
       // credit decreases receivable
       balance,
+      creditBalance,
       // : admin.firestore.FieldValue.increment(debit - credit),
 
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),

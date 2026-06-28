@@ -15,7 +15,7 @@ type CustomerAccountType = {
 
   totalCredit?: number;
   totalDebit?: number;
-
+creditBalance?:number;
   cashPaid?: number;
   upiPaid?: number;
   cardPaid?: number;
@@ -101,14 +101,14 @@ export default function CustomerAccountView({
 
 
       {/* ================= SUMMARY ================= */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-6 gap-4">
        <Card
   title="Total Sales"
   value={account.totalSales}
 />
         <Card title="Total Return" value={account.totalReturn} />
         <Card title="Total Paid" value={account.totalPaid} />
-
+  <Card title="Credit" value={account.creditBalance} />
         <div className="p-3 bg-gray-200 rounded col-span-2">
           <p className="text-sm">Balance (Due)</p>
           <p
@@ -185,14 +185,14 @@ export default function CustomerAccountView({
 
         <div>
 
-          {balance > 0 && (
+          {/* {balance > 0 && ( */}
             <CustomerPaymentForm
               customerId={customerId}
               onSuccess={() => {
                 fetchTransactions(fromDate, toDate);
               }}
             />
-          )}
+          {/* )} */}
         </div>
 
 
@@ -247,6 +247,10 @@ export default function CustomerAccountView({
 
           <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
             Due
+          </th>
+
+           <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+            Credit
           </th>
 
           <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
@@ -351,12 +355,24 @@ export default function CustomerAccountView({
 
               </td>
 
+            
+
               {/* DUE */}
 
               <td className="px-4 py-3 text-right whitespace-nowrap">
 
                 <span className="font-semibold text-red-600">
                   ₹ {t.dueAmount || 0}
+                </span>
+
+              </td>
+
+                 {/* CREDIT */}
+
+              <td className="px-4 py-3 text-right whitespace-nowrap">
+
+                <span className="font-semibold text-red-600">
+                  ₹ {t.creditAmount || 0}
                 </span>
 
               </td>
