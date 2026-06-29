@@ -76,6 +76,7 @@ export async function purchaseStock({
 const totalAmount = quantity * unitPrice;
 
 await adminDb.runTransaction(async (tx) => {
+  // Finished stock ledger
   await applyFinishedTransactions(tx, {
     productId: id,
     type: "PURCHASE",
@@ -99,37 +100,60 @@ await adminDb.runTransaction(async (tx) => {
     createdBy: createdBy || "admin",
     source: "ADMIN",
   });
+
+  // =========================
+  // RAW MATERIAL STOCK
+  // =========================
+
+  const recipeSnapshot = await adminDb
+    .collection("productRecipes")
+    .where("productId", "==", id)
+    .get();
+
+  for (const recipeDoc of recipeSnapshot.docs) {
+    const recipe = recipeDoc.data();
+
+    const rawQty =
+      (Number(recipe.quantity) || 0) * quantity;
+
+    await applyInventoryMovement(tx, {
+      inventoryItemId: recipe.inventoryItemId,
+
+      type: "PURCHASE",
+      direction: "IN",
+
+      // inventory movement
+      quantity: rawQty,
+      unitCost: unitPrice,
+
+      // purchase information
+      purchaseQuantity: rawQty,
+      purchaseUnit: recipe.inventoryUnit,
+      purchaseUnitCost: unitPrice,
+      conversionFactor: 1,
+
+      supplierId: "",
+      supplierName: "",
+
+      totalAmount: rawQty * unitPrice,
+      paidAmount: paymentMethod ? rawQty * unitPrice : 0,
+      dueAmount: paymentMethod ? 0 : rawQty * unitPrice,
+      paymentStatus: paymentMethod ? "PAID" : "CREDIT",
+      paymentMethod,
+
+      referenceId: referenceId || "",
+      referenceType: "PURCHASE",
+
+      note:
+        note ||
+        `Purchase stock inflow (${productData?.name})`,
+
+      createdBy: createdBy || "admin",
+      source: "ADMIN",
+    });
+  }
 });
-    // =========================
-    // RAW MATERIAL STOCK IN (if product has recipe)
-    // =========================
-    const recipeSnapshot = await adminDb
-      .collection("productRecipes")
-      .where("productId", "==", id)
-      .get();
-
-    if (!recipeSnapshot.empty) {
-      for (const recipeDoc of recipeSnapshot.docs) {
-        const recipe = recipeDoc.data();
-
-        await applyInventoryMovement({
-          inventoryItemId: recipe.inventoryItemId,
-
-          type: "PURCHASE",
-          direction: "IN",
-
-          quantity: (Number(recipe.quantity) || 0) * quantity,
-
-          note: `Purchase stock inflow (${productData?.name})`,
-
-          referenceId: referenceId || "",
-          referenceType: "PURCHASE",
-
-          createdBy: createdBy || "admin",
-          source: "ADMIN",
-        });
-      }
-    }
+   
 
     // =========================
     // CACHE

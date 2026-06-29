@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -23,16 +24,11 @@ type Props = {
 type FormType = {
   inventoryItemId: string;
 
-  type:
-    | "PURCHASE"
-    | "OPENING"
-    | "ADJUSTMENT"
-    | "WASTAGE"
-    | "RETURN";
+  type:InventoryTransactionNameType;
 
   direction:
     | "IN"
-    | "OUT";
+    | "OUT"; 
 
   quantity: number;
 

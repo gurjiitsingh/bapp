@@ -27,13 +27,13 @@ type PaymentMethod =
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
-  supplierId: string;
- supplierName?: string;
+  supplierId?: string;
+  supplierName?: string;
   type: InventoryTransactionNameType;
 
   direction:
-    | "IN"
-    | "OUT";
+  | "IN"
+  | "OUT";
 
   // =====================================
   // INTERNAL STOCK VALUES (consumption)
@@ -68,8 +68,8 @@ type AdjustInventoryStockType = {
   referenceId?: string;
 
   referenceType?:
-    | "PURCHASE"
-    | "MANUAL";
+  | "PURCHASE"
+  | "MANUAL";
 };
 
 
@@ -97,25 +97,25 @@ export async function adjustInventoryStock({
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
   console.log("ad inve---------------------", inventoryItemId,
-  supplierId,
-  supplierName,
-  type,
-  direction,
-  quantity,
-  unitCost,
+    supplierId,
+    supplierName, 
+    type,
+    direction,
+    quantity,
+    unitCost,
 
-  purchaseQuantity,
-  purchaseUnit,
-  purchaseUnitCost,
-  conversionFactor,
+    purchaseQuantity,
+    purchaseUnit,
+    purchaseUnitCost,
+    conversionFactor,
 
-  paymentStatus,
-  paymentMethod,
-  paidAmountInput,
+    paymentStatus,
+    paymentMethod,
+    paidAmountInput,
 
-  note,
-  createdBy,
-  referenceId,)
+    note,
+    createdBy,
+    referenceId,)
   try {
     if (!inventoryItemId) {
       return { success: false, message: "Inventory item required" };
@@ -127,160 +127,193 @@ export async function adjustInventoryStock({
 
 
 
-  
-await adminDb.runTransaction(async (tx) => {
+
+    await adminDb.runTransaction(async (tx) => {
 
 
-  
-  // ================= GET INVENTORY =================
-  const inventoryRef = adminDb
-    .collection("inventoryItems")
-    .doc(inventoryItemId);
 
-  const inventorySnap = await tx.get(inventoryRef);
+      // ================= GET INVENTORY =================
+      const inventoryRef = adminDb
+        .collection("inventoryItems")
+        .doc(inventoryItemId);
 
-  if (!inventorySnap.exists) {
-    throw new Error("Inventory item not found");
-  }
+      const inventorySnap = await tx.get(inventoryRef);
 
-  const inventoryData = inventorySnap.data();
+      if (!inventorySnap.exists) {
+        throw new Error("Inventory item not found");
+      }
 
-  const previousStock =
-    Number(inventoryData?.currentStock) || 0;
+      const inventoryData = inventorySnap.data();
 
-  // ================= SUPPLIER =================
-  let currentBalance = 0;
-  if (supplierId) {
-    const supplierRef = adminDb
-      .collection("supplierAccounts")
-      .doc(supplierId);
+      const previousStock =
+        Number(inventoryData?.currentStock) || 0;
 
-    const supplierSnap = await tx.get(supplierRef);
+        const needsSupplier =
+  type === "PURCHASE" ||
+  type === "SUPPLIER_RETURN";
 
-    supplierName =
-      supplierSnap.data()?.supplierName || supplierName || "";
+const needsPayment =
+  type === "PURCHASE";
 
-     currentBalance =
-      Number(supplierSnap.data()?.balance || 0);
+const needsCost =
+  type === "PURCHASE";
 
-    // Save for later
-  }
+const needsSupplierLedger =
+  type === "PURCHASE" ||
+  type === "SUPPLIER_RETURN";
 
-   // ================= COST =================
-  const finalUnitCost =
-    unitCost ?? Number(inventoryData?.costPrice) ?? 0;
+      // ================= SUPPLIER =================
+     
+     let currentBalance = 0;
 
-  const shouldApplyCost =
-    type === "PURCHASE"
-    //  ||
-    // type === "OPENING_STOCK" ||
-    // type === "CUSTOMER_RETURN";
+if (needsSupplier && supplierId) {
+        const supplierRef = adminDb
+          .collection("supplierAccounts")
+          .doc(supplierId);
 
-  const totalAmount = shouldApplyCost
-    ? quantity * finalUnitCost
-    : 0;
+        const supplierSnap = await tx.get(supplierRef);
 
-  // ================= PAYMENT =================
-  const isPurchase =
-    type === "PURCHASE" && direction === "IN";
+        supplierName =
+          supplierSnap.data()?.supplierName || supplierName || "";
 
-  const paymentStatusSafe =
-    paymentStatus || "PAID";
+        currentBalance =
+          Number(supplierSnap.data()?.balance || 0);
 
-  const paidAmount =
-    isPurchase && paymentStatusSafe === "PAID"
-      ? totalAmount
-      : Number(paidAmountInput || 0);
+        // Save for later
+      }
 
-  const dueAmount = isPurchase
-    ? Math.max(0, totalAmount - paidAmount)
-    : 0;
+      // ================= COST =================
+      const finalUnitCost =
+        unitCost ?? Number(inventoryData?.costPrice) ?? 0;
 
- 
-  
-  // ================= UPDATE INVENTORY =================
-  
+     const shouldApplyCost = needsCost;
+     
 
-await applyInventoryMovement(tx, {
-  inventoryItemId,
+      const totalAmount = shouldApplyCost
+        ? quantity * finalUnitCost
+        : 0;
 
-  type,
-  direction,
+      // ================= PAYMENT =================
+    const isPurchase =
+  needsPayment &&
+  direction === "IN";
 
-  quantity,
+      const paymentStatusSafe =
+        paymentStatus || "PAID";
 
-  unitCost: finalUnitCost,
+      const paidAmount =
+        isPurchase && paymentStatusSafe === "PAID"
+          ? totalAmount
+          : Number(paidAmountInput || 0);
 
-  purchaseQuantity,
-  purchaseUnit,
-  purchaseUnitCost,
-  conversionFactor,
+      const dueAmount = isPurchase
+        ? Math.max(0, totalAmount - paidAmount)
+        : 0;
 
-  supplierId,
-  supplierName,
 
-  totalAmount,
-  paidAmount,
-  dueAmount,
 
-  paymentStatus: paymentStatusSafe,
-  paymentMethod,
+      // ================= UPDATE INVENTORY =================
 
-  referenceType,
-  referenceId,
 
-  note: note || "Manual inventory adjustment",
-  createdBy: createdBy || "admin",
+      await applyInventoryMovement(tx, {
+        inventoryItemId,
 
-  source: "WEB_ADMIN",
-});
+        type,
+        direction,
 
-  await updateSupplierAccount(tx, {
-  supplierId,
-supplierName,
-  type:
-    type === "PURCHASE"
-      ? "PURCHASE"
-      : type === "SUPPLIER_RETURN"
-      ? "SUPPLIER_RETURN"
-      : "PAYMENT",
+        quantity,
 
-  totalAmount,
-  paidAmount,
-  dueAmount,
+        unitCost: finalUnitCost,
 
-  paymentMethod,
-});
+        purchaseQuantity,
+        purchaseUnit,
+        purchaseUnitCost,
+        conversionFactor,
 
- await applySupplierTransaction(tx, {
-  supplierId,
-  supplierName,
+        supplierId: needsSupplier
+  ? supplierId
+  : undefined,
 
-  type:
-  type === "PURCHASE"
-    ? "PURCHASE"
-    : type === "SUPPLIER_RETURN"
-    ? "SUPPLIER_RETURN"
-    : "PAYMENT",
+supplierName: needsSupplier
+  ? supplierName
+  : undefined,
 
-  totalAmount,
-  paidAmount,
-  dueAmount,
+totalAmount: needsCost
+  ? totalAmount
+  : 0,
 
-  currentBalance,
+paidAmount: needsPayment
+  ? paidAmount
+  : 0,
 
-  paymentMethod,
+dueAmount: needsPayment
+  ? dueAmount
+  : 0,
 
-  referenceType,
-  referenceId,
+paymentStatus: needsPayment
+  ? paymentStatusSafe
+  : "PAID",
 
-  note,
-  createdBy,
+paymentMethod: needsPayment
+  ? paymentMethod
+  : undefined,
 
-  source: "WEB_ADMIN",
-  });
+        referenceType,
+        referenceId,
 
-});
+        note: note || "Manual inventory adjustment",
+        createdBy: createdBy || "admin",
+
+        source: "WEB_ADMIN",
+      });
+if (needsSupplierLedger && supplierId) {
+      await updateSupplierAccount(tx, {
+        supplierId,
+        supplierName,
+        type:
+          type === "PURCHASE"
+            ? "PURCHASE"
+            : type === "SUPPLIER_RETURN"
+              ? "SUPPLIER_RETURN"
+              : "PAYMENT",
+
+        totalAmount,
+        paidAmount,
+        dueAmount,
+
+        paymentMethod,
+      });
+    }
+    if (needsSupplierLedger && supplierId) {
+      await applySupplierTransaction(tx, {
+        supplierId,
+        supplierName,
+
+        type:
+          type === "PURCHASE"
+            ? "PURCHASE"
+            : type === "SUPPLIER_RETURN"
+              ? "SUPPLIER_RETURN"
+              : "PAYMENT",
+
+        totalAmount,
+        paidAmount,
+        dueAmount,
+
+        currentBalance,
+
+        paymentMethod,
+
+        referenceType,
+        referenceId,
+
+        note,
+        createdBy,
+
+        source: "WEB_ADMIN",
+      });
+    }
+    });
 
     // ================= CACHE =================
     revalidateTag("inventory-items", "max");

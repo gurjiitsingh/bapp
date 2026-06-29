@@ -1,6 +1,21 @@
 
 "use client";
 
+
+// reason:
+// - Damaged
+// - Expired
+// - Wrong Item
+// - Quality Issue
+// - Customer Changed Mind
+// - Other
+
+
+// condition:
+// - Saleable
+// - Damaged
+// - Scrap
+
 import React, { 
   useEffect,
   useMemo,
@@ -114,7 +129,7 @@ export default function ItemReturnForm({
   direction: "IN",
   quantity: 0,
  // unitPrice: 0,
-  transactionUnit: "pcs",
+  transactionUnit: "kg",
 },
   });
 
@@ -176,16 +191,17 @@ if (!data.wholeSaleCutomerId) {
   return;
 }
 
-// if (!data.unitPrice || Number(data.unitPrice) <= 0) {
-//   alert("Selling unitPrice must be greater than 0");
-//   return;
-// }
+// Quantity validation
+if (!data.quantity || Number(data.quantity) <= 0) {
+  alert("Enter a valid quantity");
+  return;
+}
 
-// stock check
-// if (selectedProduct && data.quantity > selectedProduct.currentStock!) {
-//   alert("Not enough stock available");
-//   return;
-// }
+// Unit price validation
+if (!data.unitPrice || Number(data.unitPrice) <= 0) {
+  alert("Enter a valid unit price");
+  return;
+}
 
 // payment validation
 if (data.paymentStatus === "PAID" && !data.paymentMethod) {
@@ -289,7 +305,148 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
           className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5"
         >
 
+       {/* ===================================================== */}
+{/* CUSTOMER */}
+{/* ===================================================== */}
+
+<div>
+  <p className="text-sm text-gray-500 mb-3">
+    Select customer returning the items
+  </p>
+
+  <div className="flex justify-between mb-3">
+    <div>
+      {selectedCustomer && (
+        <div className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+          {selectedCustomer.companyName}
+        </div>
+      )}
+    </div>
+
+    <Button
+      type="submit"
+      disabled={isSubmitting}
+      className="btn-save-4 h-11"
+    >
+      {isSubmitting
+        ? "Saving..."
+        : "Save Return"}
+    </Button>
+  </div>
+
+  {/* Search */}
+
+  <div className="relative">
+    <Search
+      size={18}
+      className="absolute right-3 top-3 text-gray-400"
+    />
+
+    <input
+      type="text"
+      value={customerSearch}
+      onChange={(e) =>
+        setCustomerSearch(e.target.value)
+      }
+      placeholder="Search customer..."
+      className="input-style-4 pr-10"
+    />
+  </div>
+
+  {/* List */}
+
+  <div className="mt-3 max-h-64 overflow-y-auto rounded-xl border border-gray-200">
+    {filteredCustomers.map((customer) => (
+      <button
+        key={customer.id}
+        type="button"
+        onClick={() => {
+          setSelectedCustomer(customer);
+          setValue(
+            "wholeSaleCutomerId",
+            customer.id
+          );
+          setCustomerSearch(
+            customer.companyName
+          );
+        }}
+        className={`w-full border-b border-gray-100 px-4 py-3 text-left transition hover:bg-slate-50 ${
+          selectedCustomer?.id === customer.id
+            ? "bg-blue-50"
+            : ""
+        }`}
+      >
+        <div className="font-medium">
+          {customer.companyName}
+        </div>
+
+        <div className="text-xs text-gray-500">
+          {customer.phone || "No phone"}
+        </div>
+      </button>
+    ))}
+  </div>
+</div>
+
           {/* ===================================================== */}
+          {/* CURRENT STOCK */}
+          {/* ===================================================== */}
+
+          {selectedProduct && (
+            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
+
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <Package2
+                    className="text-blue-600"
+                    size={22}
+                  />
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    {
+                      selectedProduct.name
+                    }
+                  </h3>
+
+                  <p className="text-sm text-gray-500">
+                    Current Stock
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-2xl font-bold text-blue-700">
+                {selectedProduct.currentStock}
+                {/* {displayStock(
+                  selectedproduct.currentStock!,
+                  selectedProduct.purchaseUnit,
+                  selectedProduct.consumptionUnit,
+                  selectedProduct.conversionFactor
+                )} */}
+              </div>
+            </div>
+          )}
+
+          {/* ===================================================== */}
+          {/* TYPE */}
+          {/* ===================================================== */}
+
+          {/* Customer Selection */}
+          <div className="bg-white   border-gray-100  ">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                {/* <h2 className="text-lg font-semibold text-gray-800">
+                  Wholesale Customer
+                </h2> */}
+
+             
+              </div>
+            </div>
+
+
+
+              {/* ===================================================== */}
           {/* INVENTORY SEARCH */}
           {/* ===================================================== */}
 
@@ -379,165 +536,6 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               )}
             />
           </div>
-
-          {/* ===================================================== */}
-          {/* CURRENT STOCK */}
-          {/* ===================================================== */}
-
-          {selectedProduct && (
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
-
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Package2
-                    className="text-blue-600"
-                    size={22}
-                  />
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-gray-800">
-                    {
-                      selectedProduct.name
-                    }
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Current Stock
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-2xl font-bold text-blue-700">
-                {selectedProduct.currentStock}
-                {/* {displayStock(
-                  selectedproduct.currentStock!,
-                  selectedProduct.purchaseUnit,
-                  selectedProduct.consumptionUnit,
-                  selectedProduct.conversionFactor
-                )} */}
-              </div>
-            </div>
-          )}
-
-          {/* ===================================================== */}
-          {/* TYPE */}
-          {/* ===================================================== */}
-
-          {/* Customer Selection */}
-          <div className="bg-white   border-gray-100  ">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                {/* <h2 className="text-lg font-semibold text-gray-800">
-                  Wholesale Customer
-                </h2> */}
-
-                <p className="text-sm text-gray-500 mt-1">
-                  Select customer for wholesale sale
-                </p>
-              </div>
-            </div>
-
-
-
-            {/* ===================================================== */}
-            {/* CUSTOMER */}
-            {/* ===================================================== */}
-
-            <div className="bg-white  ">
-
-              <div className="flex items-center justify-between mb-4">
-
-              
-
-                {selectedCustomer && (
-                  <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                    Selected
-                  </div>
-                )}
-              </div>
-
-              {/* SEARCH */}
-              <div className="relative">
-
-                <Search
-                  size={18}
-                  className="absolute left-3 top-3 text-gray-400"
-                />
-
-                <input
-                  type="text"
-                  value={customerSearch}
-                  onChange={(e) =>
-                    setCustomerSearch(
-                      e.target.value
-                    )
-                  }
-                  placeholder="Search customer..."
-                  className="input-style-4 pl-10"
-                />
-              </div>
-
-              {/* LIST */}
-              <div className="mt-3 max-h-64 overflow-y-auto rounded-xl border border-gray-200">
-
-                {filteredCustomers.length > 0 ? (
-
-                  filteredCustomers.map(
-                    (customer) => (
-
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() => {
-
-                          setSelectedCustomer(
-                            customer
-                          );
-
-                          setValue(
-                            "wholeSaleCutomerId",
-                            customer.id
-                          );
-
-                          setCustomerSearch(
-                            customer.companyName
-                          );
-                        }}
-                        className={`
-              w-full text-left px-4 py-3
-              border-b border-gray-100
-              hover:bg-slate-50
-              transition
-              ${selectedCustomer?.id ===
-                            customer.id
-                            ? "bg-blue-50"
-                            : ""
-                          }
-            `}
-                      >
-
-                        <div className="font-medium text-sm text-gray-800">
-                          {customer.companyName}
-                        </div>
-
-                        <div className="text-xs text-gray-500">
-                          {customer.phone || "No phone"}
-                        </div>
-
-                      </button>
-                    )
-                  )
-
-                ) : (
-
-                  <div className="p-4 text-sm text-gray-400 text-center">
-                    No customer found
-                  </div>
-
-                )}
-              </div>
-            </div>
           </div>
 
           {/* ===================================================== */}
@@ -553,13 +551,38 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
       Quantity
     </label>
 
-    <input
-      type="number"
-      step="0.001"
-      {...register("quantity")}
-      className="input-style-4"
-      placeholder="0"
-    />
+   <input
+  type="number"
+  step="0.001"
+  {...register("quantity")}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  className="input-style-4"
+  placeholder="0"
+/>
+  </div>
+
+    {/* unitPrice */}
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Unit Price
+    </label>
+
+  <input
+  type="number"
+  step="0.01"
+  {...register("unitPrice")}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  className="input-style-4"
+  placeholder="Enter Price"
+/>
   </div>
 
   {/* UNIT SELECTOR */}
@@ -572,6 +595,8 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
   {...register("transactionUnit")}
   className="input-style-4"
 >
+    <option value="kg">Kilogram (kg)</option>
+  <option value="gm">Gram (g)</option>
   <option value="pcs">Piece (pcs)</option>
   <option value="box">Box</option>
   <option value="pack">Pack</option>
@@ -585,27 +610,13 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
   <option value="pair">Pair</option>
   <option value="dozen">Dozen</option>
 
-  <option value="kg">Kilogram (kg)</option>
-  <option value="gm">Gram (g)</option>
+
   <option value="ltr">Liter (L)</option>
   <option value="ml">Milliliter (ml)</option>
 </select>
   </div>
 
-  {/* unitPrice */}
-  <div className="flex flex-col gap-2">
-    <label className="label-style-4">
-      Unit Price
-    </label>
 
-    <input
-      type="number"
-      step="0.01"
-      {...register("unitPrice")}
-      className="input-style-4"
-      placeholder="Enter Price"
-    />
-  </div>
 
 </div>
 
@@ -626,21 +637,9 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
             />
           </div>
 
-          {/* ===================================================== */}
-          {/* SAVE */}
-          {/* ===================================================== */}
+     
 
-          <Button
-            type="submit"
-            disabled={
-              isSubmitting
-            }
-            className="btn-save-4 h-11"
-          >
-            {isSubmitting
-              ? "Saving..."
-              : "Save Customer Return"}
-          </Button>
+          
         </form>
       </div >
     </div >

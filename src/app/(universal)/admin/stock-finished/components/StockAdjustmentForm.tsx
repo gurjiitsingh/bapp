@@ -80,7 +80,7 @@ export default function StockAdjustmentForm({
       type: "OPENING_STOCK",
       direction: "IN",
       quantity: 0,
-      transactionUnit: "pcs",
+      transactionUnit: "kg",
       note: "",
     },
   });

@@ -62,9 +62,6 @@ export default function ItemPurchaseForm({
   customers
 }: Props) {
 
-
-
-
   const [isSubmitting, setIsSubmitting] =
     useState(false);
   const [search, setSearch] =
