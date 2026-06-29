@@ -34,7 +34,7 @@ export default async function AdminLayout({
             <Header />
           </div>
 
-         <div className="w-full flex flex-col px-5 pt-[30px] lg:pt-2 bg-[#fafafa] min-h-screen">
+         <div className="w-full flex flex-col px-5 pt-[20px] lg:pt-2 bg-[#fafafa] min-h-screen">
             <LanguageProvider>{children}</LanguageProvider>
           </div>
         </div>

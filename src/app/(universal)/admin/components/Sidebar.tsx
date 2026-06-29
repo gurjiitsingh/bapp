@@ -274,8 +274,15 @@ const Sidebar = () => {
         </button>
       </div>
 
-      <div className="pt-6 h-screen w-[260px] flex flex-col justify-between px-3 py-6 sb-bg shadow-md">
-        <ul className="flex flex-col gap-1">
+    <div className="
+  pt-6
+  h-[100dvh]
+  overflow-y-auto
+  w-[260px]
+  flex flex-col justify-between
+  px-3 py-6
+  sb-bg shadow-md
+">    <ul className="flex flex-col gap-1">
           {filteredMenu.map((item) => (
             <Tab key={item.link} item={item} />
           ))}
