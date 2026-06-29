@@ -28,7 +28,7 @@ export async function updateCustomerAccount(
     dueAmount = 0,
     creditAmount = 0,
     currentBalance,
-       currentCreditBalance,
+    currentCreditBalance,
     paymentMethod,
   }: UpdateCustomerAccountParams
 ) {

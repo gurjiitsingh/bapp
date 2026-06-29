@@ -23,7 +23,7 @@ productName?: string;
   totalAmount?: number;
   paidAmount?: number;
   dueAmount?: number;
-
+returnProductAmount?: number;
   paymentStatus?: string;
   paymentMethod?: string | null;
 
@@ -54,6 +54,7 @@ export async function applyFinishedTransactions(
     customerName,
 
     totalAmount = 0,
+    returnProductAmount =0,
     paidAmount = 0,
     dueAmount = 0,
 

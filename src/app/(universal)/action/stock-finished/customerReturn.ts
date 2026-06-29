@@ -86,7 +86,7 @@ export async function customerReturn({
     const totalAmount = 0;
     const creditAmount = quantity * unitPrice;
     let currentCreditBalance = 0;
-
+const returnProductAmount = quantity * unitPrice;
 
 
     await adminDb.runTransaction(async (tx) => {
@@ -100,11 +100,7 @@ export async function customerReturn({
 
         const accountSnap = await tx.get(accountRef);
 
-        currentBalance = Number(
-          accountSnap.data()?.balance || 0
-        );
-
-
+        currentBalance = Number(accountSnap.data()?.balance || 0 );
         currentCreditBalance = Number(accountSnap.data()?.creditBalance || 0);
       }
 
@@ -118,7 +114,7 @@ export async function customerReturn({
 
         unitPrice,
         totalAmount: creditAmount,
-
+returnProductAmount,
         paidAmount: paymentMethod ? totalAmount : 0,
         dueAmount: paymentMethod ? 0 : totalAmount,
 
@@ -161,10 +157,11 @@ export async function customerReturn({
           type: "CUSTOMER_RETURN",
 
           totalAmount,// in this case it is total amount of return
+          returnProductAmount,
           paidAmount: 0,
           dueAmount: 0,
           creditAmount: creditAmount ? creditAmount : 0,
-
+          currentCreditBalance,
           currentBalance,
 
           paymentMethod,

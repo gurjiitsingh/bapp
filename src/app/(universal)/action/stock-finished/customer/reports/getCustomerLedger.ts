@@ -77,7 +77,7 @@ export async function getCustomerLedger({
         paymentMethod: d.paymentMethod ?? "",
 
         totalAmount: Number(d.totalAmount ?? 0),
-
+        returnAmount: Number(d.returnAmount ?? 0),
         paidAmount: Number(d.paidAmount ?? 0),
 
         dueAmount: Number(d.dueAmount ?? 0),

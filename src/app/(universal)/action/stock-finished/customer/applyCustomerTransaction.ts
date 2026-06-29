@@ -10,9 +10,11 @@ type ApplyCustomerTransactionParams = {
   type: "SALE" | "CUSTOMER_RETURN" | "PAYMENT";
 
   totalAmount: number;
+  returnProductAmount?: number;
   paidAmount: number;
   dueAmount: number;
  creditAmount?: number;
+ currentCreditBalance?: number;
   currentBalance: number;
 
   paymentMethod?: PaymentMethod;
@@ -32,9 +34,11 @@ export async function applyCustomerTransaction(
     customerName,
     type,
     totalAmount,
+    returnProductAmount = 0,
     paidAmount,
     dueAmount = 0,
     creditAmount = 0,
+    currentCreditBalance = 0,
     currentBalance,
     paymentMethod,
     referenceType = "MANUAL",
@@ -46,14 +50,17 @@ export async function applyCustomerTransaction(
 ) {
   if (!customerId) return;
 
-  
+ 
   // ==========================================
   // LOGIC
   // ==========================================
 const total = Number(totalAmount || 0);
 const paid = Number(paidAmount || 0);
 const due = Number(dueAmount || 0);
-const credit = Number(creditAmount || 0);
+const credit = Number(creditAmount || 0) + currentCreditBalance;
+
+ console.log("old/currentCreditBalance----------------",currentCreditBalance)
+ console.log("new/credit ----------------",credit)
 
 let balance = currentBalance;
 let balanceChange = 0;
@@ -66,7 +73,7 @@ if (type === "SALE") {
 
   if (credit > 0) {
     if (credit >= due) {
-      creditRemaining = credit - due;
+      creditRemaining =  credit - due;
       effectiveDue = 0;
     } else {
       effectiveDue = due - credit;
@@ -93,8 +100,10 @@ else if (type === "CUSTOMER_RETURN") {
     balance = 0;
   }
 }
+ console.log("old/currentCreditBalance----------------",currentCreditBalance)
+ console.log("new/credit ----------------",credit)
 
-console.log("con -----------------", type, creditRemaining)
+console.log("type, creditRemaining,returnProductAmount -----------------", type, creditRemaining,returnProductAmount)
   // ==========================================
   // SAVE LEDGER
   // ==========================================
@@ -112,6 +121,7 @@ console.log("con -----------------", type, creditRemaining)
     type,
 
     totalAmount: total,
+    returnAmount:returnProductAmount,
     paidAmount: paid,
 
     dueAmount: due,

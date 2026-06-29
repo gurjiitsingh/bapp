@@ -34,11 +34,11 @@ export async function getCustomerLedgerByLimit({
         paymentMethod: d.paymentMethod ?? "",
 
         totalAmount: Number(d.totalAmount ?? 0),
-
+        returnAmount: Number(d.returnAmount ?? 0),
         paidAmount: Number(d.paidAmount ?? 0),
 
         dueAmount: Number(d.dueAmount ?? 0),
-       creditAmount: Number(d.creditAmount ?? 0),
+        creditAmount: Number(d.creditAmount ?? 0),
         previousBalance: Number(
           d.previousBalance ?? 0
         ),

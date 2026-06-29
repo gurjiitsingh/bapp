@@ -248,6 +248,9 @@ export default function CustomerAccountView({
           <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
             Due
           </th>
+          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+            Return
+          </th>
 
            <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
             Credit
@@ -363,6 +366,13 @@ export default function CustomerAccountView({
 
                 <span className="font-semibold text-red-600">
                   ₹ {t.dueAmount || 0}
+                </span>
+
+              </td>
+                <td className="px-4 py-3 text-right whitespace-nowrap">
+
+                <span className="font-semibold text-red-600">
+                  ₹ {t.returnAmount || 0}
                 </span>
 
               </td>

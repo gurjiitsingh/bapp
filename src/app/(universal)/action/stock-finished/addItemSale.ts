@@ -214,10 +214,12 @@ wholeSaleCutomerName,
               type: "SALE",
 
               totalAmount,
+              returnProductAmount:0,
               paidAmount,
               dueAmount,
               currentBalance,
               creditAmount: 0,
+              currentCreditBalance,
               paymentMethod,
 
               referenceId,
