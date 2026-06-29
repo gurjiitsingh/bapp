@@ -44,7 +44,7 @@ type FormType = {
   paymentStatus: PaymentStatus; // 
   paymentMethod?: PaymentMethod;
   paidAmount?: number;          // 
-
+  //dueAmount?: number;
   note: string;
 };
 
@@ -82,6 +82,8 @@ export default function StockPurchaseForm({
     "unitCost" | "totalAmount"
   >("unitCost");
 
+  
+
   const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];
 
   const {
@@ -91,21 +93,23 @@ export default function StockPurchaseForm({
     watch,
     reset,
   } = useForm<FormType>({
-    defaultValues: {
-      // type: "PURCHASE",
-      // direction: "IN",
-      // quantity: 0,
-      // transactionUnit: "pcs",
-      // note: "",
+  defaultValues: {
+  type: "PURCHASE",
+  direction: "IN",
 
-      type: "PURCHASE",
-      direction: "IN",
-      quantity: 0,
-      unitCost: 0,
-      totalAmount: 0,
-      transactionUnit: "pcs",
-      note: "",
-    },
+  quantity: 0,
+
+  unitCost: 0,
+  totalAmount: 0,
+
+  transactionUnit: "pcs",
+
+  paymentStatus: "PAID",
+  paymentMethod: "CASH",
+  paidAmount: 0,
+
+  note: "",
+},
   });
 
   const type = watch(
@@ -118,7 +122,40 @@ export default function StockPurchaseForm({
 
   const transactionUnit = watch("transactionUnit");
 
+const paymentStatus =
+  watch("paymentStatus");
 
+const paidAmount =
+  Number(
+    watch("paidAmount") || 0
+  );
+
+  const dueAmount =
+  Math.max(
+    totalAmount - paidAmount,
+    0
+  );
+
+
+  useEffect(() => {
+  if (paymentStatus === "PAID") {
+    setValue(
+      "paidAmount",
+      Number(totalAmount || 0)
+    );
+  }
+
+  if (paymentStatus === "CREDIT") {
+    setValue(
+      "paidAmount",
+      0
+    );
+  }
+}, [
+  paymentStatus,
+  totalAmount,
+  setValue,
+]);
 
   // =====================================================
   // AUTO SET STOCK DIRECTION
@@ -308,6 +345,17 @@ export default function StockPurchaseForm({
         selectedInventory.conversionFactor;
     }
 
+    if (
+  Number(data.paidAmount || 0) >
+  Number(data.totalAmount)
+) {
+  alert(
+    "Paid amount cannot exceed total amount"
+  );
+
+  return;
+}
+
     setIsSubmitting(true);
 
 
@@ -346,7 +394,7 @@ export default function StockPurchaseForm({
         paymentMethod: data.paymentMethod,
 
         paidAmount: Number(data.paidAmount || 0),
-
+     //  dueAmount: Number(data.dueAmount || 0), 
         note: data.note,
 
         createdBy: "admin",
@@ -599,159 +647,247 @@ export default function StockPurchaseForm({
           {/* QUANTITY */}
           {/* ===================================================== */}
 
+<div className="rounded-2xl border border-gray-200 p-5 space-y-4">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <h3 className="font-semibold text-lg">
+    Purchase Details
+  </h3>
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Quantity
-              </label>
+  {/* ====================================================== */}
+  {/* PURCHASE DETAILS */}
+  {/* ====================================================== */}
 
-          <input
-  type="number"
-  step="0.001"
-  {...register("quantity")}
-  onFocus={(e) => {
-    if (e.target.value === "0") {
-      e.target.value = "";
-    }
-  }}
-  className="input-style-4"
-  placeholder="0"
-/>
-            </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Unit
-              </label>
+    {/* Quantity */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Quantity
+      </label>
 
-              <select
-                {...register("transactionUnit")}
-                className="input-style-4"
-              >
-                {selectedInventory && (
-                  <option value={selectedInventory.purchaseUnit}>
-                    {selectedInventory.purchaseUnit}
-                  </option>
-                )}
+      <input
+        type="number"
+        step="0.001"
+        {...register("quantity")}
+        onFocus={(e) => {
+          if (e.target.value === "0") {
+            e.target.value = "";
+          }
+        }}
+        className="input-style-4"
+        placeholder="0"
+      />
+    </div>
 
-                {/* OPTIONAL: allow consumption unit */}
-                {selectedInventory &&
-                  selectedInventory.consumptionUnit !==
-                  selectedInventory.purchaseUnit && (
-                    <option value={selectedInventory.consumptionUnit}>
-                      {selectedInventory.consumptionUnit}
-                    </option>
-                  )}
-              </select>
+    {/* Unit */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Unit
+      </label>
 
+      <select
+        {...register("transactionUnit")}
+        className="input-style-4"
+      >
+        {selectedInventory && (
+          <option value={selectedInventory.purchaseUnit}>
+            {selectedInventory.purchaseUnit}
+          </option>
+        )}
 
+        {selectedInventory &&
+          selectedInventory.consumptionUnit !==
+            selectedInventory.purchaseUnit && (
+            <option
+              value={
+                selectedInventory.consumptionUnit
+              }
+            >
+              {
+                selectedInventory.consumptionUnit
+              }
+            </option>
+          )}
+      </select>
+    </div>
 
+    {/* Total Amount */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Total Amount
+      </label>
 
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Total Amount
-              </label>
+      <input
+        type="number"
+        step="0.01"
+        value={totalAmount || ""}
+        onChange={(e) => {
+          setLastEdited("totalAmount");
 
+          setValue(
+            "totalAmount",
+            Number(e.target.value || 0)
+          );
+        }}
+        className="input-style-4"
+        placeholder="Invoice Amount"
+      />
+    </div>
 
-              <input
-                type="number"
-                step="0.01"
-                value={totalAmount || ""}
-                onChange={(e) => {
-                  setLastEdited("totalAmount");
+    {/* Unit Cost */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Price per {transactionUnit}
+      </label>
 
-                  setValue(
-                    "totalAmount",
-                    Number(e.target.value || 0)
-                  );
-                }}
-                className="input-style-4"
-                placeholder="Total invoice amount"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Price per {transactionUnit}
-              </label>
+      <input
+        type="number"
+        step="0.0001"
+        value={unitCost || ""}
+        onChange={(e) => {
+          setLastEdited("unitCost");
 
-              <input
-                type="number"
-                step="0.0001"
-                value={unitCost || ""}
-                onChange={(e) => {
-                  setLastEdited("unitCost");
+          setValue(
+            "unitCost",
+            Number(e.target.value || 0)
+          );
+        }}
+        className="input-style-4"
+        placeholder={`Cost per ${transactionUnit}`}
+      />
+    </div>
 
-                  setValue(
-                    "unitCost",
-                    Number(e.target.value || 0)
-                  );
-                }}
-                className="input-style-4"
-                placeholder={`Cost per ${transactionUnit}`}
-              />
+  </div>
 
-            </div>
+  {/* ====================================================== */}
+  {/* PAYMENT */}
+  {/* ====================================================== */}
 
+  <h3 className="font-semibold text-lg pt-2">
+    Payment
+  </h3>
 
+  <div className="grid md:grid-cols-2 gap-4">
 
+    {/* Payment Status */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Payment Status
+      </label>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <select
+        {...register("paymentStatus")}
+        className="input-style-4"
+      >
+        <option value="PAID">
+          Paid
+        </option>
 
-              {/* PAYMENT STATUS */}
-              <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Payment Type
-                </label>
+        <option value="PARTIAL">
+          Partial Payment
+        </option>
 
-                <select
-                  {...register("paymentStatus")}
-                  className="input-style-4"
-                >
-                  <option value="PAID">Paid</option>
-                  <option value="CREDIT">Credit (Pay Later)</option>
-                </select>
-              </div>
+        <option value="CREDIT">
+          Credit Purchase
+        </option>
+      </select>
+    </div>
 
-              {/* OPTIONAL PAID AMOUNT */}
-              {watch("paymentStatus") === "DUE" && (
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Paid Amount (Optional)
-                  </label>
+    {/* Payment Method */}
+    {watch("paymentStatus") !== "CREDIT" && (
+      <div className="flex flex-col gap-2">
+        <label className="label-style-4">
+          Payment Method
+        </label>
 
-                  <input
-                    type="number"
-                    step="0.01"
-                    {...register("paidAmount")}
-                    className="input-style-4"
-                    placeholder="0"
-                  />
-                </div>
-              )}
+        <select
+          {...register("paymentMethod")}
+          className="input-style-4"
+        >
+          <option value="CASH">
+            Cash
+          </option>
 
-              {watch("paymentStatus") === "PAID" && (
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Payment Method
-                  </label>
+          <option value="UPI">
+            UPI
+          </option>
 
-                  <select
-                    {...register("paymentMethod")}
-                    className="input-style-4"
-                  >
-                    <option value="CASH">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="CARD">Card</option>
-                  </select>
-                </div>
-              )}
+          <option value="CARD">
+            Card
+          </option>
+        </select>
+      </div>
+    )}
 
-            </div>
+    {/* Paid Amount */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Paid Amount
+      </label>
 
-          </div>
+      <input
+        type="number"
+        step="0.01"
+        disabled={
+          watch("paymentStatus") ===
+          "PAID"
+        }
+        {...register("paidAmount")}
+        className="input-style-4"
+        placeholder="0"
+      />
+    </div>
+
+    {/* Due Amount */}
+    <div className="flex flex-col gap-2">
+      <label className="label-style-4">
+        Due Amount
+      </label>
+
+      <input
+        value={dueAmount.toFixed(2)}
+        readOnly
+        className="input-style-4 bg-gray-100"
+      />
+    </div>
+
+  </div>
+
+  {/* ====================================================== */}
+  {/* SUMMARY CARD */}
+  {/* ====================================================== */}
+
+  <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 flex justify-between">
+
+    <div>
+      <p className="text-sm text-gray-500">
+        Purchase Amount
+      </p>
+
+      <p className="text-2xl font-bold">
+        ₹ {totalAmount!.toFixed(2)}
+      </p>
+    </div>
+
+    <div className="text-right">
+      <p className="text-sm text-gray-500">
+        Outstanding Amount
+      </p>
+
+      <p
+        className={`text-2xl font-bold ${
+          dueAmount > 0
+            ? "text-red-600"
+            : "text-green-600"
+        }`}
+      >
+        ₹ {dueAmount.toFixed(2)}
+      </p>
+    </div>
+
+  </div>
+
+</div>
 
           {/* ===================================================== */}
           {/* NOTE */}

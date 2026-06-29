@@ -60,7 +60,7 @@ type AdjustInventoryStockType = {
   paymentMethod?: PaymentMethod;
 
   paidAmount?: number;
-
+dueAmount?: number;
   note?: string;
 
   createdBy?: string;
@@ -90,7 +90,7 @@ export async function adjustInventoryStock({
   paymentStatus,
   paymentMethod,
   paidAmount: paidAmountInput,
-
+//dueAmount,
   note,
   createdBy,
   referenceId,

@@ -113,22 +113,21 @@ export default function CustomerAccountView({
       <div className="grid grid-cols-10 gap-4">
 
 
-        <div className="flex justify-between gap-2 p-3 bg-gray-200 rounded col-span-2">
-        <div>
-  <p className="text-sm font-medium text-zinc-500">
-    Total Sales
-  </p>
+        <div className="flex justify-between gap-2 p-3 bg-gray-200 rounded-xl col-span-2">
+          <div>
+            <p className="text-sm font-medium text-zinc-500">
+              Total Sales
+            </p>
 
-  <p
-    className={`text-2xl font-bold tracking-tight ${
-      (account.totalSales ?? 0) > 0
-        ? "text-blue-700"
-        : "text-zinc-700"
-    }`}
-  >
-    ₹ {(account.totalSales ?? 0).toLocaleString()}
-  </p>
-</div>
+            <p
+              className={`text-2xl font-bold tracking-tight ${(account.totalSales ?? 0) > 0
+                ? "text-blue-700"
+                : "text-zinc-700"
+                }`}
+            >
+              ₹ {(account.totalSales ?? 0).toLocaleString()}
+            </p>
+          </div>
           <div>
             <div className="grid grid-cols-3 gap-3">
               <MiniCard title="Cash" value={account.cashPaid} />
@@ -145,23 +144,22 @@ export default function CustomerAccountView({
         <Card title="Total Paid" value={account.totalPaid} />
         <Card title="Credit" value={account.creditBalance} />
         <div className="p-3 flex justify-between  col-span-2 bg-gray-200 rounded-xl">
-         <div className="flex flex-col">
-  <p className="text-sm font-medium text-zinc-500">
-    Balance (Due)
-  </p>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium text-zinc-500">
+              Balance (Due)
+            </p>
 
-  <p
-    className={`text-3xl font-bold tracking-tight ${
-      balance > 0
-        ? "text-rose-600"      // Customer owes money
-        : balance < 0
-        ? "text-emerald-600"   // Customer has credit
-        : "text-zinc-700"      // Zero balance
-    }`}
-  >
-    ₹ {balance.toLocaleString()}
-  </p>
-</div>
+            <p
+              className={`text-3xl font-bold tracking-tight ${balance > 0
+                ? "text-rose-600"      // Customer owes money
+                : balance < 0
+                  ? "text-emerald-600"   // Customer has credit
+                  : "text-zinc-700"      // Zero balance
+                }`}
+            >
+              ₹ {balance.toLocaleString()}
+            </p>
+          </div>
           {balance > 0 && (
             <button
               onClick={() => setOpenPayment(true)}
@@ -392,17 +390,16 @@ export default function CustomerAccountView({
                       <td className="px-4 py-3 whitespace-nowrap">
 
                         <span
-                         className={`
+                          className={`
 px-2.5 py-1 rounded-full text-xs font-medium
-${
-  t.type === "SALE"
-    ? "bg-sky-50 text-sky-700"
-    : t.type === "CUSTOMER_RETURN"
-    ? "bg-rose-50 text-rose-700"
-    : t.type === "PAYMENT"
-    ? "bg-emerald-50 text-emerald-700"
-    : "bg-zinc-100 text-zinc-700"
-}
+${t.type === "SALE"
+                              ? "bg-sky-50 text-sky-700"
+                              : t.type === "CUSTOMER_RETURN"
+                                ? "bg-rose-50 text-rose-700"
+                                : t.type === "PAYMENT"
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "bg-zinc-100 text-zinc-700"
+                            }
 `}
                         >
                           {t.type}
@@ -415,22 +412,21 @@ ${
                       <td className="px-4 py-3 whitespace-nowrap text-gray-700">
 
                         {t.paymentMethod ? (
-                        <span
-  className={`
+                          <span
+                            className={`
 px-2 py-1 rounded-full text-xs font-medium
-${
-  t.paymentMethod === "CASH"
-    ? "bg-emerald-50 text-emerald-700"
-    : t.paymentMethod === "UPI"
-    ? "bg-violet-50 text-violet-700"
-    : t.paymentMethod === "CARD"
-    ? "bg-sky-50 text-sky-700"
-    : "bg-zinc-100 text-zinc-700"
-}
+${t.paymentMethod === "CASH"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : t.paymentMethod === "UPI"
+                                  ? "bg-violet-50 text-violet-700"
+                                  : t.paymentMethod === "CARD"
+                                    ? "bg-sky-50 text-sky-700"
+                                    : "bg-zinc-100 text-zinc-700"
+                              }
 `}
->
-  {t.paymentMethod}
-</span>
+                          >
+                            {t.paymentMethod}
+                          </span>
                         ) : (
                           "-"
                         )}
@@ -447,64 +443,63 @@ ${
 
                       {/* TOTAL */}
 
-                     <td className="px-4 py-3 text-right whitespace-nowrap">
-  <span className="font-semibold text-slate-700">
-    ₹ {t.totalAmount || 0}
-  </span>
-</td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <span className="font-semibold text-slate-700">
+                          ₹ {t.totalAmount || 0}
+                        </span>
+                      </td>
 
                       {/* PAID */}
 
-                   <td className="px-4 py-3 text-right whitespace-nowrap">
-  <span className="font-semibold text-emerald-700">
-    ₹ {t.paidAmount || 0}
-  </span>
-</td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <span className="font-semibold text-emerald-700">
+                          ₹ {t.paidAmount || 0}
+                        </span>
+                      </td>
 
 
 
                       {/* DUE */}
 
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
-  <span className="font-semibold text-amber-700">
-    ₹ {t.dueAmount || 0}
-  </span>
-</td>
-                   <td className="px-4 py-3 text-right whitespace-nowrap">
-  <span className="font-semibold text-rose-700">
-    ₹ {t.returnAmount || 0}
-  </span>
-</td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <span className="font-semibold text-amber-700">
+                          ₹ {t.dueAmount || 0}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <span className="font-semibold text-rose-700">
+                          ₹ {t.returnAmount || 0}
+                        </span>
+                      </td>
 
                       {/* CREDIT */}
 
-                     <td className="px-4 py-3 text-right whitespace-nowrap">
-  {t.creditUsed > 0 && (
-    <div className="text-xs text-indigo-500">
-      Used: ₹ {t.creditUsed}
-    </div>
-  )}
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        {t.creditUsed > 0 && (
+                          <div className="text-xs text-indigo-500">
+                            Used: ₹ {t.creditUsed}
+                          </div>
+                        )}
 
-  <div className="font-semibold text-indigo-700">
-    ₹ {t.creditAmount || 0}
-  </div>
-</td>
+                        <div className="font-semibold text-indigo-700">
+                          ₹ {t.creditAmount || 0}
+                        </div>
+                      </td>
 
                       {/* BALANCE */}
 
-                     <td className="px-4 py-3 text-right whitespace-nowrap">
-  <span
-    className={`font-bold ${
-      t.balance > 0
-        ? "text-amber-700"
-        : t.balance < 0
-        ? "text-emerald-700"
-        : "text-slate-700"
-    }`}
-  >
-    ₹ {t.balance || 0}
-  </span>
-</td>
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        <span
+                          className={`font-bold ${t.balance > 0
+                            ? "text-amber-700"
+                            : t.balance < 0
+                              ? "text-emerald-700"
+                              : "text-slate-700"
+                            }`}
+                        >
+                          ₹ {t.balance || 0}
+                        </span>
+                      </td>
 
                     </tr>
                   ))
@@ -549,33 +544,33 @@ ${
       </div>
 
       {/* ================= PAYMENT MODAL ================= */}
-{openPayment && (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-    onClick={() => setOpenPayment(false)}
-  >
-    <div
-      className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        onClick={() => setOpenPayment(false)}
-        className="absolute right-4 top-4 rounded-full p-2 text-zinc-500 hover:bg-zinc-100"
-      >
-        <X className="h-5 w-5" />
-      </button>
+      {openPayment && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setOpenPayment(false)}
+        >
+          <div
+            className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setOpenPayment(false)}
+              className="absolute right-4 top-4 rounded-full p-2 text-zinc-500 hover:bg-zinc-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
 
-      <CustomerPaymentForm
-        customerId={customerId}
-        onSuccess={() => {
-          setOpenPayment(false);
-          fetchTransactions(fromDate, toDate);
-        }}
-      />
-    </div>
-  </div>
-)}
+            <CustomerPaymentForm
+              customerId={customerId}
+              onSuccess={() => {
+                setOpenPayment(false);
+                fetchTransactions(fromDate, toDate);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

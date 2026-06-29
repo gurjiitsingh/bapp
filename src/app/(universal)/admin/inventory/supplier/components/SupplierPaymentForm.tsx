@@ -3,8 +3,15 @@
 import { paySupplierDue } from "@/app/(universal)/action/inventorySupplier/paySupplierDue";
 import { useState } from "react";
 
+import {
+  Wallet,
+  IndianRupee,
+  CreditCard,
+  FileText,
+  Loader2,
+} from "lucide-react";
 
-export default function SupplierPaymentForm({ 
+export default function SupplierPaymentForm({
   supplierId,
   onSuccess,
 }: {
@@ -18,11 +25,15 @@ export default function SupplierPaymentForm({
 
     const formData = new FormData(e.target);
 
-    formData.append("supplierId", supplierId);
+    formData.append(
+      "supplierId",
+      supplierId
+    );
 
     setLoading(true);
 
-    const res = await paySupplierDue(formData);
+    const res =
+      await paySupplierDue(formData);
 
     if (res?.success) {
       e.target.reset();
@@ -31,60 +42,153 @@ export default function SupplierPaymentForm({
       alert(
         res?.errors?.general ||
           res?.errors?.amount ||
-          "Error"
+          "Something went wrong."
       );
     }
 
     setLoading(false);
   }
 
-return (
-  <form
-    onSubmit={handleSubmit}
-    className="border rounded-md px-3 py-2 bg-white flex flex-col gap-2"
-  >
-    {/* HEADER */}
-    <div className="flex justify-between items-center">
-      <h3 className="text-sm font-semibold">
-        Pay Supplier
-      </h3>
-    </div>
-
-    {/* ROW: AMOUNT + METHOD */}
-    <div className="flex gap-2">
-      <input
-        type="number"
-        name="amount"
-        placeholder="Amount"
-        className="border rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-black"
-      />
-
-      <select
-        name="paymentMethod"
-        className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-      >
-        <option value="CASH">Cash</option>
-        <option value="UPI">UPI</option>
-        <option value="CARD">Card</option>
-      </select>
-    </div>
-
-    {/* NOTE (SMALL) */}
-    <textarea
-      name="note"
-      placeholder="Note (optional)"
-      rows={1}
-      className="border rounded px-2 py-1 text-xs resize-none focus:outline-none focus:ring-1 focus:ring-black"
-    />
-
-    {/* BUTTON */}
-    <button
-      type="submit"
-      disabled={loading}
-      className="bg-black text-white py-1.5 rounded text-sm hover:opacity-90 transition"
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-zinc-100 p-3 rounded-xl"
     >
-      {loading ? "Processing..." : "Pay"}
-    </button>
-  </form>
-);
+      {/* Header */}
+      <div className="border-b border-zinc-200 p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100">
+            <Wallet className="h-5 w-5 text-amber-700" />
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900">
+              Pay Supplier
+            </h2>
+
+            <p className="text-sm text-zinc-500">
+              Record a payment made to this supplier.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Amount */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700">
+          <IndianRupee className="h-4 w-4" />
+          Amount
+        </label>
+
+        <input
+          type="number"
+          name="amount"
+          placeholder="Enter amount"
+          required
+          className="
+            h-12 w-full rounded-xl
+            border border-zinc-300
+            bg-white
+            px-4
+            text-base
+            outline-none
+            transition
+            focus:border-amber-500
+            focus:ring-4
+            focus:ring-amber-100
+          "
+        />
+      </div>
+
+      {/* Payment Method */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700">
+          <CreditCard className="h-4 w-4" />
+          Payment Method
+        </label>
+
+        <select
+          name="paymentMethod"
+          className="
+            h-12 w-full rounded-xl
+            border border-zinc-300
+            bg-white
+            px-4
+            text-sm
+            outline-none
+            transition
+            focus:border-amber-500
+            focus:ring-4
+            focus:ring-amber-100
+          "
+        >
+          <option value="CASH">
+            Cash
+          </option>
+          <option value="UPI">
+            UPI
+          </option>
+          <option value="CARD">
+            Card
+          </option>
+        </select>
+      </div>
+
+      {/* Note */}
+      <div>
+        <label className="mb-2 flex items-center gap-2 text-sm font-medium text-zinc-700">
+          <FileText className="h-4 w-4" />
+          Note
+        </label>
+
+        <textarea
+          name="note"
+          rows={3}
+          placeholder="Optional note..."
+          className="
+            w-full rounded-xl
+            border border-zinc-300
+            bg-white
+            p-4
+            text-sm
+            resize-none
+            outline-none
+            transition
+            focus:border-amber-500
+            focus:ring-4
+            focus:ring-amber-100
+          "
+        />
+      </div>
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        disabled={loading}
+        className="
+          flex h-12 w-full items-center justify-center gap-2
+          rounded-xl
+          bg-slate-600
+          text-white
+          font-medium
+          transition-all
+          hover:bg-amber-700
+          disabled:cursor-not-allowed
+          disabled:opacity-60
+        "
+      >
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          <>
+            <Wallet className="h-4 w-4" />
+            Pay Supplier
+          </>
+        )}
+      </button>
+    </form>
+  );
 }

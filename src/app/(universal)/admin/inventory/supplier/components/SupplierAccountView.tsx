@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import SupplierPaymentForm from "./SupplierPaymentForm";
+import { X, Wallet } from "lucide-react";
 
 type SupplierAccountType = {
   supplierId: string;
@@ -33,6 +34,10 @@ export default function SupplierAccountView({
   initialTransactions
 );
   const [loading, setLoading] = useState(false);
+  
+
+const [openPayment, setOpenPayment] =
+  useState(false);
 
   if (!account) return <p>No data found</p>;
 
@@ -88,100 +93,184 @@ export default function SupplierAccountView({
 
 
   return (
-    <div className="p-4 border rounded-xl space-y-4">
+    <div className=" rounded-xl space-y-4">
       <h2 className="text-lg font-semibold">{account.supplierName} </h2>
 
 
 
       {/* ================= SUMMARY ================= */}
-      <div className="grid grid-cols-5 gap-4">
-        <Card title="Total Purchase" value={account.totalPurchase} />
-        <Card title="Total Return" value={account.totalReturn} />
-        <Card title="Total Paid" value={account.totalPaid} />
+    <div className="grid grid-cols-1 lg:grid-cols-9 gap-4">
 
-        <div className="p-3 bg-gray-200 rounded col-span-2">
-          <p className="text-sm">Balance (Due)</p>
-          <p
-            className={`text-2xl font-bold ${balance > 0 ? "text-red-600" : "text-green-600"
-              }`}
-          >
-            ₹ {balance}
-          </p>
-        </div>
+  {/* Purchase Summary */}
+  <div className="flex justify-between gap-3 p-4 bg-gray-200 rounded-xl lg:col-span-2">
+    <div>
+      <p className="text-sm font-medium text-zinc-500">
+        Total Purchase
+      </p>
+
+      <p className="text-2xl font-bold tracking-tight text-blue-700">
+        ₹ {account.totalPurchase!.toLocaleString()}
+      </p>
+    </div>
+
+    <div>
+      <div className="grid grid-cols-3 gap-3">
+        <MiniCard title="Cash" value={account.cashPaid} />
+        <MiniCard title="UPI" value={account.upiPaid} />
+        <MiniCard title="Card" value={account.cardPaid} />
       </div>
-      <div className="flex justify-between">
-        <div>
+    </div>
+  </div>
 
-          {/* ================= PAYMENT ================= */}
-          <div className="grid grid-cols-3 gap-3">
-            <MiniCard title="Cash" value={account.cashPaid} />
-            <MiniCard title="UPI" value={account.upiPaid} />
-            <MiniCard title="Card" value={account.cardPaid} />
-          </div>
-        </div>
-        <div>
+  {/* Return */}
+  <Card
+    title="Total Return"
+    value={account.totalReturn}
+  />
 
-          {/* ================= DATE FILTER ================= */}
-          <form
-            onSubmit={handleFilter}
-            className="flex flex-wrap items-end gap-3 border rounded-md px-3 py-2 bg-white shadow-sm"
-          >
-            {/* FROM */}
-            <div className="flex flex-col text-xs">
-              <label className="text-gray-400 mb-1">From</label>
-              <input
-                type="date"
-                name="from"
-                defaultValue={fromDate}
-                className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-              />
-            </div>
+  {/* Paid */}
+  <Card
+    title="Total Paid"
+    value={account.totalPaid}
+  />
 
-            {/* TO */}
-            <div className="flex flex-col text-xs">
-              <label className="text-gray-400 mb-1">To</label>
-              <input
-                type="date"
-                name="to"
-                defaultValue={toDate}
-                className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-black"
-              />
-            </div>
+  {/* Due Balance */}
+  <div className="p-4 flex justify-between items-center bg-gray-200 rounded-xl lg:col-span-2">
+    <div className="flex flex-col">
+      <p className="text-sm font-medium text-zinc-500">
+        Balance (Due)
+      </p>
 
-            {/* ACTIONS */}
-            <div className="flex items-center gap-2 ml-auto">
-              <button
-                type="submit"
-                className="bg-black text-white px-3 py-1.5 rounded text-sm hover:opacity-90 transition"
-              >
-                Apply
-              </button>
+      <p
+        className={`text-3xl font-bold tracking-tight ${
+          balance > 0
+            ? "text-rose-600"
+            : balance < 0
+            ? "text-emerald-600"
+            : "text-zinc-700"
+        }`}
+      >
+        ₹ {balance.toLocaleString()}
+      </p>
+    </div>
 
-              <button
-                type="button"
-                onClick={() => fetchTransactions("", "")}
-                className="border px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-gray-100 transition"
-              >
-                Reset
-              </button>
-            </div>
-          </form>
-        </div>
+   {balance > 0 && (
+  <button
+    onClick={() => setOpenPayment(true)}
+    className="
+      w-fit h-10 px-3 rounded-lg
+      bg-slate-500 text-white
+      text-sm font-medium
+      hover:bg-zinc-600 transition
+      flex items-center gap-2
+    "
+  >
+    <Wallet className="h-4 w-4" />
+    Pay Supplier
+  </button>
+)}
+  </div>
 
-        <div>
+  {/* Date Filter */}
+  <div className="lg:col-span-3">
+    <form
+      onSubmit={handleFilter}
+      className="flex flex-wrap lg:flex-nowrap items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 shadow-sm"
+    >
+      {/* From */}
+      <div className="flex flex-col items-center gap-2 whitespace-nowrap">
+        <span className="text-sm text-zinc-600">
+          From
+        </span>
 
-          {balance > 0 && (
-            <SupplierPaymentForm
-              supplierId={supplierId}
-              onSuccess={() => {
-                fetchTransactions(fromDate, toDate);
-              }}
-            />
-          )}
-        </div>
-
-
+        <input
+          type="date"
+          name="from"
+          defaultValue={fromDate}
+          className="
+            h-10 w-[155px]
+            rounded-lg
+            border border-zinc-300
+            bg-white
+            px-3
+            text-sm
+            focus:border-black
+            focus:ring-2
+            focus:ring-black/10
+            outline-none
+          "
+        />
       </div>
+
+      {/* To */}
+      <div className="flex flex-col items-center gap-2 whitespace-nowrap">
+        <span className="text-sm text-zinc-600">
+          To
+        </span>
+
+        <input
+          type="date"
+          name="to"
+          defaultValue={toDate}
+          className="
+            h-10 w-[155px]
+            rounded-lg
+            border border-zinc-300
+            bg-white
+            px-3
+            text-sm
+            focus:border-black
+            focus:ring-2
+            focus:ring-black/10
+            outline-none
+          "
+        />
+      </div>
+
+      {/* Buttons */}
+      <div className="flex h-[60px] items-end gap-2">
+        <button
+          type="submit"
+          className="
+            inline-flex h-10 items-center gap-2
+            rounded-lg
+            bg-slate-500
+            px-4
+            text-sm
+            font-medium
+            text-white
+            hover:bg-zinc-500
+            transition
+          "
+        >
+          Apply
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            fetchTransactions("", "")
+          }
+          className="
+            inline-flex h-10 items-center gap-2
+            rounded-lg
+            border border-zinc-300
+            bg-white
+            px-4
+            text-sm
+            font-medium
+            text-zinc-700
+            hover:bg-zinc-100
+            transition
+          "
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>
 
 
       {/* ================= TRANSACTIONS ================= */}
@@ -202,45 +291,69 @@ export default function SupplierAccountView({
       {/* HEADER */}
       {/* ===================================================== */}
 
-      <thead className="bg-zinc-200">
+  <thead className="bg-zinc-200">
+  <tr>
+    <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Date
+    </th>
 
-        <tr>
+    <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Type
+    </th>
 
-          <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
-            Date
-          </th>
+    <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Payment Method
+    </th>
 
-          <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
-            Type
-          </th>
+    {/* <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Invoice
+    </th> */}
 
-          <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
-            Payment Method
-          </th>
+    <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Note
+    </th>
 
-          <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
-            Note
-          </th>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Total
+    </th>
 
-          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
-            Total
-          </th>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Paid
+    </th>
 
-          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
-            Paid
-          </th>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Due
+    </th>
 
-          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
-            Due
-          </th>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Return
+    </th>
 
-          <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
-            Balance
-          </th>
+    {/* <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Discount
+    </th>
 
-        </tr>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Tax
+    </th> */}
 
-      </thead>
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Credit
+    </th>
+
+    <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+      Balance
+    </th>
+
+    {/* <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Branch
+    </th>
+
+    <th className="px-4 py-3 text-left font-semibold whitespace-nowrap">
+      Created By
+    </th> */}
+  </tr>
+</thead>
 
       {/* ===================================================== */}
       {/* BODY */}
@@ -299,16 +412,27 @@ export default function SupplierAccountView({
               {/* PAYMENT METHOD */}
 
               <td className="px-4 py-3 whitespace-nowrap text-gray-700">
-
-                {t.paymentMethod ? (
-                  <span className="px-2 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-                    {t.paymentMethod}
-                  </span>
-                ) : (
-                  "-"
-                )}
-
-              </td>
+  {t.paymentMethod ? (
+    <span
+      className={`
+px-2 py-1 rounded-full text-xs font-medium
+${
+  t.paymentMethod === "CASH"
+    ? "bg-emerald-50 text-emerald-700"
+    : t.paymentMethod === "UPI"
+    ? "bg-violet-50 text-violet-700"
+    : t.paymentMethod === "CARD"
+    ? "bg-sky-50 text-sky-700"
+    : "bg-zinc-100 text-zinc-700"
+}
+`}
+    >
+      {t.paymentMethod}
+    </span>
+  ) : (
+    "-"
+  )}
+</td>
 
               {/* NOTE */}
 
@@ -320,41 +444,67 @@ export default function SupplierAccountView({
 
               {/* TOTAL */}
 
-              <td className="px-4 py-3 text-right font-medium whitespace-nowrap">
-
-                ₹ {t.totalAmount || 0}
-
-              </td>
+              <td className="px-4 py-3 text-right whitespace-nowrap">
+  <span className="font-semibold text-slate-700">
+    ₹ {t.totalAmount || 0}
+  </span>
+</td>
 
               {/* PAID */}
 
-              <td className="px-4 py-3 text-right whitespace-nowrap">
-
-                <span className="font-semibold text-green-600">
-                  ₹ {t.paidAmount || 0}
-                </span>
-
-              </td>
+          <td className="px-4 py-3 text-right whitespace-nowrap">
+  <span className="font-semibold text-emerald-700">
+    ₹ {t.paidAmount || 0}
+  </span>
+</td>
 
               {/* DUE */}
 
-              <td className="px-4 py-3 text-right whitespace-nowrap">
+             <td className="px-4 py-3 text-right whitespace-nowrap">
+  <span className="font-semibold text-amber-700">
+    ₹ {t.dueAmount || 0}
+  </span>
+</td>
 
-                <span className="font-semibold text-red-600">
-                  ₹ {t.dueAmount || 0}
-                </span>
+<td className="px-4 py-3 text-right whitespace-nowrap">
+  <span className="font-semibold text-rose-700">
+    ₹ {t.returnAmount || 0}
+  </span>
+</td>
 
-              </td>
+{/* <td className="px-4 py-3 text-right whitespace-nowrap">
+  <span className="font-semibold text-indigo-700">
+    ₹ {t.discountAmount || 0}
+  </span>
+</td> */}
+
+<td className="px-4 py-3 text-right whitespace-nowrap">
+  {t.creditUsed > 0 && (
+    <div className="text-xs text-indigo-500">
+      Used: ₹ {t.creditUsed}
+    </div>
+  )}
+
+  <div className="font-semibold text-indigo-700">
+    ₹ {t.creditAmount || 0}
+  </div>
+</td>
 
               {/* BALANCE */}
 
-              <td className="px-4 py-3 text-right whitespace-nowrap">
-
-                <span className="font-bold text-gray-800">
-                  ₹ {t.balance || 0}
-                </span>
-
-              </td>
+          <td className="px-4 py-3 text-right whitespace-nowrap">
+  <span
+    className={`font-bold ${
+      t.balance > 0
+        ? "text-rose-700"
+        : t.balance < 0
+        ? "text-emerald-700"
+        : "text-slate-700"
+    }`}
+  >
+    ₹ {t.balance || 0}
+  </span>
+</td>
 
             </tr>
           ))
@@ -397,6 +547,59 @@ export default function SupplierAccountView({
 
 </div>
       </div>
+
+      {/* ================= SUPPLIER PAYMENT MODAL ================= */}
+{openPayment && (
+  <div
+    className="
+      fixed inset-0 z-50
+      flex items-center justify-center
+      bg-black/50 backdrop-blur-sm
+      p-4
+    "
+    onClick={() =>
+      setOpenPayment(false)
+    }
+  >
+    <div
+      className="
+        relative w-full max-w-lg
+        rounded-2xl bg-white
+        p-6 shadow-2xl
+      "
+      onClick={(e) =>
+        e.stopPropagation()
+      }
+    >
+      <button
+        type="button"
+        onClick={() =>
+          setOpenPayment(false)
+        }
+        className="
+          absolute right-4 top-4
+          rounded-full p-2
+          text-zinc-500
+          hover:bg-zinc-100
+        "
+      >
+        <X className="h-5 w-5" />
+      </button>
+
+      <SupplierPaymentForm
+        supplierId={supplierId}
+        onSuccess={() => {
+          setOpenPayment(false);
+
+          fetchTransactions(
+            fromDate,
+            toDate
+          );
+        }}
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 }

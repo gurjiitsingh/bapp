@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings } from "lucide-react";
+import { Settings, Undo2 } from "lucide-react";
 import {
   AlertTriangle,
   Boxes,
@@ -52,7 +52,9 @@ export default function InventoryTabs() {
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
+             
+
+               <Plus
                 size={22}
                 className="text-orange-600"
               />
@@ -93,7 +95,8 @@ export default function InventoryTabs() {
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-[#00897b]/10 flex items-center justify-center">
-              <ClipboardList
+            
+                <PackagePlus
                 size={22}
                 className="text-[#00897b]"
               />
@@ -108,47 +111,11 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-          <Link
-            href="/admin/inventory/add"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-8 rounded-2xl bg-blue-100 flex items-center justify-center">
-              <Plus
-                size={22}
-                className="text-blue-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Add Item
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              New stock item
-            </p>
-          </Link>
+      
 
 
 
-          <Link
-            href="/admin/inventory/adjust-stock"
-            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
-          >
-            <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
-              <PackagePlus
-                size={22}
-                className="text-orange-600"
-              />
-            </div>
-
-            <h3 className="font-semibold text-gray-800 mt-4">
-              Adjustment
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Add or remove stock
-            </p>
-          </Link>
+      
 
           <Link
             href="/admin/inventory/transactions"
@@ -195,10 +162,13 @@ export default function InventoryTabs() {
             className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
           >
             <div className="h-12 w-8 rounded-2xl bg-purple-100 flex items-center justify-center">
-              <Tags
+             
+            
+               <PackagePlus
                 size={22}
                 className="text-violet-600"
               />
+            
             </div>
 
             <h3 className="font-semibold text-gray-800 mt-4">
@@ -207,6 +177,47 @@ export default function InventoryTabs() {
 
             <p className="text-sm text-gray-500 mt-1">
               View
+            </p>
+          </Link>
+              <Link
+            href="/admin/inventory/adjust-stock"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-8 rounded-2xl bg-orange-100 flex items-center justify-center">
+             
+                <ClipboardList
+                size={22}
+                className="text-orange-600"
+              />
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Adjustment
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              Add or remove stock
+            </p>
+          </Link>
+
+              <Link
+            href="/admin/inventory/supplier/stock-return"
+            className="group bg-white rounded-3xl border border-gray-100 shadow-sm p-2 hover:border-[#00897b]/30 hover:shadow-md transition"
+          >
+            <div className="h-12 w-8 rounded-2xl bg-blue-100 flex items-center justify-center">
+             <Undo2
+    size={22}
+    className="text-blue-600"
+  />
+              
+            </div>
+
+            <h3 className="font-semibold text-gray-800 mt-4">
+              Stock Return
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+             Return to Supplier
             </p>
           </Link>
 
@@ -226,6 +237,8 @@ export default function InventoryTabs() {
               </p>
             </div>
 
+            
+
             {/* DROPDOWN */}
             <div className="absolute hidden group-hover:block bg-white border rounded-xl shadow-md mt-2 w-56 z-50">
 
@@ -236,13 +249,7 @@ export default function InventoryTabs() {
                 Product Stock Setup
               </Link>
 
-              {/* future rare tools */}
-              {/* <Link
-      href="/admin/inventory/import"
-      className="block px-4 py-2 text-sm hover:bg-gray-100"
-    >
-      Import Data
-    </Link> */}
+             
 
             </div>
           </div>
