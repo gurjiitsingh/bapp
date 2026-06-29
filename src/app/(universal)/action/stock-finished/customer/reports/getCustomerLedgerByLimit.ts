@@ -36,7 +36,7 @@ export async function getCustomerLedgerByLimit({
         totalAmount: Number(d.totalAmount ?? 0),
         returnAmount: Number(d.returnAmount ?? 0),
         paidAmount: Number(d.paidAmount ?? 0),
-
+creditUsed: Number(d.creditUsed ?? 0),
         dueAmount: Number(d.dueAmount ?? 0),
         creditAmount: Number(d.creditAmount ?? 0),
         previousBalance: Number(

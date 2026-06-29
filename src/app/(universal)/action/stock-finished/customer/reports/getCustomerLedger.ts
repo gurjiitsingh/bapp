@@ -82,6 +82,7 @@ export async function getCustomerLedger({
 
         dueAmount: Number(d.dueAmount ?? 0),
         creditAmount: Number(d.creditAmount ?? 0),
+        creditUsed: Number(d.creditUsed ?? 0),
         previousBalance: Number(
           d.previousBalance ?? 0
         ),

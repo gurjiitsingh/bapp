@@ -66,20 +66,32 @@ let balance = currentBalance;
 let balanceChange = 0;
 
 let creditRemaining = 0;
-
+let creditUsed = 0;
 if (type === "SALE") {
   // ✅ apply existing credit first (IMPORTANT FEATURE)
   let effectiveDue = due;
 
+  // if (credit > 0) {
+  //   if (credit >= due) {
+  //     creditRemaining =  credit - due;
+  //     effectiveDue = 0;
+  //   } else {
+  //     effectiveDue = due - credit;
+  //     creditRemaining = 0;
+  //   }
+  // }
+
   if (credit > 0) {
-    if (credit >= due) {
-      creditRemaining =  credit - due;
-      effectiveDue = 0;
-    } else {
-      effectiveDue = due - credit;
-      creditRemaining = 0;
-    }
+  if (credit >= due) {
+    creditUsed = due; // ✅ NEW
+    creditRemaining = credit - due;
+    effectiveDue = 0;
+  } else {
+    creditUsed = credit; // ✅ NEW
+    effectiveDue = due - credit;
+    creditRemaining = 0;
   }
+}
 
   balanceChange = effectiveDue;
   balance = currentBalance + effectiveDue;
@@ -126,7 +138,7 @@ console.log("type, creditRemaining,returnProductAmount -----------------", type,
 
     dueAmount: due,
     creditAmount: creditRemaining, // ✅ only extra stored
-
+creditUsed,
     previousBalance: currentBalance,
     balanceChange,
     balance,
