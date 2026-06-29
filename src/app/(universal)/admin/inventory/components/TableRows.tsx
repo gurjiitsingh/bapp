@@ -195,7 +195,7 @@ function TableRows({
         <div className="flex items-center justify-end gap-2">
           {/* EDIT */}
           <Link
-            href={`/admin/inventory/${item.id}`}
+            href={`/admin/inventory/edit/${item.id}`}
           >
             <Button
               size="sm"

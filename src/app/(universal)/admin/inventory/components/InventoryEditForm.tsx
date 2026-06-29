@@ -146,6 +146,7 @@ console.log("inventoryItem----------", inventoryItem)
             formData.append("name", data.name);
             formData.append("sku", data.sku || "");
             formData.append("barcode", data.barcode || "");
+          
             formData.append(
                 "purchaseUnit",
                 data.purchaseUnit
@@ -199,6 +200,11 @@ console.log("inventoryItem----------", inventoryItem)
                 data.isActive ? "true" : "false"
             );
 
+            console.log({
+  purchaseUnit: data.purchaseUnit,
+  consumptionUnit: data.consumptionUnit,
+  conversionFactor: data.conversionFactor,
+});
             const result =
                 await updateInventoryItem(
                     inventoryItem.id,
@@ -358,7 +364,7 @@ console.log("inventoryItem----------", inventoryItem)
                             {/* Unit */}
 
                             {/* Purchase Unit */}
-                            {/* <div>
+                            <div>
                                 <label className="label-style-4">
                                     Purchase Unit
                                 </label>
@@ -390,10 +396,10 @@ console.log("inventoryItem----------", inventoryItem)
                                 <p className="text-xs text-gray-500 mt-1">
                                     Unit used when purchasing stock
                                 </p>
-                            </div> */}
+                            </div>
 
                             {/* Consumption Unit */}
-                            {/* <div>
+                            <div>
                                 <label className="label-style-4">
                                     Consumption Unit
                                 </label>
@@ -423,12 +429,12 @@ console.log("inventoryItem----------", inventoryItem)
                                 <p className="text-xs text-gray-500 mt-1">
                                     Unit used in recipes
                                 </p>
-                            </div> */}
+                            </div>
 
 
 
                             {/* Conversion Factor */}
-                            {/* <div>
+                            <div>
                                 <label className="label-style-4">
                                     Conversion Factor
                                 </label>
@@ -448,7 +454,7 @@ console.log("inventoryItem----------", inventoryItem)
                                 <p className="text-xs text-red-500 mt-1">
                                     {errors.conversionFactor?.message}
                                 </p>
-                            </div> */}
+                            </div>
 
 
 
@@ -589,27 +595,3 @@ export default InventoryEditForm;
 
 
 
-
-
-{/* Suppliers */ }
-// <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
-//     <div className="flex items-center justify-between mb-4">
-//         <div>
-//             <h2 className="text-lg font-semibold text-gray-800">
-//                 Suppliers
-//             </h2>
-
-//             <p className="text-sm text-gray-500 mt-1">
-//                 Link suppliers who provide this item
-//             </p>
-//         </div>
-
-//         <div className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">
-//             {watch("supplierIds")?.length || 0} Selected
-//         </div>
-//     </div>
-
-
-
-
-// </div>

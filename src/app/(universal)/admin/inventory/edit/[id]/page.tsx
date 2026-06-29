@@ -1,6 +1,6 @@
 
 import { fetchInventoryItemById, getInventoryItemById } from "@/app/(universal)/action/inventory/dbOperation";
-import InventoryEditForm from "../components/InventoryEditForm";
+import InventoryEditForm from "../../components/InventoryEditForm";
 import { fetchSuppliers } from "@/app/(universal)/action/inventorySupplier/fetchSuppliers";
 import { fetchInventoryCategories } from "@/app/(universal)/action/inventoryCategory/fetchInventoryCategories";
 

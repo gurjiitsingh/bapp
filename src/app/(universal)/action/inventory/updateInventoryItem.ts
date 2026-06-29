@@ -81,6 +81,8 @@ const supplierIds =
     const isActive =
       formData.get("isActive") === "true";
 
+
+      
     // STORE STOCK IN CONSUMPTION UNIT
     // if (
     //   purchaseUnit !== consumptionUnit &&
@@ -228,9 +230,9 @@ const supplierIds =
   sku: cleanedSku,
   barcode: cleanedBarcode,
 
-  // purchaseUnit,
-  // consumptionUnit,
-  // conversionFactor,
+  //purchaseUnit,
+  consumptionUnit,
+  conversionFactor,
 
   //currentStock,
   minStock,
