@@ -26,11 +26,11 @@ export default async function AdminLayout({
 
   return (
     <Providers>
-      <main className="relative flex text-slate-600">
+      <main className="relative flex text-slate-600 ">
         <SideBarBase />
 
         <div className="w-full flex flex-col">
-          <div className="w-full flex flex-col px-1 pt-[70px] lg:pt-2 bg-[#fafafa] ">
+          <div className="w-full flex flex-col px-1 pt-[80px] lg:pt-2 bg-[#fafafa] ">
             <Header />
           </div>
 
