@@ -49,7 +49,7 @@ export default async function Page() {
                 <Link href="/admin/inventory/add">
                   <button className="btn-save-4 flex items-center gap-2">
                     <Plus size={18} />
-                    Create Inventory
+                    Add Inventory Item
                   </button>
                 </Link>
               </div>

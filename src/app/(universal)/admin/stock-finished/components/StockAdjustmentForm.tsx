@@ -310,7 +310,7 @@ export default function StockAdjustmentForm({
               {!search.trim() && (
                 <Search
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                 />
               )}
 
@@ -500,13 +500,23 @@ export default function StockAdjustmentForm({
                 Quantity
               </label>
 
-              <input
-                type="number"
-                step="0.001"
-                {...register("quantity")}
-                className="input-style-4"
-                placeholder="0"
-              />
+           <input
+  type="number"
+  step="0.001"
+  {...register("quantity")}
+  className="input-style-4"
+  placeholder="0"
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  onBlur={(e) => {
+    if (e.target.value === "") {
+      e.target.value = "0";
+    }
+  }}
+/>
             </div>
 
             {/* Unit */}

@@ -653,7 +653,7 @@ const currentRecipes = useMemo(() => {
                 >
                   {!inventorySearch.trim() && (
                     <Search
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                       size={18}
                     />
                   )}

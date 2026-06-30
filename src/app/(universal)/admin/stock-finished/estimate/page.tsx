@@ -1,12 +1,11 @@
-
-import ProductionForm from "../components/ProductionForm";
+import ProductionEstimateForm from "../components/ProductionEstimateForm";
 import { fetchProductsStock } from "@/app/(universal)/action/products/productsStock";
 
 export default async function Page() {
   const products = await fetchProductsStock();
 
   return (
-    <ProductionForm
+    <ProductionEstimateForm
       products={products}
     />
   );

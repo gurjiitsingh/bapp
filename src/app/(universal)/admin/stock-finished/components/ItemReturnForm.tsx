@@ -460,7 +460,7 @@ if (data.paymentStatus === "PAID" && !data.paymentMethod) {
               {!search.trim() && (
                 <Search
                   size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                 />
               )}
 

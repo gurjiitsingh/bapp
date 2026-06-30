@@ -2,14 +2,15 @@
 
 
 
+import { fetchProductsStock } from "@/app/(universal)/action/products/productsStock";
 import StockAdjustmentForm from "../components/StockAdjustmentForm";
-import { fetchProducts } from "@/app/(universal)/action/products/dbOperation";
+
 
 export default async function Page() {
 
   // SERVER FETCH
   const products =
-    await fetchProducts();
+    await fetchProductsStock();
 
   
 

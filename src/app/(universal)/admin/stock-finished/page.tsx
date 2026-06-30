@@ -47,12 +47,7 @@ export default async function Page() {
               <div className="flex items-center gap-3">
                 
 
-                {/* <Link href="/admin/stock-finished/new">
-                  <button className="btn-save-4 flex items-center gap-2">
-                    <Plus size={18} />
-                    Create Inventory
-                  </button>
-                </Link> */}
+             
               </div>
             </div>
           </div>
