@@ -149,7 +149,7 @@ let currentCreditBalance = 0;
         // ==========================================
         // FINISHED PRODUCT LEDGER
         // ==========================================
-
+console.log("this is before---------------------")
         await applyFinishedTransactions(
           tx,
           {
@@ -180,7 +180,7 @@ let currentCreditBalance = 0;
             source: "ADMIN",
           }
         );
-
+console.log("this is after---------------------")
         // ==========================================
         // CUSTOMER ACCOUNT
         // ==========================================
