@@ -112,29 +112,25 @@ export default function StockPurchaseForm({
 },
   });
 
-  const type = watch(
-    "type"
-  );
+  const type = watch("type", "PURCHASE");
 
-  const quantity = watch("quantity");
-  const unitCost = watch("unitCost");
-  const totalAmount = watch("totalAmount");
+const quantity = watch("quantity", 0);
+const unitCost = watch("unitCost", 0);
+const totalAmount = watch("totalAmount", 0);
 
-  const transactionUnit = watch("transactionUnit");
+const transactionUnit = watch("transactionUnit", "pcs");
 
-const paymentStatus =
-  watch("paymentStatus");
+const paymentStatus = watch("paymentStatus", "PAID");
 
-const paidAmount =
-  Number(
-    watch("paidAmount") || 0
-  );
+const paidAmount = Number(
+  watch("paidAmount", 0)
+);
 
-  const dueAmount =
-  Math.max(
-    totalAmount - paidAmount,
-    0
-  );
+
+const dueAmount = Math.max(
+  (Number(totalAmount) || 0) - (Number(paidAmount) || 0),
+  0
+);
 
 
   useEffect(() => {
@@ -414,14 +410,24 @@ const paidAmount =
           currentStock: updatedStock,
         });
 
-        reset({
-          type: "PURCHASE",
-          direction: "IN",
-          quantity: 0,
-          note: "",
-          unitCost: 0,
-          inventoryItemId: selectedInventory.id,
-        });
+       reset({
+  type: "PURCHASE",
+  direction: "IN",
+
+  inventoryItemId: selectedInventory.id,
+
+  quantity: 0,
+  transactionUnit: selectedInventory.purchaseUnit,
+
+  unitCost: 0,
+  totalAmount: 0,
+
+  paymentStatus: "PAID",
+  paymentMethod: "CASH",
+  paidAmount: 0,
+
+  note: "",
+});
       } else {
         alert(result.message);
       }
@@ -865,7 +871,7 @@ const paidAmount =
       </p>
 
       <p className="text-2xl font-bold">
-        ₹ {totalAmount!.toFixed(2)}
+      ₹ {(Number(totalAmount) || 0).toFixed(2)}
       </p>
     </div>
 

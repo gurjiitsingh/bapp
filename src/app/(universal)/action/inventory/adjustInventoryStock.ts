@@ -60,7 +60,7 @@ type AdjustInventoryStockType = {
   paymentMethod?: PaymentMethod;
 
   paidAmount?: number;
-dueAmount?: number;
+  dueAmount?: number;
   note?: string;
 
   createdBy?: string;
@@ -90,7 +90,7 @@ export async function adjustInventoryStock({
   paymentStatus,
   paymentMethod,
   paidAmount: paidAmountInput,
-//dueAmount,
+  //dueAmount,
   note,
   createdBy,
   referenceId,
@@ -98,7 +98,7 @@ export async function adjustInventoryStock({
 }: AdjustInventoryStockType) {
   console.log("ad inve---------------------", inventoryItemId,
     supplierId,
-    supplierName, 
+    supplierName,
     type,
     direction,
     quantity,
@@ -148,25 +148,26 @@ export async function adjustInventoryStock({
       const previousStock =
         Number(inventoryData?.currentStock) || 0;
 
-        const needsSupplier =
+      const needsSupplier =
+        type === "PURCHASE" ||
+        type === "SUPPLIER_RETURN";
+
+      const needsPayment =
+        type === "PURCHASE";
+
+     const needsCost =
   type === "PURCHASE" ||
   type === "SUPPLIER_RETURN";
 
-const needsPayment =
-  type === "PURCHASE";
-
-const needsCost =
-  type === "PURCHASE";
-
-const needsSupplierLedger =
-  type === "PURCHASE" ||
-  type === "SUPPLIER_RETURN";
+      const needsSupplierLedger =
+        type === "PURCHASE" ||
+        type === "SUPPLIER_RETURN";
 
       // ================= SUPPLIER =================
-     
-     let currentBalance = 0;
 
-if (needsSupplier && supplierId) {
+      let currentBalance = 0;
+let currentCreditBalance = 0;
+      if (needsSupplier && supplierId) {
         const supplierRef = adminDb
           .collection("supplierAccounts")
           .doc(supplierId);
@@ -179,6 +180,11 @@ if (needsSupplier && supplierId) {
         currentBalance =
           Number(supplierSnap.data()?.balance || 0);
 
+          currentBalance =
+  Number(
+    supplierSnap.data()?.balance || 0
+  );
+
         // Save for later
       }
 
@@ -186,17 +192,17 @@ if (needsSupplier && supplierId) {
       const finalUnitCost =
         unitCost ?? Number(inventoryData?.costPrice) ?? 0;
 
-     const shouldApplyCost = needsCost;
-     
+      const shouldApplyCost = needsCost;
+
 
       const totalAmount = shouldApplyCost
         ? quantity * finalUnitCost
         : 0;
 
       // ================= PAYMENT =================
-    const isPurchase =
-  needsPayment &&
-  direction === "IN";
+      const isPurchase =
+        needsPayment &&
+        direction === "IN";
 
       const paymentStatusSafe =
         paymentStatus || "PAID";
@@ -231,32 +237,32 @@ if (needsSupplier && supplierId) {
         conversionFactor,
 
         supplierId: needsSupplier
-  ? supplierId
-  : undefined,
+          ? supplierId
+          : undefined,
 
-supplierName: needsSupplier
-  ? supplierName
-  : undefined,
+        supplierName: needsSupplier
+          ? supplierName
+          : undefined,
 
-totalAmount: needsCost
-  ? totalAmount
-  : 0,
+        totalAmount: needsCost
+          ? totalAmount
+          : 0,
 
-paidAmount: needsPayment
-  ? paidAmount
-  : 0,
+        paidAmount: needsPayment
+          ? paidAmount
+          : 0,
 
-dueAmount: needsPayment
-  ? dueAmount
-  : 0,
+        dueAmount: needsPayment
+          ? dueAmount
+          : 0,
 
-paymentStatus: needsPayment
-  ? paymentStatusSafe
-  : "PAID",
+        paymentStatus: needsPayment
+          ? paymentStatusSafe
+          : "PAID",
 
-paymentMethod: needsPayment
-  ? paymentMethod
-  : undefined,
+        paymentMethod: needsPayment
+          ? paymentMethod
+          : undefined,
 
         referenceType,
         referenceId,
@@ -266,53 +272,62 @@ paymentMethod: needsPayment
 
         source: "WEB_ADMIN",
       });
-if (needsSupplierLedger && supplierId) {
-      await updateSupplierAccount(tx, {
-        supplierId,
-        supplierName,
-        type:
-          type === "PURCHASE"
-            ? "PURCHASE"
-            : type === "SUPPLIER_RETURN"
-              ? "SUPPLIER_RETURN"
-              : "PAYMENT",
+      if (needsSupplierLedger && supplierId) {
+        await updateSupplierAccount(tx, {
+  supplierId,
+  supplierName,
 
-        totalAmount,
-        paidAmount,
-        dueAmount,
+  type:
+    type === "PURCHASE"
+      ? "PURCHASE"
+      : type === "SUPPLIER_RETURN"
+        ? "SUPPLIER_RETURN"
+        : "PAYMENT",
 
-        paymentMethod,
-      });
-    }
-    if (needsSupplierLedger && supplierId) {
-      await applySupplierTransaction(tx, {
-        supplierId,
-        supplierName,
+  totalAmount,
+  paidAmount,
+  dueAmount,
 
-        type:
-          type === "PURCHASE"
-            ? "PURCHASE"
-            : type === "SUPPLIER_RETURN"
-              ? "SUPPLIER_RETURN"
-              : "PAYMENT",
+  creditAmount:
+    type === "SUPPLIER_RETURN"
+      ? totalAmount
+      : 0,
 
-        totalAmount,
-        paidAmount,
-        dueAmount,
+  currentBalance,
+  currentCreditBalance,
 
-        currentBalance,
+  paymentMethod,
+});
+      }
+      if (needsSupplierLedger && supplierId) {
+        await applySupplierTransaction(tx, {
+          supplierId,
+          supplierName,
 
-        paymentMethod,
+          type:
+            type === "PURCHASE"
+              ? "PURCHASE"
+              : type === "SUPPLIER_RETURN"
+                ? "SUPPLIER_RETURN"
+                : "PAYMENT",
 
-        referenceType,
-        referenceId,
+          totalAmount,
+          paidAmount,
+          dueAmount,
 
-        note,
-        createdBy,
+          currentBalance,
 
-        source: "WEB_ADMIN",
-      });
-    }
+          paymentMethod,
+
+          referenceType,
+          referenceId,
+
+          note,
+          createdBy,
+
+          source: "WEB_ADMIN",
+        });
+      }
     });
 
     // ================= CACHE =================

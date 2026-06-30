@@ -60,12 +60,21 @@ export async function getSupplierLedgerByLimit({
         paymentMethod: d.paymentMethod ?? "",
 
         totalAmount: Number(d.totalAmount ?? 0),
-
+        returnAmount: Number(d.returnAmount ?? 0),
         paidAmount: Number(d.paidAmount ?? 0),
-
+        creditUsed: Number(d.creditUsed ?? 0),
         dueAmount: Number(d.dueAmount ?? 0),
+        creditAmount: Number(d.creditAmount ?? 0),
+        previousBalance: Number(
+          d.previousBalance ?? 0
+        ),
+
+        balanceChange: Number(
+          d.balanceChange ?? 0
+        ),
 
         balance: Number(d.balance ?? 0),
+
       };
     });
 

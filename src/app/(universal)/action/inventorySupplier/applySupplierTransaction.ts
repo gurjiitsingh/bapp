@@ -14,6 +14,8 @@ type ApplySupplierTransactionParams = {
   dueAmount: number;
 
   currentBalance: number;
+  creditAmount?: number;
+currentCreditBalance?: number;
 
   paymentMethod?: PaymentMethod;
 
@@ -38,7 +40,10 @@ export async function applySupplierTransaction(
     dueAmount,
     currentBalance,
 
-    paymentMethod,
+creditAmount: newCreditAmount = 0,
+currentCreditBalance = 0,
+
+paymentMethod,
 
     referenceType = "MANUAL",
     referenceId = "",
@@ -49,75 +54,151 @@ export async function applySupplierTransaction(
   }: ApplySupplierTransactionParams
 ) {
 
-   console.log("in supplier transaction-------------------")
+  console.log("in supplier transaction-------------------  type, totalAmount, paidAmount, dueAmount,currentBalance,paymentMethod,", type,
+
+    totalAmount,
+    paidAmount,
+    dueAmount,
+    currentBalance,
+    paymentMethod,)
+
   if (!supplierId) return;
 
   // ==========================================
   // SUPPLIER LEDGER
   // ==========================================
+
 const total = Number(totalAmount || 0);
 const paid = Number(paidAmount || 0);
 const due = Number(dueAmount || 0);
 
-let balanceChange = 0;
+const credit =
+  Number(newCreditAmount || 0) +
+  currentCreditBalance;
 
-switch (type) {
-  case "PURCHASE":
-    balanceChange = due;
-    break;
+  let balance = currentBalance;
+  let balanceChange = 0;
+  let returnAmount = 0;
+  let creditAmount = 0;
+  let creditUsed = 0;
 
-  case "SUPPLIER_RETURN":
-    balanceChange = -total;
-    break;
+ if (type === "PURCHASE") {
+  let effectiveDue = due;
 
-  case "PAYMENT":
-    balanceChange = -paid;
-    break;
+  if (credit > 0) {
+    if (credit >= due) {
+      creditUsed = due;
+
+      creditAmount =
+        credit - due;
+
+      effectiveDue = 0;
+    } else {
+      creditUsed = credit;
+
+      creditAmount = 0;
+
+      effectiveDue =
+        due - credit;
+    }
+  }
+
+  balanceChange =
+    effectiveDue;
+
+  balance =
+    currentBalance +
+    effectiveDue;
 }
 
-// ==========================================
+  else if (type === "PAYMENT") {
+    balanceChange = -paid;
+
+    balance = Math.max(
+      currentBalance - paid,
+      0
+    );
+  }
+
+  else if (
+    type === "SUPPLIER_RETURN"
+  ) {
+    returnAmount = total;
+
+    if (returnAmount <= currentBalance) {
+      creditUsed = returnAmount;
+
+      balanceChange =
+        -returnAmount;
+
+      balance =
+        currentBalance -
+        returnAmount;
+
+      creditAmount = 0;
+    } else {
+      creditUsed =
+        currentBalance;
+
+      balanceChange =
+        -returnAmount;
+
+      balance = 0;
+
+      creditAmount =
+        returnAmount -
+        currentBalance;
+    }
+  }
+
+  // ==========================================
   // CALCULATE RUNNING BALANCE
   // ==========================================
 
 
-const balance = currentBalance + balanceChange;
+
 
   const ledgerRef = adminDb
     .collection("supplierLedger")
     .doc();
 
- tx.set(ledgerRef, {
-  transactionId: ledgerRef.id,
+  tx.set(ledgerRef, {
+    transactionId: ledgerRef.id,
 
-  supplierId,
-  supplierName: supplierName || "",
+    supplierId,
+    supplierName: supplierName || "",
 
-  type,
+    type,
 
-  totalAmount:total,
-  paidAmount:paid,
-  dueAmount:due,
+    totalAmount: total,
 
-  previousBalance: currentBalance,
-  balanceChange,
-  balance,
+    returnAmount,
 
-  paymentMethod: paymentMethod || null,
+    creditAmount,
+    creditUsed,
 
-  referenceType,
-  referenceId,
+    paidAmount: paid,
+    dueAmount: due,
+    previousBalance: currentBalance,
+    balanceChange,
+    balance,
 
-  note,
+    paymentMethod: paymentMethod || null,
 
-  createdBy,
+    referenceType,
+    referenceId,
 
-  source,
+    note,
 
-  status: "ACTIVE",
+    createdBy,
 
-  createdAt:
-    admin.firestore.FieldValue.serverTimestamp(),
-});
+    source,
+
+    status: "ACTIVE",
+
+    createdAt:
+      admin.firestore.FieldValue.serverTimestamp(),
+  });
 
   return {
     transactionId: ledgerRef.id,

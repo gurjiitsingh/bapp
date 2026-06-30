@@ -63,7 +63,7 @@ export default function SupplierInventoryrReturnForm({
   supplierMap,
 }: Props) {
 
-
+//console.log("inventoryItems---------", inventoryItems)
 
 
   const [isSubmitting, setIsSubmitting] =
@@ -126,24 +126,21 @@ export default function SupplierInventoryrReturnForm({
   const transactionUnit = watch("transactionUnit");
 
 
-  const filteredItem =
-    useMemo(() => {
-      if (!search.trim()) return [];
+const filteredItem = useMemo(() => {
+  const keyword = search.trim().toLowerCase();
 
-      return inventoryItems
-        .filter((item) =>
-          item.name
-            ?.toLowerCase()
-            .includes(
-              search
-                .trim()
-                .toLowerCase()
-            )
-        )
-        .slice(0, 20);
+  if (!keyword) return [];
 
-
-    }, [search, inventoryItems]);
+  return inventoryItems
+    .filter(
+      (item) =>
+        item.name &&
+        item.name
+          .toLowerCase()
+          .includes(keyword)
+    )
+    .slice(0, 20);
+}, [search, inventoryItems]);
 
   // =====================================================
   // SUBMIT
@@ -189,11 +186,35 @@ export default function SupplierInventoryrReturnForm({
 
 
 
-    let finalQuantity =
-      Number(data.quantity);
+   let finalQuantity =
+  Number(data.quantity);
 
-    let finalUnitCost =
-      Number(data.unitCost);
+let finalUnitCost =
+  Number(data.unitCost);
+
+const originalQuantity =
+  Number(data.quantity);
+
+const originalUnitCost =
+  Number(data.unitCost);
+
+// Convert purchase unit -> consumption unit
+if (
+  data.transactionUnit ===
+    selectedInventory.purchaseUnit &&
+  selectedInventory.purchaseUnit !==
+    selectedInventory.consumptionUnit
+) {
+  // convert quantity
+  finalQuantity =
+    finalQuantity *
+    selectedInventory.conversionFactor;
+
+  // convert unit cost
+  finalUnitCost =
+    finalUnitCost /
+    selectedInventory.conversionFactor;
+}
 
 
 
@@ -203,43 +224,43 @@ export default function SupplierInventoryrReturnForm({
     try {
 
       const result =
-        await adjustInventoryStock({
-          inventoryItemId: selectedInventory.id,
+      await adjustInventoryStock({
+  inventoryItemId: selectedInventory.id,
 
-          supplierId:
-            data.supplierId,
+  supplierId: data.supplierId,
 
-          supplierName:
-            selectedSupplier?.companyName ||
-            "",
+  supplierName:
+    selectedSupplier?.companyName || "",
 
-          type: "SUPPLIER_RETURN",
+  type: "SUPPLIER_RETURN",
 
-          direction: "OUT",
+  direction: "OUT",
 
-          quantity: finalQuantity,
+  // Internal stock values
+  quantity: finalQuantity,
+  unitCost: finalUnitCost,
 
-          unitCost: finalUnitCost,
+  // Original values entered by user
+  purchaseQuantity: originalQuantity,
+  purchaseUnit: transactionUnit,
+  purchaseUnitCost: originalUnitCost,
+  conversionFactor:
+    selectedInventory.conversionFactor,
 
-          purchaseQuantity:
-            finalQuantity,
+  paymentStatus: "CREDIT",
+  paidAmount: 0,
+  dueAmount:
+    originalQuantity *
+    originalUnitCost,
 
-          purchaseUnit:
-            transactionUnit,
+  note:
+    `${data.returnReason || ""} ${
+      data.note || ""
+    }`.trim(),
 
-          purchaseUnitCost:
-            finalUnitCost,
+  createdBy: "admin",
+});
 
-          paymentStatus: "CREDIT",
-          paidAmount: 0,
-          dueAmount: finalQuantity * finalUnitCost,
-
-          note:
-            `${data.returnReason || ""} ${data.note || ""
-              }`.trim(),
-
-          createdBy: "admin",
-        });
 
 
 
@@ -316,7 +337,7 @@ export default function SupplierInventoryrReturnForm({
               Select supplier receiving the returned inventory
             </p>
 
-               <div className="flex justify-between mb-3">
+            <div className="flex justify-between mb-3">
               <div>
                 {selectedSupplier && (
                   <div className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
@@ -336,152 +357,141 @@ export default function SupplierInventoryrReturnForm({
               </Button>
             </div>
 
+            {/* ===================================================== */}
+            {/* CURRENT STOCK */}
+            {/* ===================================================== */}
+
+            {selectedInventory && (
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
+
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Package2
+                      className="text-blue-600"
+                      size={22}
+                    />
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-gray-800">
+                      {
+                        selectedInventory.name
+                      }
+                    </h3>
+
+                    <p className="text-sm text-gray-500">
+                      Current Stock
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-2xl font-bold text-blue-700">
+                  {/* {selectedProduct.currentStock} */}
+                  {displayStock(
+                    selectedInventory.currentStock || 0,
+                    selectedInventory.purchaseUnit,
+                    selectedInventory.consumptionUnit,
+                    selectedInventory.conversionFactor
+                  )}
+                </div>
+              </div>
+            )}
+
+
+
+            <div className="bg-white   border-gray-100  my-3">
+              
               {/* ===================================================== */}
-          {/* CURRENT STOCK */}
-          {/* ===================================================== */}
+              {/* INVENTORY SEARCH */}
+              {/* ===================================================== */}
 
-          {selectedInventory && (
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Inventory Item
+                </label>
 
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Package2
-                    className="text-blue-600"
-                    size={22}
+                <div className="relative">
+
+                  {!search.trim() && (
+                    <Search
+                      size={18}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                    />
+                  )}
+
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(
+                        e.target.value
+                      );
+
+                      setShowDropdown(
+                        true
+                      );
+                    }}
+                    placeholder="Search inventory item..."
+                    className={`input-style-4 pr-4 ${!search.trim()
+                      ? "pl-12"
+                      : "pl-4"
+                      }`}
                   />
+
+                  {/* DROPDOWN */}
+
+                  {showDropdown &&
+                    filteredItem.length >
+                    0 && (
+                      <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
+
+                        {filteredItem.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => {
+                              setValue(
+                                "transactionUnit",
+                                item.purchaseUnit
+                              );
+                              setSelectedInventory(item);
+
+                              setSelectedSupplier(null);
+                              setsuppliersearch("");
+
+                              setValue("supplierId", "");
+                              setValue("id", item.id);
+
+                              setSearch(item.name);
+                              setShowDropdown(false);
+                            }}
+                            className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                          >
+                            <div className="font-medium text-gray-800">
+                              {item.name}
+                            </div>
+
+                            <div className="text-xs text-gray-400">
+                              Current:{" "}
+                              {item.currentStock}{" "}
+
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                 </div>
-
-                <div>
-                  <h3 className="font-semibold text-gray-800">
-                    {
-                      selectedInventory.name
-                    }
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-                    Current Stock
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-2xl font-bold text-blue-700">
-                {/* {selectedProduct.currentStock} */}
-                {displayStock(
-                  selectedInventory.currentStock || 0,
-                  selectedInventory.purchaseUnit,
-                  selectedInventory.consumptionUnit,
-                  selectedInventory.conversionFactor
-                )}
-              </div>
-            </div>
-          )}
-
-          
-
-             <div className="bg-white   border-gray-100  ">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                {/* <h2 className="text-lg font-semibold text-gray-800">
-                  Wholesale Customer
-                </h2> */}
-
-
-              </div>
-            </div>
-
-
-
-            {/* ===================================================== */}
-            {/* INVENTORY SEARCH */}
-            {/* ===================================================== */}
-
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Inventory Item
-              </label>
-
-              <div className="relative">
-
-                {!search.trim() && (
-                  <Search
-                    size={18}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
-                )}
 
                 <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(
-                      e.target.value
-                    );
-
-                    setShowDropdown(
-                      true
-                    );
-                  }}
-                  placeholder="Search inventory item..."
-                  className={`input-style-4 pr-4 ${!search.trim()
-                    ? "pl-12"
-                    : "pl-4"
-                    }`}
-                />
-
-                {/* DROPDOWN */}
-
-                {showDropdown &&
-                  filteredItem.length >
-                  0 && (
-                    <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
-
-                      {filteredItem.map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            setValue(
-                              "transactionUnit",
-                              item.purchaseUnit
-                            );
-                            setSelectedInventory(item);
-
-                            setSelectedSupplier(null);
-                            setsuppliersearch("");
-
-                            setValue("supplierId", "");
-                            setValue("id", item.id);
-
-                            setSearch(item.name);
-                            setShowDropdown(false);
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
-                        >
-                          <div className="font-medium text-gray-800">
-                            {item.name}
-                          </div>
-
-                          <div className="text-xs text-gray-400">
-                            Current:{" "}
-                            {item.currentStock}{" "}
-
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+                  type="hidden"
+                  {...register(
+                    "id"
                   )}
+                />
               </div>
-
-              <input
-                type="hidden"
-                {...register(
-                  "id"
-                )}
-              />
             </div>
-          </div>
 
-         
+
 
             {/* Search */}
 
@@ -528,8 +538,8 @@ export default function SupplierInventoryrReturnForm({
                     );
                   }}
                   className={`w-full border-b border-gray-100 px-4 py-3 text-left transition hover:bg-slate-50 ${selectedSupplier?.id === customer.id
-                      ? "bg-blue-50"
-                      : ""
+                    ? "bg-blue-50"
+                    : ""
                     }`}
                 >
                   <div className="font-medium">
@@ -544,14 +554,14 @@ export default function SupplierInventoryrReturnForm({
             </div>
           </div>
 
-        
+
 
           {/* ===================================================== */}
           {/* TYPE */}
           {/* ===================================================== */}
 
-         
-       
+
+
 
           {/* ===================================================== */}
           {/* QUANTITY */}

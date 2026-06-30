@@ -67,7 +67,8 @@ export async function getSupplierLedger({
       const d = doc.data();
 
       return {
-        id: doc.id,
+
+         id: doc.id,
 
         date: d.createdAt?.toDate() ?? null,
 
@@ -78,13 +79,38 @@ export async function getSupplierLedger({
         paymentMethod: d.paymentMethod ?? "",
 
         totalAmount: Number(d.totalAmount ?? 0),
-
+        returnAmount: Number(d.returnAmount ?? 0),
         paidAmount: Number(d.paidAmount ?? 0),
-
+        creditUsed: Number(d.creditUsed ?? 0),
         dueAmount: Number(d.dueAmount ?? 0),
+        creditAmount: Number(d.creditAmount ?? 0),
+        previousBalance: Number(
+          d.previousBalance ?? 0
+        ),
 
-        // Already stored in Firestore
+        balanceChange: Number(
+          d.balanceChange ?? 0
+        ),
+
         balance: Number(d.balance ?? 0),
+        // id: doc.id,
+
+        // date: d.createdAt?.toDate() ?? null,
+
+        // type: d.type,
+
+        // note: d.note ?? "",
+
+        // paymentMethod: d.paymentMethod ?? "",
+
+        // totalAmount: Number(d.totalAmount ?? 0),
+
+        // paidAmount: Number(d.paidAmount ?? 0),
+
+        // dueAmount: Number(d.dueAmount ?? 0),
+
+        // // Already stored in Firestore
+        // balance: Number(d.balance ?? 0),
       };
     });
 

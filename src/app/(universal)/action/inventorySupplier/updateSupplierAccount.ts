@@ -6,27 +6,45 @@ type PaymentMethod = "CASH" | "UPI" | "CARD";
 type UpdateSupplierAccountParams = {
   supplierId: string;
   supplierName: string | undefined;
-  type: "PURCHASE" | "SUPPLIER_RETURN" | "PAYMENT";
+
+  type:
+    | "PURCHASE"
+    | "SUPPLIER_RETURN"
+    | "PAYMENT";
 
   totalAmount: number;
   paidAmount: number;
   dueAmount: number;
+
+  creditAmount?: number;
+
+  currentBalance: number;
+
+  currentCreditBalance: number;
 
   paymentMethod?: PaymentMethod;
 };
 
 export async function updateSupplierAccount(
   tx: FirebaseFirestore.Transaction,
-  {
-    supplierId,
-    supplierName,
-    type,
-    totalAmount,
-    paidAmount,
-    dueAmount,
-    paymentMethod,
-  }: UpdateSupplierAccountParams
-) {
+{
+  supplierId,
+  supplierName,
+
+  type,
+
+  totalAmount,
+  paidAmount,
+  dueAmount,
+
+  creditAmount = 0,
+
+  currentBalance,
+  currentCreditBalance,
+
+  paymentMethod,
+}: UpdateSupplierAccountParams
+){
   console.log("in supplier account-------------------")
   if (!supplierId) return;
 
@@ -34,61 +52,134 @@ export async function updateSupplierAccount(
     .collection("supplierAccounts")
     .doc(supplierId);
 
-  let credit = 0;
-  let debit = 0;
+let balance = currentBalance;
 
-  let purchase = 0;
-  let returnAmount = 0;
-  let paid = 0;
+let creditBalance =
+  currentCreditBalance;
 
-  let cash = 0;
-  let upi = 0;
-  let card = 0;
+let credit = 0;
+let debit = 0;
 
-  // ==================================
-  // PURCHASE
-  // ==================================
+let purchase = 0;
+let returnAmount = 0;
+let paid = 0;
 
-  if (type === "PURCHASE") {
-    purchase = totalAmount;
+let cash = 0;
+let upi = 0;
+let card = 0;
 
-    paid = paidAmount;
+// =========================
+// PURCHASE
+// =========================
+if (type === "PURCHASE") {
+  purchase = totalAmount;
 
-    // Supplier payable increases only by unpaid amount
-    credit = dueAmount;
+  paid = paidAmount;
 
-    if (paid > 0) {
-      if (paymentMethod === "CASH") cash = paid;
-      if (paymentMethod === "UPI") upi = paid;
-      if (paymentMethod === "CARD") card = paid;
-    }
+  let remainingDue =
+    dueAmount;
+
+  // Apply supplier credit first
+  if (creditBalance > 0) {
+    const usedCredit =
+      Math.min(
+        creditBalance,
+        remainingDue
+      );
+
+    remainingDue -=
+      usedCredit;
+
+    creditBalance -=
+      usedCredit;
   }
 
-  // ==================================
-  // SUPPLIER RETURN
-  // ==================================
+  debit = remainingDue;
 
-  if (type === "SUPPLIER_RETURN") {
-    debit = totalAmount;
-    returnAmount = totalAmount;
+  balance +=
+    remainingDue;
+
+  if (paid > 0) {
+    if (
+      paymentMethod === "CASH"
+    )
+      cash = paid;
+
+    else if (
+      paymentMethod === "UPI"
+    )
+      upi = paid;
+
+    else if (
+      paymentMethod === "CARD"
+    )
+      card = paid;
   }
+}
 
-  // ==================================
-  // PAYMENT TO SUPPLIER
-  // ==================================
+// =========================
+// SUPPLIER RETURN
+// =========================
+else if (
+  type ===
+  "SUPPLIER_RETURN"
+) {
+  const returnValue =
+    Number(
+      creditAmount || 0
+    );
 
-  if (type === "PAYMENT") {
-    debit = paidAmount;
-    paid = paidAmount;
+  returnAmount =
+    returnValue;
 
-    if (paymentMethod === "CASH") cash = paidAmount;
-    if (paymentMethod === "UPI") upi = paidAmount;
-    if (paymentMethod === "CARD") card = paidAmount;
+  if (
+    returnValue <= balance
+  ) {
+    credit = returnValue;
+
+    balance -=
+      returnValue;
+  } else {
+    const extra =
+      returnValue -
+      balance;
+
+    credit = balance;
+
+    balance = 0;
+
+    creditBalance += extra;
   }
+}
 
-  // ==================================
-  // UPDATE ACCOUNT
-  // ==================================
+// =========================
+// PAYMENT
+// =========================
+else if (
+  type === "PAYMENT"
+) {
+  credit = paidAmount;
+
+  paid = paidAmount;
+
+  balance -= paidAmount;
+
+  if (
+    paymentMethod === "CASH"
+  )
+    cash = paidAmount;
+
+  else if (
+    paymentMethod === "UPI"
+  )
+    upi = paidAmount;
+
+  else if (
+    paymentMethod === "CARD"
+  )
+    card = paidAmount;
+}
+
 
   tx.set(
     accountRef,
@@ -121,10 +212,8 @@ export async function updateSupplierAccount(
 
       // Purchase due increases payable
       // Returns & payments decrease payable
-      balance:
-        admin.firestore.FieldValue.increment(
-          credit - debit
-        ),
+     balance,
+creditBalance,
 
 
       updatedAt:
