@@ -72,7 +72,7 @@ export async function applyFinishedTransactions(
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
 
-  const productRef = adminDb.collection("products").doc(productId);
+  const productRef = adminDb.collection("productStock").doc(productId);
 
   // ✅ READ (allowed here because still in READ phase of main flow)
   const snap = await tx.get(productRef);

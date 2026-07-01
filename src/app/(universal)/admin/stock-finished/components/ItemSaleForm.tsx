@@ -25,6 +25,7 @@ import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { ProductStock } from "@/lib/types/productStockType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -51,7 +52,7 @@ type FormType = {
 };
 
 type Props = {
-  products: ProductType[];
+  products: ProductStock[];
 
   customers: WholeCustomerType[];
 };;
@@ -74,7 +75,7 @@ export default function ItemPurchaseForm({
     selectedProduct,
     setselectedProduct,
   ] =
-    useState<ProductType | null>(
+    useState<ProductStock | null>(
       null
     );
 

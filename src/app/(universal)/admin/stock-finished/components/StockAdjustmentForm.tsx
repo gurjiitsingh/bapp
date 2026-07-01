@@ -19,9 +19,10 @@ import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType"
 import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
 import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/updateFinshedItemStock";
+import { ProductStock } from "@/lib/types/productStockType";
 
 type Props = {
-  products: ProductType[];
+  products: ProductStock[];
 };
 
 type FormType = {
@@ -55,19 +56,13 @@ export default function StockAdjustmentForm({
 
   const [search, setSearch] =
     useState("");
-    const [selectedProduct, setSelectedProduct] =
-  useState<ProductType | null>(null);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductStock | null>(null);
 
   const [showDropdown, setShowDropdown] =
     useState(false);
 
-  const [
-    selectedInventory,
-    setSelectedInventory,
-  ] =
-    useState<ProductType | null>(
-      null
-    );
+
 
   const {
     register,
@@ -160,10 +155,10 @@ export default function StockAdjustmentForm({
   async function onSubmit(data: FormType) {
     if (isSubmitting) return;
 
-    if (!selectedInventory) {
-      alert("Please select inventory item");
-      return;
-    }
+ if (!selectedProduct) {
+  alert("Please select inventory item");
+  return;
+}
 
     const decimalAllowedUnits = [
       "kg",
@@ -220,7 +215,7 @@ export default function StockAdjustmentForm({
       const result =
         await updateFinishedItemStock({
           id: data.id,
-          productName: "selectedProduct.name",
+        productName: selectedProduct.name,
 
           direction: data.direction,
 
@@ -232,32 +227,32 @@ export default function StockAdjustmentForm({
           createdBy: "admin",
         });
 
-      if (result.success) {
-        let updatedStock =
-          selectedInventory.currentStock;
+      let updatedStock = selectedProduct.currentStock;
 
-        if (data.direction === "IN") {
-          updatedStock! += finalQuantity;
-        } else {
-          updatedStock! -= finalQuantity;
-        }
+if (data.direction === "IN") {
+  updatedStock += finalQuantity;
+} else {
+  updatedStock -= finalQuantity;
+}
 
-        setSelectedInventory({
-          ...selectedInventory,
-          currentStock: updatedStock,
-        });
+setSelectedProduct({
+  ...selectedProduct,
+  currentStock: updatedStock,
+});
 
-        reset({
-          id: selectedProduct!.id,
-          type: "OPENING_STOCK",
-          direction: "IN",
-          quantity: 0,
-          transactionUnit: "pcs",
-          note: "",
-        });
-      } else {
-        alert(result.message);
-      }
+        
+
+      //   reset({
+      //     id: selectedProduct!.id,
+      //     type: "OPENING_STOCK",
+      //     direction: "IN",
+      //     quantity: 0,
+      //     transactionUnit: "pcs",
+      //     note: "",
+      //   });
+      // } else {
+      //   alert(result.message);
+      // }
     } catch (error) {
       console.error(error);
 
@@ -276,13 +271,13 @@ export default function StockAdjustmentForm({
         {/* ===================================================== */}
 
         <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">
-  Stock Adjustment
-</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            Stock Adjustment
+          </h1>
 
-<p className="text-sm text-gray-500 mt-1">
-  Manually add or remove finished product stock.
-</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Manually add or remove finished product stock.
+          </p>
         </div>
 
         {/* ===================================================== */}
@@ -345,18 +340,11 @@ export default function StockAdjustmentForm({
                         key={item.id}
                         type="button"
                         onClick={() => {
-                          setSelectedInventory(item);
+                          setSelectedProduct(item); // ✅ correct
 
-                          setValue(
-                            "id",
-                            item.id
-                          );
-
-                          // default transaction unit
-
+                          setValue("id", item.id);
 
                           setSearch(item.name);
-
                           setShowDropdown(false);
                         }}
                         className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
@@ -388,7 +376,7 @@ export default function StockAdjustmentForm({
           {/* CURRENT STOCK */}
           {/* ===================================================== */}
 
-          {selectedInventory && (
+         {selectedProduct && (
             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
 
               <div className="flex items-center gap-3">
@@ -402,7 +390,7 @@ export default function StockAdjustmentForm({
                 <div>
                   <h3 className="font-semibold text-gray-800">
                     {
-                      selectedInventory.name
+                      selectedProduct.name
                     }
                   </h3>
 
@@ -414,10 +402,10 @@ export default function StockAdjustmentForm({
 
               <div className="text-2xl font-bold text-blue-700">
                 {/* {displayStock(
-                  selectedInventory.currentStock!,
-                  selectedInventory.purchaseUnit,
-                  selectedInventory.consumptionUnit,
-                  selectedInventory.conversionFactor
+                  selectedProduct.currentStock!,
+                  selectedProduct.purchaseUnit,
+                  selectedProduct.consumptionUnit,
+                  selectedProduct.conversionFactor
                 )} */}
               </div>
             </div>
@@ -434,34 +422,34 @@ export default function StockAdjustmentForm({
                 Transaction Type
               </label>
 
-        <select
-  {...register("type")}
-  className="input-style-4"
->
-  <option value="OPENING_STOCK">
-    Opening Stock
-  </option>
+              <select
+                {...register("type")}
+                className="input-style-4"
+              >
+                <option value="OPENING_STOCK">
+                  Opening Stock
+                </option>
 
-  <option value="CUSTOMER_RETURN">
-    Customer Return
-  </option>
+                {/* <option value="CUSTOMER_RETURN">
+                  Customer Return
+                </option>
 
-  <option value="SUPPLIER_RETURN">
-    Supplier Return
-  </option>
+                <option value="SUPPLIER_RETURN">
+                  Supplier Return
+                </option>
 
-  <option value="WASTAGE">
-    Wastage
-  </option>
+                <option value="WASTAGE">
+                  Wastage
+                </option>
 
-  <option value="ADJUSTMENT_IN">
-    Adjustment (Increase)
-  </option>
+                <option value="ADJUSTMENT_IN">
+                  Adjustment (Increase)
+                </option>
 
-  <option value="ADJUSTMENT_OUT">
-    Adjustment (Decrease)
-  </option>
-</select>
+                <option value="ADJUSTMENT_OUT">
+                  Adjustment (Decrease)
+                </option> */}
+              </select>
             </div>
 
             {type === "ADJUSTMENT" && (
@@ -500,23 +488,23 @@ export default function StockAdjustmentForm({
                 Quantity
               </label>
 
-           <input
-  type="number"
-  step="0.001"
-  {...register("quantity")}
-  className="input-style-4"
-  placeholder="0"
-  onFocus={(e) => {
-    if (e.target.value === "0") {
-      e.target.value = "";
-    }
-  }}
-  onBlur={(e) => {
-    if (e.target.value === "") {
-      e.target.value = "0";
-    }
-  }}
-/>
+              <input
+                type="number"
+                step="0.001"
+                {...register("quantity")}
+                className="input-style-4"
+                placeholder="0"
+                onFocus={(e) => {
+                  if (e.target.value === "0") {
+                    e.target.value = "";
+                  }
+                }}
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    e.target.value = "0";
+                  }
+                }}
+              />
             </div>
 
             {/* Unit */}

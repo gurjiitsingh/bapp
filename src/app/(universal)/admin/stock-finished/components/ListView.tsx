@@ -25,11 +25,11 @@ import {
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import TableRows from "./TableRows";
-import { InventoryCategory } from "@/lib/types/InventoryCategory";
-import { ProductType } from "@/lib/types/productType";
+import { ProductStockType } from "@/lib/types/productStockType";
+ 
 
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
  // categories: InventoryCategory[];
 };
 
@@ -38,7 +38,7 @@ export default function ListView({
   
 }: Props) {
   const [filtered, setFiltered] =
-    useState<ProductType[]>([]);
+    useState<ProductStockType[]>([]);
 
   const [search, setSearch] =
     useState("");
@@ -94,7 +94,7 @@ export default function ListView({
 
   const activeItems = useMemo(() => {
     return products.filter(
-      (item) => item.isFeatured
+      (item) => item.trackInventory
     ).length;
   }, [products]);
 
@@ -248,14 +248,23 @@ export default function ListView({
 
        <TableBody>
   {filtered.length > 0 ? (
-    filtered.map(
-      (item) => (
-        <TableRows
-          key={item.id}
-          item={item}
-        />
-      )
-    )
+
+     <TableRow>
+      <td
+        colSpan={8}
+        className="text-center py-16 text-gray-400"
+      >
+        No inventory items found
+      </td>
+    </TableRow>
+    // filtered.map(
+    //   (item) => (
+    //     <TableRows
+    //       key={item.id}
+    //       item={item}
+    //     />
+    //   )
+    // )
   ) : (
     <TableRow>
       <td

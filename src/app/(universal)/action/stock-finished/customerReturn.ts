@@ -65,7 +65,7 @@ export async function customerReturn({
     // =========================
     // GET PRODUCT
     // =========================
-    const productRef = adminDb.collection("products").doc(id);
+    const productRef = adminDb.collection("productStock").doc(id);
     const productSnap = await productRef.get();
 
     if (!productSnap.exists) {

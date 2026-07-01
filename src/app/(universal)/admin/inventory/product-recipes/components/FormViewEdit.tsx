@@ -26,16 +26,16 @@ import {
   newProductRecipeSchema,
 } from "@/lib/types/ProductRecipeType";
 
-import { ProductType } from "@/lib/types/productType";
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
+import { ProductStockType } from "@/lib/types/productStockType";
 deleteProductRecipe
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
   inventoryItems: InventoryItemType[];
   recipes: ProductRecipeType[];
   initialProductId?: string | null; // ✅ NEW
@@ -47,6 +47,8 @@ export default function FormViewEdit({
   recipes,
   initialProductId
 }: Props) {
+
+  
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
@@ -54,7 +56,7 @@ export default function FormViewEdit({
   // PRODUCT SEARCH
   // =====================================================
 
- 
+
 
   const [productSearch, setProductSearch] =
     useState("");
@@ -63,15 +65,15 @@ export default function FormViewEdit({
     useState(false);
 
   const [selectedProduct, setSelectedProduct] =
-    useState<ProductType | null>(null);
+    useState<ProductStockType | null>(null);
 
   const searchRef =
     useRef<HTMLDivElement>(null);
 
-    const [editingRecipe, setEditingRecipe] =
-  useState<ProductRecipeType | null>(null);
+  const [editingRecipe, setEditingRecipe] =
+    useState<ProductRecipeType | null>(null);
 
-  
+
 
   // =====================================================
   // INVENTORY SEARCH
@@ -124,21 +126,21 @@ export default function FormViewEdit({
   // =====================================================
 
   useEffect(() => {
-  if (!initialProductId) return;
+    if (!initialProductId) return;
 
-  // set productId in form
-  setValue("productId", initialProductId);
+    // set productId in form
+    setValue("productId", initialProductId);
 
-  // also set selected product (for UI + enable form)
-  const product = products.find(
-    (p) => p.id === initialProductId
-  );
+    // also set selected product (for UI + enable form)
+    const product = products.find(
+      (p) => p.id === initialProductId
+    );
 
-  if (product) {
-    setSelectedProduct(product);
-    setProductSearch(product.name);
-  }
-}, [initialProductId, products, setValue]);
+    if (product) {
+      setSelectedProduct(product);
+      setProductSearch(product.name);
+    }
+  }, [initialProductId, products, setValue]);
 
   useEffect(() => {
     if (!selectedInventoryId) return;
@@ -163,30 +165,30 @@ export default function FormViewEdit({
   // =====================================================
 
   const filteredRecipes = useMemo(() => {
-  // ✅ If productId is provided (edit mode)
-  if (initialProductId) {
-    const product = recipes.find(
-      (p) => p.productId === initialProductId
-    );
+    // ✅ If productId is provided (edit mode)
+    if (initialProductId) {
+      const product = recipes.find(
+        (p) => p.productId === initialProductId
+      );
 
-    return product ? [product] : [];
-  }
+      return product ? [product] : [];
+    }
 
-  // ✅ Normal search mode
-  if (!productSearch.trim()) return [];
+    // ✅ Normal search mode
+    if (!productSearch.trim()) return [];
 
-  return products
-    .filter((product) =>
-      product.name
-        ?.toLowerCase()
-        .includes(
-          productSearch
-            .trim()
-            .toLowerCase()
-        )
-    )
-    .slice(0, 20);
-}, [productSearch, products, initialProductId]);
+    return products
+      .filter((product) =>
+        product.name
+          ?.toLowerCase()
+          .includes(
+            productSearch
+              .trim()
+              .toLowerCase()
+          )
+      )
+      .slice(0, 20);
+  }, [productSearch, products, initialProductId]);
 
   const filteredProducts1 = useMemo(() => {
     if (!productSearch.trim())
@@ -205,7 +207,7 @@ export default function FormViewEdit({
       .slice(0, 20);
   }, [productSearch, products]);
 
-  
+
 
   // =====================================================
   // FILTERED INVENTORY
@@ -235,18 +237,18 @@ export default function FormViewEdit({
   // CURRENT PRODUCT RECIPES
   // =====================================================
 
-  
 
-const currentRecipes = useMemo(() => {
-  const productId =
-    initialProductId || selectedProduct?.id;
 
-  if (!productId) return [];
+  const currentRecipes = useMemo(() => {
+    const productId =
+      initialProductId || selectedProduct?.id;
 
-  return recipes.filter(
-    (recipe) => recipe.productId === productId
-  );
-}, [recipes, initialProductId, selectedProduct]);
+    if (!productId) return [];
+
+    return recipes.filter(
+      (recipe) => recipe.productId === productId
+    );
+  }, [recipes, initialProductId, selectedProduct]);
 
 
   // =====================================================
@@ -480,7 +482,7 @@ const currentRecipes = useMemo(() => {
                   )}
                 </div>
               )} */}
-         {/* </div> */}
+          {/* </div> */}
         </div>
 
         {/* CONTENT */}
@@ -519,7 +521,7 @@ const currentRecipes = useMemo(() => {
 
             <div className="p-6">
 
-              { !selectedProduct ? (
+              {!selectedProduct ? (
                 <div className="h-[350px] flex flex-col items-center justify-center text-center">
 
                   <Package2
@@ -558,51 +560,51 @@ const currentRecipes = useMemo(() => {
                       </tr>
                     </thead>
 
-                   <tbody>
-  {currentRecipes.map((recipe) => (
-    <tr
-      key={recipe.id}
-      className="border-b border-gray-50 hover:bg-gray-50"
-    >
-      <td className="py-4 font-medium text-gray-800">
-        {recipe.inventoryItemName}
-      </td>
+                    <tbody>
+                      {currentRecipes.map((recipe) => (
+                        <tr
+                          key={recipe.id}
+                          className="border-b border-gray-50 hover:bg-gray-50"
+                        >
+                          <td className="py-4 font-medium text-gray-800">
+                            {recipe.inventoryItemName}
+                          </td>
 
-      <td className="py-4 text-gray-600">
-        {recipe.quantity}
-      </td>
+                          <td className="py-4 text-gray-600">
+                            {recipe.quantity}
+                          </td>
 
-      <td className="py-4 text-gray-600">
-        {recipe.unit}
-      </td>
+                          <td className="py-4 text-gray-600">
+                            {recipe.unit}
+                          </td>
 
-      {/* ✅ NEW DELETE BUTTON */}
-      <td className="py-4 text-right">
-        <button
-          type="button"
-          onClick={async () => {
-            if (!confirm("Delete this item?")) return;
+                          {/* ✅ NEW DELETE BUTTON */}
+                          <td className="py-4 text-right">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!confirm("Delete this item?")) return;
 
-            const res = await deleteProductRecipe(recipe.id);
+                                const res = await deleteProductRecipe(recipe.id);
 
-            if (!res?.errors) {
-              // ✅ remove locally (no refresh needed)
-              const updated = currentRecipes.filter(
-                (r) => r.id !== recipe.id
-              );
+                                if (!res?.errors) {
+                                  // ✅ remove locally (no refresh needed)
+                                  const updated = currentRecipes.filter(
+                                    (r) => r.id !== recipe.id
+                                  );
 
-              // hack: force refresh via state
-              setSelectedProduct({ ...selectedProduct! });
-            }
-          }}
-          className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
-        >
-            <MdDeleteForever size={18} />
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+                                  // hack: force refresh via state
+                                  setSelectedProduct({ ...selectedProduct! });
+                                }
+                              }}
+                              className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
+                            >
+                              <MdDeleteForever size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
                   </table>
 
                 </div>
@@ -681,8 +683,8 @@ const currentRecipes = useMemo(() => {
                     }}
                     placeholder="Search inventory item..."
                     className={`input-style-4 pr-4 ${!inventorySearch.trim()
-                        ? "pl-12"
-                        : "pl-4"
+                      ? "pl-12"
+                      : "pl-4"
                       } ${!selectedProduct
                         ? "opacity-60 cursor-not-allowed"
                         : ""
@@ -765,9 +767,17 @@ const currentRecipes = useMemo(() => {
                   type="number"
                   step="0.001"
                   disabled={!selectedProduct}
-                  {...register(
-                    "quantity"
-                  )}
+                  {...register("quantity")}
+                  onFocus={(e) => {
+                    if (e.target.value === "0") {
+                      e.target.value = "";
+                    }
+                  }}
+                  onBlur={(e) => {
+                    if (e.target.value === "") {
+                      e.target.value = "0";
+                    }
+                  }}
                   className="input-style-4"
                   placeholder="0.25"
                 />

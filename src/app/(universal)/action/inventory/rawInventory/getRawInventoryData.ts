@@ -17,7 +17,7 @@ export async function getRawInventoryData(
     if (soldQty <= 0) continue;
 
     const productRef = adminDb
-      .collection("products")
+      .collection("productStock")
       .doc(item.productId);
 
     const productSnap = await tx.get(productRef);

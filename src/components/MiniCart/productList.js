@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 import React, { useContext } from "react";
 import CartContext from "@/store/CartContext";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";

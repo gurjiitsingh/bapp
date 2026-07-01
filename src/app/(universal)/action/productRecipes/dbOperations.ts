@@ -13,10 +13,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 export async function addProductRecipe(
   formData: FormData
 ) {
-  console.log(
-    "product recipe save-------------"
-  );
-
+   
+console.log("data--------------",formData)
   try {
     // FORM VALUES
     const productId = formData.get(
@@ -80,7 +78,7 @@ export async function addProductRecipe(
     // FETCH PRODUCT
     const productSnap =
       await adminDb
-        .collection("products")
+        .collection("productStock")
         .doc(productId)
         .get();
 

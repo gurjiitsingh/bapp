@@ -7,14 +7,15 @@ import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventory
 import ItemSaleForm from "../../components/ItemSaleForm";
 
 
-import { fetchFinishedProducts } from "@/app/(universal)/action/stock-finished/finshed-products/fetchFinishedProduct";
+ 
+import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
 
 
 
 export default async function Page() {
   // INVENTORY ITEMS
   const products =
-    await fetchFinishedProducts();
+    await fetchProductsStock();
 
   // WHOLESALE CUSTOMERS
   const customers =

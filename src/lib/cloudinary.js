@@ -1,4 +1,5 @@
-import { v2 as cloudinary } from 'cloudinary';
+
+  import { v2 as cloudinary } from 'cloudinary';
 
 if (!process.env.CLOUDINARY_CLOUD_NAME) {
   throw new Error('CLOUDINARY_CLOUD_NAME is not set');

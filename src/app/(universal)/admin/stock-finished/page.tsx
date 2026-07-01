@@ -8,12 +8,13 @@ import { Plus, Package2, ArrowLeft } from "lucide-react";
  
  
 import { fetchCategories } from "../../action/category/dbOperations";
-import { fetchFinishedProducts } from "../../action/stock-finished/finshed-products/fetchFinishedProduct";
+ 
+import { fetchProductsStock } from "../../action/products/fetchProductsStock";
 
 
 export default async function Page() {
   const products =
-    await fetchFinishedProducts();
+    await fetchProductsStock();
 
   const categories =
     await fetchCategories();

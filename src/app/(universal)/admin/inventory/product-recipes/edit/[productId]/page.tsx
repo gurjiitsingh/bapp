@@ -1,14 +1,9 @@
-// app/admin/product-recipes/edit/recipes/page.tsx
-
-
-import { fetchProducts } from "@/app/(universal)/action/products/dbOperation";
-
+"use server";
+console.log("SERVER PAGE");
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/dbOperation";
-
 import { fetchProductRecipes } from "@/app/(universal)/action/productRecipes/dbOperations";
+import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
 import FormViewEdit from "../../components/FormViewEdit";
-
-
 
 export default async function Page({
   params,
@@ -17,31 +12,19 @@ export default async function Page({
 }) {
   const { productId } = await params;
 
+  console.log("SERVER PAGE");
+  console.log("productId:", productId);
 
-  console.log("")
-
-  if (!productId) {
-  return (
-    <div className="p-10 text-center text-gray-500">
-      Invalid Product ID
-    </div>
-  );
-}
-
-  const [products, inventoryItems, recipes] =
+  const [productStock, inventoryItems, recipes] =
     await Promise.all([
-      fetchProducts(),
+      fetchProductsStock(),
       fetchInventoryItems(),
       fetchProductRecipes(),
     ]);
 
-//   const filteredProducts = products.filter(
-//     (product) => product.type === "parent"
-//   );
-
   return (
     <FormViewEdit
-      products={ products}
+      products={productStock}
       inventoryItems={inventoryItems}
       recipes={recipes}
       initialProductId={productId}

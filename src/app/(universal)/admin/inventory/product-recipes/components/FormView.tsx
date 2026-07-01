@@ -26,20 +26,22 @@ import {
   newProductRecipeSchema,
 } from "@/lib/types/ProductRecipeType";
 
-import { ProductType } from "@/lib/types/productType";
+ 
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
-deleteProductRecipe
+import { ProductStockType } from "@/lib/types/productStockType";
+
+
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
   inventoryItems: InventoryItemType[];
   recipes: ProductRecipeType[];
   initialProductId?: string | null; // ✅ NEW
-};
+}; 
 
 export default function FormView({
   products,
@@ -48,7 +50,7 @@ export default function FormView({
 }: Props) {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
-
+ 
   // =====================================================
   // PRODUCT SEARCH
   // =====================================================
@@ -60,7 +62,7 @@ export default function FormView({
     useState(false);
 
   const [selectedProduct, setSelectedProduct] =
-    useState<ProductType | null>(null);
+    useState<ProductStockType | null>(null);
 
   const searchRef =
     useRef<HTMLDivElement>(null);
@@ -410,7 +412,7 @@ export default function FormView({
 
                           <div className="text-xs text-gray-400">
                             {
-                              product.productCat
+                              product.categoryName
                             }
                           </div>
                         </button>
@@ -703,16 +705,24 @@ export default function FormView({
                   Quantity
                 </label>
 
-                <input
-                  type="number"
-                  step="0.001"
-                  disabled={!selectedProduct}
-                  {...register(
-                    "quantity"
-                  )}
-                  className="input-style-4"
-                  placeholder="0.25"
-                />
+              <input
+  type="number"
+  step="0.001"
+  disabled={!selectedProduct}
+  {...register("quantity")}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  onBlur={(e) => {
+    if (e.target.value === "") {
+      e.target.value = "0";
+    }
+  }}
+  className="input-style-4"
+  placeholder="0.25"
+/>
               </div>
 
               {/* UNIT */}

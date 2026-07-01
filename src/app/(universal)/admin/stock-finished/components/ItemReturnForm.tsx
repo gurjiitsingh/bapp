@@ -37,10 +37,10 @@ import {
 } from "@/lib/types/InventoryItemType";
 
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
-import { displayStock } from "@/utils/inventory/displayStock";
-import { ProductType } from "@/lib/types/productType";
+ 
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { customerReturn } from "@/app/(universal)/action/stock-finished/customerReturn";
+import { ProductStockType } from "@/lib/types/productStockType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -66,7 +66,7 @@ type FormType = {
 };
 
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
 
   customers: WholeCustomerType[];
 };;
@@ -92,7 +92,7 @@ export default function ItemReturnForm({
     selectedProduct,
     setselectedProduct,
   ] =
-    useState<ProductType | null>(
+    useState<ProductStockType | null>(
       null
     );
 

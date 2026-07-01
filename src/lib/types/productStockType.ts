@@ -1,20 +1,88 @@
 import { z } from "zod";
 
 export type ProductStock = {
-  id: string;              // same as productId (IMPORTANT)
-  name: string;
-  price: number;
+  id: string; // SAME as productId
 
-  productMode?: "raw_stock" | "finished_stock" | "simple";
+  // SNAPSHOT (avoid joins)
+  name: string;
+  categoryId?: string;
+  categoryName?: string;
+
+  // INVENTORY CORE
+  productMode: "raw_stock" | "finished_stock" | "simple";
 
   currentStock: number;
   minStock: number;
 
+  // TRACKING
+  sku?: string;
+  barcode?: string;
+
+
+  sellingPrice: number;  // 👈 from product.price
+  bulkPrice?: number;    // optional
+  costPrice: number;     // 👈 internal cost
+  avgCost?: number;      // 👈 future calculation
+sellingUnit: string;
+
+  // 🔁 CONTROL
+  priceSyncEnabled: boolean; // 👈 VERY IMPORTANT
+
+  trackInventory?: boolean;
+  allowNegativeStock?: boolean;
+
+  // META
+  updatedAt: number;
+};
+export type ProductStockType = {
+  id: string; // SAME as productId
+
+  // SNAPSHOT (avoid joins)
+  name: string;
   categoryId?: string;
   categoryName?: string;
+
+  // INVENTORY CORE
+  productMode: "raw_stock" | "finished_stock" | "simple";
+
+  currentStock: number;
+  minStock: number;
+
+  // TRACKING
+  sku?: string;
+  barcode?: string;
+
+
+  sellingPrice: number;  // 👈 from product.price
+  bulkPrice?: number;    // optional
+  costPrice: number;     // 👈 internal cost
+  avgCost?: number;      // 👈 future calculation
+sellingUnit: string;
+
+  // 🔁 CONTROL
+  priceSyncEnabled: boolean; // 👈 VERY IMPORTANT
+
+  trackInventory?: boolean;
+  allowNegativeStock?: boolean;
+
+  // META
+  updatedAt: number;
+};
+
+export type AddProductStockInput = {
+  id: string;
+  name: string;
+
+  productMode: "raw_stock" | "finished_stock" | "simple";
+
+  sellingPrice: number;
+  costPrice: number;
+
+  sellingUnit?: string;
 
   sku?: string;
   barcode?: string;
 
-  updatedAt: number;
+  categoryId?: string;
+  categoryName?: string;
 };

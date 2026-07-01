@@ -5,12 +5,13 @@ import { useForm } from "react-hook-form";
 import { Search, Package2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ProductType } from "@/lib/types/productType";
+ 
 import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/updateFinshedItemStock";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
+import { ProductStockType } from "@/lib/types/productStockType";
 type Props = {
-  products: ProductType[];
+  products: ProductStockType[];
 };
 
 type FormType = {
@@ -35,7 +36,7 @@ export default function ProductionForm({
   const [
     selectedProduct,
     setSelectedProduct,
-  ] = useState<ProductType | null>(null);
+  ] = useState<ProductStockType | null>(null);
 
   const {
     register,

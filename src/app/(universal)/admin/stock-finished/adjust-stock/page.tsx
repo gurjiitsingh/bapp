@@ -2,7 +2,7 @@
 
 
 
-import { fetchProductsStock } from "@/app/(universal)/action/products/productsStock";
+import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
 import StockAdjustmentForm from "../components/StockAdjustmentForm";
 
 

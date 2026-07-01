@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChartColumn } from "lucide-react";
+import { ChartColumn, PackageMinus, Undo2 } from "lucide-react";
 import {
   AlertTriangle,
   Boxes,
@@ -13,9 +13,19 @@ import {
   Clock3,
   Tags,
   Truck,
+  
 } from "lucide-react";
 
-
+import {
+  ShoppingCart,
+  Receipt,
+  BadgeDollarSign,
+  HandCoins,
+  Store,
+  CreditCard,
+  PackageCheck,
+  CircleDollarSign,
+} from "lucide-react";
 import {
   Plus,
   ClipboardList,
@@ -90,8 +100,8 @@ export default function InventoryTabs() {
                   ? "bg-purple-600"
                   : "bg-purple-100"
                 }`}
-            >
-              <BookOpen
+            > <PackagePlus
+             
                 size={22}
                 className={
                   isProduction
@@ -135,7 +145,7 @@ export default function InventoryTabs() {
                   : "bg-orange-100"
                 }`}
             >
-              <PackagePlus
+              <PackageMinus
                 size={22}
                 className={
                   isSale
@@ -164,47 +174,7 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
-          <Link
-            href="/admin/stock-finished/customer/all"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
-                ? "bg-yellow-50 border-yellow-300 shadow-md"
-                : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomer
-                  ? "bg-yellow-500"
-                  : "bg-yellow-100"
-                }`}
-            >
-              <Truck
-                size={22}
-                className={
-                  isCustomer
-                    ? "text-white"
-                    : "text-yellow-600"
-                }
-              />
-            </div>
-
-            <h3
-              className={`font-semibold mt-4 ${isCustomer
-                  ? "text-yellow-700"
-                  : "text-gray-800"
-                }`}
-            >
-              Customers
-            </h3>
-
-            <p
-              className={`text-sm mt-1 ${isCustomer
-                  ? "text-yellow-600"
-                  : "text-gray-500"
-                }`}
-            >
-              View customers and manage accounts
-            </p>
-          </Link>
+        
 
 
           <Link
@@ -307,7 +277,7 @@ export default function InventoryTabs() {
                   : "bg-blue-100"
                 }`}
             >
-              <PackagePlus
+               <BookOpen
                 size={22}
                 className={
                   isAdjustStock
@@ -338,7 +308,47 @@ export default function InventoryTabs() {
 
 
 
+  <Link
+            href="/admin/stock-finished/customer/all"
+            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
+                ? "bg-yellow-50 border-yellow-300 shadow-md"
+                : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
+              }`}
+          >
+            <div
+              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomer
+                  ? "bg-yellow-500"
+                  : "bg-yellow-100"
+                }`}
+            >
+              <Truck
+                size={22}
+                className={
+                  isCustomer
+                    ? "text-white"
+                    : "text-yellow-600"
+                }
+              />
+            </div>
 
+            <h3
+              className={`font-semibold mt-4 ${isCustomer
+                  ? "text-yellow-700"
+                  : "text-gray-800"
+                }`}
+            >
+              Customers
+            </h3>
+
+            <p
+              className={`text-sm mt-1 ${isCustomer
+                  ? "text-yellow-600"
+                  : "text-gray-500"
+                }`}
+            >
+              View customers and manage accounts
+            </p>
+          </Link>
 
 
           <Link
@@ -354,7 +364,7 @@ export default function InventoryTabs() {
                   : "bg-red-100"
                 }`}
             >
-              <BookOpen
+             <Undo2
                 size={22}
                 className={
                   isCustomerReturn
