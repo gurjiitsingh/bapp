@@ -20,7 +20,7 @@ export async function applyRawInventoryWrites(
       updatedAt: now,
     });
 
-    console.log("u----------------", u)
+     
     // ✅ create ledger
     const ledgerRef = adminDb.collection("stockLedgerInventory").doc();
 
