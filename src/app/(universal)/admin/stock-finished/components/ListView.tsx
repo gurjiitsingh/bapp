@@ -248,23 +248,15 @@ export default function ListView({
 
        <TableBody>
   {filtered.length > 0 ? (
-
-     <TableRow>
-      <td
-        colSpan={8}
-        className="text-center py-16 text-gray-400"
-      >
-        No inventory items found
-      </td>
-    </TableRow>
-    // filtered.map(
-    //   (item) => (
-    //     <TableRows
-    //       key={item.id}
-    //       item={item}
-    //     />
-    //   )
-    // )
+    
+    filtered.map(
+      (item) => (
+        <TableRows
+          key={item.id}
+          item={item}
+        />
+      )
+    )
   ) : (
     <TableRow>
       <td

@@ -31,9 +31,7 @@ import { deleteInventoryItem } from "@/app/(universal)/action/stock-finished/dbO
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-
-import { displayStock } from "@/utils/inventory/displayStock";
-import { ProductType } from "@/lib/types/productType";
+import { ProductStockType } from "@/lib/types/productStockType";
 
 
 
@@ -41,15 +39,15 @@ import { ProductType } from "@/lib/types/productType";
 function TableRows({
   item,
 }: {
-  item: ProductType;
+  item: ProductStockType;
 }) {
   const { settings } = UseSiteContext();
 
-  console.log("item--------", item)
+ 
 
   const formattedCostPrice =
     formatCurrencyNumber(
-      Number(item.price) ?? 0,
+      Number(item.sellingPrice) ?? 0,
       settings.currency as string,
       settings.locale as string
     );
@@ -108,7 +106,7 @@ function TableRows({
       </TableCell>
       <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
-          {item.productCat}
+          {item.categoryName}
         </span>
       </TableCell>
 
