@@ -37,7 +37,7 @@ type FormType = {
   direction: "IN" | "OUT";
 
   quantity: number;
-
+ stockValue: number;
   transactionUnit: InventoryUnit;
 
   // ✅ ADD THIS
@@ -114,6 +114,7 @@ export default function SupplierInventoryrReturnForm({
       type: "SUPPLIER_RETURN",
       direction: "OUT",
       quantity: 0,
+      stockValue: 0,
       unitCost: 0,
       transactionUnit: "kg",
     }
@@ -122,6 +123,40 @@ export default function SupplierInventoryrReturnForm({
   const type = watch(
     "type"
   );
+
+  const quantity = watch("quantity");
+const unitCost = watch("unitCost");
+const stockValue = watch("stockValue");
+
+const [lastEdited, setLastEdited] = useState<
+  "unitCost" | "stockValue"
+>("unitCost");
+
+useEffect(() => {
+  const qty = Number(quantity || 0);
+
+  if (qty <= 0) return;
+
+  if (lastEdited === "unitCost") {
+    setValue(
+      "stockValue",
+      Number((qty * Number(unitCost || 0)).toFixed(2))
+    );
+  }
+
+  if (lastEdited === "stockValue") {
+    setValue(
+      "unitCost",
+      Number((Number(stockValue || 0) / qty).toFixed(4))
+    );
+  }
+}, [
+  quantity,
+  unitCost,
+  stockValue,
+  lastEdited,
+  setValue,
+]);
 
   const transactionUnit = watch("transactionUnit");
 
@@ -239,7 +274,7 @@ if (
   // Internal stock values
   quantity: finalQuantity,
   unitCost: finalUnitCost,
-
+stockValue,
   // Original values entered by user
   purchaseQuantity: originalQuantity,
   purchaseUnit: transactionUnit,
@@ -596,18 +631,24 @@ if (
                 Unit Price
               </label>
 
-              <input
-                type="number"
-                step="0.01"
-                {...register("unitCost")}
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.value = "";
-                  }
-                }}
-                className="input-style-4"
-                placeholder="Enter Price"
-              />
+          
+
+<input
+  type="number"
+  step="0.01"
+  value={unitCost || ""}
+  onChange={(e) => {
+    setLastEdited("unitCost");
+    setValue("unitCost", Number(e.target.value || 0));
+  }}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.value = "";
+    }
+  }}
+  className="input-style-4"
+  placeholder="Enter Price"
+/>
             </div>
 
             {/* UNIT SELECTOR */}
@@ -701,7 +742,23 @@ if (
           </div>
 
 
+<div className="flex flex-col gap-2">
+  <label className="label-style-4">
+    Return Stock Value
+  </label>
 
+  <input
+    type="number"
+    step="0.01"
+    value={stockValue || ""}
+    onChange={(e) => {
+      setLastEdited("stockValue");
+      setValue("stockValue", Number(e.target.value || 0));
+    }}
+    className="input-style-4"
+    placeholder="0.00"
+  />
+</div>
 
         </form>
       </div >

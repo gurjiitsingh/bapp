@@ -1,9 +1,9 @@
 export const UNIVERSAL_UNIT_CONVERSIONS = [
-  {
-    purchaseUnit: "kg",
-    consumptionUnit: "kg",
-    factor: 1,
-  },
+  // {
+  //   purchaseUnit: "kg",
+  //   consumptionUnit: "kg",
+  //   factor: 1,
+  // },
   {
     purchaseUnit: "kg",
     consumptionUnit: "gm",

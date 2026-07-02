@@ -14,6 +14,7 @@ import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { SupplierType } from "@/lib/types/SupplierType";
 import { addNewInventoryItem } from "@/app/(universal)/action/inventory/addNewInventoryItem";
 import { UnitConversion } from "@/lib/types/UnitConversion";
+import Link from "next/link";
 
 
 
@@ -563,75 +564,88 @@ export default function NewInventoryForm({
           </div>
 
 
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              Supplier Information
-            </h2>
-            <div className="">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
+        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    Supplier Information
+  </h2>
 
-                {suppliers.length > 0 ? (
-                  suppliers.map((supplier) => (
-                    <label
-                      key={supplier.id}
-                      className="
-                        flex items-center gap-2
-                        rounded-lg border border-gray-100
-                        px-2 py-2
-                        hover:bg-slate-50
-                        cursor-pointer
-                        transition
-                    "
-                    >
-                      <input
-                        type="checkbox"
-                        value={supplier.id}
-                        checked={watch("supplierIds")?.includes(supplier.id) || false}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          const value = supplier.id;
+  {suppliers.length === 0 ? (
+    <div className="rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 text-center">
+      <h3 className="text-lg font-semibold text-gray-800">
+        No Suppliers Found
+      </h3>
 
-                          const current = watch("supplierIds") || [];
+      <p className="mt-2 text-sm text-gray-500">
+        You haven't added any suppliers yet. Add a supplier first to link it with this inventory item.
+      </p>
 
-                          if (checked) {
-                            setValue("supplierIds", [...current, value]);
-                          } else {
-                            setValue(
-                              "supplierIds",
-                              current.filter((v) => v !== value)
-                            );
-                          }
-                        }}
-                        className="h-4 w-4 rounded border-gray-300 shrink-0"
-                      />
+      <Link
+        href="/admin/inventory/supplier/new"
+        className="inline-flex mt-5 items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-white font-medium hover:bg-blue-700 transition"
+      >
+        + Add New Supplier
+      </Link>
+    </div>
+  ) : (
+    <>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
+        {suppliers.map((supplier) => (
+          <label
+            key={supplier.id}
+            className="
+              flex items-center gap-2
+              rounded-lg border border-gray-100
+              px-2 py-2
+              hover:bg-slate-50
+              cursor-pointer
+              transition
+            "
+          >
+            <input
+              type="checkbox"
+              value={supplier.id}
+              checked={
+                watch("supplierIds")?.includes(supplier.id) || false
+              }
+              onChange={(e) => {
+                const checked = e.target.checked;
+                const value = supplier.id;
 
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-xs text-gray-800 truncate leading-tight">
-                          {supplier.companyName}
-                        </p>
+                const current = watch("supplierIds") || [];
 
-                        <p className="text-[11px] text-gray-500 truncate leading-tight">
-                          {supplier.phone || "No phone"}
-                        </p>
-                      </div>
-                    </label>
-                  ))
-                ) : (
-                  <div className="text-sm text-gray-400 text-center py-6 col-span-full">
-                    No suppliers found
-                  </div>
-                )}
+                if (checked) {
+                  setValue("supplierIds", [...current, value]);
+                } else {
+                  setValue(
+                    "supplierIds",
+                    current.filter((v) => v !== value)
+                  );
+                }
+              }}
+              className="h-4 w-4 rounded border-gray-300 shrink-0"
+            />
 
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-xs text-gray-800 truncate leading-tight">
+                {supplier.companyName}
+              </p>
 
-              </div>
-
-              {errors.supplierIds && (
-                <p className="text-red-500 text-sm mt-2">
-                  {errors.supplierIds.message}
-                </p>
-              )}
+              <p className="text-[11px] text-gray-500 truncate leading-tight">
+                {supplier.phone || "No phone"}
+              </p>
             </div>
-          </div>
+          </label>
+        ))}
+      </div>
+
+      {errors.supplierIds && (
+        <p className="text-red-500 text-sm mt-2">
+          {errors.supplierIds.message}
+        </p>
+      )}
+    </>
+  )}
+</div>
 
 
 

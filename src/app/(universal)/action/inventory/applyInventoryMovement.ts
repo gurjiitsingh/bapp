@@ -146,6 +146,32 @@ dueAmount: ${dueAmount}
             : 0;
 }
 
+// --------------------------------------
+// SUPPLIER RETURN
+// --------------------------------------
+
+else if (
+    type === "SUPPLIER_RETURN" &&
+    direction === "OUT"
+) {
+    afterStock = beforeStock - quantity;
+
+    if (afterStock < 0) {
+        throw new Error("Insufficient stock");
+    }
+
+    afterStockValue = Math.max(
+        0,
+        beforeStockValue - stockValue!
+    );
+
+    afterAverageCost =
+        afterStock > 0
+            ? afterStockValue / afterStock
+            : 0;
+}
+
+
     // --------------------------------------
     // PURCHASE / CUSTOMER RETURN
     // --------------------------------------

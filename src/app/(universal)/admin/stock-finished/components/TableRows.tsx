@@ -155,25 +155,16 @@ function TableRows({
         </div>
       </TableCell>
 
-      {/* MIN STOCK */}
-      {/* <TableCell>
-        <span className="text-sm font-medium text-gray-700">
-         
+     <TableCell>
+        <span className="capitalize text-sm font-medium text-gray-700">
+          {item.avgCost} Rs
         </span>
-      </TableCell> */}
-
-      {/* COST PRICE */}
-      {/* <TableCell>
-        <div className="flex flex-col">
-          <span className="font-semibold text-gray-800">
-            {formattedCostPrice}
-          </span>
-
-          <span className="text-xs text-gray-400">
-            Cost
-          </span>
-        </div>
-      </TableCell> */}
+      </TableCell>
+        <TableCell>
+        <span className="capitalize text-sm font-medium text-gray-700">
+          {(item.currentStock)*(item.avgCost!)} Rs
+        </span>
+      </TableCell>
 
       {/* STATUS */}
       <TableCell>

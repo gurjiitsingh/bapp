@@ -121,7 +121,7 @@ const SupplierForm = () => {
       onSubmit={handleSubmit(
         onSubmit
       )}
-      className="max-w-7xl mx-auto p-4 md:p-6"
+      className="max-w-7xl  p-4 md:p-6"
     >
       {/* Header */}
       <div className="mb-6">

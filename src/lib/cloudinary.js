@@ -1,5 +1,4 @@
- 
-  
+
   import { v2 as cloudinary } from 'cloudinary';
 
 if (!process.env.CLOUDINARY_CLOUD_NAME) {

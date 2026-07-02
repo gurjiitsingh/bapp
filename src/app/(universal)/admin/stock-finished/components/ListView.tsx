@@ -43,25 +43,7 @@ export default function ListView({
   const [search, setSearch] =
     useState("");
 
-// const categoryMap = useMemo(() => {
-//   return new Map(
-//     (categories ?? []).map((category) => [
-//       category.id,
-//       category.name,
-//     ])
-//   );
-// }, [categories]);
 
-  // const inventoryWithCategory =
-  //   useMemo(() => {
-  //     return filtered.map((item) => ({
-  //       ...item,
-  //       categoryName:
-  //         categoryMap.get(
-  //           item.categoryId || ""
-  //         ) || "-",
-  //     }));
-  //   }, [filtered, categories]);
 
   // FILTER
   useEffect(() => {
@@ -224,7 +206,12 @@ export default function ListView({
                 <TableHead>
                   Stock
                 </TableHead>
-
+                 <TableHead>
+                  Avg Price
+                </TableHead>
+ <TableHead>
+                  Value
+                </TableHead>
                 <TableHead>
                   Min Stock
                 </TableHead>

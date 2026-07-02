@@ -36,6 +36,7 @@ const financialTypes = [
   "SALE",
   "PURCHASE",
   "CUSTOMER_RETURN",
+  "SUPPLIER_RETURN",
   "RETURN",
 ];
 
