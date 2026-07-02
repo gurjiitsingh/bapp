@@ -63,7 +63,7 @@ export default function SupplierInventoryrReturnForm({
   supplierMap,
 }: Props) {
 
-  
+//console.log("inventoryItems---------", inventoryItems)
 
 
   const [isSubmitting, setIsSubmitting] =

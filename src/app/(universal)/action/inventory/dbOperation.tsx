@@ -21,61 +21,71 @@ export const fetchInventoryItems = cache(
     try {
       const snapshot = await adminDb
         .collection("inventoryItems")
-       // .orderBy("createdAt", "desc")
+        //.orderBy("createdAt", "desc")
         .get();
 
-      const inventoryItems =
-        snapshot.docs.map((doc) => {
-          const data = doc.data();
+      const inventoryItems = snapshot.docs.map((doc) => {
+        const data = doc.data();
 
-          return {
-            id: doc.id,
+        return {
+          id: doc.id,
 
-            name: data.name || "",
+          name: data.name || "",
 
-            sku: data.sku || "",
+          sku: data.sku || "",
 
-            barcode: data.barcode || "",
+          barcode: data.barcode || "",
 
-            purchaseUnit:
-              data.purchaseUnit || "pcs",
+          purchaseUnit:
+            data.purchaseUnit || "pcs",
 
-            consumptionUnit:
-              data.consumptionUnit || "pcs",
+          consumptionUnit:
+            data.consumptionUnit || "pcs",
 
-            conversionFactor:
-              data.conversionFactor || 1,
+          conversionFactor:
+            data.conversionFactor || 1,
 
-            currentStock:
-              data.currentStock || 0,
+          // ===== Stock =====
+          currentStock:
+            Number(data.currentStock) || 0,
 
-            minStock:
-              data.minStock || 0,
+          minStock:
+            Number(data.minStock) || 0,
 
-            costPrice:
-              data.costPrice || 0,
+          // ===== Inventory Valuation =====
+          averageCost:
+            Number(data.averageCost) || 0,
 
-            sellingPrice:
-              data.sellingPrice || 0,
+          stockValue:
+            Number(data.stockValue) || 0,
 
-            categoryId:
-              data.categoryId || "",
+          // ===== Selling =====
+          sellingPrice:
+            Number(data.sellingPrice) || 0,
 
-            supplierId:
-              data.supplierId || "",
+          // ===== Relations =====
+          categoryId:
+            data.categoryId || "",
 
-            isActive:
-              data.isActive ?? true,
+          supplierId:
+            data.supplierId || "",
 
-            createdAt:
-              data.createdAt?.toDate?.().toISOString() ||
-              null,
+          supplierIds:
+            data.supplierIds || [],
 
-            updatedAt:
-              data.updatedAt?.toDate?.().toISOString() ||
-              null,
-          };
-        }) as InventoryItemType[];
+          // ===== Status =====
+          isActive:
+            data.isActive ?? true,
+
+          createdAt:
+            data.createdAt?.toDate?.().toISOString() ||
+            null,
+
+          updatedAt:
+            data.updatedAt?.toDate?.().toISOString() ||
+            null,
+        };
+      }) as InventoryItemType[];
 
       return inventoryItems;
     } catch (error) {

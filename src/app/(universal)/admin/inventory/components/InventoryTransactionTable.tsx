@@ -88,7 +88,7 @@ export default function InventoryTransactionTable({
             </TableHead>
 
             <TableHead>
-              Order Amount
+              Amount
             </TableHead>
 
             <TableHead>

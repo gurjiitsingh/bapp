@@ -223,6 +223,14 @@ const categoryMap = useMemo(() => {
                 <TableHead>
                   Stock
                 </TableHead>
+                 <TableHead>
+                  Avg cost
+                </TableHead>
+
+ <TableHead>
+                  Stock Value
+                </TableHead>
+
 
                 <TableHead>
                   Min Stock

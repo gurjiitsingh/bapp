@@ -5,42 +5,76 @@ export function displayStock(
   conversionFactor: number
 ) {
   // Same unit
-  if (
-    purchaseUnit === consumptionUnit
-  ) {
+  if (purchaseUnit === consumptionUnit) {
     return `${currentStock} ${consumptionUnit}`;
   }
 
-  // ✅ FIX FLOAT ISSUES
-  const safeStock = Math.round(
-    currentStock * 1000
-  ) / 1000;
+  // Fix floating-point issues
+  const safeStock = Math.round(currentStock * 1000) / 1000;
 
-  const wholeUnits = Math.floor(
-    safeStock / conversionFactor
-  );
-
-  const remainingRaw =
-    safeStock % conversionFactor;
-
-  // ✅ ROUND REMAINING
-  const remaining =
-    Math.round(remainingRaw * 1000) /
-    1000;
-
-  let result = "";
-
-  if (wholeUnits > 0) {
-    result += `${wholeUnits} ${purchaseUnit}`;
+  // ✅ If less than one purchase unit, show only consumption unit
+  if (safeStock < conversionFactor) {
+    return `${safeStock} ${consumptionUnit}`;
   }
 
-  // avoid 0.00000000001 issue
+  const wholeUnits = Math.floor(safeStock / conversionFactor);
+
+  const remaining =
+    Math.round((safeStock % conversionFactor) * 1000) / 1000;
+
+  let result = `${wholeUnits} ${purchaseUnit}`;
+
   if (remaining > 0.001) {
     result += ` ${remaining} ${consumptionUnit}`;
   }
 
-  return `${result} (${safeStock} ${consumptionUnit})`;
+  return result;
 }
+
+
+// export function displayStock(
+//   currentStock: number,
+//   purchaseUnit: string,
+//   consumptionUnit: string,
+//   conversionFactor: number
+// ) {
+//   // Same unit
+//   if (
+//     purchaseUnit === consumptionUnit
+//   ) {
+//     return `${currentStock} ${consumptionUnit}`;
+//   }
+
+//   // ✅ FIX FLOAT ISSUES
+//   const safeStock = Math.round(
+//     currentStock * 1000
+//   ) / 1000;
+
+//   const wholeUnits = Math.floor(
+//     safeStock / conversionFactor
+//   );
+
+//   const remainingRaw =
+//     safeStock % conversionFactor;
+
+//   // ✅ ROUND REMAINING
+//   const remaining =
+//     Math.round(remainingRaw * 1000) /
+//     1000;
+
+//   let result = "";
+
+//   if (wholeUnits > 0) {
+//     result += `${wholeUnits} ${purchaseUnit}`;
+//   }
+
+//   // avoid 0.00000000001 issue
+//   if (remaining > 0.001) {
+//     result += ` ${remaining} ${consumptionUnit}`;
+//   }
+
+//   return `${result} (${safeStock} ${consumptionUnit})`;
+// }
 
 
 // export function displayStock(

@@ -7,7 +7,7 @@ export type ApplyInventoryTransactionType = {
     quantity: number;
 
     unitCost?: number;
-
+stockValue?: number;
     purchaseQuantity?: number;
     purchaseUnit?: string;
     purchaseUnitCost?: number;

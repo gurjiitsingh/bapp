@@ -1,4 +1,5 @@
-"use client";
+ 
+  "use client";
 
 import React, { useContext, useEffect } from "react";
 import ProductList from "@/components/MiniCart/productList";

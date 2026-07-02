@@ -40,7 +40,7 @@ type AdjustInventoryStockType = {
   // =====================================
 
   quantity: number;
-
+stockValue?: number;
   unitCost: number;
 
   // =====================================
@@ -86,7 +86,7 @@ export async function adjustInventoryStock({
   purchaseUnit,
   purchaseUnitCost,
   conversionFactor,
-
+  stockValue,
   paymentStatus,
   paymentMethod,
   paidAmount: paidAmountInput,
@@ -96,26 +96,7 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
-  console.log("ad inve---------------------", inventoryItemId,
-    supplierId,
-    supplierName,
-    type,
-    direction,
-    quantity,
-    unitCost,
 
-    purchaseQuantity,
-    purchaseUnit,
-    purchaseUnitCost,
-    conversionFactor,
-
-    paymentStatus,
-    paymentMethod,
-    paidAmountInput,
-
-    note,
-    createdBy,
-    referenceId,)
   try {
     if (!inventoryItemId) {
       return { success: false, message: "Inventory item required" };
@@ -129,8 +110,6 @@ export async function adjustInventoryStock({
 
 
     await adminDb.runTransaction(async (tx) => {
-
-
 
       // ================= GET INVENTORY =================
       const inventoryRef = adminDb
@@ -155,9 +134,9 @@ export async function adjustInventoryStock({
       const needsPayment =
         type === "PURCHASE";
 
-     const needsCost =
-  type === "PURCHASE" ||
-  type === "SUPPLIER_RETURN";
+      const needsCost =
+        type === "PURCHASE" ||
+        type === "SUPPLIER_RETURN";
 
       const needsSupplierLedger =
         type === "PURCHASE" ||
@@ -166,7 +145,7 @@ export async function adjustInventoryStock({
       // ================= SUPPLIER =================
 
       let currentBalance = 0;
-let currentCreditBalance = 0;
+      let currentCreditBalance = 0;
       if (needsSupplier && supplierId) {
         const supplierRef = adminDb
           .collection("supplierAccounts")
@@ -180,25 +159,27 @@ let currentCreditBalance = 0;
         currentBalance =
           Number(supplierSnap.data()?.balance || 0);
 
-          currentBalance =
-  Number(
-    supplierSnap.data()?.balance || 0
-  );
+        currentBalance =
+          Number(
+            supplierSnap.data()?.balance || 0
+          );
 
         // Save for later
       }
 
       // ================= COST =================
-      const finalUnitCost =
+      const averageCost =
         unitCost ?? Number(inventoryData?.costPrice) ?? 0;
 
       const shouldApplyCost = needsCost;
 
 
-      const totalAmount = shouldApplyCost
-        ? quantity * finalUnitCost
-        : 0;
-
+      const totalAmount =
+        type === "OPENING_STOCK"
+          ? Number(stockValue || 0)
+          : shouldApplyCost
+            ? quantity * averageCost
+            : 0;
       // ================= PAYMENT =================
       const isPurchase =
         needsPayment &&
@@ -228,9 +209,12 @@ let currentCreditBalance = 0;
         direction,
 
         quantity,
+          totalAmount: needsCost
+          ? totalAmount
+          : 0,
 
-        unitCost: finalUnitCost,
-
+        unitCost: averageCost,
+        stockValue,
         purchaseQuantity,
         purchaseUnit,
         purchaseUnitCost,
@@ -244,9 +228,7 @@ let currentCreditBalance = 0;
           ? supplierName
           : undefined,
 
-        totalAmount: needsCost
-          ? totalAmount
-          : 0,
+      
 
         paidAmount: needsPayment
           ? paidAmount
@@ -274,30 +256,30 @@ let currentCreditBalance = 0;
       });
       if (needsSupplierLedger && supplierId) {
         await updateSupplierAccount(tx, {
-  supplierId,
-  supplierName,
+          supplierId,
+          supplierName,
 
-  type:
-    type === "PURCHASE"
-      ? "PURCHASE"
-      : type === "SUPPLIER_RETURN"
-        ? "SUPPLIER_RETURN"
-        : "PAYMENT",
+          type:
+            type === "PURCHASE"
+              ? "PURCHASE"
+              : type === "SUPPLIER_RETURN"
+                ? "SUPPLIER_RETURN"
+                : "PAYMENT",
 
-  totalAmount,
-  paidAmount,
-  dueAmount,
+          totalAmount,
+          paidAmount,
+          dueAmount,
 
-  creditAmount:
-    type === "SUPPLIER_RETURN"
-      ? totalAmount
-      : 0,
+          creditAmount:
+            type === "SUPPLIER_RETURN"
+              ? totalAmount
+              : 0,
 
-  currentBalance,
-  currentCreditBalance,
+          currentBalance,
+          currentCreditBalance,
 
-  paymentMethod,
-});
+          paymentMethod,
+        });
       }
       if (needsSupplierLedger && supplierId) {
         await applySupplierTransaction(tx, {
@@ -350,3 +332,26 @@ let currentCreditBalance = 0;
 }
 
 
+
+
+
+//  console.log("ad inve---------------------", inventoryItemId,
+//     supplierId,
+//     supplierName,
+//     type,
+//     direction,
+//     quantity,
+//     unitCost,
+
+//     purchaseQuantity,
+//     purchaseUnit,
+//     purchaseUnitCost,
+//     conversionFactor,
+
+//     paymentStatus,
+//     paymentMethod,
+//     paidAmountInput,
+
+//     note,
+//     createdBy,
+//     referenceId,)

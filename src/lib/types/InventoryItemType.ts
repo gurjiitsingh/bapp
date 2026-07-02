@@ -244,9 +244,8 @@ export type InventoryItemType = {
 
   minStock?: number;
 
-  // costPrice?: number;
-
-  // sellingPrice?: number;
+  averageCost?: number;
+  stockValue?: number;
 
   categoryId?: string;
 

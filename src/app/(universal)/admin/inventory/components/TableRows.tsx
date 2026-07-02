@@ -44,7 +44,10 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
-   
+ const displayAverageCost =
+  item.purchaseUnit === item.consumptionUnit
+    ? item.averageCost!.toFixed(2)
+    : (item.averageCost! * item.conversionFactor).toFixed(2);
 
   const isLowStock =
     item.currentStock! <= item.minStock!;
@@ -139,6 +142,40 @@ function TableRows({
               item.consumptionUnit,
               item.conversionFactor
             )}
+          </span>
+
+          <span className="text-xs text-gray-400">
+            Available
+          </span>
+        </div>
+      </TableCell>
+
+        <TableCell>
+        <div className="flex flex-col">
+          <span
+            className={`font-bold text-base ${isLowStock
+                ? "text-rose-600"
+                : "text-gray-800"
+              }`}
+          >
+           {displayAverageCost}/{item.purchaseUnit}
+          </span>
+
+          <span className="text-xs text-gray-400">
+            Available
+          </span>
+        </div>
+      </TableCell>
+
+        <TableCell>
+        <div className="flex flex-col">
+          <span
+            className={`font-bold text-base ${isLowStock
+                ? "text-rose-600"
+                : "text-gray-800"
+              }`}
+          >
+         Rs {item.stockValue}
           </span>
 
           <span className="text-xs text-gray-400">
