@@ -3,93 +3,97 @@
 import { hashPassword } from "@/lib/auth";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
-import admin from "firebase-admin";
 
 export async function addUserDashboard(
   formData: FormData
 ): Promise<string | undefined> {
   const fullName = String(formData.get("fullName") || "").trim();
   const username = String(formData.get("username") || "").trim();
-  const email = String(formData.get("email") || "").trim().toLowerCase();
+
+  const email = String(formData.get("email") || "")
+    .trim()
+    .toLowerCase();
+
   const mobile = String(formData.get("mobile") || "").trim();
+
   const password = String(formData.get("password") || "");
+
   const role = String(formData.get("role") || "user");
+
   const status = String(formData.get("status") || "active");
 
-  const employeeId =
-    String(formData.get("employeeId") || "").trim();
+  const employeeId = String(
+    formData.get("employeeId") || ""
+  ).trim();
 
-  const department =
-    String(formData.get("department") || "").trim();
+  const department = String(
+    formData.get("department") || ""
+  ).trim();
 
-  const address =
-    String(formData.get("address") || "").trim();
+  const address = String(
+    formData.get("address") || ""
+  ).trim();
 
-  const notes =
-    String(formData.get("notes") || "").trim();
+  const notes = String(
+    formData.get("notes") || ""
+  ).trim();
 
   try {
-    // Check if email already exists in Firebase Auth
-    try {
-      const existingUser =
-        await admin.auth().getUserByEmail(email);
+    // Check existing user by mobile
+    const existing = await adminDb
+      .collection("users")
+      .where("mobile", "==", mobile)
+      .limit(1)
+      .get();
 
-      return existingUser.uid;
-    } catch {
-      // continue if not found
+    if (!existing.empty) {
+      return existing.docs[0].id;
     }
 
-    // Create Firebase Auth user
-    const authUser =
-      await admin.auth().createUser({
-        email,
-        password,
-        displayName: fullName || username,
-        emailVerified: true,
-        disabled: status !== "active",
-      });
-
-    const hashedPassword =
-      await hashPassword(password);
+    const hashedPassword = await hashPassword(password);
 
     const newUser = {
-      uid: authUser.uid,
-
-      // basic
+      // Basic Information
       fullName,
       username,
       email,
       mobile,
 
-      // auth
+      // Authentication
       hashedPassword,
       role,
       status,
       isVerified: true,
       isAdmin: role === "admin",
 
-      // employee information
-      employeeId: employeeId || null,
-      department: department || null,
+      // Employee Information
+      employeeId: employeeId || "",
+      department: department || "",
       address: address || "",
       notes: notes || "",
 
-      // timestamps
+      // Optional readable time
+      time: new Intl.DateTimeFormat("en-IN", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }).format(new Date()),
+
+      // Timestamps
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
 
-    await adminDb
+    const docRef = await adminDb
       .collection("users")
-      .doc(authUser.uid)
-      .set(newUser);
+      .add(newUser);
 
-    return authUser.uid;
+    return docRef.id;
   } catch (error) {
-    console.error(
-      "Error creating user:",
-      error
-    );
+    console.error("Error creating user:", error);
     return undefined;
   }
 }

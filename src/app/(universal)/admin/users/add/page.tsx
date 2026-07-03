@@ -7,6 +7,7 @@ import { signUpSchema, TsignUpSchema } from "@/lib/types/userType";
 import { addUserDirect } from "@/app/(universal)/action/user/dbOperation";
 import { useRouter } from "next/navigation";
 import { createUserSchema, TCreateUserSchema } from "@/lib/types/createUserSchema";
+import { addUserDashboard } from "@/app/(universal)/action/user/addUserDashboard";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -43,7 +44,7 @@ formData.append("notes", data.notes ?? "");
 //   formData.append(key, String(value ?? ""));
 // });
 
-    const result = await addUserDirect(formData);
+    const result = await addUserDashboard(formData);
    const {
   register,
   handleSubmit,
