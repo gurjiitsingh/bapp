@@ -32,6 +32,7 @@ function TableRows({ user }: { user: userDashboardType }) {
       <TableCell>{user.email}</TableCell>
        <TableCell>{user.mobile}</TableCell>
       <TableCell>{user.role}</TableCell>
+         <TableCell>{user.createdAt}</TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-2">
           <Button
@@ -44,7 +45,7 @@ function TableRows({ user }: { user: userDashboardType }) {
           </Button>
         </div>
       </TableCell>
-      <TableCell>{user.createdAt}</TableCell>
+   
     </TableRow>
   );
 }

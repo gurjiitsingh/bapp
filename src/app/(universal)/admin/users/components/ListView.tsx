@@ -46,8 +46,9 @@ const ListView = ({ title }: productTableProps) => {
               <TableHead className="hidden md:table-cell">Email</TableHead>
                <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
-              <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
+            
               <TableHead>Time</TableHead>
+                <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
