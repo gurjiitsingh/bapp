@@ -1,4 +1,4 @@
-  "use client";
+"use client";
 import React, { useContext, useEffect } from "react";
 import ProductList from "@/components/Cart/productList";
 import CartContext from "@/store/CartContext";

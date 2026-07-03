@@ -70,6 +70,8 @@ export async function applyFinishedTransactions(
     source = "SYSTEM",
   }: ApplyFinishedMovementType
 ) {
+
+  //console.log("sale done by----------------------", createdBy, source )
   const now = admin.firestore.FieldValue.serverTimestamp();
 
   const productRef = adminDb.collection("productStock").doc(productId);

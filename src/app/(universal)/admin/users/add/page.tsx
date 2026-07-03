@@ -44,9 +44,46 @@ formData.append("notes", data.notes ?? "");
 // });
 
     const result = await addUserDirect(formData);
-    if (result) {
-      router.push("/user");
-    }
+   const {
+  register,
+  handleSubmit,
+  reset,
+  formState: {
+    errors,
+    isSubmitting,
+  },
+} = useForm<TCreateUserSchema>({
+  resolver: zodResolver(createUserSchema),
+});
+
+const onSubmitUserRegister = async (
+  data: TCreateUserSchema
+) => {
+  const formData = new FormData();
+
+  formData.append("fullName", data.fullName);
+  formData.append("username", data.username);
+  formData.append("email", data.email);
+  formData.append("mobile", data.mobile);
+  formData.append("password", data.password);
+  formData.append("confirmPassword", data.confirmPassword);
+  formData.append("role", data.role);
+  formData.append("status", data.status);
+  formData.append("employeeId", data.employeeId ?? "");
+  formData.append("department", data.department ?? "");
+  formData.append("address", data.address ?? "");
+  formData.append("notes", data.notes ?? "");
+
+  const result = await addUserDirect(formData);
+//result?.success
+  if (result) {
+    alert("User created successfully.");
+
+    reset();
+  } else {
+    alert("Failed to create user.");
+  }
+};
   };
 
 return (
@@ -221,6 +258,11 @@ return (
                 <option value="">Select Role</option>
                 <option value="admin">Administrator</option>
                 <option value="manager">Manager</option>
+                <option value="productionmanager">Production Manager</option>
+                 <option value="salemanager">Sale Manager</option>
+                <option value="dispatchOperator">Dispatch Operator</option>
+                <option value="employee">Employee</option>
+                <option value="warehouse_assistant">Warehouse Assistant</option>
                 <option value="shopkeeper">Shopkeeper</option>
                 <option value="cashier">Cashier</option>
                 <option value="sales">Sales Executive</option>
@@ -232,7 +274,7 @@ return (
                 <option value="supplier">Supplier</option>
                 <option value="user">User</option>
               </select>
-            </div>
+            </div> 
 
             <div>
               <label className="block text-xs font-medium text-slate-700 uppercase tracking-wider mb-2">

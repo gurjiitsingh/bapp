@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/table";
 
 import TableRows from "./TableRows";
-import { fetchAllUsers } from "@/app/(universal)/action/user/dbOperation";
+import { fetchAllUsers } from "@/app/(universal)/action/user/fetchAllUsersDashboard";
 import { userType } from "@/lib/types/userType";
+import { userDashboardType } from "@/lib/types/userDashboardType";
 
 type productTableProps = {
   limit?: number;
@@ -19,7 +20,7 @@ type productTableProps = {
 };
 
 const ListView = ({ title }: productTableProps) => {
-  const [userData, setUserData] = useState<userType[]>([]);
+  const [userData, setUserData] = useState<userDashboardType[]>([]);
 
   useEffect(() => {
     async function fetchUsers() {
@@ -34,7 +35,7 @@ const ListView = ({ title }: productTableProps) => {
   }, []);
 
   return (
-    <div className="mt-10 p-2">
+    <div className="mt-5 p-2">
       <h3 className="text-2xl mb-4 font-semibold">{title || "Users"}</h3>
       <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
         <Table>
@@ -43,6 +44,7 @@ const ListView = ({ title }: productTableProps) => {
               {/* <TableHead className="hidden md:table-cell">User ID</TableHead> */}
               <TableHead className="hidden md:table-cell">User Name</TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>
+               <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
               <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
               <TableHead>Time</TableHead>

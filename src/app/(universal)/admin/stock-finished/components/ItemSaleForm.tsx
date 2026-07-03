@@ -55,7 +55,7 @@ type Props = {
   products: ProductStock[];
 
   customers: WholeCustomerType[];
-};;
+};
 
 
 export default function ItemPurchaseForm({

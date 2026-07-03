@@ -5,53 +5,67 @@ import { adminDb } from "@/lib/firebaseAdmin";
 import { TuserSchem, userType } from "@/lib/types/userType";
 import { FieldValue } from "firebase-admin/firestore";
 import admin from 'firebase-admin';
+
+
 /**
  * Add a new user if email isn't already in use.
- * Returns the new or existing user ID.
+ * Returns the user UID.
  */
-export async function addUserDirect(formData: FormData): Promise<string | undefined> {
+export async function addUserDirect(
+  formData: FormData
+): Promise<string | undefined> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const firstName = formData.get("firstName") as string;
   const lastName = formData.get("lastName") as string;
-  let username = (formData.get("username") || undefined) as string | undefined;
+   const role = formData.get("role") as string;
+  let username = (formData.get("username") || undefined) as
+    | string
+    | undefined;
 
-  const existing = await adminDb
-    .collection("users")
-    .where("email", "==", email)
-    .get();
+  // Already exists in Firebase Auth?
+  try {
+    const existingAuthUser =
+      await admin.auth().getUserByEmail(email);
 
-  if (!existing.empty) {
-    return existing.docs[0].id;
+    return existingAuthUser.uid;
+  } catch {
+    // User doesn't exist -> continue
   }
 
   username ??= `${firstName} ${lastName}`;
 
   try {
+    // Create Firebase Auth user
+    const authUser = await admin.auth().createUser({
+      email,
+      password,
+      displayName: username,
+      emailVerified: true,
+    });
+
     const hashedPassword = await hashPassword(password);
 
     const newUser = {
+      uid: authUser.uid,
       username,
       firstName,
       lastName,
       email,
       hashedPassword,
-      role: "user",
+      role,
       isVerified: true,
       isAdmin: false,
-      time: new Intl.DateTimeFormat("de", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        hour12: false,
-        minute: "2-digit",
-      }).format(new Date()),
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    const docRef = await adminDb.collection("users").add(newUser);
-    return docRef.id;
+    // Store in Firestore using UID as document id
+    await adminDb
+      .collection("users")
+      .doc(authUser.uid)
+      .set(newUser);
+
+    return authUser.uid;
   } catch (e) {
     console.error("Error adding user:", e);
     return undefined;

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,42 +20,65 @@ const SignIn = () => {
   const [error, setError] = useState("");
 
   async function submitHandler(
-    event: FormEvent<HTMLFormElement>
-  ) {
-    event.preventDefault();
+  event: FormEvent<HTMLFormElement>
+) {
+  event.preventDefault();
 
-    setError("");
+  setError("");
 
-    const formData = new FormData(
-      event.currentTarget
-    );
+  const formData = new FormData(
+    event.currentTarget
+  );
 
-    const email = formData.get(
-      "email"
-    ) as string;
+  const email = formData.get(
+    "email"
+  ) as string;
 
-    const password = formData.get(
-      "password"
-    ) as string;
+  const password = formData.get(
+    "password"
+  ) as string;
 
-    const res = await signIn(
-      "credentials",
-      {
-        email,
-        password,
-        redirect: false,
-      }
-    );
-
-    if (res?.error) {
-      setError(
-        "Invalid email or password"
-      );
-    } else {
-      window.location.href =
-        "/admin";
+  const res = await signIn(
+    "credentials",
+    {
+      email,
+      password,
+      redirect: false,
     }
+  );
+
+  if (res?.error) {
+    setError("Invalid email or password");
+    return;
   }
+
+  // Read the newly created NextAuth session
+  const session = await getSession();
+
+  console.log("SESSION:", session);
+
+  switch (session?.user?.role) {
+    case "admin":
+      window.location.href = "/admin";
+      break;
+
+    case "driver":
+      window.location.href = "/driver";
+      break;
+
+    case "chef":
+      window.location.href = "/chef";
+      break;
+
+    case "storeKeeper":
+      window.location.href = "/storeKeeper";
+      break;
+
+    default:
+      window.location.href = "/";
+      break;
+  }
+}
 
   return (
     <section className="relative min-h-screen overflow-hidden">
