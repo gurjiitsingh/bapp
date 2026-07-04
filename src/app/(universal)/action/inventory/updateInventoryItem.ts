@@ -13,6 +13,7 @@ export async function updateInventoryItem(
   id: string,
   formData: FormData
 ) {
+  
 
   try {
     const name =
@@ -31,18 +32,22 @@ export async function updateInventoryItem(
         ) as string | null
       )?.trim() || "";
 
-    const purchaseUnit = formData.get(
-      "purchaseUnit"
-    ) as InventoryUnit;
+    // const purchaseUnit = formData.get(
+    //   "purchaseUnit"
+    // ) as InventoryUnit;
 
     const consumptionUnit = formData.get(
       "consumptionUnit"
     ) as InventoryUnit;
 
-    const conversionFactor =
-      Number(
-        formData.get("conversionFactor")
-      ) || 1;
+    const purchaseMappings = JSON.parse(
+  formData.get("purchaseMappings") as string
+);
+
+    // const conversionFactor =
+    //   Number(
+    //     formData.get("conversionFactor")
+    //   ) || 1;
 
     // let currentStock =
     //   Number(
@@ -98,9 +103,9 @@ const supplierIds =
       sku: cleanedSku,
       barcode: cleanedBarcode,
 
-      purchaseUnit,
+     // purchaseUnit,
       consumptionUnit,
-      conversionFactor,
+      purchaseMappings,
 
      // currentStock,
       minStock,
@@ -113,7 +118,7 @@ const supplierIds =
 
       isActive,
     };
-
+console.log("receivedData---------------",receivedData)
     const result =
       newInventorySchema.safeParse(
         receivedData
@@ -232,8 +237,8 @@ const supplierIds =
 
   //purchaseUnit,
   consumptionUnit,
-  conversionFactor,
-
+  //conversionFactor,
+purchaseMappings,
   //currentStock,
   minStock,
 

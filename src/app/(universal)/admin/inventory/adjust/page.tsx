@@ -16,6 +16,8 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -54,6 +56,12 @@ export default function StockAdjustmentForm({
     useState<InventoryItemType | null>(
       null
     );
+
+const selectedMapping =
+  selectedInventory
+    ? getPrimaryPurchaseMapping(selectedInventory)
+    : null;
+
 
   const {
     register,
@@ -300,19 +308,17 @@ export default function StockAdjustmentForm({
                             }
                           </div>
 
-                          <div className="text-xs text-gray-400">
-                            Current:
-                            {" "}
-                            {
-                              item.currentStock
-                            }
-                            {" "}
-                            {
-                              item.purchaseUnit
-// consumptionUnit
-// conversionFactor
-                            }
-                          </div>
+                         {(() => {
+  const mapping =
+    getPrimaryPurchaseMapping(item);
+
+  return displayStock(
+    item.currentStock ?? 0,
+    mapping.purchaseUnit,
+    item.consumptionUnit,
+    mapping.factor
+  );
+})()}
                         </button>
                       )
                     )}
@@ -357,15 +363,13 @@ export default function StockAdjustmentForm({
               </div>
 
               <div className="text-2xl font-bold text-blue-700">
-                {
-                  selectedInventory.currentStock
-                }
-                {" "}
-                {
-                  selectedInventory.purchaseUnit
-// consumptionUnit
-// conversionFactor
-                }
+             {selectedMapping &&
+  displayStock(
+    selectedInventory.currentStock ?? 0,
+    selectedMapping.purchaseUnit,
+    selectedInventory.consumptionUnit,
+    selectedMapping.factor
+  )}
               </div>
             </div>
           )}

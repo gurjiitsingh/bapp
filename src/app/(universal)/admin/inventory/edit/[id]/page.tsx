@@ -1,25 +1,31 @@
-
-import { fetchInventoryItemById, getInventoryItemById } from "@/app/(universal)/action/inventory/dbOperation";
+import { getInventoryItemById } from "@/app/(universal)/action/inventory/dbOperation";
 import InventoryEditForm from "../../components/InventoryEditForm";
 import { fetchSuppliers } from "@/app/(universal)/action/inventorySupplier/fetchSuppliers";
 import { fetchInventoryCategories } from "@/app/(universal)/action/inventoryCategory/fetchInventoryCategories";
-
-
+import { getUnitConversions } from "@/app/(universal)/action/inventory/init/unit-conversion/getUnitConversions";
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+
+ 
+ 
   const { id } = await params;
 
-  console.log("id-----------",id)
-  const item =
-    await getInventoryItemById(id);
+  const [
+    item,
+    categories,
+    suppliers,
+    unitConversions,
+  ] = await Promise.all([
+    getInventoryItemById(id),
+    fetchInventoryCategories(),
+    fetchSuppliers(),
+    getUnitConversions(),
+  ]);
 
-     const categories =
-        await fetchInventoryCategories();
-  const suppliers = await fetchSuppliers();
   if (!item) {
     return (
       <div>
@@ -30,10 +36,10 @@ export default async function Page({
 
   return (
     <InventoryEditForm
-      
       inventoryItem={item}
-       categories={categories}
-       suppliers={suppliers}
+      categories={categories}
+      suppliers={suppliers}
+      unitConversions={unitConversions}
     />
   );
 }

@@ -10,7 +10,7 @@ export default async function page(){
 
   const inventoryItems = await fetchInventoryItems();
 
-  console.log("cat------------------", inventoryItems)
+   
 
   return (
      <Suspense>

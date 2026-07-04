@@ -37,14 +37,20 @@ export const fetchInventoryItems = cache(
 
             barcode: data.barcode || "",
 
-            purchaseUnit:
-              data.purchaseUnit || "pcs",
+            purchaseMappings:
+              data.purchaseMappings ?? [
+                {
+                  purchaseUnit:
+                    data.purchaseUnit || "pcs",
+                  consumptionUnit:
+                    data.consumptionUnit || "pcs",
+                  factor:
+                    data.conversionFactor || 1,
+                },
+              ],
 
             consumptionUnit:
               data.consumptionUnit || "pcs",
-
-            conversionFactor:
-              data.conversionFactor || 1,
 
             currentStock:
               data.currentStock || 0,
@@ -206,7 +212,7 @@ export async function fetchInventoryItemById(
   id: string
 ): Promise<InventoryItemType | null> {
 
-  console.log("id----------------",id)
+  console.log("id----------------", id)
   try {
     const docRef = await adminDb
       .collection("inventoryItems")

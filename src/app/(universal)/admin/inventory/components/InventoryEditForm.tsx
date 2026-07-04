@@ -2,7 +2,7 @@
 "use client";
 // name , category(liqued/non veg, bakery, veg, water, rice,readymade), Favorate,
 //  Available, Modify date, Created modify by, Action (view detail in popup, edit)
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -10,30 +10,34 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { InventoryItemType, newInventorySchema, TnewInventorySchema } from "@/lib/types/InventoryItemType";
-
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { SupplierType } from "@/lib/types/SupplierType";
 import { updateInventoryItem } from "@/app/(universal)/action/inventory/updateInventoryItem";
 import { displayStock } from "@/utils/inventory/displayStock";
+import { UnitConversion } from "@/lib/types/UnitConversion";
 
 type Props = {
     inventoryItem: InventoryItemType;
-
     categories: InventoryCategory[];
-
     suppliers: SupplierType[];
+    unitConversions: UnitConversion[];
 };
 
 const InventoryEditForm = ({
     inventoryItem,
     categories,
     suppliers,
+    unitConversions,
 }: Props) => {
 
-console.log("inventoryItem----------", inventoryItem)
+    console.log("inventoryItem----------", inventoryItem)
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const router = useRouter();
+
+    const [selectedConversions, setSelectedConversions] =
+        useState<string[]>([]);
+
     const {
         register,
         watch,
@@ -43,23 +47,31 @@ console.log("inventoryItem----------", inventoryItem)
         reset,
     } = useForm<TnewInventorySchema>({
         resolver: zodResolver(newInventorySchema),
-
-
-
         defaultValues: {
             name: inventoryItem.name,
 
             sku: inventoryItem.sku || "",
             barcode: inventoryItem.barcode || "",
 
-            purchaseUnit:
-                inventoryItem.purchaseUnit,
+            // purchaseMappings:
+            //     inventoryItem.purchaseMappings?.length
+            //         ? inventoryItem.purchaseMappings
+            //         : [
+            //             {
+            //                 purchaseUnit: inventoryItem.consumptionUnit,
+            //                 factor: 1,
+            //             },
+            //         ],
+
+            purchaseMappings: [
+                {
+                    purchaseUnit: inventoryItem.consumptionUnit,
+                    factor: 1,
+                },
+            ],
 
             consumptionUnit:
                 inventoryItem.consumptionUnit,
-
-            conversionFactor:
-                inventoryItem.conversionFactor,
 
             currentStock:
                 inventoryItem.currentStock!,
@@ -84,7 +96,8 @@ console.log("inventoryItem----------", inventoryItem)
         },
     });
 
-    const purchaseUnit = watch("purchaseUnit");
+
+    const purchaseMappings = watch("purchaseMappings");
     const consumptionUnit = watch("consumptionUnit");
 
     const selectedCategory = categories.find(
@@ -92,45 +105,98 @@ console.log("inventoryItem----------", inventoryItem)
             cat.id === watch("categoryId")
     );
 
-    const displayStock =
-        inventoryItem.purchaseUnit ===
-            inventoryItem.consumptionUnit
-            ? inventoryItem.currentStock
-            : inventoryItem.currentStock
-    inventoryItem.conversionFactor;
+    const primaryMapping =
+        inventoryItem.purchaseMappings?.[0];
 
+    const displayStockValue = displayStock(
+        inventoryItem.currentStock!,
+        primaryMapping?.purchaseUnit ??
+        inventoryItem.consumptionUnit,
+        inventoryItem.consumptionUnit,
+        primaryMapping?.factor ?? 1
+    );
 
+    const consumptionUnits = useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    unitConversions
+                        .filter((u) => u.isActive !== false)
+                        .map((u) => u.consumptionUnit)
+                )
+            ).sort(),
+        [unitConversions]
+    );
+
+    const availableMappings = useMemo(() => {
+        return unitConversions
+            .filter(
+                (u) =>
+                    u.consumptionUnit === consumptionUnit &&
+                    u.isActive !== false
+            )
+            .sort((a, b) =>
+                a.purchaseUnit.localeCompare(b.purchaseUnit)
+            );
+    }, [unitConversions, consumptionUnit]);
+
+    useEffect(() => {
+        if (!inventoryItem.purchaseMappings?.length) return;
+
+        const selectedIds = unitConversions
+            .filter((conversion) =>
+                inventoryItem.purchaseMappings.some(
+                    (mapping) =>
+                        mapping.purchaseUnit === conversion.purchaseUnit &&
+                        mapping.consumptionUnit === conversion.consumptionUnit &&
+                        mapping.factor === conversion.factor
+                )
+            )
+            .map((conversion) => conversion.id);
+
+        setSelectedConversions(selectedIds);
+    }, [inventoryItem, unitConversions]);
 
 
     useEffect(() => {
-        if (purchaseUnit === consumptionUnit) {
-            setValue("conversionFactor", 1);
-            return;
-        }
+        const mappings = unitConversions
+            .filter((item) =>
+                selectedConversions.includes(item.id)
+            )
+            .map((item) => ({
+                purchaseUnit: item.purchaseUnit,
+                consumptionUnit: item.consumptionUnit,
+                factor: item.factor,
+            }));
 
-        const conversionMap: Record<string, number> = {
-            "kg-gm": 1000,
-            "ltr-ml": 1000,
-            "dozen-pcs": 12,
-            "pair-pcs": 2,
-            "carton-pcs": 24,
-        };
+        setValue("purchaseMappings", mappings);
+    }, [
+        selectedConversions,
+        unitConversions,
+        setValue,
+    ]);
 
-        const key = `${purchaseUnit}-${consumptionUnit}`;
-
-        if (conversionMap[key]) {
-            setValue("conversionFactor", conversionMap[key]);
-        }
-    }, [purchaseUnit, consumptionUnit, setValue]);
     useEffect(() => {
-        if (
-            purchaseUnit &&
-            consumptionUnit &&
-            purchaseUnit === consumptionUnit
-        ) {
-            setValue("conversionFactor", 1);
-        }
-    }, [purchaseUnit, consumptionUnit]);
+        setSelectedConversions([]);
+    }, [consumptionUnit]);
+
+
+    useEffect(() => {
+  if (!inventoryItem.purchaseMappings?.length) return;
+
+  const selectedIds = unitConversions
+    .filter((conversion) =>
+      inventoryItem.purchaseMappings.some(
+        (mapping) =>
+          mapping.purchaseUnit === conversion.purchaseUnit &&
+          mapping.consumptionUnit === conversion.consumptionUnit &&
+          mapping.factor === conversion.factor
+      )
+    )
+    .map((conversion) => conversion.id);
+
+  setSelectedConversions(selectedIds);
+}, [inventoryItem, unitConversions]);
 
     async function onSubmit(
         data: TnewInventorySchema
@@ -146,11 +212,7 @@ console.log("inventoryItem----------", inventoryItem)
             formData.append("name", data.name);
             formData.append("sku", data.sku || "");
             formData.append("barcode", data.barcode || "");
-          
-            formData.append(
-                "purchaseUnit",
-                data.purchaseUnit
-            );
+
 
             formData.append(
                 "consumptionUnit",
@@ -158,8 +220,8 @@ console.log("inventoryItem----------", inventoryItem)
             );
 
             formData.append(
-                "conversionFactor",
-                String(data.conversionFactor)
+                "purchaseMappings",
+                JSON.stringify(data.purchaseMappings)
             );
             formData.append(
                 "currentStock",
@@ -200,11 +262,7 @@ console.log("inventoryItem----------", inventoryItem)
                 data.isActive ? "true" : "false"
             );
 
-            console.log({
-  purchaseUnit: data.purchaseUnit,
-  consumptionUnit: data.consumptionUnit,
-  conversionFactor: data.conversionFactor,
-});
+
             const result =
                 await updateInventoryItem(
                     inventoryItem.id,
@@ -363,40 +421,7 @@ console.log("inventoryItem----------", inventoryItem)
 
                             {/* Unit */}
 
-                            {/* Purchase Unit */}
-                            <div>
-                                <label className="label-style-4">
-                                    Purchase Unit
-                                </label>
 
-                                <select
-                                    {...register("purchaseUnit")}
-                                    className="input-style-4 mt-1"
-                                >
-                                    <option value="kg">Kilogram (kg)</option>
-                                    <option value="gm">Gram (gm)</option>
-                                    <option value="ltr">Liter (ltr)</option>
-                                    <option value="ml">Milliliter (ml)</option>
-                                    <option value="pcs">Pieces (pcs)</option>
-                                    <option value="dozen">Dozen</option>
-                                    <option value="pair">Pair</option>
-                                    <option value="box">Box</option>
-                                    <option value="pack">Pack</option>
-                                    <option value="carton">Carton</option>
-                                    <option value="bag">Bag</option>
-                                    <option value="bottle">Bottle</option>
-                                    <option value="can">Can</option>
-                                    <option value="jar">Jar</option>
-                                    <option value="roll">Roll</option>
-                                    <option value="tray">Tray</option>
-
-
-                                </select>
-
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Unit used when purchasing stock
-                                </p>
-                            </div>
 
                             {/* Consumption Unit */}
                             <div>
@@ -408,54 +433,24 @@ console.log("inventoryItem----------", inventoryItem)
                                     {...register("consumptionUnit")}
                                     className="input-style-4 mt-1"
                                 >
-                                    <option value="kg">Kilogram (kg)</option>
-                                    <option value="gm">Gram (gm)</option>
-                                    <option value="ltr">Liter (ltr)</option>
-                                    <option value="ml">Milliliter (ml)</option>
-                                    <option value="pcs">Pieces (pcs)</option>
-                                    <option value="dozen">Dozen</option>
-                                    <option value="pair">Pair</option>
-                                    <option value="box">Box</option>
-                                    <option value="pack">Pack</option>
-                                    <option value="carton">Carton</option>
-                                    <option value="bag">Bag</option>
-                                    <option value="bottle">Bottle</option>
-                                    <option value="can">Can</option>
-                                    <option value="jar">Jar</option>
-                                    <option value="roll">Roll</option>
-                                    <option value="tray">Tray</option>
+                                    <option value="">
+                                        Select Consumption Unit
+                                    </option>
+
+                                    {consumptionUnits.map((unit) => (
+                                        <option
+                                            key={unit}
+                                            value={unit}
+                                        >
+                                            {unit.toUpperCase()}
+                                        </option>
+                                    ))}
                                 </select>
 
                                 <p className="text-xs text-gray-500 mt-1">
                                     Unit used in recipes
                                 </p>
                             </div>
-
-
-
-                            {/* Conversion Factor */}
-                            <div>
-                                <label className="label-style-4">
-                                    Conversion Factor
-                                </label>
-
-                                <input
-                                    type="number"
-                                    step="0.0001"
-                                    {...register("conversionFactor")}
-                                    className="input-style-4 mt-1"
-                                    placeholder="1000"
-                                />
-
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Example: 1 kg = 1000 gm
-                                </p>
-
-                                <p className="text-xs text-red-500 mt-1">
-                                    {errors.conversionFactor?.message}
-                                </p>
-                            </div>
-
 
 
 
@@ -489,7 +484,7 @@ console.log("inventoryItem----------", inventoryItem)
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-1">
 
                                 {suppliers.length > 0 ? (
                                     suppliers.map((supplier) => (
@@ -534,17 +529,7 @@ console.log("inventoryItem----------", inventoryItem)
                         </div>
                     </div>
 
-
-
-
-                </div>
-
-                {/* RIGHT */}
-                <div className="flex flex-col gap-5">
-
-
-
-                    {/* Status Card */}
+ {/* Status Card */}
                     <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
                         <h2 className="text-lg font-semibold text-gray-800 mb-4">
                             Settings
@@ -562,6 +547,81 @@ console.log("inventoryItem----------", inventoryItem)
                             </label>
                         </div>
                     </div>
+
+
+                </div>
+
+                {/* RIGHT */}
+                <div className="flex flex-col gap-5">
+
+                    <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                            Purchase Unit Mapping
+                        </h2>
+
+                        <table className="w-full">
+                            <thead className="bg-gray-100  ">
+                                <tr>
+                                    <th className="p-3 text-left">Select</th>
+                                    <th className="p-3 text-left">Purchase Unit</th>
+                                    <th className="p-3 text-left">Consumption Unit</th>
+                                    <th className="p-3 text-right">Factor</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {availableMappings.map((conversion) => (
+                                    <tr
+                                        key={conversion.id}
+                                        className="whitespace-nowrap hover:bg-green-50  transition rounded-xl"
+                                    >
+                                        <td className="p-3">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedConversions.includes(
+                                                    conversion.id
+                                                )}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedConversions((prev) => [
+                                                            ...prev,
+                                                            conversion.id,
+                                                        ]);
+                                                    } else {
+                                                        setSelectedConversions((prev) =>
+                                                            prev.filter(
+                                                                (id) => id !== conversion.id
+                                                            )
+                                                        );
+                                                    }
+                                                }}
+                                            />
+                                        </td>
+
+                                        <td className="p-3">
+                                            {conversion.purchaseUnit}
+                                        </td>
+
+                                        <td className="p-3">
+                                            {conversion.consumptionUnit}
+                                        </td>
+
+                                        <td className="p-3 text-right">
+                                            {conversion.factor}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+
+                        {purchaseMappings?.length === 0 && (
+                            <p className="text-red-500 text-sm mt-3">
+                                Please select at least one purchase unit.
+                            </p>
+                        )}
+                    </div>
+
+                   
 
                     {/* Save */}
                     <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl shadow-sm p-5">

@@ -27,64 +27,72 @@ export const fetchInventoryItems = cache(
       const inventoryItems = snapshot.docs.map((doc) => {
         const data = doc.data();
 
-        return {
-          id: doc.id,
 
-          name: data.name || "",
+  //       purchaseMappings:
+  // data.purchaseMappings?.length
+  //   ? data.purchaseMappings
+  //   : [
+  //       {
+  //         purchaseUnit:
+  //           data.purchaseUnit ||
+  //           data.consumptionUnit ||
+  //           "pcs",
+  //         consumptionUnit:
+  //           data.consumptionUnit || "pcs",
+  //         factor:
+  //           Number(data.conversionFactor) || 1,
+  //       },
+  //     ],
 
-          sku: data.sku || "",
+      return {
+  id: doc.id,
 
-          barcode: data.barcode || "",
+  name: data.name || "",
 
-          purchaseUnit:
-            data.purchaseUnit || "pcs",
+  sku: data.sku || "",
 
-          consumptionUnit:
-            data.consumptionUnit || "pcs",
+  barcode: data.barcode || "",
 
-          conversionFactor:
-            data.conversionFactor || 1,
+  consumptionUnit:
+    data.consumptionUnit || "pcs",
 
-          // ===== Stock =====
-          currentStock:
-            Number(data.currentStock) || 0,
+  purchaseMappings:
+    data.purchaseMappings || [],
 
-          minStock:
-            Number(data.minStock) || 0,
+    
+  currentStock:
+    Number(data.currentStock) || 0,
 
-          // ===== Inventory Valuation =====
-          averageCost:
-            Number(data.averageCost) || 0,
+  minStock:
+    Number(data.minStock) || 0,
 
-          stockValue:
-            Number(data.stockValue) || 0,
+  averageCost:
+    Number(data.averageCost) || 0,
 
-          // ===== Selling =====
-          sellingPrice:
-            Number(data.sellingPrice) || 0,
+  stockValue:
+    Number(data.stockValue) || 0,
 
-          // ===== Relations =====
-          categoryId:
-            data.categoryId || "",
+  sellingPrice:
+    Number(data.sellingPrice) || 0,
 
-          supplierId:
-            data.supplierId || "",
+  categoryId:
+    data.categoryId || "",
 
-          supplierIds:
-            data.supplierIds || [],
+  supplierId:
+    data.supplierId || "",
 
-          // ===== Status =====
-          isActive:
-            data.isActive ?? true,
+  supplierIds:
+    data.supplierIds || [],
 
-          createdAt:
-            data.createdAt?.toDate?.().toISOString() ||
-            null,
+  isActive:
+    data.isActive ?? true,
 
-          updatedAt:
-            data.updatedAt?.toDate?.().toISOString() ||
-            null,
-        };
+  createdAt:
+    data.createdAt?.toDate?.().toISOString() || null,
+
+  updatedAt:
+    data.updatedAt?.toDate?.().toISOString() || null,
+};
       }) as InventoryItemType[];
 
       return inventoryItems;

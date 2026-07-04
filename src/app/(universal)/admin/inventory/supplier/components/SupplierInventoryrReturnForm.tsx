@@ -25,6 +25,7 @@ import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionTy
 
 import { SupplierType } from "@/lib/types/SupplierType";
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
+import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -37,7 +38,7 @@ type FormType = {
   direction: "IN" | "OUT";
 
   quantity: number;
- stockValue: number;
+  stockValue: number;
   transactionUnit: InventoryUnit;
 
   // ✅ ADD THIS
@@ -63,7 +64,7 @@ export default function SupplierInventoryrReturnForm({
   supplierMap,
 }: Props) {
 
-//console.log("inventoryItems---------", inventoryItems)
+  //console.log("inventoryItems---------", inventoryItems)
 
 
   const [isSubmitting, setIsSubmitting] =
@@ -125,57 +126,67 @@ export default function SupplierInventoryrReturnForm({
   );
 
   const quantity = watch("quantity");
-const unitCost = watch("unitCost");
-const stockValue = watch("stockValue");
+  const unitCost = watch("unitCost");
+  const stockValue = watch("stockValue");
 
-const [lastEdited, setLastEdited] = useState<
-  "unitCost" | "stockValue"
->("unitCost");
+  const [lastEdited, setLastEdited] = useState<
+    "unitCost" | "stockValue"
+  >("unitCost");
 
-useEffect(() => {
-  const qty = Number(quantity || 0);
+  useEffect(() => {
+    const qty = Number(quantity || 0);
 
-  if (qty <= 0) return;
+    if (qty <= 0) return;
 
-  if (lastEdited === "unitCost") {
-    setValue(
-      "stockValue",
-      Number((qty * Number(unitCost || 0)).toFixed(2))
-    );
-  }
+    if (lastEdited === "unitCost") {
+      setValue(
+        "stockValue",
+        Number((qty * Number(unitCost || 0)).toFixed(2))
+      );
+    }
 
-  if (lastEdited === "stockValue") {
-    setValue(
-      "unitCost",
-      Number((Number(stockValue || 0) / qty).toFixed(4))
-    );
-  }
-}, [
-  quantity,
-  unitCost,
-  stockValue,
-  lastEdited,
-  setValue,
-]);
+    if (lastEdited === "stockValue") {
+      setValue(
+        "unitCost",
+        Number((Number(stockValue || 0) / qty).toFixed(4))
+      );
+    }
+  }, [
+    quantity,
+    unitCost,
+    stockValue,
+    lastEdited,
+    setValue,
+  ]);
 
   const transactionUnit = watch("transactionUnit");
 
+  const selectedMapping =
+    selectedInventory?.purchaseMappings?.find(
+      (m) => m.purchaseUnit === transactionUnit
+    ) ??
+    (selectedInventory && {
+      purchaseUnit: selectedInventory.consumptionUnit,
+      consumptionUnit: selectedInventory.consumptionUnit,
+      factor: 1,
+    });
 
-const filteredItem = useMemo(() => {
-  const keyword = search.trim().toLowerCase();
 
-  if (!keyword) return [];
+  const filteredItem = useMemo(() => {
+    const keyword = search.trim().toLowerCase();
 
-  return inventoryItems
-    .filter(
-      (item) =>
-        item.name &&
-        item.name
-          .toLowerCase()
-          .includes(keyword)
-    )
-    .slice(0, 20);
-}, [search, inventoryItems]);
+    if (!keyword) return [];
+
+    return inventoryItems
+      .filter(
+        (item) =>
+          item.name &&
+          item.name
+            .toLowerCase()
+            .includes(keyword)
+      )
+      .slice(0, 20);
+  }, [search, inventoryItems]);
 
   // =====================================================
   // SUBMIT
@@ -221,35 +232,32 @@ const filteredItem = useMemo(() => {
 
 
 
-   let finalQuantity =
-  Number(data.quantity);
+    let finalQuantity =
+      Number(data.quantity);
 
-let finalUnitCost =
-  Number(data.unitCost);
+    let finalUnitCost =
+      Number(data.unitCost);
 
-const originalQuantity =
-  Number(data.quantity);
+    const originalQuantity =
+      Number(data.quantity);
 
-const originalUnitCost =
-  Number(data.unitCost);
+    const originalUnitCost =
+      Number(data.unitCost);
 
-// Convert purchase unit -> consumption unit
-if (
-  data.transactionUnit ===
-    selectedInventory.purchaseUnit &&
-  selectedInventory.purchaseUnit !==
-    selectedInventory.consumptionUnit
-) {
-  // convert quantity
-  finalQuantity =
-    finalQuantity *
-    selectedInventory.conversionFactor;
+    // Convert purchase unit -> consumption unit
+    const mapping =
+      selectedInventory.purchaseMappings?.find(
+        (m) => m.purchaseUnit === data.transactionUnit
+      ) ?? {
+        purchaseUnit: selectedInventory.consumptionUnit,
+        factor: 1,
+      };
 
-  // convert unit cost
-  finalUnitCost =
-    finalUnitCost /
-    selectedInventory.conversionFactor;
-}
+    finalQuantity =
+      finalQuantity * mapping.factor;
+
+    finalUnitCost =
+      finalUnitCost / mapping.factor;
 
 
 
@@ -259,42 +267,40 @@ if (
     try {
 
       const result =
-      await adjustInventoryStock({
-  inventoryItemId: selectedInventory.id,
+        await adjustInventoryStock({
+          inventoryItemId: selectedInventory.id,
 
-  supplierId: data.supplierId,
+          supplierId: data.supplierId,
 
-  supplierName:
-    selectedSupplier?.companyName || "",
+          supplierName:
+            selectedSupplier?.companyName || "",
 
-  type: "SUPPLIER_RETURN",
+          type: "SUPPLIER_RETURN",
 
-  direction: "OUT",
+          direction: "OUT",
 
-  // Internal stock values
-  quantity: finalQuantity,
-  unitCost: finalUnitCost,
-stockValue,
-  // Original values entered by user
-  purchaseQuantity: originalQuantity,
-  purchaseUnit: transactionUnit,
-  purchaseUnitCost: originalUnitCost,
-  conversionFactor:
-    selectedInventory.conversionFactor,
+          // Internal stock values
+          quantity: finalQuantity,
+          unitCost: finalUnitCost,
+          stockValue,
+          // Original values entered by user
+          purchaseQuantity: originalQuantity,
+          purchaseUnit: transactionUnit,
+          purchaseUnitCost: originalUnitCost,
+          conversionFactor: mapping.factor,
 
-  paymentStatus: "CREDIT",
-  paidAmount: 0,
-  dueAmount:
-    originalQuantity *
-    originalUnitCost,
+          paymentStatus: "CREDIT",
+          paidAmount: 0,
+          dueAmount:
+            originalQuantity *
+            originalUnitCost,
 
-  note:
-    `${data.returnReason || ""} ${
-      data.note || ""
-    }`.trim(),
+          note:
+            `${data.returnReason || ""} ${data.note || ""
+              }`.trim(),
 
-  createdBy: "admin",
-});
+          createdBy: "admin",
+        });
 
 
 
@@ -424,9 +430,9 @@ stockValue,
                   {/* {selectedProduct.currentStock} */}
                   {displayStock(
                     selectedInventory.currentStock || 0,
-                    selectedInventory.purchaseUnit,
+                    selectedMapping!.purchaseUnit,
                     selectedInventory.consumptionUnit,
-                    selectedInventory.conversionFactor
+                    selectedMapping!.factor
                   )}
                 </div>
               </div>
@@ -435,7 +441,7 @@ stockValue,
 
 
             <div className="bg-white   border-gray-100  my-3">
-              
+
               {/* ===================================================== */}
               {/* INVENTORY SEARCH */}
               {/* ===================================================== */}
@@ -485,9 +491,12 @@ stockValue,
                             key={item.id}
                             type="button"
                             onClick={() => {
+                              const mapping =
+                                getPrimaryPurchaseMapping(item);
+
                               setValue(
                                 "transactionUnit",
-                                item.purchaseUnit
+                                mapping.purchaseUnit
                               );
                               setSelectedInventory(item);
 
@@ -507,9 +516,18 @@ stockValue,
                             </div>
 
                             <div className="text-xs text-gray-400">
-                              Current:{" "}
-                              {item.currentStock}{" "}
+                              Current{" "}
+                              {(() => {
+                                const mapping =
+                                  getPrimaryPurchaseMapping(item);
 
+                                return displayStock(
+                                  item.currentStock ?? 0,
+                                  mapping.purchaseUnit,
+                                  item.consumptionUnit,
+                                  mapping.factor
+                                );
+                              })()}
                             </div>
                           </button>
                         ))}
@@ -631,24 +649,24 @@ stockValue,
                 Unit Price
               </label>
 
-          
 
-<input
-  type="number"
-  step="0.01"
-  value={unitCost || ""}
-  onChange={(e) => {
-    setLastEdited("unitCost");
-    setValue("unitCost", Number(e.target.value || 0));
-  }}
-  onFocus={(e) => {
-    if (e.target.value === "0") {
-      e.target.value = "";
-    }
-  }}
-  className="input-style-4"
-  placeholder="Enter Price"
-/>
+
+              <input
+                type="number"
+                step="0.01"
+                value={unitCost || ""}
+                onChange={(e) => {
+                  setLastEdited("unitCost");
+                  setValue("unitCost", Number(e.target.value || 0));
+                }}
+                onFocus={(e) => {
+                  if (e.target.value === "0") {
+                    e.target.value = "";
+                  }
+                }}
+                className="input-style-4"
+                placeholder="Enter Price"
+              />
             </div>
 
             {/* UNIT SELECTOR */}
@@ -656,29 +674,31 @@ stockValue,
               <label className="label-style-4">
                 Unit
               </label>
-
               <select
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                <option value="kg">Kilogram (kg)</option>
-                <option value="gm">Gram (g)</option>
-                <option value="pcs">Piece (pcs)</option>
-                <option value="box">Box</option>
-                <option value="pack">Pack</option>
-                <option value="bottle">Bottle</option>
-                <option value="can">Can</option>
-                <option value="jar">Jar</option>
-                <option value="bag">Bag</option>
-                <option value="carton">Carton</option>
-                <option value="tray">Tray</option>
-                <option value="roll">Roll</option>
-                <option value="pair">Pair</option>
-                <option value="dozen">Dozen</option>
+                {selectedInventory &&
+                  selectedInventory.purchaseMappings?.map(
+                    (mapping) => (
+                      <option
+                        key={mapping.purchaseUnit}
+                        value={mapping.purchaseUnit}
+                      >
+                        {mapping.purchaseUnit}
+                      </option>
+                    )
+                  )}
 
-
-                <option value="ltr">Liter (L)</option>
-                <option value="ml">Milliliter (ml)</option>
+                {selectedInventory &&
+                  (!selectedInventory.purchaseMappings ||
+                    selectedInventory.purchaseMappings.length === 0) && (
+                    <option
+                      value={selectedInventory.consumptionUnit}
+                    >
+                      {selectedInventory.consumptionUnit}
+                    </option>
+                  )}
               </select>
             </div>
 
@@ -742,23 +762,23 @@ stockValue,
           </div>
 
 
-<div className="flex flex-col gap-2">
-  <label className="label-style-4">
-    Return Stock Value
-  </label>
+          <div className="flex flex-col gap-2">
+            <label className="label-style-4">
+              Return Stock Value
+            </label>
 
-  <input
-    type="number"
-    step="0.01"
-    value={stockValue || ""}
-    onChange={(e) => {
-      setLastEdited("stockValue");
-      setValue("stockValue", Number(e.target.value || 0));
-    }}
-    className="input-style-4"
-    placeholder="0.00"
-  />
-</div>
+            <input
+              type="number"
+              step="0.01"
+              value={stockValue || ""}
+              onChange={(e) => {
+                setLastEdited("stockValue");
+                setValue("stockValue", Number(e.target.value || 0));
+              }}
+              className="input-style-4"
+              placeholder="0.00"
+            />
+          </div>
 
         </form>
       </div >

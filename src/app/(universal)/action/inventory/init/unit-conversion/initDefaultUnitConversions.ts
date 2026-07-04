@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { DEFAULT_UNIT_CONVERSIONS } from "@/lib/inventory/defaultUnitConversions";
+import {   MASTER_UNIT_CONVERSIONS } from "@/lib/inventory/defaultUnitConversions";
 import admin from "firebase-admin";
 
 
@@ -9,7 +9,7 @@ export async function initDefaultUnitConversions() {
   try {
     const batch = adminDb.batch();
 
-    for (const item of DEFAULT_UNIT_CONVERSIONS) {
+    for (const item of MASTER_UNIT_CONVERSIONS) {
       // Prevent duplicates
       const existing = await adminDb
         .collection("inventoryUnitConversions")

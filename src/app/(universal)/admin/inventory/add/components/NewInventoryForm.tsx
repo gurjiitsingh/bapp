@@ -32,7 +32,7 @@ export default function NewInventoryForm({
 }: Props) {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
-
+const [selectedConversions, setSelectedConversions] = useState<string[]>([]);
   const {
     register,
     watch,
@@ -41,148 +41,101 @@ export default function NewInventoryForm({
     handleSubmit,
     reset,
   } = useForm<TnewInventorySchema>({
-    resolver: zodResolver(
-      newInventorySchema
-    ),
+  resolver: zodResolver(newInventorySchema),
+  defaultValues: {
+    isActive: true,
+    supplierIds: [],
+    purchaseMappings: [],
+  },
+})
 
-    defaultValues: {
-      isActive: true,
-    },
-  });
+console.log("unitConversions----------------", unitConversions)
 
-
-
-  const purchaseUnit = watch("purchaseUnit");
+  
   const consumptionUnit =
     watch("consumptionUnit");
 
-  // =====================================
-  // PURCHASE UNITS
-  // =====================================
 
-  const purchaseUnits = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          unitConversions
-            .filter(
-              (item) =>
-                item.isActive !== false
-            )
-            .map(
-              (item) =>
-                item.purchaseUnit
-            )
-        )
-      ),
-    [unitConversions]
-  );
 
   // =====================================
   // AVAILABLE CONVERSIONS
   // =====================================
 
-  const availableConversions =
-    useMemo(
-      () =>
-        unitConversions.filter(
-          (item) =>
-            item.purchaseUnit ===
-            purchaseUnit &&
-            item.isActive !== false
-        ),
-      [
-        unitConversions,
-        purchaseUnit,
-      ]
+  const consumptionUnits = useMemo(
+  () =>
+    Array.from(
+      new Set(
+        unitConversions
+          .filter((item) => item.isActive !== false)
+          .map((item) => item.consumptionUnit)
+      )
+    ).sort(),
+  [unitConversions]
+);
+
+const availableMappings = useMemo(() => {
+  return unitConversions
+    .filter(
+      (item) =>
+        item.consumptionUnit === consumptionUnit &&
+        item.isActive !== false
+    )
+    .sort((a, b) =>
+      a.purchaseUnit.localeCompare(b.purchaseUnit)
     );
+}, [unitConversions, consumptionUnit]);
+
+useEffect(() => {
+  if (
+    !consumptionUnit &&
+    consumptionUnits.length > 0
+  ) {
+    setValue(
+      "consumptionUnit",
+      consumptionUnits[0]
+    );
+  }
+}, [
+  consumptionUnit,
+  consumptionUnits,
+  setValue,
+]);
 
 
+useEffect(() => {
+  setSelectedConversions([]);
+}, [consumptionUnit]);
 
 
-  // =====================================
-  // SET DEFAULT PURCHASE UNIT
-  // =====================================
-
-  useEffect(() => {
-    if (
-      !purchaseUnit &&
-      purchaseUnits.length > 0
-    ) {
-      setValue(
-        "purchaseUnit",
-        purchaseUnits[0]
-      );
-    }
-  }, [
-    purchaseUnit,
-    purchaseUnits,
-    setValue,
-  ]);
-
-  // =====================================
-  // AUTO SET CONSUMPTION UNIT + FACTOR
-  // =====================================
-
-  useEffect(() => {
-    if (
-      availableConversions.length === 0
-    ) {
-      return;
-    }
-
-    const selectedConversion =
-      availableConversions.find(
-        (item) =>
-          item.consumptionUnit ===
-          consumptionUnit
-      );
-
-    if (selectedConversion) {
-      setValue(
-        "conversionFactor",
-        selectedConversion.factor
-      );
-    } else {
-      setValue(
-        "consumptionUnit",
-        availableConversions[0]
-          .consumptionUnit
-      );
-
-      setValue(
-        "conversionFactor",
-        availableConversions[0]
-          .factor
-      );
-    }
-  }, [
-    consumptionUnit,
-    availableConversions,
-    setValue,
-  ]);
 
   // =====================================
   // SUBMIT
   // =====================================
 
+useEffect(() => {
+  const mappings = unitConversions
+    .filter((item) =>
+      selectedConversions.includes(item.id)
+    )
+    .map((item) => ({
+      purchaseUnit: item.purchaseUnit,
+      consumptionUnit: item.consumptionUnit,
+      factor: item.factor,
+    }));
 
+  setValue("purchaseMappings", mappings, {
+    shouldValidate: true,
+  });
+}, [
+  selectedConversions,
+  unitConversions,
+  setValue,
+]);
 
   async function onSubmit(
     data: TnewInventorySchema
   ) {
-    const selectedConversion =
-      unitConversions.find(
-        (x) =>
-          x.purchaseUnit === data.purchaseUnit &&
-          x.consumptionUnit === data.consumptionUnit
-      );
-
-    if (!selectedConversion) {
-      alert("Invalid unit conversion");
-      return;
-    }
-
+  
     setIsSubmitting(true);
 
     const supplierIds = Array.isArray(data.supplierIds)
@@ -191,7 +144,15 @@ export default function NewInventoryForm({
         ? [data.supplierIds]
         : [];
 
-
+const purchaseMappings = unitConversions
+  .filter((item) =>
+    selectedConversions.includes(item.id)
+  )
+  .map((item) => ({
+    purchaseUnit: item.purchaseUnit,
+    consumptionUnit: item.consumptionUnit,
+    factor: item.factor,
+  }));
 
     try {
       const formData = new FormData();
@@ -211,22 +172,22 @@ export default function NewInventoryForm({
         data.barcode || ""
       );
 
-      formData.append(
-        "purchaseUnit",
-        data.purchaseUnit
-      );
+      // formData.append(
+      //   "purchaseUnit",
+      //   data.purchaseUnit
+      // );
 
       formData.append(
         "consumptionUnit",
         data.consumptionUnit
       );
 
-      formData.append(
-        "conversionFactor",
-        String(
-          data.conversionFactor
-        )
-      );
+      // formData.append(
+      //   "conversionFactor",
+      //   String(
+      //     data.conversionFactor
+      //   )
+      // );
 
       formData.append(
         "currentStock",
@@ -271,6 +232,11 @@ export default function NewInventoryForm({
           ? "true"
           : "false"
       );
+      
+      formData.append(
+  "purchaseMappings",
+  JSON.stringify(purchaseMappings)
+);
 
       const result =
         await addNewInventoryItem(
@@ -287,22 +253,11 @@ export default function NewInventoryForm({
           costPrice: 0,
           sellingPrice: 0,
 
-          purchaseUnit:
-            purchaseUnits[0] || "",
+         // purchaseUnit:  "dumy",
 
-          consumptionUnit:
-            unitConversions.find(
-              (x) =>
-                x.purchaseUnit ===
-                purchaseUnits[0]
-            )?.consumptionUnit || "",
+           consumptionUnit,
+           purchaseMappings,
 
-          conversionFactor:
-            unitConversions.find(
-              (x) =>
-                x.purchaseUnit ===
-                purchaseUnits[0]
-            )?.factor || 1,
 
           supplierIds: [],
           isActive: true,
@@ -451,34 +406,7 @@ export default function NewInventoryForm({
 
               {/* Unit */}
 
-              {/* Purchase Unit */}
-              <div>
-                <label className="label-style-4">
-                  Purchase Unit
-                </label>
-
-                <select
-                  {...register("purchaseUnit")}
-                  className="input-style-4 mt-1"
-                >
-                  <option value="">
-                    Select Purchase Unit
-                  </option>
-
-                  {purchaseUnits.map((unit) => (
-                    <option
-                      key={unit}
-                      value={unit}
-                    >
-                      {unit.toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-
-                <p className="text-xs text-gray-500 mt-1">
-                  Unit used when purchasing stock
-                </p>
-              </div>
+         
 
               {/* Consumption Unit */}
               <div>
@@ -486,57 +414,27 @@ export default function NewInventoryForm({
                   Consumption Unit
                 </label>
 
-                <select
-                  {...register("consumptionUnit")}
-                  className="input-style-4 mt-1"
-                >
-                  {availableConversions.length === 0 ? (
-                    <option value="">
-                      Select Purchase Unit First
-                    </option>
-                  ) : (
-                    availableConversions.map(
-                      (conversion) => (
-                        <option
-                          key={`${conversion.purchaseUnit}-${conversion.consumptionUnit}`}
-                          value={
-                            conversion.consumptionUnit
-                          }
-                        >
-                          {conversion.consumptionUnit.toUpperCase()}
-                        </option>
-                      )
-                    )
-                  )}
-                </select>
+      <select
+  {...register("consumptionUnit")}
+  className="input-style-4 mt-1"
+>
+  <option value="">
+    Select Consumption Unit
+  </option>
+
+  {consumptionUnits.map((unit) => (
+    <option key={unit} value={unit}>
+      {unit.toUpperCase()}
+    </option>
+  ))}
+</select>
 
                 <p className="text-xs text-gray-500 mt-1">
                   Unit used in recipes
                 </p>
               </div>
 
-              {/* Conversion Factor */}
-              <div>
-                <label className="label-style-4">
-                  Conversion Factor
-                </label>
-
-                <input
-                  type="number"
-                  step="0.0001"
-                  {...register("conversionFactor")}
-                  className="input-style-4 mt-1"
-                  placeholder="1000"
-                />
-
-                <p className="text-xs text-gray-500 mt-1">
-                  Auto-filled from unit conversion setup
-                </p>
-
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.conversionFactor?.message}
-                </p>
-              </div>
+        
 
 
 
@@ -655,7 +553,113 @@ export default function NewInventoryForm({
         {/* RIGHT */}
         <div className="flex flex-col gap-5">
 
+{/* <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    Purchase Unit Mapping
+  </h2>
 
+  <p className="text-sm text-gray-500 mb-4">
+    Select all purchase units that can be used for this inventory item.
+  </p>
+
+  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+    {availableMappings.map((conversion) => (
+      <label
+        key={conversion.id}
+        className="flex items-center gap-2 rounded-lg border p-3 hover:bg-gray-50 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          checked={selectedConversions.includes(conversion.id)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setSelectedConversions((prev) => [
+                ...prev,
+                conversion.id,
+              ]);
+            } else {
+              setSelectedConversions((prev) =>
+                prev.filter((id) => id !== conversion.id)
+              );
+            }
+          }}
+        />
+
+      <div className="flex flex-col">
+  <span className="font-medium text-sm">
+    {conversion.purchaseUnit.toUpperCase()}
+  </span>
+
+  <span className="text-xs text-gray-500">
+    {conversion.purchaseUnit.toUpperCase()}
+    {" → "}
+    {conversion.consumptionUnit.toUpperCase()}
+  </span>
+
+  <span className="text-xs text-blue-600">
+    Factor: {conversion.factor}
+  </span>
+</div>
+      </label>
+    ))}
+  </div>
+</div> */}
+
+<div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
+  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+    Purchase Unit Mapping
+  </h2>
+
+  <table className="w-full text-sm">
+    <thead className="bg-gray-100">
+      <tr>
+        <th className="p-2 text-left">Select</th>
+        <th className="p-2 text-left">Purchase Unit</th>
+        <th className="p-2 text-left">Consumption Unit</th>
+        <th className="p-2 text-right">Factor</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {availableMappings.map((conversion) => (
+        <tr key={conversion.id}>
+          <td className="p-2">
+            <input
+              type="checkbox"
+              checked={selectedConversions.includes(conversion.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedConversions((prev) => [
+                    ...prev,
+                    conversion.id,
+                  ]);
+                } else {
+                  setSelectedConversions((prev) =>
+                    prev.filter(
+                      (id) => id !== conversion.id
+                    )
+                  );
+                }
+              }}
+            />
+          </td>
+
+          <td className="p-2">
+            {conversion.purchaseUnit.toUpperCase()}
+          </td>
+
+          <td className="p-2">
+            {conversion.consumptionUnit.toUpperCase()}
+          </td>
+
+          <td className="p-2 text-right">
+            {conversion.factor}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
           {/* Status Card */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">

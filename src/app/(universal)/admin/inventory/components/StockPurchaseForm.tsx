@@ -102,7 +102,7 @@ export default function StockPurchaseForm({
       unitCost: 0,
       totalAmount: 0,
 
-      transactionUnit: "pcs",
+      transactionUnit: "gm",
 
       paymentStatus: "PAID",
       paymentMethod: "CASH",
@@ -324,22 +324,20 @@ export default function StockPurchaseForm({
       Number(data.unitCost);
 
     // Convert purchase unit -> consumption unit
-    if (
-      data.transactionUnit ===
-      selectedInventory.purchaseUnit &&
-      selectedInventory.purchaseUnit !==
-      selectedInventory.consumptionUnit
-    ) {
-      // quantity convert
-      finalQuantity =
-        finalQuantity *
-        selectedInventory.conversionFactor;
+  const mapping =
+  selectedInventory.purchaseMappings.find(
+    (m) =>
+      m.purchaseUnit ===
+      data.transactionUnit
+  );
 
-      // ✅ cost convert
-      finalUnitCost =
-        finalUnitCost /
-        selectedInventory.conversionFactor;
-    }
+if (mapping) {
+  finalQuantity =
+    finalQuantity * mapping.factor;
+
+  finalUnitCost =
+    finalUnitCost / mapping.factor;
+}
 
     if (
       Number(data.paidAmount || 0) >
@@ -382,8 +380,8 @@ export default function StockPurchaseForm({
 
         purchaseUnitCost: originalUnitCost,
 
-        conversionFactor:
-          selectedInventory.conversionFactor,
+       conversionFactor:
+  mapping?.factor || 1,
 
         paymentStatus: data.paymentStatus,
 
@@ -417,7 +415,9 @@ export default function StockPurchaseForm({
           inventoryItemId: selectedInventory.id,
 
           quantity: 0,
-          transactionUnit: selectedInventory.purchaseUnit,
+     transactionUnit:
+  selectedInventory.purchaseMappings?.[0]?.purchaseUnit ??
+  selectedInventory.consumptionUnit,
 
           unitCost: 0,
           totalAmount: 0,
@@ -456,7 +456,7 @@ export default function StockPurchaseForm({
   >("RATE");
 
 
-
+console.log(selectedInventory);
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6 w-full  ">
@@ -544,10 +544,11 @@ export default function StockPurchaseForm({
                             );
 
                             // default transaction unit
-                            setValue(
-                              "transactionUnit",
-                              item.purchaseUnit
-                            );
+                          setValue(
+  "transactionUnit",
+  item.purchaseMappings?.[0]?.purchaseUnit ??
+    item.consumptionUnit
+);
 
                             setSearch(item.name);
 
@@ -607,12 +608,15 @@ export default function StockPurchaseForm({
                 </div>
 
                 <div className="text-2xl font-bold text-blue-700">
-                  {displayStock(
-                    selectedInventory.currentStock!,
-                    selectedInventory.purchaseUnit,
-                    selectedInventory.consumptionUnit,
-                    selectedInventory.conversionFactor
-                  )}
+<div className="text-2xl font-bold text-blue-700">
+  {displayStock(
+    selectedInventory.currentStock!,
+    selectedInventory.purchaseMappings?.[0]?.purchaseUnit ??
+      selectedInventory.consumptionUnit,
+    selectedInventory.consumptionUnit,
+    selectedInventory.purchaseMappings?.[0]?.factor ?? 1
+  )}
+</div>
                 </div>
               </div>
             )}
@@ -692,30 +696,32 @@ export default function StockPurchaseForm({
                     Unit
                   </label>
 
-                  <select
-                    {...register("transactionUnit")}
-                    className="input-style-4"
-                  >
-                    {selectedInventory && (
-                      <option value={selectedInventory.purchaseUnit}>
-                        {selectedInventory.purchaseUnit}
-                      </option>
-                    )}
+      <select
+  {...register("transactionUnit")}
+  className="input-style-4"
+>
+{selectedInventory?.purchaseMappings?.map((mapping) => (
+    <option
+      key={mapping.purchaseUnit}
+      value={mapping.purchaseUnit}
+    >
+      {mapping.purchaseUnit}
+    </option>
+  ))}
 
-                    {selectedInventory &&
-                      selectedInventory.consumptionUnit !==
-                      selectedInventory.purchaseUnit && (
-                        <option
-                          value={
-                            selectedInventory.consumptionUnit
-                          }
-                        >
-                          {
-                            selectedInventory.consumptionUnit
-                          }
-                        </option>
-                      )}
-                  </select>
+  {!(
+  selectedInventory?.purchaseMappings?.some(
+    (m) => m.purchaseUnit === selectedInventory.consumptionUnit
+  )
+
+  ) && (
+    <option
+      value={selectedInventory?.consumptionUnit}
+    >
+      {selectedInventory?.consumptionUnit}
+    </option>
+  )}
+</select>
                 </div>
 
                 {/* Total Amount */}

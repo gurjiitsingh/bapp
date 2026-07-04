@@ -127,6 +127,12 @@ export const UNIT_PAIRS: Record<
 /* SCHEMA */
 /* -------------------------------- */
 
+export const purchaseMappingSchema = z.object({
+  purchaseUnit: z.string(),
+  consumptionUnit: z.string(),
+  factor: z.coerce.number().positive(),
+});
+
 export const newInventorySchema =
   z
     .object({
@@ -152,23 +158,23 @@ export const newInventorySchema =
       // consumptionUnit:
       //   z.enum(inventoryUnits),
 
-      purchaseUnit: z
-        .string()
-        .trim()
-        .min(1, "Purchase unit required"),
+      // purchaseUnit: z
+      //   .string()
+      //   .trim()
+      //   .min(1, "Purchase unit required"),
 
       consumptionUnit: z
         .string()
         .trim()
         .min(1, "Consumption unit required"),
 
-      conversionFactor:
-        z.coerce
-          .number()
-          .min(
-            1,
-            "Conversion factor must be at least 1"
-          ),
+      // conversionFactor:
+      //   z.coerce
+      //     .number()
+      //     .min(
+      //       1,
+      //       "Conversion factor must be at least 1"
+      //     ),
 
 
       minStock:
@@ -178,6 +184,11 @@ export const newInventorySchema =
             0,
             "Minimum stock cannot be negative"
           ),
+
+    purchaseMappings: z
+    .array(purchaseMappingSchema)
+    .min(1, "Select at least one purchase unit"),
+   
 
       currentStock: z.coerce
         .number()
@@ -216,7 +227,11 @@ export const newInventorySchema =
         ),
     })
 
-    
+    export type PurchaseMapping = {
+  purchaseUnit: InventoryUnit;
+  consumptionUnit: InventoryUnit;
+  factor: number;
+};
 
 export type TnewInventorySchema =
   z.infer<
@@ -228,20 +243,20 @@ export type InventoryItemType = {
 
   name: string;
   nameLower?: string;
+
   categoryName?: string;
   supplierName?: string;
 
   sku?: string;
   barcode?: string;
 
-  purchaseUnit: InventoryUnit;
-
+  // Default consumption unit
   consumptionUnit: InventoryUnit;
 
-  conversionFactor: number;
+  // All purchase units for this item
+  purchaseMappings: PurchaseMapping[];
 
   currentStock?: number;
-
   minStock?: number;
 
   averageCost?: number;
@@ -251,6 +266,7 @@ export type InventoryItemType = {
 
   supplierId?: string;
   supplierIds?: string[];
+
   isActive: boolean;
 
   createdAt: Timestamp | FieldValue;

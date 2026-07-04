@@ -1,4 +1,7 @@
-import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
+import {
+  InventoryItemType,
+  InventoryUnit,
+} from "@/lib/types/InventoryItemType";
 import { ProductType } from "@/lib/types/productType";
 import {
   getConversionFactor,
@@ -21,7 +24,8 @@ export function mapProductToInventory(
 ): Partial<InventoryItemType> {
   const name = product.name ?? "";
 
-  const defaultPair = getDefaultUnitPair(config?.purchaseUnit);
+  const defaultPair =
+    getDefaultUnitPair(config?.purchaseUnit);
 
   const purchaseUnit =
     config?.purchaseUnit ??
@@ -35,7 +39,10 @@ export function mapProductToInventory(
 
   const conversionFactor =
     config?.conversionFactor ??
-    getConversionFactor(purchaseUnit, consumptionUnit);
+    getConversionFactor(
+      purchaseUnit,
+      consumptionUnit
+    );
 
   return {
     id: product.id,
@@ -46,16 +53,26 @@ export function mapProductToInventory(
     sku: product.sku ?? "",
     barcode: product.barcode ?? "",
 
-    purchaseUnit,
+     
     consumptionUnit,
-    conversionFactor,
+    
 
-    // ✅ ALWAYS ensure numbers (avoid undefined / NaN)
+    // ✅ NEW
+    purchaseMappings: [
+      {
+        purchaseUnit,
+        consumptionUnit,
+        factor: conversionFactor,
+      },
+    ],
+
     currentStock: Number(currentStock ?? 0),
     minStock: Number(minStock ?? 0),
 
-    // ✅ safe category mapping
-    ...(categoryId && categoryId.trim() !== "" && { categoryId }),
+    ...(categoryId &&
+      categoryId.trim() !== "" && {
+        categoryId,
+      }),
 
     ...(product.productCat && {
       categoryName: product.productCat,
@@ -63,13 +80,7 @@ export function mapProductToInventory(
 
     isActive: true,
 
-    /**
-     * ✅ CRITICAL FIX:
-     * createdAt should NOT overwrite existing doc
-     * So we REMOVE it from here
-     * and set ONLY in API when doc is new
-     */
-
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt:
+      admin.firestore.FieldValue.serverTimestamp(),
   };
 }

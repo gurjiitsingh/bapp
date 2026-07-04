@@ -36,20 +36,22 @@ export default function ListView({
   inventoryItems,
   categories
 }: Props) {
+
+  
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
 
   const [search, setSearch] =
     useState("");
 
-const categoryMap = useMemo(() => {
-  return new Map(
-    (categories ?? []).map((category) => [
-      category.id,
-      category.name,
-    ])
-  );
-}, [categories]);
+  const categoryMap = useMemo(() => {
+    return new Map(
+      (categories ?? []).map((category) => [
+        category.id,
+        category.name,
+      ])
+    );
+  }, [categories]);
 
   const inventoryWithCategory =
     useMemo(() => {
@@ -223,11 +225,11 @@ const categoryMap = useMemo(() => {
                 <TableHead>
                   Stock
                 </TableHead>
-                 <TableHead>
+                <TableHead>
                   Avg cost
                 </TableHead>
 
- <TableHead>
+                <TableHead>
                   Stock Value
                 </TableHead>
 
@@ -250,27 +252,27 @@ const categoryMap = useMemo(() => {
               </TableRow>
             </TableHeader>
 
-       <TableBody>
-  {filtered.length > 0 ? (
-    inventoryWithCategory.map(
-      (item) => (
-        <TableRows
-          key={item.id}
-          item={item}
-        />
-      )
-    )
-  ) : (
-    <TableRow>
-      <td
-        colSpan={8}
-        className="text-center py-16 text-gray-400"
-      >
-        No inventory items found
-      </td>
-    </TableRow>
-  )}
-</TableBody>
+            <TableBody>
+              {filtered.length > 0 ? (
+                inventoryWithCategory.map(
+                  (item) => (
+                    <TableRows
+                      key={item.id}
+                      item={item}
+                    />
+                  )
+                )
+              ) : (
+                <TableRow>
+                  <td
+                    colSpan={8}
+                    className="text-center py-16 text-gray-400"
+                  >
+                    No inventory items found
+                  </td>
+                </TableRow>
+              )}
+            </TableBody>
           </Table>
         </div>
       </div>

@@ -17,6 +17,7 @@ import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType"
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
 import { displayStock } from "@/utils/inventory/displayStock";
+import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -80,7 +81,7 @@ export default function StockAdjustmentForm({
       type: "OPENING_STOCK",
       direction: "IN",
       quantity: 0,
-      transactionUnit: "pcs",
+      transactionUnit: "gm",
       note: "",
     },
   });
@@ -93,18 +94,65 @@ export default function StockAdjustmentForm({
   const transactionUnit = watch("transactionUnit");
 
 
+  useEffect(() => {
+    if (!selectedInventory) return;
 
+    const mapping =
+      selectedInventory.purchaseMappings?.find(
+        (m) => m.purchaseUnit === transactionUnit
+      ) ?? {
+        purchaseUnit: selectedInventory.consumptionUnit,
+        factor: 1,
+      };
+
+    if (type === "WASTAGE") return;
+
+    setValue(
+      "quantity",
+      Number(
+        (
+          (selectedInventory.currentStock ?? 0) /
+          mapping.factor
+        ).toFixed(3)
+      )
+    );
+
+    setValue(
+      "averageCost",
+      Number(
+        (
+          (selectedInventory.averageCost ?? 0) *
+          mapping.factor
+        ).toFixed(2)
+      )
+    );
+
+    setValue(
+      "stockValue",
+      Number(
+        (selectedInventory.stockValue ?? 0).toFixed(2)
+      )
+    );
+  }, [
+    transactionUnit,
+    selectedInventory,
+    type,
+    setValue,
+  ]);
   // =====================================================
   // AUTO SET STOCK DIRECTION
   // =====================================================
 
   useEffect(() => {
-    if (selectedInventory) {
-      setValue(
-        "transactionUnit",
-        selectedInventory.purchaseUnit
-      );
-    }
+    if (!selectedInventory) return;
+
+    const mapping =
+      getPrimaryPurchaseMapping(selectedInventory);
+
+    setValue(
+      "transactionUnit",
+      mapping.purchaseUnit
+    );
   }, [selectedInventory, setValue]);
 
   useEffect(() => {
@@ -166,7 +214,15 @@ export default function StockAdjustmentForm({
     lastEdited,
     setValue,
   ]);
-
+  const selectedMapping =
+    selectedInventory?.purchaseMappings?.find(
+      (m) => m.purchaseUnit === transactionUnit
+    ) ??
+    (selectedInventory && {
+      purchaseUnit: selectedInventory.consumptionUnit,
+      consumptionUnit: selectedInventory.consumptionUnit,
+      factor: 1,
+    });
 
   // =====================================================
   // FILTER INVENTORY
@@ -239,33 +295,33 @@ export default function StockAdjustmentForm({
     let finalQuantity =
       Number(data.quantity);
 
-    if (!selectedInventory.conversionFactor) {
-      alert("Conversion factor missing");
-      return;
-    }
+    // nothing needed
+
+    const mapping =
+      selectedInventory.purchaseMappings?.find(
+        (m) => m.purchaseUnit === data.transactionUnit
+      ) ?? {
+        purchaseUnit: selectedInventory.consumptionUnit,
+        factor: 1,
+      };
     // convert purchase -> consumption
-    if (
-      data.transactionUnit ===
-      selectedInventory.purchaseUnit &&
-      selectedInventory.purchaseUnit !==
-      selectedInventory.consumptionUnit
-    ) {
+
+
+
+    if (mapping) {
       finalQuantity =
-        finalQuantity *
-        selectedInventory.conversionFactor;
+        finalQuantity * mapping.factor;
     }
 
     setIsSubmitting(true);
 
     let averageCost = Number(data.averageCost);
 
-    if (
-      data.transactionUnit === selectedInventory.purchaseUnit &&
-      selectedInventory.purchaseUnit !== selectedInventory.consumptionUnit
-    ) {
+    if (mapping) {
       averageCost =
-        averageCost /
-        selectedInventory.conversionFactor;
+        averageCost / mapping.factor;
+
+
     }
 
 
@@ -303,7 +359,7 @@ export default function StockAdjustmentForm({
           purchaseUnitCost: 0,
 
           conversionFactor:
-            selectedInventory.conversionFactor,
+            mapping?.factor ?? 1,
 
           paymentStatus: "PAID",
 
@@ -313,14 +369,19 @@ export default function StockAdjustmentForm({
         });
 
       if (result.success) {
-        let updatedStock =
-          selectedInventory.currentStock;
+       let updatedStock: number;
 
-        if (data.direction === "IN") {
-          updatedStock! += finalQuantity;
-        } else {
-          updatedStock! -= finalQuantity;
-        }
+if (data.type === "OPENING_STOCK") {
+  updatedStock = finalQuantity;
+} else if (data.direction === "IN") {
+  updatedStock =
+    (selectedInventory.currentStock ?? 0) +
+    finalQuantity;
+} else {
+  updatedStock =
+    (selectedInventory.currentStock ?? 0) -
+    finalQuantity;
+}
 
         setSelectedInventory({
           ...selectedInventory,
@@ -333,7 +394,10 @@ export default function StockAdjustmentForm({
           quantity: 0,
           note: "",
           inventoryItemId: selectedInventory.id,
-          transactionUnit: selectedInventory.purchaseUnit, // ✅ FIX
+          transactionUnit:
+            getPrimaryPurchaseMapping(
+              selectedInventory
+            ).purchaseUnit, // ✅ FIX
         });
       } else {
         alert(result.message);
@@ -429,30 +493,33 @@ export default function StockAdjustmentForm({
 
                           setValue("inventoryItemId", item.id);
 
-                          setValue("transactionUnit", item.purchaseUnit);
+                          const mapping =
+                            getPrimaryPurchaseMapping(item);
 
-                          // current quantity
-                          setValue("quantity", item.currentStock ?? 0);
+                          setValue(
+                            "transactionUnit",
+                            mapping.purchaseUnit
+                          );
+
+
                           const displayQuantity =
-                            item.purchaseUnit === item.consumptionUnit
-                              ? item.currentStock ?? 0
-                              : (item.currentStock ?? 0) / item.conversionFactor;
+                            (item.currentStock ?? 0) /
+                            mapping.factor;
 
                           const displayaverageCost =
-                            item.purchaseUnit === item.consumptionUnit
-                              ? item.averageCost ?? 0
-                              : (item.averageCost ?? 0) * item.conversionFactor;
+                            (item.averageCost ?? 0) *
+                            mapping.factor;
 
-                       
-                       if (type === "WASTAGE") {
-  setValue("averageCost", 0);
-  setValue("stockValue", 0);  
-   setValue("quantity", 0);
-} else {
-  setValue("averageCost", Number(displayaverageCost.toFixed(2)));
-  setValue("stockValue", Number((item.stockValue ?? 0).toFixed(2)));
-     setValue("quantity", Number(displayQuantity.toFixed(3)));
-}
+
+                          if (type === "WASTAGE") {
+                            setValue("averageCost", 0);
+                            setValue("stockValue", 0);
+                            setValue("quantity", 0);
+                          } else {
+                            setValue("averageCost", Number(displayaverageCost.toFixed(2)));
+                            setValue("stockValue", Number((item.stockValue ?? 0).toFixed(2)));
+                            setValue("quantity", Number(displayQuantity.toFixed(3)));
+                          }
 
                           setSearch(item.name);
                           setShowDropdown(false);
@@ -463,11 +530,22 @@ export default function StockAdjustmentForm({
                           {item.name}
                         </div>
 
-                        <div className="text-xs text-gray-400">
-                          Current:{" "}
-                          {item.currentStock}{" "}
-                          {item.consumptionUnit}
-                        </div>
+
+
+                     <div className="text-xs text-gray-400">
+  Current{" "}
+  {(() => {
+    const mapping =
+      getPrimaryPurchaseMapping(item);
+
+    return displayStock(
+      item.currentStock ?? 0,
+      mapping.purchaseUnit,
+      item.consumptionUnit,
+      mapping.factor
+    );
+  })()}
+</div>
                       </button>
                     ))}
                   </div>
@@ -511,12 +589,14 @@ export default function StockAdjustmentForm({
               </div>
 
               <div className="text-2xl font-bold text-blue-700">
-                {displayStock(
-                  selectedInventory.currentStock!,
-                  selectedInventory.purchaseUnit,
-                  selectedInventory.consumptionUnit,
-                  selectedInventory.conversionFactor
-                )}
+                {
+                  displayStock(
+                    selectedInventory.currentStock!,
+                    selectedMapping!.purchaseUnit,
+                    selectedInventory.consumptionUnit,
+                    selectedMapping!.factor
+                  )
+                }
               </div>
             </div>
           )}
@@ -589,18 +669,18 @@ export default function StockAdjustmentForm({
                 Quantity
               </label>
 
-             <input
-  type="number"
-  step="0.001"
-  {...register("quantity")}
-  className="input-style-4"
-  placeholder="Enter quantity"
-  onFocus={(e) => {
-    if (e.target.value === "0") {
-      e.target.value = "";
-    }
-  }}
-/>
+              <input
+                type="number"
+                step="0.001"
+                {...register("quantity")}
+                className="input-style-4"
+                placeholder="Enter quantity"
+                onFocus={(e) => {
+                  if (e.target.value === "0") {
+                    e.target.value = "";
+                  }
+                }}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -612,32 +692,28 @@ export default function StockAdjustmentForm({
                 {...register("transactionUnit")}
                 className="input-style-4"
               >
-                {selectedInventory && (
-                  <>
-                    <option value={selectedInventory.purchaseUnit}>
-                      {selectedInventory.purchaseUnit}
-                    </option>
-
-                    {selectedInventory.consumptionUnit !==
-                      selectedInventory.purchaseUnit && (
-                        <option value={selectedInventory.consumptionUnit}>
-                          {selectedInventory.consumptionUnit}
-                        </option>
-                      )}
-                  </>
-                )}
+                {selectedInventory &&
+                  selectedInventory.purchaseMappings?.map(
+                    (mapping) => (
+                      <option
+                        key={mapping.purchaseUnit}
+                        value={mapping.purchaseUnit}
+                      >
+                        {mapping.purchaseUnit}
+                      </option>
+                    )
+                  )}
 
                 {selectedInventory &&
-                  selectedInventory.consumptionUnit !==
-                  selectedInventory.purchaseUnit && (
+                  (!selectedInventory.purchaseMappings ||
+                    selectedInventory.purchaseMappings.length ===
+                    0) && (
                     <option
                       value={
                         selectedInventory.consumptionUnit
                       }
                     >
-                      {
-                        selectedInventory.consumptionUnit
-                      }
+                      {selectedInventory.consumptionUnit}
                     </option>
                   )}
               </select>

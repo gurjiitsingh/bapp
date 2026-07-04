@@ -8,6 +8,8 @@ import { FaSave } from "react-icons/fa";
  
 import { categoryType } from "@/lib/types/categoryType";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
+import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
+import { displayStock } from "@/utils/inventory/displayStock";
  
  
 
@@ -19,16 +21,14 @@ export default function InventoryTableRows({
   categoryData?: categoryType[];
 }) {
   const [isSaving, setIsSaving] = useState(false);
-
-  const [editData, setEditData] = useState({
-    name: item.name ?? "",
-    categoryId: item.categoryId ?? "",
-    purchaseUnit: item.purchaseUnit,
-    consumptionUnit: item.consumptionUnit,
-    conversionFactor: item.conversionFactor ?? 1,
-    currentStock: item.currentStock ?? 0,
-    averageCost: item.averageCost ?? 0,
-  });
+const primaryMapping =
+  getPrimaryPurchaseMapping(item);
+ const [editData, setEditData] = useState({
+  name: item.name ?? "",
+  categoryId: item.categoryId ?? "",
+  currentStock: item.currentStock ?? 0,
+  averageCost: item.averageCost ?? 0,
+});
 
   async function handleSave() {
     setIsSaving(true);
@@ -54,18 +54,14 @@ export default function InventoryTableRows({
         </Button>
       </TableCell>
 
-      <TableCell>
-        <input
-          className="border rounded-md px-2 py-1 w-64 text-sm bg-green-50"
-          value={editData.name}
-          onChange={(e) =>
-            setEditData({
-              ...editData,
-              name: e.target.value,
-            })
-          }
-        />
-      </TableCell>
+     <TableCell>
+  {displayStock(
+    item.currentStock ?? 0,
+    primaryMapping.purchaseUnit,
+    item.consumptionUnit,
+    primaryMapping.factor
+  )}
+</TableCell>
 
       <TableCell>
         <select
