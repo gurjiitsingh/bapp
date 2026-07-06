@@ -174,7 +174,23 @@ export default function TruckDeliverySale({
       (x) => x.quantity > 0
     );
 
-    if (!items.length) {
+  
+      if (!data.vehicleId) {
+    toast.error("Please select a vehicle.");
+    return;
+  }
+
+  if (!selectedVehicle?.name) {
+    toast.error("Selected vehicle not found.");
+    return;
+  }
+
+  if (!data.wholeSaleCutomerId) {
+    toast.error("Please select a wholesale customer.");
+    return;
+  }
+
+   if (!items.length) {
       toast.error(
         "Please enter at least one quantity."
       );
@@ -182,17 +198,17 @@ export default function TruckDeliverySale({
     }
 
     const result = await deiveryTruckSale({
-       vehicleId: data.vehicleId,
-  vehicleName: selectedVehicle!.name,
-  locationCode: selectedVehicle!.locationCode,
-  responsiblePerson: selectedVehicle!.responsiblePersonName,
+      vehicleId: data.vehicleId,
+      vehicleName: selectedVehicle!.name,
+      locationCode: selectedVehicle!.locationCode,
+      responsiblePerson: selectedVehicle!.responsiblePersonName,
 
-  wholeSaleCutomerId: data.wholeSaleCutomerId!,
-  wholeSaleCutomerName:
-    data.wholeSaleCutomerName!,
+      wholeSaleCutomerId: data.wholeSaleCutomerId!,
+      wholeSaleCutomerName:
+        data.wholeSaleCutomerName!,
 
-  remarks: data.remarks,
-  items,
+      remarks: data.remarks,
+      items,
     });
 
 

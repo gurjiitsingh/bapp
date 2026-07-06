@@ -25,7 +25,7 @@ import toast from "react-hot-toast";
 type LoadVehicleFormType = {
   vehicleId: string;
   remarks?: string;
-name: string;
+  name: string;
   items: {
     productId: string;
     quantity: number;
@@ -59,7 +59,7 @@ export default function LoadVehicleFormOeprator({
 
 
   const vehicleId = form.watch("vehicleId");
-console.log("vehicleId:", vehicleId);
+  console.log("vehicleId:", vehicleId);
   const [factoryData, setFactoryData] =
     useState<StockLocationType[]>(factoryStock);
 
@@ -100,27 +100,41 @@ console.log("vehicleId:", vehicleId);
   }));
 
   const onSubmit = async (data: LoadVehicleFormType) => {
+
     const items = data.items.filter((x) => x.quantity > 0);
 
-    if(!selectedVehicle?.name){
-      return
-    }
- 
-const result = await loadVehicle({
-  vehicleId: data.vehicleId,
-  vehicleName: selectedVehicle.name,
-  locationCode: selectedVehicle.locationCode,
-  responsiblePerson: selectedVehicle.responsiblePersonName,
-  remarks: data.remarks,
-  items,
-});
+   
+
+  if (!data.vehicleId) {
+    toast.error("Please select a vehicle.");
+    return;
+  }
+
+  if (!selectedVehicle?.name) {
+    toast.error("Selected vehicle not found.");
+    return;
+  }
+
+  if (items.length === 0) {
+    toast.error("Please enter at least one quantity.");
+    return;
+  }
+
+    const result = await loadVehicle({
+      vehicleId: data.vehicleId,
+      vehicleName: selectedVehicle.name,
+      locationCode: selectedVehicle.locationCode,
+      responsiblePerson: selectedVehicle.responsiblePersonName,
+      remarks: data.remarks,
+      items,
+    });
 
     console.log(result);
 
-  if (!result.success) {
-    toast.error(result.message);
-    return;
-  }
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
 
     // ==========================
     // Update Factory Stock
@@ -179,7 +193,7 @@ const result = await loadVehicle({
       return updated;
     });
 
-   toast.success(result.message);
+    toast.success(result.message);
 
     await fetchVanStock(data.vehicleId);
 
@@ -223,37 +237,37 @@ const result = await loadVehicle({
 
                 {/* Vehicle */}
 
-          <div className="flex flex-col gap-2">
-  <label className="label-style-4">
-    Vehicle
-  </label>
+                <div className="flex flex-col gap-2">
+                  <label className="label-style-4">
+                    Vehicle
+                  </label>
 
-  <Controller
-    control={form.control}
-    name="vehicleId"
-    render={({ field }) => (
-      <Select
-        value={field.value}
-        onValueChange={field.onChange}
-      >
-        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
-          <SelectValue placeholder="Select Vehicle" />
-        </SelectTrigger>
+                  <Controller
+                    control={form.control}
+                    name="vehicleId"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
+                          <SelectValue placeholder="Select Vehicle" />
+                        </SelectTrigger>
 
-        <SelectContent className="bg-white border border-gray-300">
-          {vehicles.map((v) => (
-            <SelectItem
-              key={v.id}
-              value={v.id}
-            >
-              {v.name} ({v.locationCode})
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    )}
-  />
-</div>
+                        <SelectContent className="bg-white border border-gray-300">
+                          {vehicles.map((v) => (
+                            <SelectItem
+                              key={v.id}
+                              value={v.id}
+                            >
+                              {v.name} ({v.locationCode})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </div>
 
                 {/* Driver */}
 
@@ -388,21 +402,21 @@ const result = await loadVehicle({
                           {item.vanQuantity}
                         </td>
 
-                       <td className="p-2">
-  <Input
-    type="number"
-    min={0}
-    max={item.quantity}
-    {...form.register(`items.${index}.quantity`, {
-      valueAsNumber: true,
-    })}
-    onFocus={(e) => {
-      if (e.target.value === "0") {
-        e.target.value = "";
-      }
-    }}
-  />
-</td>
+                        <td className="p-2">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={item.quantity}
+                            {...form.register(`items.${index}.quantity`, {
+                              valueAsNumber: true,
+                            })}
+                            onFocus={(e) => {
+                              if (e.target.value === "0") {
+                                e.target.value = "";
+                              }
+                            }}
+                          />
+                        </td>
 
                         <td className="text-center">
                           <Button
