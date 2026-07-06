@@ -118,7 +118,7 @@ const supplierIds =
 
       isActive,
     };
-console.log("receivedData---------------",receivedData)
+ 
     const result =
       newInventorySchema.safeParse(
         receivedData
@@ -255,7 +255,7 @@ purchaseMappings,
   updatedAt:
     admin.firestore.FieldValue.serverTimestamp(),
 };
-console.log("data---------------------",data)
+ 
 
     await adminDb
       .collection("inventoryItems")

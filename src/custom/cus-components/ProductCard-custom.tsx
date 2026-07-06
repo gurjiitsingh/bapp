@@ -98,7 +98,7 @@ export default function ProdcutCardHorizontical19({
      );
    }
 
-   console.log("priceDiscounted---------------", priceDiscounted)
+ 
 
   // const cartProduct: cartProductType = {
   //   id: product.id,

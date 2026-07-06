@@ -19,10 +19,29 @@ export function displayStock(
 
   const wholeUnits = Math.floor(safeStock / conversionFactor);
 
-  const remaining =
+  let remaining =
     Math.round((safeStock % conversionFactor) * 1000) / 1000;
 
   let result = `${wholeUnits} ${purchaseUnit}`;
+
+  const isContainerUnit =
+  purchaseUnit !== "kg" &&
+  purchaseUnit !== "gm" &&
+  purchaseUnit !== "ltr" &&
+  purchaseUnit !== "ml";
+
+if (
+  isContainerUnit &&
+  conversionFactor > 1000 &&
+  consumptionUnit === "gm"
+) {
+  if (remaining >= 1000) {
+    const kg = Math.floor(remaining / 1000);
+    remaining = remaining % 1000;
+
+    result += ` ${kg} kg`;
+  }
+}
 
   if (remaining > 0.001) {
     result += ` ${remaining} ${consumptionUnit}`;

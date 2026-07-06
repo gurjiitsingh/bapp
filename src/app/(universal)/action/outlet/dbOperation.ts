@@ -341,7 +341,7 @@ export const getOutlet = cache(async () => {
 
   export async function updateOutletLogo(formData: FormData) {
 
-    console.log("logo upload-------------");
+  
 
     try {
 

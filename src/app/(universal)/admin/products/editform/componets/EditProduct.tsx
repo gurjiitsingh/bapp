@@ -45,7 +45,7 @@ const EditProduct = ({
   useEffect(() => {
     async function loadProduct() {
       const data = await fetchProductById(id);
-      console.log("data----------------", data)
+    
       if (!data) return;
 
       setValue("id", id);

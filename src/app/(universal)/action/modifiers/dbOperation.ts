@@ -152,7 +152,7 @@ export async function updateModifierItem(formData: FormData) {
 import { revalidatePath } from "next/cache";
 
 export async function deleteModifierItem(id: string) {
-  console.log("id-------------",id)
+ 
   try {
     if (!id) {
       return { errors: { general: "Missing ID" } };

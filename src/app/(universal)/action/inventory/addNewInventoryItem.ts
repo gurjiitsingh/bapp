@@ -253,7 +253,7 @@ purchaseMappings,
     admin.firestore.FieldValue.serverTimestamp(),
 };
 
- console.log("data--------------------",data)
+ 
 
  // SAVE TO FIRESTORE
 const docRef = await adminDb

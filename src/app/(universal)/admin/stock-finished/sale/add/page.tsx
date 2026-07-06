@@ -19,7 +19,7 @@ export default async function Page() {
 
   // WHOLESALE CUSTOMERS
   const customers =
-    await fetchCustomer();
+    await fetchCustomer(); 
 
   return (
     <ItemSaleForm

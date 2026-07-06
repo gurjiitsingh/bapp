@@ -16,7 +16,7 @@ export async function findCustomer(identifier: string) {
   .limit(1)
   .get();
   if (snap.empty) {
-    console.log("not find----------------")
+   
     return null;
   }
 

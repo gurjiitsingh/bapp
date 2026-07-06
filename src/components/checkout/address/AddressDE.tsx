@@ -164,7 +164,7 @@ const { TEXT } = useLanguage();
 
   const WINONDER_ENABLED = process.env.NEXT_PUBLIC_WINONDER === "true";
 
-console.log("WINONDER_ENABLED----------------", WINONDER_ENABLED)
+ 
   if (WINONDER_ENABLED) {
     const { createNewOrderFile } = await import(
       '@/app/(universal)/action/newOrderFile/newfile'

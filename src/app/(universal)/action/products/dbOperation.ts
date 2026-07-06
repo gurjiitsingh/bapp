@@ -945,7 +945,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("data---------------", data);
+ 
 
     //  Save to Firestore
     const docRef = await adminDb.collection("products").add(data);

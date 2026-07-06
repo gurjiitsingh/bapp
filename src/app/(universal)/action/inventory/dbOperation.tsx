@@ -224,16 +224,12 @@ if (!transactionSnapshot.empty) {
 }
 
 
-
-
-
-
 // FETCH SINGLE INVENTORY ITEM
 export async function fetchInventoryItemById(
   id: string
 ): Promise<InventoryItemType | null> {
 
-  console.log("id----------------",id)
+ 
   try {
     const docRef = await adminDb
       .collection("inventoryItems")

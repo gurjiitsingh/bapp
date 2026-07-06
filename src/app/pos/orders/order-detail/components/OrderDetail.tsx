@@ -38,7 +38,7 @@ const OrderDetail = () => {
 
   useEffect(() => {
     async function getOrderProducts() {
-      // console.log("maserer id-----------", masterOrderId);
+    
       const orderProductList = await fetchOrderProductsByOrderMasterId(
         masterOrderId
       );

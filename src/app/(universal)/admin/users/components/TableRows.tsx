@@ -28,7 +28,8 @@ function TableRows({ user }: { user: userDashboardType }) {
 
   return (
     <TableRow className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition rounded-xl">
-      <TableCell>{user.username}</TableCell>
+      <TableCell>{user.fullName}</TableCell>
+       <TableCell>{user.username}</TableCell>
       <TableCell>{user.email}</TableCell>
        <TableCell>{user.mobile}</TableCell>
       <TableCell>{user.role}</TableCell>

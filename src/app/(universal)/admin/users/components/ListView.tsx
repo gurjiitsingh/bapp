@@ -42,7 +42,8 @@ const ListView = ({ title }: productTableProps) => {
           <TableHeader>
             <TableRow className="bg-gray-100 dark:border-zinc-200">
               {/* <TableHead className="hidden md:table-cell">User ID</TableHead> */}
-              <TableHead className="hidden md:table-cell">User Name</TableHead>
+              <TableHead className="hidden md:table-cell">Full Name</TableHead>
+               <TableHead className="hidden md:table-cell">Username</TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>
                <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>

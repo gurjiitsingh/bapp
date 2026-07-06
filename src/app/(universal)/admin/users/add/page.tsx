@@ -23,6 +23,8 @@ const {
   resolver: zodResolver(createUserSchema),
 });
 
+
+
   const onSubmitUserRegister = async (
   data: TCreateUserSchema
 ) => {
@@ -45,46 +47,9 @@ formData.append("notes", data.notes ?? "");
 // });
 
     const result = await addUserDashboard(formData);
-   const {
-  register,
-  handleSubmit,
-  reset,
-  formState: {
-    errors,
-    isSubmitting,
-  },
-} = useForm<TCreateUserSchema>({
-  resolver: zodResolver(createUserSchema),
-});
 
-const onSubmitUserRegister = async (
-  data: TCreateUserSchema
-) => {
-  const formData = new FormData();
 
-  formData.append("fullName", data.fullName);
-  formData.append("username", data.username);
-  formData.append("email", data.email);
-  formData.append("mobile", data.mobile);
-  formData.append("password", data.password);
-  formData.append("confirmPassword", data.confirmPassword);
-  formData.append("role", data.role);
-  formData.append("status", data.status);
-  formData.append("employeeId", data.employeeId ?? "");
-  formData.append("department", data.department ?? "");
-  formData.append("address", data.address ?? "");
-  formData.append("notes", data.notes ?? "");
-
-  const result = await addUserDirect(formData);
-//result?.success
-  if (result) {
-    alert("User created successfully.");
-
-    reset();
-  } else {
-    alert("Failed to create user.");
-  }
-};
+ 
   };
 
 return (

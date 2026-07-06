@@ -13,7 +13,7 @@ export async function deleteInventoryItemSupplier(
   id: string
 ) {
 
-  console.log("id--------------------",id)
+ 
   try {
     if (!id) {
       return {

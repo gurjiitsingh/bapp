@@ -17,7 +17,7 @@ export async function paySupplierDue(formData: FormData) {
 
     const paymentMethod =
       (formData.get("paymentMethod") as PaymentMethod) || "CASH";
-console.log("paymd------------",paymentMethod)
+ 
     const note =
       (formData.get("note") as string)?.trim() || "";
       

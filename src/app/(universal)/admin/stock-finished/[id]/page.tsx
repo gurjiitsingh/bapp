@@ -11,7 +11,7 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  console.log("id-----------",id)
+ 
   const item =
     await getInventoryItemById(id);
 

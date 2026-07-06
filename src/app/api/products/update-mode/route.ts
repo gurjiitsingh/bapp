@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
     const { id, productMode } = body;
 
-    console.log("id----------------", id, productMode);
+     
 
     if (!id) {
       return NextResponse.json({

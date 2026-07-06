@@ -9,7 +9,7 @@ export async function addUserDashboard(
 ): Promise<string | undefined> {
   const fullName = String(formData.get("fullName") || "").trim();
   const username = String(formData.get("username") || "").trim();
-
+console.log("th--------------", fullName)
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
@@ -86,6 +86,8 @@ export async function addUserDashboard(
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     };
+
+    console.log("newUser-----------------", newUser)
 
     const docRef = await adminDb
       .collection("users")
