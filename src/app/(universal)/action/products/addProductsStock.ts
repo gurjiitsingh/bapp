@@ -66,7 +66,7 @@ export async function addProductStock(
       costPrice,
       price: sellingPrice,
       avgCost: costPrice, // initial same as cost
-      bulkPrice: null,
+      wholesalePrice: null,
 
       // 📦 UNIT
       sellingUnit,

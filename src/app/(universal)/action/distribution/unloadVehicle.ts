@@ -71,7 +71,7 @@ export async function unloadVehicle({
         const factory = await getStockLocation({
           tx,
           productId: item.productId,
-          locationType: "FACTORY",
+          locationType: "STORE",
           locationRef: "MAIN",
         });
 
@@ -108,16 +108,20 @@ export async function unloadVehicle({
 
         // Add back to factory
         await addStockLocation({
-          tx,
-          existing: row.factory,
-          productId: row.van.productId,
-          productName: row.van.productName,
-          // productMode: row.van.productMode as
+         tx,
+          existing: row.van,
+          productId: row.factory!.productId,
+          productName: row.factory!.productName,
+            sellingPrice: row.factory!.sellingPrice, 
+      wholesalePrice: row.factory!.wholesalePrice,
+      costPrice: row.factory!.costPrice,
+      avgCost: row.factory!.avgCost,
+          // productMode: row.factory.productMode as
           //   | "raw_stock"
           //   | "finished_stock"
           //   | "simple",
-          locationType: "FACTORY",
-          locationRef: "MAIN",
+          locationType: "TRUCK",
+          locationRef: vehicleId,
           quantity: row.item.quantity,
         });
 
@@ -138,7 +142,7 @@ export async function unloadVehicle({
           fromLocationType: "TRUCK",
           fromLocationRef: vehicleId,
 
-          toLocationType: "FACTORY",
+          toLocationType: "STORE",
           toLocationRef: "MAIN",
 
           remarks,

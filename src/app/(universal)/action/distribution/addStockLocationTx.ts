@@ -5,27 +5,39 @@ import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 import { StorageType } from "@/lib/types/distribution/StorageType";
 import admin from "firebase-admin";
 
+// type AddStockLocationProps = {
+//   tx: FirebaseFirestore.Transaction;
+
+//   existing: StockLocationType | null | undefined;
+
+//   productId: string;
+//   productName: string;
+//  sellingPrice:  number;
+//   wholesalePrice:  number;
+//   costPrice:  number;
+//   avgCost:  number;
+//  productMode?: "raw_stock" | "finished_stock" | "simple";
+
+//   locationType: StorageType;
+//   locationRef: string;
+
+//   quantity: number;
+// };
+
 type AddStockLocationProps = {
   tx: FirebaseFirestore.Transaction;
-
   existing: StockLocationType | null | undefined;
-
-  productId: string;
-  productName: string;
-
- productMode?: "raw_stock" | "finished_stock" | "simple";
-
-  locationType: StorageType;
-  locationRef: string;
-
-  quantity: number;
-};
+} & Omit<StockLocationType, "id" | "updatedAt">;
 
 export async function addStockLocation({
   tx,
   existing,
   productId,
   productName,
+    sellingPrice,
+      wholesalePrice,
+      costPrice,
+      avgCost,
 //  productMode,
   locationType,
   locationRef,
@@ -49,6 +61,10 @@ export async function addStockLocation({
 
     productId,
     productName,
+      sellingPrice,
+      wholesalePrice,
+      costPrice,
+      avgCost,
 
   //  productMode,
 

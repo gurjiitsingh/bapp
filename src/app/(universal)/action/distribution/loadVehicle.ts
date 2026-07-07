@@ -61,7 +61,7 @@ export async function loadVehicle({
         const factory = await getStockLocation({
           tx,
           productId: item.productId,
-          locationType: "FACTORY",
+          locationType: "STORE",
           locationRef: "MAIN",
         });
 
@@ -122,6 +122,10 @@ export async function loadVehicle({
           existing: row.van,
           productId: row.factory.productId,
           productName: row.factory.productName,
+            sellingPrice: row.factory.sellingPrice, 
+      wholesalePrice: row.factory.wholesalePrice,
+      costPrice: row.factory.costPrice,
+      avgCost: row.factory.avgCost,
           // productMode: row.factory.productMode as
           //   | "raw_stock"
           //   | "finished_stock"
@@ -132,7 +136,7 @@ export async function loadVehicle({
         });
 
 
-        // TODO
+        
         // createDistributionLedger 
 
         await addStockMovement({
@@ -149,7 +153,7 @@ export async function loadVehicle({
 
           quantity: row.item.quantity,
 
-          fromLocationType: "FACTORY",
+          fromLocationType: "STOCK",
           fromLocationRef: "MAIN",
 
           toLocationType: "TRUCK",

@@ -7,6 +7,10 @@ export type StockLocationType = {
   productMode?: string;
   // Snapshot
   productName: string;
+  sellingPrice:  number;
+  wholesalePrice:  number;
+  costPrice:  number;
+  avgCost:  number;
   categoryId?: string;
   categoryName?: string;
 

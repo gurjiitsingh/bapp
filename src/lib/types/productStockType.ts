@@ -20,10 +20,10 @@ export type ProductStock = {
 
 
   sellingPrice: number;  // 👈 from product.price
-  bulkPrice?: number;    // optional
+  wholesalePrice?: number;    // optional
   costPrice: number;     // 👈 internal cost
   avgCost?: number;      // 👈 future calculation
-sellingUnit: string;
+  sellingUnit: string;
 
   // 🔁 CONTROL
   priceSyncEnabled: boolean; // 👈 VERY IMPORTANT
@@ -53,11 +53,11 @@ export type ProductStockType = {
   barcode?: string;
 
 
-  sellingPrice: number;  // 👈 from product.price
-  bulkPrice?: number;    // optional
-  costPrice: number;     // 👈 internal cost
-  avgCost?: number;      // 👈 future calculation
-sellingUnit: string;
+  sellingPrice: number;
+  wholesalePrice?: number;
+  costPrice: number;
+  avgCost?: number;
+  sellingUnit: string;
 
   // 🔁 CONTROL
   priceSyncEnabled: boolean; // 👈 VERY IMPORTANT

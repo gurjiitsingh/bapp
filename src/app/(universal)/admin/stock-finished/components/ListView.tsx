@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   PackageCheck,
   Boxes,
+  Package2,
 } from "lucide-react";
 
 import {
@@ -26,16 +27,16 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import TableRows from "./TableRows";
 import { ProductStockType } from "@/lib/types/productStockType";
- 
+
 
 type Props = {
   products: ProductStockType[];
- // categories: InventoryCategory[];
+  // categories: InventoryCategory[];
 };
 
 export default function ListView({
   products,
-  
+
 }: Props) {
   const [filtered, setFiltered] =
     useState<ProductStockType[]>([]);
@@ -47,7 +48,7 @@ export default function ListView({
 
   // FILTER
   useEffect(() => {
-    let list = [... products];
+    let list = [...products];
 
     if (search) {
       const q = search.toLowerCase();
@@ -83,7 +84,26 @@ export default function ListView({
   return (
     <div className="flex flex-col gap-5">
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+        <div className="flex items-center gap-3">
+                <div className="h-11 w-11 rounded-2xl bg-rose-100 flex items-center justify-center">
+                  <Package2
+                    size={22}
+                    className="text-rose-600"
+                  />
+                </div>
+
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    Prodcut Stock Management
+                  </h1>
+
+                  <p className="text-sm text-gray-500">
+                    Manage finished items stock
+                   </p>
+                </div>
+              </div>
         {/* TOTAL */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
@@ -192,12 +212,15 @@ export default function ListView({
                 <TableHead className="py-4">
                   Item
                 </TableHead>
-                <TableHead>
-                  Category
+
+                  <TableHead>
+                  W Sale Price
                 </TableHead>
-                <TableHead>
+                 
+              
+                {/* <TableHead>
                   SKU
-                </TableHead>
+                </TableHead> */}
 
                 {/* <TableHead>
                   Unit
@@ -206,10 +229,10 @@ export default function ListView({
                 <TableHead>
                   Stock
                 </TableHead>
-                 <TableHead>
-                  Avg Price
+                <TableHead>
+                  Avg Cost
                 </TableHead>
- <TableHead>
+                <TableHead>
                   Value
                 </TableHead>
                 <TableHead>
@@ -226,6 +249,9 @@ export default function ListView({
                 <TableHead>
                   Maintain Live
                 </TableHead>
+                  <TableHead>
+                  Category
+                </TableHead>
 
                 {/* <TableHead className="text-right pr-5">
                   Actions
@@ -233,28 +259,28 @@ export default function ListView({
               </TableRow>
             </TableHeader>
 
-       <TableBody>
-  {filtered.length > 0 ? (
-    
-    filtered.map(
-      (item) => (
-        <TableRows
-          key={item.id}
-          item={item}
-        />
-      )
-    )
-  ) : (
-    <TableRow>
-      <td
-        colSpan={8}
-        className="text-center py-16 text-gray-400"
-      >
-        No inventory items found
-      </td>
-    </TableRow>
-  )}
-</TableBody>
+            <TableBody>
+              {filtered.length > 0 ? (
+
+                filtered.map(
+                  (item) => (
+                    <TableRows
+                      key={item.id}
+                      item={item}
+                    />
+                  )
+                )
+              ) : (
+                <TableRow>
+                  <td
+                    colSpan={8}
+                    className="text-center py-16 text-gray-400"
+                  >
+                    No inventory items found
+                  </td>
+                </TableRow>
+              )}
+            </TableBody>
           </Table>
         </div>
       </div>

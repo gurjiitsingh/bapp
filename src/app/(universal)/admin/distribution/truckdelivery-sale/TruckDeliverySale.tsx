@@ -63,7 +63,7 @@ export default function TruckDeliverySale({
   customers,
 }: Props) {
 
-
+ 
   const [customerSearch, setCustomerSearch] = useState("");
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -201,6 +201,7 @@ export default function TruckDeliverySale({
       vehicleId: data.vehicleId,
       vehicleName: selectedVehicle!.name,
       locationCode: selectedVehicle!.locationCode,
+      wholeSalePrice: selectedVehicle!.wholeSalePrice,
       responsiblePerson: selectedVehicle!.responsiblePersonName,
 
       wholeSaleCutomerId: data.wholeSaleCutomerId!,

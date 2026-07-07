@@ -24,7 +24,7 @@ type deliveryTruckSaleProps = {
   vehicleName: string;
   locationCode: string;
   responsiblePerson: string;
-
+wholeSalePrice: number;
   wholeSaleCutomerId: string;
   wholeSaleCutomerName: string;
 
@@ -39,7 +39,7 @@ export async function deiveryTruckSale({
   vehicleName,
   locationCode,
   responsiblePerson,
-
+wholeSalePrice,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
 

@@ -68,54 +68,58 @@ export default function ProductionForm({
       .slice(0, 20);
   }, [search, products]);
 
-async function onSubmit(data: FormType) {
-  if (isSubmitting) return;
+  async function onSubmit(data: FormType) {
+    if (isSubmitting) return;
 
-  if (!selectedProduct) {
-    toast.error("Please select a product.");
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const result = await updateFinishedItemStock({
-      id: data.id,
-      productName: selectedProduct.name,
-      direction: "IN",
-      quantity: Number(data.quantity),
-      transactionUnit: data.transactionUnit,
-      note: data.note,
-      createdBy: "admin",
-    });
-
-    if (!result.success) {
-      toast.error(result.message);
+    if (!selectedProduct) {
+      toast.error("Please select a product.");
       return;
     }
 
-    toast.success(result.message);
+    setIsSubmitting(true);
 
-    setSelectedProduct({
-      ...selectedProduct,
-      currentStock:
-        (selectedProduct.currentStock || 0) +
-        Number(data.quantity),
-    });
+    try {
+      const result = await updateFinishedItemStock({
+        id: data.id,
+        productName: selectedProduct.name,
+        sellingPrice: selectedProduct.sellingPrice,
+        wholesalePrice: selectedProduct.wholesalePrice!,
+        costPrice: selectedProduct.costPrice,
+        avgCost: selectedProduct.avgCost!,
+        direction: "IN",
+        quantity: Number(data.quantity),
+        transactionUnit: data.transactionUnit,
+        note: data.note,
+        createdBy: "admin",
+      });
 
-    reset({
-      id: selectedProduct.id,
-      quantity: 0,
-      transactionUnit: transactionUnit,
-      note: "",
-    });
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong.");
-  } finally {
-    setIsSubmitting(false);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      toast.success(result.message);
+
+      setSelectedProduct({
+        ...selectedProduct,
+        currentStock:
+          (selectedProduct.currentStock || 0) +
+          Number(data.quantity),
+      });
+
+      reset({
+        id: selectedProduct.id,
+        quantity: 0,
+        transactionUnit: transactionUnit,
+        note: "",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
-}
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">

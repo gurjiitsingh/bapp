@@ -99,7 +99,7 @@ export default function LoadVehicleFormOeprator({
     vanQuantity: vanMap.get(item.productId) ?? 0,
   }));
 
-  const onSubmit = async (data: LoadVehicleFormType) => {
+  const onSubmit = async (data: LoadVehicleFormType) => { 
 
     const items = data.items.filter((x) => x.quantity > 0);
 

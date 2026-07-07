@@ -23,7 +23,7 @@ export default async function Page() {
     <Suspense>
       <div className="min-h-screen bg-[#f8fafc]">
         {/* HEADER */}
-        <div className="sticky top-0 z-10 bg-[#f8fafc]/90 backdrop-blur border-b border-gray-100">
+        {/* <div className="sticky top-0 z-10 bg-[#f8fafc]/90 backdrop-blur border-b border-gray-100">
           <div className="px-4 md:px-6 py-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -45,14 +45,10 @@ export default async function Page() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                
-
              
-              </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* CONTENT */}
         <div className="p-4 md:p-6">
