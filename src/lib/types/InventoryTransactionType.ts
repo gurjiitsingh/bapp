@@ -16,6 +16,7 @@ export type  InventoryTransactionNameType =
   | "RETURN" 
   | "OPENING_STOCK"
   | "CONSUMPTION"
+  | "CLEAR"
 
 export type Inventorytype = {
   id: string;

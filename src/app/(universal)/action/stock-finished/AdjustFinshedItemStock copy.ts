@@ -22,6 +22,14 @@ type AdjustStockType = {
   productName: string;
   sellingPrice:  number;
   wholesalePrice:  number;
+  type:  
+  | "PURCHASE"
+  | "OPENING_STOCK"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  // | "SUPPLIER_RETURN"
+  | "PURCHASE_RETURN"
+  | "CUSTOMER_RETURN";
   costPrice:  number;
   avgCost:  number;
   direction: "IN" | "OUT";
@@ -31,7 +39,7 @@ type AdjustStockType = {
   createdBy?: string;
 };
 
-export async function updateFinishedItemStock({
+export async function adjustFinishedItemStock({
   id,
   productName,
   sellingPrice,
@@ -39,7 +47,7 @@ export async function updateFinishedItemStock({
   costPrice,
   avgCost,
   direction,
-  
+  type,
   quantity,
   transactionUnit,
   note,
@@ -81,13 +89,6 @@ export async function updateFinishedItemStock({
         locationType: "FACTORY",
         locationRef: "MAIN",
       });
-
-      const storeLocation = await getStockLocation({
-  tx,
-  productId: id,
-  locationType: "STORE",
-  locationRef: "MAIN",
-});
 
       // =========================
       // ✅ 2. VALIDATE
@@ -134,7 +135,7 @@ export async function updateFinishedItemStock({
       if (direction === "IN") {
         await addStockLocationTx({
           tx,
-          stockLocation: storeLocation,
+          stockLocation: factoryLocation,
 
           productId: id,
           productName,
@@ -144,7 +145,7 @@ export async function updateFinishedItemStock({
           avgCost,
           productMode: "finished_stock",
 
-          locationType: "STORE",
+          locationType: "FACTORY",
           locationRef: "MAIN",
 
           quantity,

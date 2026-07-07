@@ -96,20 +96,27 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
+console.log("type------------",type)
+
 
   try {
     if (!inventoryItemId) {
       return { success: false, message: "Inventory item required" };
     }
 
-    if (!quantity || quantity <= 0) {
-      return { success: false, message: "Quantity must be greater than 0" };
-    }
+   if (type !== "CLEAR" && quantity <= 0) {
+  return {
+    success: false,
+    message: "Quantity must be greater than 0",
+  };
+}
 
 
 
 
     await adminDb.runTransaction(async (tx) => {
+
+      
 
       // ================= GET INVENTORY =================
       const inventoryRef = adminDb
@@ -117,6 +124,22 @@ export async function adjustInventoryStock({
         .doc(inventoryItemId);
 
       const inventorySnap = await tx.get(inventoryRef);
+
+
+      // ================= CLEAR STOCK =================
+      if (!inventorySnap.exists) {
+  throw new Error("Inventory item not found");
+}
+// ================= CLEAR STOCK =================
+if (type === "CLEAR") {
+  tx.update(inventoryRef, {
+    currentStock: 0,
+    stockStatus: "out_of_stock",
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return;
+}
 
       if (!inventorySnap.exists) {
         throw new Error("Inventory item not found");

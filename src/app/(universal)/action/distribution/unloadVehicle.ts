@@ -14,7 +14,7 @@ type UnloadVehicleItem = {
 type UnloadVehicleProps = {
   vehicleId: string;
   vehicleName: string,
-locationCode: string,
+  locationCode: string,
   responsiblePerson: string,
   remarks?: string;
   createdBy?: string;
@@ -23,7 +23,7 @@ locationCode: string,
 };
 
 export async function unloadVehicle({
-   vehicleId,
+  vehicleId,
   vehicleName,
   locationCode,
   responsiblePerson,
@@ -31,7 +31,15 @@ export async function unloadVehicle({
   createdBy,
   items,
 }: UnloadVehicleProps) {
-  
+
+  console.log("data-------------", vehicleId,
+    vehicleName,
+    locationCode,
+    responsiblePerson,
+    remarks,
+    createdBy,
+    items,)
+
   const db = adminDb;
 
   try {
@@ -107,24 +115,40 @@ export async function unloadVehicle({
         });
 
         // Add back to factory
+        //   await addStockLocation({
+        //    tx,
+        //     existing: row.van,
+        //     productId: row.factory!.productId,
+        //     productName: row.factory!.productName,
+        //       sellingPrice: row.factory!.sellingPrice, 
+        // wholesalePrice: row.factory!.wholesalePrice,
+        // costPrice: row.factory!.costPrice,
+        // avgCost: row.factory!.avgCost,
+        //     // productMode: row.factory.productMode as
+        //     //   | "raw_stock"
+        //     //   | "finished_stock"
+        //     //   | "simple",
+        //     locationType: "TRUCK",
+        //     locationRef: vehicleId,
+        //     quantity: row.item.quantity,
+        //   });
+
+
         await addStockLocation({
-         tx,
-          existing: row.van,
+          tx,
+          existing: row.factory,      // use factory/store location
           productId: row.factory!.productId,
           productName: row.factory!.productName,
-            sellingPrice: row.factory!.sellingPrice, 
-      wholesalePrice: row.factory!.wholesalePrice,
-      costPrice: row.factory!.costPrice,
-      avgCost: row.factory!.avgCost,
-          // productMode: row.factory.productMode as
-          //   | "raw_stock"
-          //   | "finished_stock"
-          //   | "simple",
-          locationType: "TRUCK",
-          locationRef: vehicleId,
+          sellingPrice: row.factory!.sellingPrice,
+          wholesalePrice: row.factory!.wholesalePrice,
+          costPrice: row.factory!.costPrice,
+          avgCost: row.factory!.avgCost,
+
+          locationType: "STORE",
+          locationRef: "MAIN",
+
           quantity: row.item.quantity,
         });
-
         // Movement history
         await addStockMovement({
           tx,
@@ -134,8 +158,8 @@ export async function unloadVehicle({
           productId: row.van.productId,
           productName: row.van.productName,
           //productMode: row.van.productMode,
-         name:vehicleName,
-           locationCode,
+          name: vehicleName,
+          locationCode,
           responsiblePerson: responsiblePerson,
           quantity: row.item.quantity,
 

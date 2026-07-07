@@ -10,6 +10,7 @@ const COST_TYPES = new Set([
     "PURCHASE",
     "OPENING_STOCK",
     "CUSTOMER_RETURN",
+    "CLEAR",
 ]);
 
 export async function applyInventoryMovement(

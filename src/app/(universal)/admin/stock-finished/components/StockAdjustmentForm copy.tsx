@@ -157,15 +157,27 @@ export default function StockAdjustmentForm({
       return;
     }
 
- 
+    const decimalAllowedUnits = [
+      "kg",
+      "gm",
+      "ltr",
+      "ml",
+    ];
+
     const quantity = Number(data.quantity);
 
-if (quantity < 0) {
-  toast.error("Quantity cannot be negative.");
-  return;
-}
+    // Prevent decimal quantities for countable units
+    if (
+      !decimalAllowedUnits.includes(data.transactionUnit) &&
+      !Number.isInteger(quantity)
+    ) {
+      toast.error(
+        `Decimal quantity is not allowed for "${data.transactionUnit}".`
+      );
+      return;
+    }
 
-const finalQuantity = quantity;
+    const finalQuantity = quantity;
 
     setIsSubmitting(true);
 
@@ -180,7 +192,7 @@ const finalQuantity = quantity;
 
         direction: data.direction,
         type: data.type,
-        quantity: data.quantity,
+        quantity: finalQuantity,
         transactionUnit: data.transactionUnit,
 
         note: data.note,
@@ -451,7 +463,11 @@ const finalQuantity = quantity;
                     e.target.value = "";
                   }
                 }}
-               
+                onBlur={(e) => {
+                  if (e.target.value === "") {
+                    e.target.value = "0";
+                  }
+                }}
               />
             </div>
 

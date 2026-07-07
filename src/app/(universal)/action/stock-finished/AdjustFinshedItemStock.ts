@@ -15,6 +15,7 @@ import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryDa
 import { getStockLocation } from "../distribution/getStockLocation";
 import { addStockLocationTx } from "../distribution/addStockLocation";
 import { addStockMovement } from "../distribution/addStockMovement";
+import { updateFinishedStock } from "./finshed-products/updateFinishedStock";
 
 
 type AdjustStockType = {
@@ -22,6 +23,14 @@ type AdjustStockType = {
   productName: string;
   sellingPrice:  number;
   wholesalePrice:  number;
+  type:  
+  | "PURCHASE"
+  | "OPENING_STOCK"
+  | "ADJUSTMENT"
+  | "WASTAGE"
+  // | "SUPPLIER_RETURN"
+  | "PURCHASE_RETURN"
+  | "CUSTOMER_RETURN";
   costPrice:  number;
   avgCost:  number;
   direction: "IN" | "OUT";
@@ -31,7 +40,7 @@ type AdjustStockType = {
   createdBy?: string;
 };
 
-export async function updateFinishedItemStock({
+export async function adjustFinishedItemStock({
   id,
   productName,
   sellingPrice,
@@ -39,7 +48,7 @@ export async function updateFinishedItemStock({
   costPrice,
   avgCost,
   direction,
-  
+  type,
   quantity,
   transactionUnit,
   note,
@@ -52,9 +61,12 @@ export async function updateFinishedItemStock({
       return { success: false, message: "Product ID required" };
     }
  
-    if (!quantity || quantity <= 0) {
-      return { success: false, message: "Invalid quantity" };
-    }
+    if (quantity < 0) {
+  return {
+    success: false,
+    message: "Quantity cannot be negative",
+  };
+}
 
 
     await db.runTransaction(async (tx) => {
@@ -75,19 +87,12 @@ export async function updateFinishedItemStock({
       // READ STOCK LOCATION
       //=============================
 
-      const factoryLocation = await getStockLocation({
-        tx,
-        productId: id,
-        locationType: "FACTORY",
-        locationRef: "MAIN",
-      });
-
-      const storeLocation = await getStockLocation({
-  tx,
-  productId: id,
-  locationType: "STORE",
-  locationRef: "MAIN",
-});
+      // const factoryLocation = await getStockLocation({
+      //   tx,
+      //   productId: id,
+      //   locationType: "FACTORY",
+      //   locationRef: "MAIN",
+      // });
 
       // =========================
       // ✅ 2. VALIDATE
@@ -100,81 +105,103 @@ export async function updateFinishedItemStock({
       // ✅ 3. WRITE
       // =========================
       // 1 ✅ Update stock (finished currentStock)
+      const stock = await updateFinishedStock({
+  tx,
+  productId: id,
+  mode: "SET",
+  quantity,
+});
+
+// Adjustment +
+// const stock = await updateFinishedStock({
+//   tx,
+//   productId: id,
+//   mode: "INCREASE",
+//   quantity,
+// });
+
+// // Adjustment -
+// const stock = await updateFinishedStock({
+//   tx,
+//   productId: id,
+//   mode: "DECREASE",
+//   quantity,
+// });
       // 2 ✅ Create ledger entry (stockLedgerFinished transactions)
-      const movement = await applyFinishedTransactions(tx, {
-        productId: id,
-        productName,
-        type: "PRODUCTION",
-        direction,
-        quantity,
-        unitPrice: 0,
-        transactionUnit,
-        note,
-        createdBy: createdBy || "system",
-        source: "ADMIN",
-      });
+      // const movement = await applyFinishedTransactions(tx, {
+      //   productId: id,
+      //   productName,
+      //   type: "PRODUCTION",
+      //   direction,
+      //   quantity,
+      //   unitPrice: 0,
+      //   transactionUnit,
+      //   note,
+      //   createdBy: createdBy || "system",
+      //   source: "ADMIN",
+      // });
 
 
       // 1 ✅ Update stock (inventroy currentStock)
       // 2 ✅ Create ledger entry (stockLedgerInventory transactions)
 
 
-      if (direction === "IN") {
-        await applyRawInventoryWrites(
-          tx,
-          rawUpdates,
-          "production-" + id
-        );
-      }
+      // if (direction === "IN") {
+      //   await applyRawInventoryWrites(
+      //     tx,
+      //     rawUpdates,
+      //     "production-" + id
+      //   );
+      // }
 
 
       // =========================
       // ✅ Update Factory Location
       // =========================
       if (direction === "IN") {
-        await addStockLocationTx({
-          tx,
-          stockLocation: storeLocation,
+        // await addStockLocationTx({
+        //   tx,
+        //   stockLocation: factoryLocation,
 
-          productId: id,
-          productName,
-          sellingPrice,
-          wholesalePrice,
-          costPrice,
-          avgCost,
-          productMode: "finished_stock",
+        //   productId: id,
+        //   productName,
+        //   sellingPrice,
+        //   wholesalePrice,
+        //   costPrice,
+        //   avgCost,
+        //   productMode: "finished_stock",
 
-          locationType: "STORE",
-          locationRef: "MAIN",
+        //   locationType: "FACTORY",
+        //   locationRef: "MAIN",
 
-          quantity,
-        });
+        //   quantity,
+        // });
       }
 
-  await addStockMovement({ 
-          tx,
+  // await addStockMovement({ 
+  //         tx,
 
-          movementType: "TRANSFER",
+  //         movementType: "TRANSFER",
 
-          productId: id,
-          productName,
-          name: "FACTORY",
-          locationCode:"NA",
-          responsiblePerson:"ADMIN",
-          //productMode: row.factory.productMode,
+  //         productId: id,
+  //         productName,
+  //         name: "FACTORY",
+  //         locationCode:"NA",
+  //         responsiblePerson:"ADMIN",
+  //         //productMode: row.factory.productMode,
 
-          quantity,
+  //         quantity,
 
-          fromLocationType: "FACTORY",
-          fromLocationRef: "MAIN",
+  //         fromLocationType: "FACTORY",
+  //         fromLocationRef: "MAIN",
 
-          toLocationType: "STOCK",
-          toLocationRef: "NA",
+  //         toLocationType: "STOCK",
+  //         toLocationRef: "NA",
 
-          remarks:"NA",
+  //         remarks:"NA",
 
-          createdBy,
-        });
+  //         createdBy,
+  //       });
 
 
 

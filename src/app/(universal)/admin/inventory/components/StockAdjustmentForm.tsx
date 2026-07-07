@@ -18,6 +18,8 @@ import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType"
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
+import toast from "react-hot-toast";
+import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -26,11 +28,7 @@ type Props = {
 type FormType = {
   inventoryItemId: string;
 
-  type:
-  | "PURCHASE"
-  | "OPENING_STOCK"
-  | "ADJUSTMENT"
-  | "WASTAGE";
+  type: InventoryTransactionNameType,
 
   direction: "IN" | "OUT";
 
@@ -250,166 +248,136 @@ export default function StockAdjustmentForm({
   // =====================================================
 
   async function onSubmit(data: FormType) {
-    if (isSubmitting) return;
+  if (isSubmitting) return;
 
-    if (!selectedInventory) {
-      alert("Please select inventory item");
+  if (!selectedInventory) {
+    toast.error("Please select inventory item.");
+    return;
+  }
+
+  const decimalAllowedUnits = [
+    "kg",
+    "gm",
+    "ltr",
+    "ml",
+  ];
+
+  let quantity = Number(data.quantity);
+
+    quantity =
+  data.type === "CLEAR"
+    ? 0
+    : Number(data.quantity);
+
+  // prevent decimal in pcs
+  if (
+    !decimalAllowedUnits.includes(data.transactionUnit) &&
+    !Number.isInteger(quantity)
+  ) {
+    toast.error(
+      `Decimal quantity not allowed for ${data.transactionUnit}`
+    );
+    return;
+  }
+
+  // =====================================
+  // ORIGINAL VALUES
+  // =====================================
+
+  const originalQuantity = Number(data.quantity);
+
+  // =====================================
+  // INTERNAL VALUES
+  // =====================================
+
+  let finalQuantity = Number(data.quantity);
+
+  const mapping =
+    selectedInventory.purchaseMappings?.find(
+      (m) => m.purchaseUnit === data.transactionUnit
+    ) ?? {
+      purchaseUnit: selectedInventory.consumptionUnit,
+      factor: 1,
+    };
+
+  if (mapping) {
+    finalQuantity = finalQuantity * mapping.factor;
+  }
+
+  setIsSubmitting(true);
+
+  let averageCost = Number(data.averageCost);
+
+  if (mapping) {
+    averageCost = averageCost / mapping.factor;
+  }
+
+  try {
+    const result = await adjustInventoryStock({
+      inventoryItemId: data.inventoryItemId,
+      type: data.type,
+      direction: data.direction,
+
+      // INTERNAL
+      quantity: finalQuantity,
+
+      unitCost: averageCost,
+      stockValue: Number(data.stockValue),
+
+      // ORIGINAL
+      purchaseQuantity: originalQuantity,
+      purchaseUnit: data.transactionUnit,
+      purchaseUnitCost: 0,
+      conversionFactor: mapping?.factor ?? 1,
+
+      paymentStatus: "PAID",
+      note: data.note,
+      createdBy: "admin",
+    });
+
+    if (!result.success) {
+      toast.error(result.message);
       return;
     }
 
-    const decimalAllowedUnits = [
-      "kg",
-      "gm",
-      "ltr",
-      "ml",
-    ];
+    toast.success(result.message);
 
-    const quantity =
-      Number(data.quantity);
+    let updatedStock: number;
 
-    // prevent decimal in pcs
-    if (
-      !decimalAllowedUnits.includes(
-        data.transactionUnit
-      ) &&
-      !Number.isInteger(quantity)
-    ) {
-      alert(
-        `Decimal quantity not allowed for ${data.transactionUnit}`
-      );
-
-      return;
+    if (data.type === "OPENING_STOCK") {
+      updatedStock = finalQuantity;
+    } else if (data.direction === "IN") {
+      updatedStock =
+        (selectedInventory.currentStock ?? 0) +
+        finalQuantity;
+    } else {
+      updatedStock =
+        (selectedInventory.currentStock ?? 0) -
+        finalQuantity;
     }
 
-    // =====================================
-    // ORIGINAL VALUES
-    // =====================================
+    setSelectedInventory({
+      ...selectedInventory,
+      currentStock: updatedStock,
+    });
 
-    const originalQuantity =
-      Number(data.quantity);
-
-    // =====================================
-    // INTERNAL VALUES
-    // =====================================
-
-    let finalQuantity =
-      Number(data.quantity);
-
-    // nothing needed
-
-    const mapping =
-      selectedInventory.purchaseMappings?.find(
-        (m) => m.purchaseUnit === data.transactionUnit
-      ) ?? {
-        purchaseUnit: selectedInventory.consumptionUnit,
-        factor: 1,
-      };
-    // convert purchase -> consumption
-
-
-
-    if (mapping) {
-      finalQuantity =
-        finalQuantity * mapping.factor;
-    }
-
-    setIsSubmitting(true);
-
-    let averageCost = Number(data.averageCost);
-
-    if (mapping) {
-      averageCost =
-        averageCost / mapping.factor;
-
-
-    }
-
-
-    try {
-      const result =
-        await adjustInventoryStock({
-          inventoryItemId:
-            data.inventoryItemId,
-
-          type:
-            data.type,
-
-          direction:
-            data.direction,
-
-          // =====================================
-          // INTERNAL
-          // =====================================
-
-          quantity: finalQuantity,
-
-
-          unitCost: averageCost,
-          stockValue: Number(data.stockValue),
-          // =====================================
-          // ORIGINAL
-          // =====================================
-
-          purchaseQuantity:
-            originalQuantity,
-
-          purchaseUnit:
-            data.transactionUnit,
-
-          purchaseUnitCost: 0,
-
-          conversionFactor:
-            mapping?.factor ?? 1,
-
-          paymentStatus: "PAID",
-
-          note: data.note,
-
-          createdBy: "admin",
-        });
-
-      if (result.success) {
-       let updatedStock: number;
-
-if (data.type === "OPENING_STOCK") {
-  updatedStock = finalQuantity;
-} else if (data.direction === "IN") {
-  updatedStock =
-    (selectedInventory.currentStock ?? 0) +
-    finalQuantity;
-} else {
-  updatedStock =
-    (selectedInventory.currentStock ?? 0) -
-    finalQuantity;
-}
-
-        setSelectedInventory({
-          ...selectedInventory,
-          currentStock: updatedStock,
-        });
-
-        reset({
-          type: "OPENING_STOCK",
-          direction: "IN",
-          quantity: 0,
-          note: "",
-          inventoryItemId: selectedInventory.id,
-          transactionUnit:
-            getPrimaryPurchaseMapping(
-              selectedInventory
-            ).purchaseUnit, // ✅ FIX
-        });
-      } else {
-        alert(result.message);
-      }
-    } catch (error) {
-      console.error(error);
-
-      alert("Something went wrong");
-    }
-
+    reset({
+      type: "OPENING_STOCK",
+      direction: "IN",
+      quantity: 0,
+      note: "",
+      inventoryItemId: selectedInventory.id,
+      transactionUnit:
+        getPrimaryPurchaseMapping(selectedInventory)
+          .purchaseUnit,
+    });
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong.");
+  } finally {
     setIsSubmitting(false);
   }
+}
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -631,6 +599,9 @@ if (data.type === "OPENING_STOCK") {
 
                 <option value="ADJUSTMENT">
                   Adjustment
+                </option>
+                 <option value="CLEAR">
+                  CLEAR
                 </option>
               </select>
             </div>

@@ -49,7 +49,7 @@ export async function addStockLocationTx({
   quantity,
 }: AddStockLocationProps) {
   const id = `${productId}_${locationType}_${locationRef}`;
-
+console.log("id of new doc---------------",id)
   const ref = stockLocation.ref;
 
   if (!stockLocation.exists) {
