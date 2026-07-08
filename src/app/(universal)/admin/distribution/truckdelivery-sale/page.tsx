@@ -8,14 +8,14 @@ export default async function Page() {
   const [vehicles, factoryStock] = await Promise.all([
     getVehicles(),
     getStockLocationsAll({
-      locationType: "FACTORY",
+      locationType: "STORE",
       locationRef: "MAIN",
     }),
   ]);
 
    const customers =
       await fetchCustomer();
-
+  console.log("test factoryStock--------------------", factoryStock)
   return (
     <TruckDeliverySale
       vehicles={vehicles}

@@ -3,6 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
+
 export async function applyRawInventoryWrites(
   tx: FirebaseFirestore.Transaction,
   updates: any[],
@@ -10,14 +11,18 @@ export async function applyRawInventoryWrites(
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
 
+  let totalRawMaterialCost = 0;
+
   for (const u of updates) {
     // =====================================
-    // Update Inventory Item
+    // Cost of this inventory item
     // =====================================
 
     const consumedValue =
       (Number(u.quantity) || 0) *
       (Number(u.unitCost) || 0);
+
+    totalRawMaterialCost += consumedValue;
 
     const newStockValue = Math.max(
       0,
@@ -26,17 +31,12 @@ export async function applyRawInventoryWrites(
 
     tx.update(u.ref, {
       currentStock: u.next,
-
-      // Average cost remains unchanged
-      stockValue: Number(
-        newStockValue.toFixed(2)
-      ),
-
+      stockValue: Number(newStockValue.toFixed(2)),
       updatedAt: now,
     });
 
     // =====================================
-    // Create Stock Ledger
+    // Ledger
     // =====================================
 
     const ledgerRef =
@@ -54,7 +54,6 @@ export async function applyRawInventoryWrites(
       type: "CONSUMPTION",
       direction: "OUT",
 
-      // Units
       purchaseQuantity: 0,
       purchaseUnit: u.purchaseUnit || "",
       purchaseUnitCost: 0,
@@ -64,25 +63,20 @@ export async function applyRawInventoryWrites(
       quantity: u.quantity || 0,
       unit: u.transactionUnit,
 
-      // Cost
       unitCost: u.unitCost,
 
-      // Stock
       beforeStock: u.prev,
       afterStock: u.next,
 
-      // Financial
-      totalAmount: 0,
+      totalAmount: Number(consumedValue.toFixed(2)),
       paidAmount: 0,
       dueAmount: 0,
       paymentStatus: null,
       paymentMethod: null,
 
-      // References
       referenceType: "PRODUCTION",
       referenceId: orderId,
 
-      // Meta
       note: "Consumed in production",
       createdBy: "system",
       source: "PRODUCTION",
@@ -90,4 +84,8 @@ export async function applyRawInventoryWrites(
       createdAt: now,
     });
   }
+
+  return Number(totalRawMaterialCost.toFixed(2));
 }
+
+

@@ -54,13 +54,13 @@ paymentMethod,
   }: ApplySupplierTransactionParams
 ) {
 
-  console.log("in supplier transaction-------------------  type, totalAmount, paidAmount, dueAmount,currentBalance,paymentMethod,", type,
+  // console.log("in supplier transaction-------------------  type, totalAmount, paidAmount, dueAmount,currentBalance,paymentMethod,", type,
 
-    totalAmount,
-    paidAmount,
-    dueAmount,
-    currentBalance,
-    paymentMethod,)
+    // totalAmount,
+    // paidAmount,
+    // dueAmount,
+    // currentBalance,
+    // paymentMethod,)
 
   if (!supplierId) return;
 

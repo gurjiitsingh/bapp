@@ -49,27 +49,27 @@ export async function applyInventoryMovement(
     }: ApplyInventoryTransactionType) {
 
 
-       console.log(`
-===== applyInventoryMovement =====
-type: ${type}
-direction: ${direction}
+//        console.log(`
+// ===== applyInventoryMovement =====
+// type: ${type}
+// direction: ${direction}
 
-quantity: ${quantity}
-unitCost: ${unitCost}
+// quantity: ${quantity}
+// unitCost: ${unitCost}
 
-purchaseQuantity: ${purchaseQuantity}
-purchaseUnit: ${purchaseUnit}
-purchaseUnitCost: ${purchaseUnitCost}
-conversionFactor: ${conversionFactor}
-stockValue: ${stockValue}
-supplierId: ${supplierId}
-supplierName: ${supplierName}
+// purchaseQuantity: ${purchaseQuantity}
+// purchaseUnit: ${purchaseUnit}
+// purchaseUnitCost: ${purchaseUnitCost}
+// conversionFactor: ${conversionFactor}
+// stockValue: ${stockValue}
+// supplierId: ${supplierId}
+// supplierName: ${supplierName}
 
-totalAmount: ${totalAmount}
-paidAmount: ${paidAmount}
-dueAmount: ${dueAmount}
-=================================
-`);
+// totalAmount: ${totalAmount}
+// paidAmount: ${paidAmount}
+// dueAmount: ${dueAmount}
+// =================================
+// `);
 
 
     const now = admin.firestore.FieldValue.serverTimestamp();
@@ -292,58 +292,15 @@ const removedValue =
     // );
     afterAverageCost = afterAverageCost;
 
-    tx.update(inventoryRef, {
-        currentStock: afterStock,
-        averageCost: afterAverageCost,
-        stockValue: afterStockValue,
-        updatedAt: now,
-    });
+  tx.update(inventoryRef, {
+    currentStock: afterStock,
+    stockValue: afterStockValue,
+    averageCost: afterAverageCost,
+    costPrice: afterAverageCost,
+    updatedAt: now,
+});
 
-    // const beforeStock =
-    //     Number(inventory.currentStock) || 0;
-
-    // const afterStock =
-    //     direction === "IN"
-    //         ? beforeStock + quantity
-    //         : beforeStock - quantity;
-
-    // if (direction === "OUT" && afterStock < 0) {
-    //     throw new Error("Insufficient stock");
-    // }
-
-
-
-    // const isCostMovement = COST_TYPES.has(type);
-
-    // const finalUnitCost = isCostMovement
-    //     ? (unitCost ?? Number(inventory.costPrice) ?? 0)
-    //     : 0;
-
-
-
-    // let updatedCostPrice = Number(inventory.costPrice) || 0;
-
-    // if (isCostMovement && direction === "IN") {
-    //     const oldValue = beforeStock * updatedCostPrice;
-    //     const newValue = quantity * finalUnitCost;
-    //     const totalQty = beforeStock + quantity;
-
-    //     if (totalQty > 0) {
-    //         updatedCostPrice = (oldValue + newValue) / totalQty;
-    //     }
-    // }
-
-    // tx.update(inventoryRef, {
-    //     currentStock: afterStock,
-    //     costPrice: updatedCostPrice,
-    //     updatedAt: now,
-    // });
-
-    // =====================================================
-    // END INVENTORY ITEM UPDATE
-    // =====================================================
-
-
+     
 
 
     // =====================================================

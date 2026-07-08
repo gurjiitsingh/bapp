@@ -40,12 +40,17 @@ type TruckDeliverySaleType = {
 
   remarks?: string;
   createdBy?: string;
+  paymentStatus: "PAID" | "PARTIAL";
 
+  totalAmount: number;
+  paidAmount: number;
+  dueAmount: number;
 
 
   items: {
     productId: string;
     quantity: number;
+    wholesalePrice: number;
   }[];
 };
 
@@ -62,8 +67,10 @@ export default function TruckDeliverySale({
   factoryStock,
   customers,
 }: Props) {
+  console.log("fact  ------------------", factoryStock)
+  console.log("fact  ------------------", vehicles)
+  console.log("fact  ------------------", customers)
 
- 
   const [customerSearch, setCustomerSearch] = useState("");
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -72,12 +79,77 @@ export default function TruckDeliverySale({
     defaultValues: {
       vehicleId: "",
       remarks: "",
-      items: [],
-    },
+
+      paymentStatus: "PAID",
+
+      totalAmount: 0,
+      paidAmount: 0,
+      dueAmount: 0,
+
+      items: []
+    }
   });
 
   const customerId = form.watch("wholeSaleCutomerId");
   const vehicleId = form.watch("vehicleId");
+
+  const paymentStatus = form.watch("paymentStatus");
+
+  const paidAmount = form.watch("paidAmount") || 0;
+
+
+  const totalAmount = form.watch("items").reduce(
+    (sum, item) =>
+      sum + (item.quantity * item.wholesalePrice),
+    0
+  );
+
+
+  const dueAmount = Math.max(
+    totalAmount - paidAmount,
+    0
+  );
+
+
+  // save calculated values in form
+  useEffect(() => {
+
+    form.setValue(
+      "totalAmount",
+      totalAmount
+    );
+
+    form.setValue(
+      "dueAmount",
+      dueAmount
+    );
+
+  }, [
+    totalAmount,
+    dueAmount
+  ]);
+
+
+  useEffect(() => {
+
+    if (paymentStatus === "PAID") {
+
+      form.setValue(
+        "paidAmount",
+        totalAmount
+      );
+
+      form.setValue(
+        "dueAmount",
+        0
+      );
+
+    }
+
+  }, [
+    paymentStatus,
+    totalAmount
+  ]);
 
   const [factoryData, setFactoryData] =
     useState<StockLocationType[]>(factoryStock);
@@ -103,13 +175,14 @@ export default function TruckDeliverySale({
 
     setVanStock(result);
 
-    form.setValue(
-      "items",
-      result.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      }))
-    );
+   form.setValue(
+  "items",
+  result.map((item) => ({
+    productId: item.productId,
+    quantity: 0,
+    wholesalePrice: item.wholesalePrice,
+  }))
+);
   };
 
 
@@ -129,22 +202,16 @@ export default function TruckDeliverySale({
     );
   }, [customerId, customers]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("lastCustomerId");
 
-    if (saved) {
-      form.setValue("wholeSaleCutomerId", saved);
-    }
-  }, [form]);
 
-  useEffect(() => {
-    if (customerId) {
-      localStorage.setItem(
-        "lastCustomerId",
-        customerId
-      );
-    }
-  }, [customerId]);
+  // useEffect(() => {
+  //   if (customerId) {
+  //     localStorage.setItem(
+  //       "lastCustomerId",
+  //       customerId
+  //     );
+  //   }
+  // }, [customerId]);
 
   useEffect(() => {
     fetchVanStock(vehicleId);
@@ -174,42 +241,77 @@ export default function TruckDeliverySale({
       (x) => x.quantity > 0
     );
 
-  
-      if (!data.vehicleId) {
-    toast.error("Please select a vehicle.");
-    return;
-  }
 
-  if (!selectedVehicle?.name) {
-    toast.error("Selected vehicle not found.");
-    return;
-  }
+    if (!data.vehicleId) {
+      toast.error("Please select a vehicle.");
+      return;
+    }
 
-  if (!data.wholeSaleCutomerId) {
-    toast.error("Please select a wholesale customer.");
-    return;
-  }
+    if (!selectedVehicle?.name) {
+      toast.error("Selected vehicle not found.");
+      return;
+    }
 
-   if (!items.length) {
+    if (
+      !data.wholeSaleCutomerId ||
+      !data.wholeSaleCutomerName
+    ) {
+      toast.error("Please select a wholesale customer.");
+      return;
+    }
+
+    if (!items.length) {
       toast.error(
         "Please enter at least one quantity."
       );
       return;
     }
 
-    const result = await deiveryTruckSale({
-      vehicleId: data.vehicleId,
-      vehicleName: selectedVehicle!.name,
-      locationCode: selectedVehicle!.locationCode,
-      wholeSalePrice: selectedVehicle!.wholeSalePrice,
-      responsiblePerson: selectedVehicle!.responsiblePersonName,
+    if (data.paidAmount > data.totalAmount) {
 
-      wholeSaleCutomerId: data.wholeSaleCutomerId!,
+      toast.error(
+        "Paid amount cannot be greater than total amount."
+      );
+
+      return;
+
+    }
+
+    const result = await deiveryTruckSale({
+
+      vehicleId: data.vehicleId,
+
+      vehicleName: selectedVehicle!.name,
+
+      locationCode: selectedVehicle!.locationCode,
+
+      responsiblePerson:
+        selectedVehicle!.responsiblePersonName,
+
+
+      wholeSaleCutomerId:
+        data.wholeSaleCutomerId!,
+
+
       wholeSaleCutomerName:
         data.wholeSaleCutomerName!,
 
+
+      totalAmount: Number(data.totalAmount),
+
+      paidAmount: Number(data.paidAmount),
+
+      dueAmount: Number(data.dueAmount),
+
+      paymentStatus: data.paymentStatus,
+
+
+
       remarks: data.remarks,
+
+
       items,
+
     });
 
 
@@ -265,19 +367,35 @@ export default function TruckDeliverySale({
 
     await fetchVanStock(data.vehicleId);
 
+
+
     form.reset({
+
       vehicleId: data.vehicleId,
 
-      wholeSaleCutomerId: data.wholeSaleCutomerId,
-      wholeSaleCutomerName: data.wholeSaleCutomerName,
+      wholeSaleCutomerId: "",
+
+      wholeSaleCutomerName: "",
 
       remarks: "",
 
-      items: vanStock.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      })),
+      paymentStatus: "PAID",
+
+      totalAmount: 0,
+
+      paidAmount: 0,
+
+      dueAmount: 0,
+
+
+   items: vanStock.map((item) => ({
+  productId: item.productId,
+  quantity: 0,
+  wholesalePrice: item.wholesalePrice,
+}))
     });
+
+    setCustomerSearch("");
   };
 
 
@@ -308,83 +426,188 @@ export default function TruckDeliverySale({
 
             <CardContent className="p-6 space-y-6">
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5">
 
-                {/* Vehicle */}
+                <div>
+                  {/* Vehicle */}
 
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Vehicle
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="label-style-4">
+                      Vehicle
+                    </label>
 
-                  <Controller
-                    control={form.control}
-                    name="vehicleId"
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
-                          <SelectValue placeholder="Select Vehicle" />
-                        </SelectTrigger>
+                    <Controller
+                      control={form.control}
+                      name="vehicleId"
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger className="w-full bg-white text-black border border-gray-300">
+                            <SelectValue placeholder="Select Vehicle" />
+                          </SelectTrigger>
 
-                        <SelectContent className="bg-white border border-gray-300">
-                          {vehicles.map((v) => (
-                            <SelectItem
-                              key={v.id}
-                              value={v.id}
-                            >
-                              {v.name} ({v.locationCode})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+                          <SelectContent className="bg-white border border-gray-300">
+                            {vehicles.map((v) => (
+                              <SelectItem
+                                key={v.id}
+                                value={v.id}
+                              >
+                                {v.name} ({v.locationCode})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+
+                  {/* Driver */}
+
+                  <div className="flex flex-col gap-2">
+                    <label className="label-style-4">
+                      Driver
+                    </label>
+
+                    <Input
+                      value={
+                        selectedVehicle?.responsiblePersonName ??
+                        ""
+                      }
+                      disabled
+                      className="input-style-4 bg-gray-100"
+                    />
+                  </div>
+                  {/* Reference */}
+
+                  {/* <div className="flex flex-col gap-2">
+                    <label className="label-style-4">
+                      Reference
+                    </label>
+
+                    <Input
+                      className="input-style-4"
+                      placeholder="Optional"
+                    />
+                  </div> */}
+
                 </div>
+                {/* RIGHT SIDE */}
+                <div>
 
-                {/* Driver */}
+                  {/* ===================================================== */}
+                  {/* PAYMENT */}
+                  {/* ===================================================== */}
 
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Driver
-                  </label>
+                  <div className=" pt-3">
 
-                  <Input
-                    value={
-                      selectedVehicle?.responsiblePersonName ??
-                      ""
-                    }
-                    disabled
-                    className="input-style-4 bg-gray-100"
-                  />
-                </div>
+                    <h3 className="font-semibold text-lg mb-4">
+                      Payment Details
+                    </h3>
 
-                {/* Date */}
 
-                {/* <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Unloading Date
-                </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
 
-                <Input
-                  type="date"
-                  className="input-style-4"
-                />
-              </div> */}
 
-                {/* Reference */}
+                      {/* TOTAL AMOUNT */}
 
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Reference
-                  </label>
+                      <div className="flex flex-col gap-2">
 
-                  <Input
-                    className="input-style-4"
-                    placeholder="Optional"
-                  />
+                        <label className="label-style-4">
+                          Total Amount
+                        </label>
+
+                        <Input
+                          value={totalAmount.toFixed(2)}
+                          readOnly
+                          className="input-style-4 bg-gray-100"
+                        />
+
+                      </div>
+
+
+                      {/* PAYMENT STATUS */}
+
+                      <div className="flex flex-col gap-2">
+
+                        <label className="label-style-4">
+                          Payment
+                        </label>
+
+
+                        <select
+                          {...form.register("paymentStatus")}
+                          className="input-style-4"
+                        >
+
+                          <option value="PAID">
+                            Full Paid
+                          </option>
+
+
+                          <option value="PARTIAL">
+                            Partial Payment
+                          </option>
+
+
+                        </select>
+
+                      </div>
+
+
+
+                      {/* PAID AMOUNT */}
+
+                      <div className="flex flex-col gap-2">
+
+                        <label className="label-style-4">
+                          Paid Amount
+                        </label>
+
+
+                        <Input
+                          type="number"
+                          step="0.01"
+                          disabled={
+                            paymentStatus === "PAID"
+                          }
+                          {...form.register(
+                            "paidAmount",
+                            {
+                              valueAsNumber: true
+                            }
+                          )}
+                          className="input-style-4"
+                        />
+
+                      </div>
+
+
+
+                      {/* DUE AMOUNT */}
+
+                      <div className="flex flex-col gap-2">
+
+                        <label className="label-style-4">
+                          Due Amount
+                        </label>
+
+
+                        <Input
+                          value={dueAmount.toFixed(2)}
+                          readOnly
+                          className="input-style-4 bg-gray-100"
+                        />
+
+                      </div>
+
+
+                    </div>
+
+
+                  </div>
+
                 </div>
 
               </div>
@@ -411,7 +634,7 @@ export default function TruckDeliverySale({
 
                   <div className="flex mb-3 justify-between">
                     <div className="flex items-center justify-between mb-4">
-                      {selectedCustomer && (
+                      {customerId && selectedCustomer && (
                         <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                           {selectedCustomer.companyName}
                         </div>
@@ -523,27 +746,32 @@ export default function TruckDeliverySale({
                       <th className="text-left p-3">
                         Product
                       </th>
-
+                      <th className="text-center p-3">
+                        Price
+                      </th>
                       <th className="text-center p-3">
                         Truck Stock
                       </th>
 
-                      {/* <th className="text-center p-3">
-                     Factory Stock
-                    </th> */}
+                      <th className="text-center p-3">
+                        Selling Price
+                      </th>
 
                       <th className="text-center p-3">
-                        Unload Qty
+                        Selling Qty
                       </th>
-                      <th className="text-center p-3">
+                      {/* <th className="text-center p-3">
                         Remaining
-                      </th>
+                      </th> */}
                     </tr>
                   </thead>
 
                   <tbody>
 
                     {rows.map((item, index) => {
+
+                      const wholesalePrice =
+                        form.watch(`items.${index}.wholesalePrice`);
                       const qty =
                         form.watch(`items.${index}.quantity`) || 0;
 
@@ -563,14 +791,28 @@ export default function TruckDeliverySale({
                           <td className="p-3 font-medium">
                             {item.productName}
                           </td>
+                          <td className="text-center p-3 font-medium">
+                           {item.wholesalePrice}
+                          </td>
 
                           <td className="text-center">
                             {item.quantity}
                           </td>
 
-                          {/* <td className="text-center font-semibold text-blue-700">
-                        {item.quantity}
-                      </td> */}
+                          <td className="p-2 w-36">
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min={0}
+                              value={wholesalePrice ?? 0}
+                              onChange={(e) =>
+                                form.setValue(
+                                  `items.${index}.wholesalePrice`,
+                                  Number(e.target.value)
+                                )
+                              }
+                            />
+                          </td>
 
                           <td className="p-2">
                             <Input
@@ -587,9 +829,9 @@ export default function TruckDeliverySale({
                               }}
                             />
                           </td>
-                          <td className="text-center font-semibold text-green-700">
+                          {/* <td className="text-center font-semibold text-green-700">
                             {item.quantity - qty}
-                          </td>
+                          </td> */}
                         </tr>
                       )
                     })}

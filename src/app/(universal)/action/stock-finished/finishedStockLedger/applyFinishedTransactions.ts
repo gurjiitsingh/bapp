@@ -54,7 +54,7 @@ export async function applyFinishedTransactions(
     customerName,
 
     totalAmount = 0,
-    returnProductAmount =0,
+    returnProductAmount =0, 
     paidAmount = 0,
     dueAmount = 0,
 
@@ -71,7 +71,8 @@ export async function applyFinishedTransactions(
   }: ApplyFinishedMovementType
 ) {
 
-  //console.log("sale done by----------------------", createdBy, source )
+  // USED BY NEW PRODUCTION AND CUSTOMER RETURN
+
   const now = admin.firestore.FieldValue.serverTimestamp();
 
   const productRef = adminDb.collection("productStock").doc(productId);
@@ -87,6 +88,15 @@ export async function applyFinishedTransactions(
 
   const beforeStock = Number(product.currentStock) || 0;
 
+  const beforeStockValue =
+  Number(product.stockValue) || 0;
+
+const beforeAverageCost =
+  Number(product.averageCost) || 0;
+
+const beforeCostPrice =
+  Number(product.costPrice) || 0;
+
   const afterStock =
     direction === "IN"
       ? beforeStock + quantity
@@ -100,15 +110,68 @@ export async function applyFinishedTransactions(
     throw new Error("Insufficient stock");
   }
 
-  const finalUnitPrice =
-    unitPrice ?? Number(product.price) ?? 0;
+  // const finalUnitPrice =
+  //   unitPrice ?? Number(product.price) ?? 0;
+
+const movementUnitCost =
+  Number(unitPrice ?? beforeAverageCost);
+
+let afterStockValue = beforeStockValue;
+let afterAverageCost = beforeAverageCost;
+let afterCostPrice = beforeCostPrice;
+
+if (direction === "IN") {
+  afterStockValue =
+    beforeStockValue + totalAmount;
+
+  afterAverageCost =
+    afterStock > 0
+      ? afterStockValue / afterStock
+      : 0;
+
+  // Latest production cost
+  afterCostPrice = movementUnitCost;
+} else {
+  const removedValue =
+    quantity * beforeAverageCost;
+
+  afterStockValue = Math.max(
+    0,
+    beforeStockValue - removedValue
+  );
+
+  afterAverageCost =
+    afterStock > 0
+      ? afterStockValue / afterStock
+      : 0;
+
+  // Last production cost remains unchanged
+}
+
 
   // ✅ WRITE
-  tx.update(productRef, {
-    currentStock: afterStock,
-    stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
-    updatedAt: now,
-  });
+tx.update(productRef, {
+  currentStock: afterStock,
+
+  stockValue: Number(
+    afterStockValue.toFixed(2)
+  ),
+
+  averageCost: Number(
+    afterAverageCost.toFixed(6)
+  ),
+
+  costPrice: Number(
+    afterCostPrice.toFixed(6)
+  ),
+
+  stockStatus:
+    afterStock > 0
+      ? "in_stock"
+      : "out_of_stock",
+
+  updatedAt: now,
+});
 
   const ledgerRef =
     adminDb.collection("stockLedgerFinished").doc();
@@ -125,7 +188,7 @@ export async function applyFinishedTransactions(
     quantity,
     transactionUnit,
 
-    unitPrice: finalUnitPrice,
+    unitPrice: movementUnitCost,
     productSnapshotPrice: Number(product.price) || 0,
     totalAmount,
 
@@ -151,10 +214,16 @@ export async function applyFinishedTransactions(
     source,
   });
 
-  return {
-    transactionId: ledgerRef.id, // ✅ IMPORTANT (you need this)
-    beforeStock,
-    afterStock,
-    unitPrice: finalUnitPrice,
-  };
+ return {
+  transactionId: ledgerRef.id,
+
+  beforeStock,
+  afterStock,
+
+  unitPrice: movementUnitCost,
+
+  averageCost: afterAverageCost,
+
+  stockValue: afterStockValue,
+}; 
 }

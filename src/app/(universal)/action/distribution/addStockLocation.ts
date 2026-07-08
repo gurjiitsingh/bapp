@@ -49,8 +49,9 @@ export async function addStockLocationTx({
   quantity,
 }: AddStockLocationProps) {
   const id = `${productId}_${locationType}_${locationRef}`;
-console.log("id of new doc---------------",id)
+ 
   const ref = stockLocation.ref;
+  
 
   if (!stockLocation.exists) {
     const data: StockLocationType = {
@@ -69,6 +70,7 @@ console.log("id of new doc---------------",id)
       quantity,
       updatedAt: Date.now(),
     };
+    
     
 
     tx.set(ref, data);

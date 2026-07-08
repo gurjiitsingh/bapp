@@ -8,7 +8,7 @@ export type VehicleType = {
   name: string;           // Pickup, Tata Ace, Bolero
   capacity?: number;
   type: StorageType;
-
+wholeSalePrice?: number;
   responsiblePersonId: string;      // Employee ID
   responsiblePersonName: string;    // Snapshot
 

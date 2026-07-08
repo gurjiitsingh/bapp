@@ -26,9 +26,11 @@ type LoadVehicleFormType = {
   vehicleId: string;
   remarks?: string;
   name: string;
+
   items: {
     productId: string;
     quantity: number;
+    wholesalePrice:number;
   }[];
 };
 
@@ -49,10 +51,11 @@ export default function LoadVehicleFormOeprator({
     defaultValues: {
       vehicleId: "",
       remarks: "",
-      items: factoryStock.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      })),
+   items: factoryStock.map((item)=>({
+  productId:item.productId,
+  quantity:0,
+  wholesalePrice:item.wholesalePrice,
+}))
     },
   });
 
@@ -99,26 +102,26 @@ export default function LoadVehicleFormOeprator({
     vanQuantity: vanMap.get(item.productId) ?? 0,
   }));
 
-  const onSubmit = async (data: LoadVehicleFormType) => { 
+  const onSubmit = async (data: LoadVehicleFormType) => {
 
     const items = data.items.filter((x) => x.quantity > 0);
 
-   
 
-  if (!data.vehicleId) {
-    toast.error("Please select a vehicle.");
-    return;
-  }
 
-  if (!selectedVehicle?.name) {
-    toast.error("Selected vehicle not found.");
-    return;
-  }
+    if (!data.vehicleId) {
+      toast.error("Please select a vehicle.");
+      return;
+    }
 
-  if (items.length === 0) {
-    toast.error("Please enter at least one quantity.");
-    return;
-  }
+    if (!selectedVehicle?.name) {
+      toast.error("Selected vehicle not found.");
+      return;
+    }
+
+    if (items.length === 0) {
+      toast.error("Please enter at least one quantity.");
+      return;
+    }
 
     const result = await loadVehicle({
       vehicleId: data.vehicleId,
@@ -185,6 +188,7 @@ export default function LoadVehicleFormOeprator({
               locationType: "TRUCK",
               locationRef: data.vehicleId,
               quantity: loaded.quantity,
+              wholesalePrice: loaded.wholesalePrice,
             });
           }
         }
@@ -200,10 +204,11 @@ export default function LoadVehicleFormOeprator({
     form.reset({
       vehicleId: data.vehicleId,
       remarks: "",
-      items: factoryData.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-      })),
+   items: factoryData.map((item)=>({
+  productId:item.productId,
+  quantity:0,
+  wholesalePrice:item.wholesalePrice,
+}))
     });
   };
 
@@ -359,16 +364,19 @@ export default function LoadVehicleFormOeprator({
                       <th className="text-left p-3">
                         Product
                       </th>
-
-                      <th className="text-center p-3">
-                        Factory Stock
+                      <th className="p-3">
+                        Price
+                      </th>
+                      <th className="  p-3">
+                        Total Stock
                       </th>
 
-                      <th className="text-center p-3">
+
+                      <th className="  p-3">
                         Van Stock
                       </th>
 
-                      <th className="text-center p-3">
+                      <th className="  p-3">
                         Load Qty
                       </th>
 
@@ -393,7 +401,9 @@ export default function LoadVehicleFormOeprator({
                         <td className="p-3 font-medium">
                           {item.productName}
                         </td>
-
+                        <td className="text-center p-3 font-medium  ">
+                         {item.wholesalePrice}
+                        </td>
                         <td className="text-center font-semibold">
                           {item.quantity}
                         </td>

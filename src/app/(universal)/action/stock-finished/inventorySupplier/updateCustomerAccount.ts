@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -14,7 +15,7 @@ wholeSaleCutomerName?: string;
   creditAmount?: number;
   currentBalance: number;
      currentCreditBalance: number;
-  paymentMethod?: PaymentMethod; 
+  paymentMethod?: PaymentMethodType; 
 };
 
 export async function updateCustomerAccount(
@@ -35,7 +36,16 @@ export async function updateCustomerAccount(
   if (!wholeSaleCutomerId) return;
 
  
-
+console.log("in update customer account------------------- ",   wholeSaleCutomerId,
+    wholeSaleCutomerName,
+    type,
+    totalAmount,
+    paidAmount,
+    dueAmount ,
+    creditAmount ,
+    currentBalance,
+    currentCreditBalance,
+    paymentMethod,)
 
 
 let balance = currentBalance;

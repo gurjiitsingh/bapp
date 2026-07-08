@@ -439,17 +439,17 @@ if (mapping) {
     setIsSubmitting(false);
   }
 
-  useEffect(() => {
-    const qty = Number(quantity || 0);
-    const rate = Number(unitCost || 0);
+  // useEffect(() => {
+  //   const qty = Number(quantity || 0);
+  //   const rate = Number(unitCost || 0);
 
-    if (qty > 0 && rate > 0) {
-      setValue(
-        "totalAmount",
-        Number((qty * rate).toFixed(2))
-      );
-    }
-  }, [quantity, unitCost, setValue]);
+  //   if (qty > 0 && rate > 0) {
+  //     setValue(
+  //       "totalAmount",
+  //       Number((qty * rate).toFixed(2))
+  //     );
+  //   }
+  // }, [quantity, unitCost, setValue]);
 
   const [pricingMode, setPricingMode] = useState<
     "RATE" | "AMOUNT"

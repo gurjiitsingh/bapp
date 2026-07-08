@@ -45,7 +45,7 @@ export async function updateSupplierAccount(
   paymentMethod,
 }: UpdateSupplierAccountParams
 ){
-  console.log("in supplier account-------------------")
+   
   if (!supplierId) return;
 
   const accountRef = adminDb

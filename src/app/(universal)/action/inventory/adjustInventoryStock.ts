@@ -96,7 +96,7 @@ export async function adjustInventoryStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
-console.log("type------------",type)
+ 
 
 
   try {
@@ -134,7 +134,10 @@ console.log("type------------",type)
 if (type === "CLEAR") {
   tx.update(inventoryRef, {
     currentStock: 0,
-    stockStatus: "out_of_stock",
+    stockValue: 0,
+    averageCost: 0,
+    costPrice: 0,
+  //  stockStatus: "out_of_stock",
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
 

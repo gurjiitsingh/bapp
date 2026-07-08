@@ -49,7 +49,7 @@ export async function applySupplier_Transaction_old(
   }: ApplySupplierTransactionParams
 ) {
 
-   console.log("in supplier transaction-------------------")
+   
   if (!supplierId) return;
 
   // ==========================================

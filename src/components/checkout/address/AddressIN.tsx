@@ -218,7 +218,7 @@ function handleVillageTownCostCheck(value: string) {
 
 
   async function onSubmit(data: TAddressCheckoutSMALL) {
-    console.log("data--------", data);
+     
     const formData = new FormData();
     formData.append("firstName", data.firstName);
     formData.append("lastName", data.lastName);

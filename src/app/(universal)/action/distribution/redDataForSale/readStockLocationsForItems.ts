@@ -13,8 +13,9 @@ import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 import { StorageType } from "@/lib/types/distribution/StorageType";
 
 type deliveryTruckSaleItem = {
-  productId: string;
-  quantity: number;
+   productId:string;
+  quantity:number;
+  wholesalePrice:number;
 };
 
 type deliveryTruckSaleProps = {
@@ -43,10 +44,11 @@ export async function readStockLocationsForItems({
 }: {
   tx: FirebaseFirestore.Transaction;
 
-  items: {
-    productId: string;
-    quantity: number;
-  }[];
+ items: {
+  productId:string;
+  quantity:number;
+  wholesalePrice:number;
+}[]
 
   fromLocationType: StorageType;
   fromLocationRef: string;

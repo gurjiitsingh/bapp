@@ -15,15 +15,17 @@ import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryDa
 import { getStockLocation } from "../distribution/getStockLocation";
 import { addStockLocationTx } from "../distribution/addStockLocation";
 import { addStockMovement } from "../distribution/addStockMovement";
+import { applyFinishedTransactionsRead } from "./finishedStockLedger/applyFinishedTransactionsRead";
+import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinishedTransactionsWrite";
 
 
 type AdjustStockType = {
   id: string;
   productName: string;
-  sellingPrice:  number;
-  wholesalePrice:  number;
-  costPrice:  number;
-  avgCost:  number;
+  sellingPrice: number;
+  wholesalePrice: number;
+  costPrice: number;
+  avgCost: number;
   direction: "IN" | "OUT";
   quantity: number;
   transactionUnit: InventoryUnit;
@@ -39,19 +41,19 @@ export async function updateFinishedItemStock({
   costPrice,
   avgCost,
   direction,
-  
+
   quantity,
   transactionUnit,
   note,
   createdBy,
 }: AdjustStockType) {
   const db = adminDb;
- 
+
   try {
     if (!id) {
       return { success: false, message: "Product ID required" };
     }
- 
+
     if (!quantity || quantity <= 0) {
       return { success: false, message: "Invalid quantity" };
     }
@@ -69,25 +71,43 @@ export async function updateFinishedItemStock({
           { productId: id, quantity }
         ]);
       }
+      let totalRawMaterialCost = 0;
+      for (const u of rawUpdates) {
+        // =====================================
+        // Cost of this inventory item
+        // =====================================
+
+        const consumedValue =
+          (Number(u.quantity) || 0) *
+          (Number(u.unitCost) || 0);
+
+        totalRawMaterialCost += consumedValue;
+
+        const newStockValue = Math.max(
+          0,
+          (Number(u.stockValue) || 0) - consumedValue
+        );
+
+      }
 
 
       //=============================
       // READ STOCK LOCATION
       //=============================
 
-      const factoryLocation = await getStockLocation({
-        tx,
-        productId: id,
-        locationType: "FACTORY",
-        locationRef: "MAIN",
-      });
+      // const factoryLocation = await getStockLocation({
+      //   tx,
+      //   productId: id,
+      //   locationType: "FACTORY",
+      //   locationRef: "MAIN",
+      // });
 
       const storeLocation = await getStockLocation({
-  tx,
-  productId: id,
-  locationType: "STORE",
-  locationRef: "MAIN",
-});
+        tx,
+        productId: id,
+        locationType: "STORE",
+        locationRef: "MAIN",
+      });
 
       // =========================
       // ✅ 2. VALIDATE
@@ -96,27 +116,16 @@ export async function updateFinishedItemStock({
         validateRawStock(rawUpdates);
       }
 
+      // 1 ✅ Read stock (finished currentStock)
+      const finishedData = await applyFinishedTransactionsRead(tx, id);
+
       // =========================
       // ✅ 3. WRITE
       // =========================
-      // 1 ✅ Update stock (finished currentStock)
-      // 2 ✅ Create ledger entry (stockLedgerFinished transactions)
-      const movement = await applyFinishedTransactions(tx, {
-        productId: id,
-        productName,
-        type: "PRODUCTION",
-        direction,
-        quantity,
-        unitPrice: 0,
-        transactionUnit,
-        note,
-        createdBy: createdBy || "system",
-        source: "ADMIN",
-      });
-
-
       // 1 ✅ Update stock (inventroy currentStock)
       // 2 ✅ Create ledger entry (stockLedgerInventory transactions)
+
+      // 1. Consume raw inventory
 
 
       if (direction === "IN") {
@@ -127,11 +136,40 @@ export async function updateFinishedItemStock({
         );
       }
 
+      const productionCostPerUnit =
+        quantity > 0
+          ? totalRawMaterialCost / quantity
+          : 0;
+
+
+
+      // 1 ✅ Update stock (finished currentStock)
+      // 2 ✅ Create ledger entry (stockLedgerFinished transactions)
+      // 2. Update finished product
+      await applyFinishedTransactionsWrite(tx, {
+        productId: id,
+        productName,
+        type: "PRODUCTION",
+        direction,
+        quantity,
+        transactionUnit,
+
+        unitPrice: productionCostPerUnit,
+        totalAmount: totalRawMaterialCost,
+        note,
+        createdBy,
+        source: "ADMIN",
+
+        readResult: finishedData,
+      });
+
+
 
       // =========================
       // ✅ Update Factory Location
       // =========================
       if (direction === "IN") {
+       
         await addStockLocationTx({
           tx,
           stockLocation: storeLocation,
@@ -151,30 +189,30 @@ export async function updateFinishedItemStock({
         });
       }
 
-  await addStockMovement({ 
-          tx,
+      await addStockMovement({
+        tx,
 
-          movementType: "TRANSFER",
+        movementType: "TRANSFER",
 
-          productId: id,
-          productName,
-          name: "FACTORY",
-          locationCode:"NA",
-          responsiblePerson:"ADMIN",
-          //productMode: row.factory.productMode,
+        productId: id,
+        productName,
+        name: "FACTORY",
+        locationCode: "NA",
+        responsiblePerson: "ADMIN",
+        //productMode: row.factory.productMode,
 
-          quantity,
+        quantity,
 
-          fromLocationType: "FACTORY",
-          fromLocationRef: "MAIN",
+        fromLocationType: "FACTORY",
+        fromLocationRef: "MAIN",
 
-          toLocationType: "STOCK",
-          toLocationRef: "NA",
+        toLocationType: "STOCK",
+        toLocationRef: "NA",
 
-          remarks:"NA",
+        remarks: "NA",
 
-          createdBy,
-        });
+        createdBy,
+      });
 
 
 

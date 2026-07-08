@@ -5,12 +5,11 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
-import { ProductStockType } from "@/lib/types/productStockType";
+import { applyFinishedTransactionsRead } from "./applyFinishedTransactionsRead";
 
 type ApplyFinishedMovementType = {
   productId: string;
-  finishedProduct: ProductStockType;
-productName?: string;
+  productName?: string;
   type: string;
   direction: "IN" | "OUT";
 
@@ -25,7 +24,7 @@ productName?: string;
   totalAmount?: number;
   paidAmount?: number;
   dueAmount?: number;
-returnProductAmount?: number;
+  returnProductAmount?: number;
   paymentStatus?: string;
   paymentMethod?: string | null;
 
@@ -38,11 +37,10 @@ returnProductAmount?: number;
   source?: string;
 };
 
-export async function applyFinishedTransactions( 
-  tx: FirebaseFirestore.Transaction, // ✅ pass tx explicitly
+export async function applyFinishedTransactionsWrite(
+  tx: FirebaseFirestore.Transaction,
   {
     productId,
-    finishedProduct,
     productName,
 
     type,
@@ -50,14 +48,12 @@ export async function applyFinishedTransactions(
 
     quantity,
     transactionUnit,
-
-    unitPrice,
-
+    unitPrice =0,
+    
     customerId,
     customerName,
 
     totalAmount = 0,
-    returnProductAmount =0,
     paidAmount = 0,
     dueAmount = 0,
 
@@ -71,24 +67,33 @@ export async function applyFinishedTransactions(
     createdBy = "system",
 
     source = "SYSTEM",
-  }: ApplyFinishedMovementType
+
+    // NEW
+    readResult,
+  }: ApplyFinishedMovementType & {
+    readResult: Awaited<
+      ReturnType<typeof applyFinishedTransactionsRead>
+    >;
+  }
 ) {
 
-  //console.log("sale done by----------------------", createdBy, source )
-  const now = admin.firestore.FieldValue.serverTimestamp();
+ 
+  const now =
+    admin.firestore.FieldValue.serverTimestamp();
 
-  const productRef = adminDb.collection("productStock").doc(productId);
+  const {
+    product,
+    productRef,
 
-  // // ✅ READ (allowed here because still in READ phase of main flow)
-  // const snap = await tx.get(productRef);
+    currentStock,
+    stockValue,
+    avgCost,
+    costPrice,
+    allowNegativeStock,
+    sellingPrice,
+  } = readResult;
 
-  // if (!snap.exists) {
-  //   throw new Error("Product not found");
-  // }
-
-  const product = finishedProduct;//snap.data()!;
-//console.log("product----------------",product)
-  const beforeStock = Number(product.currentStock) || 0;
+  const beforeStock = currentStock;
 
   const afterStock =
     direction === "IN"
@@ -98,18 +103,65 @@ export async function applyFinishedTransactions(
   if (
     direction === "OUT" &&
     afterStock < 0 &&
-    !product.allowNegativeStock
+    !allowNegativeStock
   ) {
     throw new Error("Insufficient stock");
   }
 
-  const finalUnitPrice =
-    unitPrice ?? Number(product.sellingPrice) ?? 0;
+  const movementUnitCost =
+    Number(unitPrice ?? avgCost);
 
-  // ✅ WRITE
+  let afterStockValue = stockValue;
+  let afteravgCost = avgCost;
+  let afterCostPrice = costPrice;
+
+  if (direction === "IN") {
+    afterStockValue =
+      stockValue + totalAmount;
+
+    afteravgCost =
+      afterStock > 0
+        ? afterStockValue / afterStock
+        : 0;
+
+    // Latest production cost
+    afterCostPrice = movementUnitCost;
+  } else {
+    const removedValue =
+      quantity * avgCost;
+
+    afterStockValue = Math.max(
+      0,
+      stockValue - removedValue
+    );
+
+
+  }
+ afterCostPrice = unitPrice;
+ 
+
+
+
   tx.update(productRef, {
     currentStock: afterStock,
-    stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
+
+    stockValue: Number(
+      afterStockValue.toFixed(2)
+    ),
+
+    avgCost: Number(
+      unitPrice
+    ),
+
+    costPrice: Number(
+      afterCostPrice.toFixed(6)
+    ),
+
+    stockStatus:
+      afterStock > 0
+        ? "in_stock"
+        : "out_of_stock",
+
     updatedAt: now,
   });
 
@@ -128,8 +180,11 @@ export async function applyFinishedTransactions(
     quantity,
     transactionUnit,
 
-    unitPrice: finalUnitPrice,
-    productSnapshotPrice: Number(product.sellingPrice) || 0,
+    unitPrice: movementUnitCost,
+
+    productSnapshotPrice:
+      Number(product.price) || 0,
+
     totalAmount,
 
     beforeStock,
@@ -155,9 +210,15 @@ export async function applyFinishedTransactions(
   });
 
   return {
-    transactionId: ledgerRef.id, // ✅ IMPORTANT (you need this)
+    transactionId: ledgerRef.id,
+
     beforeStock,
     afterStock,
-    unitPrice: finalUnitPrice,
+
+    unitPrice: movementUnitCost,
+
+    avgCost: afteravgCost,
+
+    stockValue: afterStockValue,
   };
 }

@@ -26,6 +26,7 @@ import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { ProductStock } from "@/lib/types/productStockType";
+import toast from "react-hot-toast";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -102,17 +103,20 @@ export default function ItemPurchaseForm({
     watch,
     reset,
   } = useForm<FormType>({
-    defaultValues: {
-      type: "SALE",
-      direction: "OUT",
+  defaultValues: {
+  type: "SALE",
+  direction: "OUT",
 
-      paymentStatus: "PAID",
-      paymentMethod: "CASH",
-      paidAmount: 0,
-      quantity: 0,
-      unitPrice: 0,
-      note: "",
-    },
+  wholeSaleCutomerId: "",
+  wholeSaleCutomerName: "",
+
+  paymentStatus: "PAID",
+  paymentMethod: "CASH",
+  paidAmount: 0,
+  quantity: 0,
+  unitPrice: 0,
+  note: "",
+},
   });
 
   const customerId = watch("wholeSaleCutomerId");
@@ -188,9 +192,17 @@ export default function ItemPurchaseForm({
     if (isSubmitting) return;
 
     if (!selectedProduct) {
-      alert("Please select inventory item");
+      toast.error("Please select inventory item");
       return;
     }
+
+    if (
+  !data.wholeSaleCutomerId ||
+  !data.wholeSaleCutomerName
+) {
+  toast.error("Please select a wholesale customer.");
+  return;
+}
 
     // =====================================================
     // CALCULATE TOTALS
@@ -264,12 +276,11 @@ export default function ItemPurchaseForm({
     const finalUnitPrice =
       Number(data.unitPrice);
 
-    const finalCustomerId =
-      customerId || undefined;
+   const finalCustomerId =
+  data.wholeSaleCutomerId;
 
-    const finalCustomerName =
-      selectedCustomer?.companyName ||
-      "Walk-in Customer";
+const finalCustomerName =
+  data.wholeSaleCutomerName;
 
     // =====================================================
     // SAVE
@@ -316,21 +327,23 @@ export default function ItemPurchaseForm({
             finalQuantity,
         });
 
-        reset({
-          type: "SALE",
-          direction: "OUT",
+     reset({
+  type: "SALE",
+  direction: "OUT",
 
-          paymentStatus: "PAID",
-          paymentMethod: "CASH",
+  wholeSaleCutomerId: "",
+  wholeSaleCutomerName: "",
 
-          paidAmount: 0,
+  paymentStatus: "PAID",
+  paymentMethod: "CASH",
+  paidAmount: 0,
+  quantity: 0,
+  unitPrice: 0,
+  note: "",
+  id: "",
+});
 
-          quantity: 0,
-          unitPrice: 0,
-
-          note: "",
-          id: "",
-        });
+setCustomerSearch("");
 
         setselectedProduct(null);
         setSearch("");
@@ -345,18 +358,12 @@ export default function ItemPurchaseForm({
     }
   }
 
-  useEffect(() => {
-    const saved = localStorage.getItem("lastCustomerId");
-    if (saved) {
-      setValue("wholeSaleCutomerId", saved);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (customerId) {
-      localStorage.setItem("lastCustomerId", customerId);
-    }
-  }, [customerId]);
+ 
+  // useEffect(() => {
+  //   if (customerId) {
+  //     localStorage.setItem("lastCustomerId", customerId);
+  //   }
+  // }, [customerId]);
 
 
 
@@ -414,11 +421,11 @@ export default function ItemPurchaseForm({
               <div className="bg-white  ">
                 <div className="flex mb-3 justify-between">
                   <div className="flex items-center justify-between mb-4">
-                    {selectedCustomer && (
-                      <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                        {selectedCustomer.companyName}
-                      </div>
-                    )}
+                  {customerId && selectedCustomer && (
+  <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
+    {selectedCustomer.companyName}
+  </div>
+)}
                   </div>
 
                </div>
@@ -455,11 +462,23 @@ export default function ItemPurchaseForm({
                         <button
                           key={customer.id}
                           type="button"
-                          onClick={() => {
-                            setValue("wholeSaleCutomerId", customer.id);
-                            setCustomerSearch(customer.companyName);
-                            setShowDropdown(false);
-                          }}
+                        onClick={() => {
+  setValue(
+    "wholeSaleCutomerId",
+    customer.id
+  );
+
+  setValue(
+    "wholeSaleCutomerName",
+    customer.companyName
+  );
+
+  setCustomerSearch(
+    customer.companyName
+  );
+
+  setShowDropdown(false);
+}}
                           className={`
               w-full text-left px-4 py-3
               border-b border-gray-100

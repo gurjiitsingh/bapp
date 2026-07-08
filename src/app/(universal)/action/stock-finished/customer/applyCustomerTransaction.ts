@@ -1,7 +1,8 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
-type PaymentMethod = "CASH" | "UPI" | "CARD";
+
 
 type ApplyCustomerTransactionParams = {
   customerId?: string;
@@ -17,7 +18,7 @@ type ApplyCustomerTransactionParams = {
  currentCreditBalance?: number;
   currentBalance: number;
 
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethodType;
 
   referenceType?: string;
   referenceId?: string;
@@ -112,10 +113,7 @@ else if (type === "CUSTOMER_RETURN") {
     balance = 0;
   }
 }
- console.log("old/currentCreditBalance----------------",currentCreditBalance)
- console.log("new/credit ----------------",credit)
 
-console.log("type, creditRemaining,returnProductAmount -----------------", type, creditRemaining,returnProductAmount)
   // ==========================================
   // SAVE LEDGER
   // ==========================================

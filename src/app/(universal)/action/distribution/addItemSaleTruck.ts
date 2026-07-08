@@ -15,6 +15,7 @@ import { updateCustomerAccount } from "../stock-finished/inventorySupplier/updat
 import { applyCustomerTransaction } from "../stock-finished/customer/applyCustomerTransaction";
 import { ProductStockType } from "@/lib/types/productStockType";
 import { applyFinishedTransactions } from "./sale/applyFinishedTransactions";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type PaymentMethod =
   | "CASH"
@@ -48,7 +49,7 @@ finishedProduct: ProductStockType;
   unitPrice: number;
 
   paymentStatus?: PaymentStatus;
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethodType;
 
   paidAmount?: number;
   dueAmount?: number;
@@ -111,7 +112,7 @@ finishedProduct,
 
     const totalAmount =
       quantity * unitPrice;
-
+console.log("to log totalAmount--------------",  quantity,unitPrice)
     // Safety checks
 
     if (paidAmount < 0) {
@@ -145,24 +146,8 @@ finishedProduct,
 let nextCurrentBalance = currentBalance;
 let nextCurrentCreditBalance = currentCreditBalance;
 
-// let currentBalance1 = 0;
-// let currentCreditBalance1 = 0;
 
-// if (type === "SALE" && wholeSaleCutomerId) {
-//   const accountRef = adminDb
-//     .collection("customerAccounts")
-//     .doc(wholeSaleCutomerId);
 
-//   const accountSnap = await tx.get(accountRef);
-
-//   const data = accountSnap.data() || {};
-
-//   currentBalance1 = Number(data.balance || 0);
-//   currentCreditBalance1 = Number(
-//     data.creditBalance || 0
-//   );
-// }
-// console.log("in old-------------------", currentBalance1, currentBalance1)
 // ==========================================
 // FINISHED PRODUCT LEDGER
 // ==========================================
@@ -198,6 +183,7 @@ finishedProduct,
 // CUSTOMER ACCOUNT
 // ==========================================
 
+
 if (type === "SALE" && wholeSaleCutomerId) {
   await updateCustomerAccount(tx, {
     wholeSaleCutomerId,
@@ -214,6 +200,21 @@ if (type === "SALE" && wholeSaleCutomerId) {
 
     paymentMethod,
   });
+   
+  console.log("customer data---------------------",  wholeSaleCutomerId,
+     wholeSaleCutomerName,
+   " totalAmount", totalAmount,
+   // returnProductAmount,
+   "paid amount", paidAmount,
+   "due amount", dueAmount,
+   "Current balance", currentBalance,
+  //  creditAmount,
+   "currentCreditBalance", currentCreditBalance,
+    paymentMethod,
+    referenceId,
+    referenceType,
+    note,
+)
 
   await applyCustomerTransaction(tx, {
     customerId: wholeSaleCutomerId,
@@ -264,15 +265,11 @@ if (type === "SALE" && wholeSaleCutomerId) {
   currentCreditBalance: nextCurrentCreditBalance,
 };
   } catch (error) {
-    console.error(
-      "❌ addItemSale failed:",
-      error
-    );
+  console.error(
+    "❌ addItemSaleTruck failed:",
+    error
+  );
 
-    return {
-      success: false,
-      message:
-        "Failed to update stock",
-    };
-  }
+  throw error;
+}
 }
