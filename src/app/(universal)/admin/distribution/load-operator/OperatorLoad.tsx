@@ -212,7 +212,17 @@ export default function LoadVehicleFormOeprator({
     });
   };
 
+const selectedItems = form.watch("items");
 
+const totalProducts = selectedItems.filter(
+  (item) => item.quantity > 0
+).length;
+
+const totalQuantity = selectedItems.reduce(
+  (sum, item) =>
+    sum + (item.quantity || 0),
+  0
+);
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -467,24 +477,24 @@ export default function LoadVehicleFormOeprator({
 
               <div className="flex justify-between items-center">
 
-                <div className="space-y-1">
+          <div className="space-y-1">
 
-                  <p>
-                    Total Products :
-                    <strong> 3</strong>
-                  </p>
+  <p>
+    Total Products :
+    <strong> {totalProducts}</strong>
+  </p>
 
-                  <p>
-                    Total Quantity :
-                    <strong> 170 Kg</strong>
-                  </p>
+  <p>
+    Total Quantity :
+    <strong> {totalQuantity} Kg</strong>
+  </p>
 
-                </div>
+</div>
 
 
 
-                <Button type="submit" size="lg">
-                  <Truck className="mr-2 h-5 w-5" />
+                <Button className="bg-slate-400" type="submit" size="lg">
+                  <Truck className="mr-2 h-5 w-5 " />
                   Load Vehicle
                 </Button>
 

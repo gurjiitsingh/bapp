@@ -67,9 +67,9 @@ export default function TruckDeliverySale({
   factoryStock,
   customers,
 }: Props) {
-  console.log("fact  ------------------", factoryStock)
-  console.log("fact  ------------------", vehicles)
-  console.log("fact  ------------------", customers)
+  // console.log("fact  ------------------", factoryStock)
+  // console.log("fact  ------------------", vehicles)
+  // console.log("fact  ------------------", customers)
 
   const [customerSearch, setCustomerSearch] = useState("");
 
