@@ -1,25 +1,215 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
-export default function AdminDashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+import { Button } from "@/components/ui/button";
+import { clearStockMovements } from "../../action/clean/clearStockMovements";
+import { clearSupplierLedger } from "../../action/clean/clearSupplierLedger";
+import { clearStockLedgerFinished } from "../../action/clean/clearStockLedgerFinished";
+import { clearStockLedgerInventory } from "../../action/clean/clearStockLedgerInventory";
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/admin/login"); // redirect if not logged in
+
+
+
+export default function ClearERPDataPage() {
+
+  const [loading, setLoading] = useState<string | null>(null);
+
+
+  const handleClear = async (
+    name: string,
+    action: () => Promise<any>
+  ) => {
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to clear ${name}?`
+    );
+
+    if (!confirmDelete) return;
+
+
+    try {
+
+      setLoading(name);
+
+      const result = await action();
+
+
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+
+
+    } catch (error:any) {
+
+      toast.error(
+        error.message || "Something went wrong"
+      );
+
+    } finally {
+
+      setLoading(null);
+
     }
-  }, [status, router]);
+  };
 
-  if (status === "loading") return <p>Loading...</p>;
 
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      <p>Welcome, {session?.user?.name}</p>
+    <div className="min-h-screen bg-gray-100 p-6">
+
+      <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
+
+        <h1 className="text-2xl font-bold mb-2">
+          ERP Test Data Cleanup
+        </h1>
+
+        <p className="text-gray-500 mb-6">
+          Clear transaction collections one by one for testing.
+        </p>
+
+
+        <div className="space-y-4">
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+
+            <div>
+              <h2 className="font-semibold">
+                Stock Movements
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears stock transfer/sale movements
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Stock Movements",
+                  clearStockMovements
+                )
+              }
+            >
+              {loading === "Stock Movements"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+
+            <div>
+              <h2 className="font-semibold">
+                Supplier Ledger
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears supplier transactions
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Supplier Ledger",
+                  clearSupplierLedger
+                )
+              }
+            >
+              {loading === "Supplier Ledger"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+
+            <div>
+              <h2 className="font-semibold">
+                Stock Ledger Finished
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears finished product ledger
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Stock Ledger Finished",
+                  clearStockLedgerFinished
+                )
+              }
+            >
+              {loading === "Stock Ledger Finished"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+
+            <div>
+              <h2 className="font-semibold">
+                Stock Ledger Inventory
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears inventory ledger transactions
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Stock Ledger Inventory",
+                  clearStockLedgerInventory
+                )
+              }
+            >
+              {loading === "Stock Ledger Inventory"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+
+        </div>
+
+      </div>
+
     </div>
   );
 }

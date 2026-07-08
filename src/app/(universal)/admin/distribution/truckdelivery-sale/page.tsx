@@ -15,7 +15,7 @@ export default async function Page() {
 
    const customers =
       await fetchCustomer();
-  console.log("test factoryStock--------------------", factoryStock)
+ 
   return (
     <TruckDeliverySale
       vehicles={vehicles}
