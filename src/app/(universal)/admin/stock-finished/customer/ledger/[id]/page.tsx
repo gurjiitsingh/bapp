@@ -11,6 +11,7 @@ export default async function Page({
 
   const account = await getCustomerAccount(id);
 
+  console.log("account--------------", account)
   const customerTransactions =
     await getCustomerLedgerByLimit({
       customerId: id,

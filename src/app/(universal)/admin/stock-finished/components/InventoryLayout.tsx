@@ -47,6 +47,9 @@ const tabs = [
 export default function InventoryTabs() {
   const pathname = usePathname();
 
+  const isAccount = pathname.startsWith(
+  "/admin/stock-finished/account"
+);
   const isProduction =
     pathname ===
     "/admin/stock-finished/production";
@@ -86,7 +89,7 @@ export default function InventoryTabs() {
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-2 xl:grid-cols-8 gap-3">
+        <div className="grid grid-cols-2 xl:grid-cols-9 gap-3">
 
           <Link
             href="/admin/stock-finished/production"
@@ -436,6 +439,52 @@ export default function InventoryTabs() {
     }`}
   >
     Estimate recipe ingredients & production cost
+  </p>
+</Link>
+
+<Link
+  href="/admin/stock-finished/account"
+  className={`group rounded-3xl border shadow-sm p-5 transition ${
+    isAccount
+      ? "bg-emerald-50 border-emerald-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-emerald-300 hover:shadow-md"
+  }`}
+>
+  <div
+    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+      isAccount
+        ? "bg-emerald-600"
+        : "bg-emerald-100"
+    }`}
+  >
+    <IndianRupee
+      size={22}
+      className={
+        isAccount
+          ? "text-white"
+          : "text-emerald-600"
+      }
+    />
+  </div>
+
+  <h3
+    className={`font-semibold mt-4 ${
+      isAccount
+        ? "text-emerald-700"
+        : "text-gray-800"
+    }`}
+  >
+    Business Accounts
+  </h3>
+
+  <p
+    className={`text-sm mt-1 ${
+      isAccount
+        ? "text-emerald-600"
+        : "text-gray-500"
+    }`}
+  >
+    Assets, liabilities & financial summary
   </p>
 </Link>
 
