@@ -9,7 +9,10 @@ import { clearSupplierLedger } from "../../action/clean/clearSupplierLedger";
 import { clearStockLedgerFinished } from "../../action/clean/clearStockLedgerFinished";
 import { clearStockLedgerInventory } from "../../action/clean/clearStockLedgerInventory";
 import { clearCustomerLedger } from "../../action/clean/customerLedger";
-
+import { resetProductStockFields } from "../../action/clean/resetProductStockFields";
+import { resetInventoryItemFields } from "../../action/clean/resetInventoryItemFields";
+import { resetSupplierAccounts } from "../../action/clean/resetSupplierAccounts";
+import { resetCustomerAccounts } from "../../action/clean/resetCustomerAccounts";
 
 
 
@@ -44,7 +47,7 @@ export default function ClearERPDataPage() {
       }
 
 
-    } catch (error:any) {
+    } catch (error: any) {
 
       toast.error(
         error.message || "Something went wrong"
@@ -205,65 +208,176 @@ export default function ClearERPDataPage() {
 
           </div>
 
-<div className="flex items-center justify-between border rounded-xl p-4">
+          <div className="flex items-center justify-between border rounded-xl p-4">
 
+            <div>
+              <h2 className="font-semibold">
+                Customer Ledger
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears customer transactions
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Customer Ledger",
+                  clearCustomerLedger
+                )
+              }
+            >
+              {loading === "Customer Ledger"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+
+            <div>
+              <h2 className="font-semibold">
+                Supplier Ledger
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears supplier transactions
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Supplier Ledger",
+                  clearSupplierLedger
+                )
+              }
+            >
+              {loading === "Supplier Ledger"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+            <div>
+              <h2 className="font-semibold">
+                Reset Product Stock
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Resets stock quantities, prices, and stock value to zero.
+              </p>
+            </div>
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Reset Product Stock",
+                  resetProductStockFields
+                )
+              }
+            >
+              {loading === "Reset Product Stock"
+                ? "Resetting..."
+                : "Reset"}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
+            <div>
+              <h2 className="font-semibold">
+                Reset Inventory Items
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Resets inventory stock, costs, prices, and stock value to zero.
+              </p>
+            </div>
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Reset Inventory Items",
+                  resetInventoryItemFields
+                )
+              }
+            >
+              {loading === "Reset Inventory Items"
+                ? "Resetting..."
+                : "Reset"}
+            </Button>
+          </div>
+
+
+          <div className="flex items-center justify-between border rounded-xl p-4">
   <div>
     <h2 className="font-semibold">
-      Customer Ledger
+      Reset Supplier Accounts
     </h2>
 
     <p className="text-sm text-gray-500">
-      Clears customer transactions
+      Resets supplier account balances and payment totals to zero.
     </p>
   </div>
-
 
   <Button
     variant="destructive"
     disabled={loading !== null}
     onClick={() =>
       handleClear(
-        "Customer Ledger",
-        clearCustomerLedger
+        "Reset Supplier Accounts",
+        resetSupplierAccounts
       )
     }
   >
-    {loading === "Customer Ledger"
-      ? "Clearing..."
-      : "Clear"}
+    {loading === "Reset Supplier Accounts"
+      ? "Resetting..."
+      : "Reset"}
   </Button>
-
 </div>
 
 
 <div className="flex items-center justify-between border rounded-xl p-4">
-
   <div>
     <h2 className="font-semibold">
-      Supplier Ledger
+      Reset Customer Accounts
     </h2>
 
     <p className="text-sm text-gray-500">
-      Clears supplier transactions
+      Resets customer balances and payment/sales totals to zero.
     </p>
   </div>
-
 
   <Button
     variant="destructive"
     disabled={loading !== null}
     onClick={() =>
       handleClear(
-        "Supplier Ledger",
-        clearSupplierLedger
+        "Reset Customer Accounts",
+        resetCustomerAccounts
       )
     }
   >
-    {loading === "Supplier Ledger"
-      ? "Clearing..."
-      : "Clear"}
+    {loading === "Reset Customer Accounts"
+      ? "Resetting..."
+      : "Reset"}
   </Button>
-
 </div>
 
         </div>
