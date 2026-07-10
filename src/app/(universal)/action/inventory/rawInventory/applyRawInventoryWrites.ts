@@ -17,7 +17,7 @@ export async function applyRawInventoryWrites(
     // =====================================
     // Cost of this inventory item
     // =====================================
-
+console.log("u.quantity--------------",u.quantity)
     const consumedValue =
       (Number(u.quantity) || 0) *
       (Number(u.unitCost) || 0);

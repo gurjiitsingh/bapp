@@ -143,7 +143,7 @@ export async function loadVehicle({
           tx,
 
           movementType: "TRANSFER",
-
+          batchId :"TEST",
           productId: row.factory.productId,
           productName: row.factory.productName,
           name: vehicleName,

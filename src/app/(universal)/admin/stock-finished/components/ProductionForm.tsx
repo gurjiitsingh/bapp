@@ -11,6 +11,7 @@ import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
+import Link from "next/link";
 type Props = {
   products: ProductStockType[];
 };
@@ -81,6 +82,7 @@ export default function ProductionForm({
     try {
       const result = await updateFinishedItemStock({
         id: data.id,
+        batchId: "fromUpdate",
         productName: selectedProduct.name,
         sellingPrice: selectedProduct.sellingPrice,
         wholesalePrice: selectedProduct.wholesalePrice!,
@@ -124,15 +126,34 @@ export default function ProductionForm({
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Produce Finished Goods
-          </h1>
+          <div className="flex justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Produce Finished Goods
+              </h1>
 
-          <p className="text-sm text-gray-500 mt-1">
-            Record production and increase finished stock.
-          </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Record production and increase finished stock.
+              </p>
+            </div>
+            <div className="flex gap-3">
+               <Link
+              href="/admin/stock-finished/issue/add"
+              className="px-4 py-2 bg-red-600 text-white rounded-md"
+            >
+             Manual Production
+            </Link>
+            <Link
+              href="/admin/stock-finished/issue"
+              className="px-4 py-2 bg-red-600 text-white rounded-md"
+            >
+             Production Batches
+            </Link>
+            </div>
+          </div>
+
+
         </div>
-
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5"

@@ -14,12 +14,33 @@ export default async function Page() {
     name: d.name,
   }));
 
-  const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
-    id: i.id,
-    name: i.name,
-    unit: i.unit || "",
-    costPrice: i.costPrice || 0,
-  }));
+const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
+  id: i.id,
+  name: i.name || "",
+
+  sku: i.sku || "",
+  barcode: i.barcode || "",
+
+  consumptionUnit: i.consumptionUnit || "pcs",
+  purchaseMappings: i.purchaseMappings || [],
+
+  currentStock: Number(i.currentStock) || 0,
+  minStock: Number(i.minStock) || 0,
+
+  averageCost: Number(i.averageCost) || 0,
+  stockValue: Number(i.stockValue) || 0,
+
+  sellingPrice: Number(i.sellingPrice) || 0,
+
+  categoryId: i.categoryId || "",
+  supplierId: i.supplierId || "",
+  supplierIds: i.supplierIds || [],
+
+  isActive: i.isActive ?? true,
+
+  createdAt: i.createdAt || null,
+  updatedAt: i.updatedAt || null,
+}));
 
   return (
     <ProductionBatchForm

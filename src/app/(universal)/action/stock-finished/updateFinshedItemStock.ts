@@ -21,6 +21,7 @@ import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinis
 
 type AdjustStockType = {
   id: string;
+  batchId: string;
   productName: string;
   sellingPrice: number;
   wholesalePrice: number;
@@ -35,6 +36,7 @@ type AdjustStockType = {
 
 export async function updateFinishedItemStock({
   id,
+  batchId,
   productName,
   sellingPrice,
   wholesalePrice,
@@ -127,7 +129,7 @@ export async function updateFinishedItemStock({
 
       // 1. Consume raw inventory
 
-
+console.log("rawUpdates in working---------------", rawUpdates)
       if (direction === "IN") {
         await applyRawInventoryWrites(
           tx,
@@ -148,6 +150,7 @@ export async function updateFinishedItemStock({
       // 2. Update finished product
       await applyFinishedTransactionsWrite(tx, {
         productId: id,
+        batchId:"ABC",
         productName,
         type: "PRODUCTION",
         direction,
@@ -193,7 +196,7 @@ export async function updateFinishedItemStock({
         tx,
 
         movementType: "TRANSFER",
-
+batchId: "ABC",
         productId: id,
         productName,
         name: "FACTORY",

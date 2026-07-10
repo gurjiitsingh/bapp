@@ -15,7 +15,7 @@ export async function createProductionBatch(
   const db = adminDb;
 
 
-  
+  console.log("intput-----------------", input)
 
   try {
     if (!input.departmentId) {
@@ -45,82 +45,97 @@ const deptCode =
 
 const batchId = `${deptCode}-${datePart}-${timestamp}`;
 
- 
+const rawRequest = input.items.map((item) => {
+  console.log("qty---------", item.quantity);
 
-    await db.runTransaction(async (tx) => {
-      // =========================
-      // ✅ 1. PREPARE RAW REQUEST
-      // =========================
+  const qtyInGrams = item.quantity * (item.conversionFactor || 1);
 
-     const rawRequest = input.items.map((item) => ({
-  inventoryItemId: item.inventoryItemId,
-  quantity: item.quantity,
-}));
+  return {
+    inventoryItemId: item.inventoryItemId,
+    quantity: qtyInGrams, // final in grams
+  };
+});
+
+console.log("rawRequest -------------",rawRequest)
+
+//     await db.runTransaction(async (tx) => {
+//       // =========================
+//       // ✅ 1. PREPARE RAW REQUEST
+//       // =========================
+
+//      const rawRequest = input.items.map((item) =>{
+//       console.log("qty---------", item.quantity);
+//    return   ({
+      
+
+//   inventoryItemId: item.inventoryItemId,
+//   quantity: item.quantity,
+// })});
 
 
 
-      // =========================
-      // ✅ 2. READ RAW INVENTORY
-      // =========================
+//       // =========================
+//       // ✅ 2. READ RAW INVENTORY
+//       // =========================
 
-     const rawUpdates = await getManualRawInventoryData(
-  tx,
-  rawRequest
-);
+//      const rawUpdates = await getManualRawInventoryData(
+//   tx,
+//   rawRequest
+// );
 
-      // =========================
-      // ✅ 3. VALIDATE STOCK
-      // =========================
+//       // =========================
+//       // ✅ 3. VALIDATE STOCK
+//       // =========================
 
-      validateRawStock(rawUpdates);
+//       validateRawStock(rawUpdates);
 
-      // =========================
-      // ✅ 4. CREATE BATCH
-      // =========================
+//       // =========================
+//       // ✅ 4. CREATE BATCH
+//       // =========================
 
-      const batchRef = db
-        .collection("production_batches")
-        .doc(batchId);
+//       const batchRef = db
+//         .collection("production_batches")
+//         .doc(batchId);
 
-      tx.set(batchRef, {
-        id: batchId,
-        departmentId: input.departmentId,
-        departmentName: input.departmentName,
-        createdAt: now,
-        note: input.note || "",
-        isClosed: false,
-      });
+//       tx.set(batchRef, {
+//         id: batchId,
+//         departmentId: input.departmentId,
+//         departmentName: input.departmentName,
+//         createdAt: now,
+//         note: input.note || "",
+//         isClosed: false,
+//       });
 
-      // =========================
-      // ✅ 5. SAVE ITEMS
-      // =========================
+//       // =========================
+//       // ✅ 5. SAVE ITEMS
+//       // =========================
 
-      for (const item of input.items) {
-        const ref = db.collection("production_batch_items").doc();
+//       for (const item of input.items) {
+//         const ref = db.collection("production_batch_items").doc();
 
-        tx.set(ref, {
-          id: ref.id,
-          batchId,
-          inventoryItemId: item.inventoryItemId,
-          inventoryItemName: item.inventoryItemName,
-          quantity: item.quantity,
-          unit: item.unit,
-          costPerUnit: item.costPerUnit,
-          totalCost: item.quantity * item.costPerUnit,
-          createdAt: now,
-        });
-      }
+//         tx.set(ref, {
+//           id: ref.id,
+//           batchId,
+//           inventoryItemId: item.inventoryItemId,
+//           inventoryItemName: item.inventoryItemName,
+//           quantity: item.quantity,
+//           unit: item.unit,
+//           costPerUnit: item.costPerUnit,
+//           totalCost: item.quantity * item.costPerUnit,
+//           createdAt: now,
+//         });
+//       }
 
-      // =========================
-      // ✅ 6. APPLY INVENTORY (IMPORTANT 🔥)
-      // =========================
+//       // =========================
+//       // ✅ 6. APPLY INVENTORY (IMPORTANT 🔥)
+//       // =========================
 
-      await applyRawInventoryWrites(
-        tx,
-        rawUpdates,
-        `production-batch-${batchId}`
-      );
-    });
+//       await applyRawInventoryWrites(
+//         tx,
+//         rawUpdates,
+//         `production-batch-${batchId}`
+//       );
+//     });
 
     return {
       success: true,

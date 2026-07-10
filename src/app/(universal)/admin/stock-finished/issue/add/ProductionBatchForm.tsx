@@ -3,54 +3,92 @@
 import { useState } from "react";
 import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatch";
 import { Plus, Trash2, Package } from "lucide-react";
+import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 type Props = {
   departments: { id: string; name: string }[];
-  inventoryItems: {
-    id: string;
-    name: string;
-    unit: string;
-    costPrice: number;
-  }[];
+  inventoryItems: InventoryItemType[];
 };
 
 export default function ProductionBatchForm({
   departments,
   inventoryItems,
 }: Props) {
+
+  console.log("inventoryItems----------------", inventoryItems)
+
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const addItem = () => {
-    setItems([
-      ...items,
-      {
-        inventoryItemId: "",
-        inventoryItemName: "",
-        quantity: 0,
-        unit: "",
-        costPerUnit: 0,
-      },
-    ]);
-  };
+const addItem = () => {
+  setItems([
+    ...items,
+    {
+      inventoryItemId: "",
+      inventoryItemName: "",
 
-  const updateItem = (index: number, field: string, value: any) => {
-    const updated = [...items];
-    updated[index][field] = value;
+      quantity: 0,
 
-    if (field === "inventoryItemId") {
-      const selected = inventoryItems.find((i) => i.id === value);
-      if (selected) {
-        updated[index].inventoryItemName = selected.name;
-        updated[index].unit = selected.unit;
-        updated[index].costPerUnit = selected.costPrice;
+      purchaseUnit: "", // ✅ NEW
+      consumptionUnit: "", // ✅ NEW
+
+      costPerUnit: 0,
+
+      purchaseMappings: [], // ✅ NEW
+    },
+  ]);
+};
+
+const updateItem = (index: number, field: string, value: any) => {
+  const updated = [...items];
+  updated[index][field] = value;
+
+  // ✅ When item selected
+  if (field === "inventoryItemId") {
+    const selected = inventoryItems.find((i) => i.id === value);
+
+    if (selected) {
+      updated[index].inventoryItemName = selected.name;
+
+      updated[index].purchaseMappings =
+        selected.purchaseMappings || [];
+
+      updated[index].costPerUnit = selected.averageCost;
+
+      // ✅ auto select FIRST unit
+      const firstUnit = selected.purchaseMappings?.[0];
+
+      if (firstUnit) {
+        updated[index].purchaseUnit = firstUnit.purchaseUnit;
+        updated[index].consumptionUnit =
+          firstUnit.consumptionUnit;
+
+        // ✅ ADD THIS HERE
+        updated[index].conversionFactor = firstUnit.factor;
       }
     }
+  }
 
-    setItems(updated);
-  };
+  // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
+  if (field === "purchaseUnit") {
+    const mapping = updated[index].purchaseMappings.find(
+      (m: any) => m.purchaseUnit === value
+    );
+
+    if (mapping) {
+      updated[index].consumptionUnit =
+        mapping.consumptionUnit;
+
+      // ✅ THIS IS YOUR LINE — PUT HERE
+      updated[index].conversionFactor = mapping.factor;
+    }
+  }
+
+  setItems(updated);
+};
+
 
   const removeItem = (index: number) => {
     setItems(items.filter((_, i) => i !== index));
@@ -172,17 +210,30 @@ export default function ProductionBatchForm({
                   }
                 />
 
-                <input
-                  value={item.unit}
-                  readOnly
-                  className="border border-gray-200 rounded-md px-2 py-1 bg-gray-100"
-                />
+              <select
+  value={item.purchaseUnit}
+  onChange={(e) =>
+    updateItem(index, "purchaseUnit", e.target.value)
+  }
+  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+>
+  <option value="">Select Unit</option>
 
-                <input
+  {item.purchaseMappings?.map((m: any, i: number) => (
+    <option key={i} value={m.purchaseUnit}>
+      {m.purchaseUnit}
+    </option>
+  ))}
+</select>
+{/* <div className="text-xs text-gray-500">
+  {item.consumptionUnit}
+</div> */}
+
+                {/* <input
                   value={item.costPerUnit}
                   readOnly
                   className="border border-gray-200 rounded-md px-2 py-1 bg-gray-100"
-                />
+                /> */}
 
                 <button
                   onClick={() => removeItem(index)}

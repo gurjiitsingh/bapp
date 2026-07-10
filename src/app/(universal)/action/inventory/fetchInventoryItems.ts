@@ -34,6 +34,40 @@ export const fetchInventoryItems =
   //       },
   //     ],
 
+
+
+
+
+      // ✅ FIX purchaseMappings
+        // const purchaseMappings =
+        //   data.purchaseMappings?.length
+        //     ? data.purchaseMappings.map((m: any) => ({
+        //         purchaseUnit:
+        //           m.purchaseUnit || "pcs",
+
+        //         consumptionUnit:
+        //           m.consumptionUnit ||
+        //           data.consumptionUnit ||
+        //           "pcs",
+
+        //         factor: Number(m.factor) || 1,
+        //       }))
+        //     : [
+        //         {
+        //           purchaseUnit:
+        //             data.purchaseUnit ||
+        //             data.consumptionUnit ||
+        //             "pcs",
+
+        //           consumptionUnit:
+        //             data.consumptionUnit || "pcs",
+
+        //           factor:
+        //             Number(data.conversionFactor) || 1,
+        //         },
+        //       ];
+
+
       return {
   id: doc.id,
 

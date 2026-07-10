@@ -329,16 +329,16 @@ return (
             type="button"
             className="flex-1 h-11 bg-red-500 hover:bg-red-600 text-white"
             onClick={async () => {
-              const res = await closeProductionBatch(batchId);
+              // const res = await closeProductionBatch(batchId);
 
-              if (res.success) {
-                toast.success("Batch Closed");
+              // if (res.success) {
+              //   toast.success("Batch Closed");
 
-                window.location.href =
-                  "/admin/stock-finished/issue/batches";
-              } else {
-                toast.error(res.message);
-              }
+              //   window.location.href =
+              //     "/admin/stock-finished/issue/batches";
+              // } else {
+              //   toast.error(res.message);
+              // }
             }}
           >
             Final Close

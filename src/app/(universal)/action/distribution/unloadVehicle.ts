@@ -152,7 +152,7 @@ export async function unloadVehicle({
         // Movement history
         await addStockMovement({
           tx,
-
+          batchId: "ABC",
           movementType: "TRANSFER",
 
           productId: row.van.productId,
