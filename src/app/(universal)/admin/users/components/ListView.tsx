@@ -21,6 +21,7 @@ type productTableProps = {
 
 const ListView = ({ title }: productTableProps) => {
   const [userData, setUserData] = useState<userDashboardType[]>([]);
+  console.log("user----------",userData)
 
   useEffect(() => {
     async function fetchUsers() {
@@ -47,7 +48,9 @@ const ListView = ({ title }: productTableProps) => {
               <TableHead className="hidden md:table-cell">Email</TableHead>
                <TableHead className="hidden md:table-cell">Phone</TableHead>
               <TableHead>Role</TableHead>
-            
+                <TableHead>Department</TableHead>
+           
+
               <TableHead>Time</TableHead>
                 <TableHead className="hidden md:table-cell text-right">Actions</TableHead>
             </TableRow>

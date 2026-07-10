@@ -106,8 +106,7 @@ const SignIn = () => {
       <div className="absolute bottom-24 right-20 h-72 w-72 rounded-full bg-yellow-500/20 blur-3xl" />
 
       {/* Main Content */}
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-between gap-12 px-6 py-10 lg:flex-row lg:px-12">
-        {/* Left Side */}
+     <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col-reverse items-center justify-between gap-12 px-6 py-10 lg:flex-row lg:px-12">       {/* Left Side */}
         <div className="max-w-2xl pt-20 text-white lg:pt-0">
           {/* Badge */}
           <div className="mb-5 flex items-center gap-2 text-sm font-medium text-amber-400">

@@ -10,6 +10,7 @@ import { applyFinishedTransactionsRead } from "./applyFinishedTransactionsRead";
 type ApplyFinishedMovementType = {
   productId: string;
   productName?: string;
+  batchId: string;
   type: string;
   direction: "IN" | "OUT";
 

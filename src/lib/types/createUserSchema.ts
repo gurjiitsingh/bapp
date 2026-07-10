@@ -24,33 +24,36 @@ export const createUserSchema = z
 
     confirmPassword: z.string(),
 
-    role: z.enum([
-      "admin",
-      "manager",
-
-      "productionManager",
-      "chef",
-
-      "storekeeper",
-      "dispatchOperator",
-
-      "salesExecutive",
-      "salesManager",
-
-      "cashier",
-
-      "driver",
-      "delivery",
-
-      "accountant",
-
-      "shopkeeper",
-
-      "customer",
-      "supplier",
-
-      "user",
-    ]),
+role: z.enum([
+  "accountant",
+  "admin",
+  "captain",
+  "cashier",
+  "chef",
+  "confectioner",
+  "customer",
+  "delivery",
+  "dispatch_operator",
+  "driver",
+  "employee",
+  "head_chef",
+  "host",
+  "manager",
+  "production_manager",
+  "production_supervisor",
+  "purchase_manager",
+  "quality_control",
+  "restaurant_manager",
+  "sales_executive",
+  "sales_manager",
+  "shopkeeper",
+  "steward",
+  "storekeeper",
+  "supplier",
+  "user",
+  "waiter",
+  "warehouse_assistant",
+]),
 
     status: z.enum([
       "active",

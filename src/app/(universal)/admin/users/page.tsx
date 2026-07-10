@@ -10,7 +10,7 @@ export default function Page() {
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-slate-100/40 to-slate-50 text-slate-900 flex flex-col selection:bg-indigo-500/10 selection:text-indigo-600">
       
       {/* Premium Dashboard Global Layout Wrapper */}
-      <div className="w-full max-w-7xl  px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col gap-8">
+      <div className="w-full  px-4 sm:px-6 lg:px-8 py-8 flex-1 flex flex-col gap-8">
         
         {/* Header Hero Control Board Component */}
         <div className="relative overflow-hidden bg-white/70 backdrop-blur-md border border-slate-200/80 p-6 md:p-8 rounded-3xl shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-6 transition-all duration-300 hover:shadow-xs">

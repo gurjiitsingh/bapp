@@ -13,6 +13,7 @@ export type AddStockMovementProps = {
   | "ADJUSTMENT";
 
   productId: string;
+  batchId: string;
   productName: string;
   productMode?: "raw_stock" | "finished_stock" | "simple";
   locationCode: string;
@@ -36,6 +37,7 @@ export async function addStockMovement({
   movementType,
 
   productId,
+  batchId,
   productName,
   //productMode,
   customerName ="",
@@ -62,6 +64,7 @@ export async function addStockMovement({
     movementType,
 
     productId,
+    batchId,
     productName,
     // productMode,
     customerName,

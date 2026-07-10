@@ -4,42 +4,31 @@ import { hashPassword } from "@/lib/auth";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
 
-export async function addUserDashboard(
-  formData: FormData
-): Promise<string | undefined> {
+export async function addUserDashboard(formData: FormData) {
   const fullName = String(formData.get("fullName") || "").trim();
   const username = String(formData.get("username") || "").trim();
-console.log("th--------------", fullName)
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
-
   const mobile = String(formData.get("mobile") || "").trim();
-
   const password = String(formData.get("password") || "");
-
   const role = String(formData.get("role") || "user");
-
   const status = String(formData.get("status") || "active");
-
-  const employeeId = String(
-    formData.get("employeeId") || ""
-  ).trim();
-
-  const department = String(
-    formData.get("department") || ""
-  ).trim();
-
-  const address = String(
-    formData.get("address") || ""
-  ).trim();
-
-  const notes = String(
-    formData.get("notes") || ""
-  ).trim();
-
+  const employeeId = String(formData.get("employeeId") || "").trim();
+  
+  const address = String(formData.get("address") || "").trim();
+  const notes = String(formData.get("notes") || "").trim();
+const department = String(formData.get("department") || "")
+  .trim()
+  .toUpperCase();
   try {
-    // Check existing user by mobile
+    if (!fullName || !mobile || !password) {
+      return {
+        success: false,
+        message: "Please fill all required fields.",
+      };
+    }
+
     const existing = await adminDb
       .collection("users")
       .where("mobile", "==", mobile)
@@ -47,32 +36,28 @@ console.log("th--------------", fullName)
       .get();
 
     if (!existing.empty) {
-      return existing.docs[0].id;
+      return {
+        success: false,
+        message: "Mobile number is already in use.",
+      };
     }
 
     const hashedPassword = await hashPassword(password);
 
-    const newUser = {
-      // Basic Information
+    const docRef = await adminDb.collection("users").add({
       fullName,
       username,
       email,
       mobile,
-
-      // Authentication
       hashedPassword,
       role,
       status,
       isVerified: true,
       isAdmin: role === "admin",
-
-      // Employee Information
-      employeeId: employeeId || "",
-      department: department || "",
-      address: address || "",
-      notes: notes || "",
-
-      // Optional readable time
+      employeeId,
+      department,
+      address,
+      notes,
       time: new Intl.DateTimeFormat("en-IN", {
         year: "numeric",
         month: "short",
@@ -81,21 +66,21 @@ console.log("th--------------", fullName)
         minute: "2-digit",
         hour12: true,
       }).format(new Date()),
-
-      // Timestamps
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    return {
+      success: true,
+      message: "User created successfully.",
+      userId: docRef.id,
     };
-
-    console.log("newUser-----------------", newUser)
-
-    const docRef = await adminDb
-      .collection("users")
-      .add(newUser);
-
-    return docRef.id;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating user:", error);
-    return undefined;
+
+    return {
+      success: false,
+      message: error.message || "Failed to create user.",
+    };
   }
 }
