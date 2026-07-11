@@ -1,6 +1,6 @@
  
 import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
-import ProductionForm from "./ProductionForm";
+import ManualProductionForm from "./ManualProductionForm";
 
 export default async function Page({ params }: any) {
   const { id } = await params;
@@ -8,7 +8,7 @@ export default async function Page({ params }: any) {
   const products = await fetchProductsStock();
 
   return (
-    <ProductionForm
+    <ManualProductionForm
       products={products}
       batchId={id} // ✅ pass batch id
     />

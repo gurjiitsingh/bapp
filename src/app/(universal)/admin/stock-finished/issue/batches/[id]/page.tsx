@@ -9,6 +9,8 @@ export default async function Page({ params }: any) {
 
   const res = await getProductionBatchById(resolvedParams.id);
 
+  console.log("batch view-----------", res.data)
+
   if (!res.success) {
     return <div>Error loading batch</div>;
   }

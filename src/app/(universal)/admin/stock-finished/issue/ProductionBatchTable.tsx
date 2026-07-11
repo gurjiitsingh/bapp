@@ -12,73 +12,155 @@ export default function ProductionBatchTable({ batches }: any) {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Production Batches
-        </h1>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-        <input
-          placeholder="Search department..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded-lg w-64"
-        />
+        {/* TITLE */}
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+            Production Batches
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Track and manage production records
+          </p>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex flex-wrap items-center gap-3">
+
+          <input
+            placeholder="Search department..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="
+              h-11 px-4 rounded-xl
+              bg-gray-50
+              outline-none
+              focus:ring-2 focus:ring-red-200
+              transition
+              w-64
+            "
+          />
+
+          <Link
+            href="/admin/stock-finished/issue/add"
+            className="
+              h-11 px-5 flex items-center justify-center
+              rounded-xl
+              bg-red-600 text-white font-medium
+              shadow-sm
+              hover:bg-red-700 transition
+            "
+          >
+            + Manual Production
+          </Link>
+
+           <Link
+            href="/admin/stock-finished/production"
+            className="
+              h-11 px-5 flex items-center justify-center
+              rounded-xl
+              bg-red-600 text-white font-medium
+              shadow-sm
+              hover:bg-red-700 transition
+            "
+          >
+            + Automatic Production
+          </Link>
+        </div>
       </div>
 
-      {/* TABLE */}
-      <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
+      {/* TABLE CONTAINER */}
+      <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm overflow-hidden">
 
-        <div className="grid grid-cols-5 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600">
-          <div>Batch ID</div>
+        {/* TABLE HEADER */}
+        <div className="
+          grid grid-cols-5
+          px-6 py-3
+          text-xs font-semibold
+          text-gray-500 uppercase tracking-wider
+        ">
+          <div>Batch</div>
           <div>Department</div>
           <div>Date</div>
           <div>Status</div>
-          <div>Action</div>
+          <div className="text-right">Action</div>
         </div>
 
+        {/* ROWS */}
         {filtered.map((batch: any) => (
           <div
             key={batch.id}
-            className="grid grid-cols-5 px-4 py-3 border-t items-center hover:bg-gray-50 transition"
+            className="
+              grid grid-cols-5 items-center
+              px-6 py-4
+              hover:bg-gray-50/70
+              transition
+            "
           >
-            <div className="font-medium text-gray-800">
-              {batch.id}
+            {/* ID */}
+            <div className="font-medium text-gray-900">
+              #{batch.id.slice(-6)}
             </div>
 
-            <div>{batch.departmentName}</div>
-
-            <div>
-              {new Date(batch.createdAt).toLocaleString()}
+            {/* DEPARTMENT */}
+            <div className="text-gray-600">
+              {batch.departmentName}
             </div>
 
+            {/* DATE */}
+            <div className="text-gray-500 text-sm">
+              {new Date(batch.createdAt).toLocaleDateString()}
+              <div className="text-xs text-gray-400">
+                {new Date(batch.createdAt).toLocaleTimeString()}
+              </div>
+            </div>
+
+            {/* STATUS */}
             <div>
               {batch.isClosed ? (
-                <span className="text-red-600 text-sm font-medium">
+                <span className="
+                  px-3 py-1 text-xs font-medium
+                  rounded-full
+                  bg-red-50 text-red-600
+                ">
                   Closed
                 </span>
               ) : (
-                <span className="text-green-600 text-sm font-medium">
+                <span className="
+                  px-3 py-1 text-xs font-medium
+                  rounded-full
+                  bg-green-50 text-green-600
+                ">
                   Open
                 </span>
               )}
             </div>
 
-            <div>
-             <Link
-  href={`/admin/stock-finished/issue/batches/${batch.id}`}
-  className="text-blue-600 hover:underline"
->
-  View
-</Link>
+            {/* ACTION */}
+            <div className="flex justify-end">
+              <Link
+                href={`/admin/stock-finished/issue/batches/${batch.id}`}
+                className="
+                  flex items-center gap-1
+                  text-sm font-medium
+                  text-blue-600
+                  hover:text-blue-800
+                  transition
+                "
+              >
+                <Eye size={16} />
+                View
+              </Link>
             </div>
           </div>
         ))}
 
+        {/* EMPTY */}
         {!filtered.length && (
-          <div className="text-center py-6 text-gray-400">
+          <div className="text-center py-10 text-gray-400 text-sm">
             No batches found
           </div>
         )}

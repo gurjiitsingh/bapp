@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatch";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 type Props = {
   departments: { id: string; name: string }[];
@@ -31,16 +33,18 @@ const addItem = () => {
 
       quantity: 0,
 
-      purchaseUnit: "", // ✅ NEW
-      consumptionUnit: "", // ✅ NEW
+      purchaseUnit: "",
+      consumptionUnit: "",
 
-      costPerUnit: 0,
+      conversionFactor: 1,
 
-      purchaseMappings: [], // ✅ NEW
+      averageCost: 0,     // ✅ ADD THIS
+      costPerUnit: 0,     // (derived)
+
+      purchaseMappings: [],
     },
   ]);
 };
-
 const updateItem = (index: number, field: string, value: any) => {
   const updated = [...items];
   updated[index][field] = value;
@@ -55,7 +59,7 @@ const updateItem = (index: number, field: string, value: any) => {
       updated[index].purchaseMappings =
         selected.purchaseMappings || [];
 
-      updated[index].costPerUnit = selected.averageCost;
+     updated[index].averageCost = selected.averageCost || 0;
 
       // ✅ auto select FIRST unit
       const firstUnit = selected.purchaseMappings?.[0];
@@ -95,8 +99,15 @@ const updateItem = (index: number, field: string, value: any) => {
   };
 
   const handleSubmit = async () => {
-    if (!departmentId) return alert("Select department");
-    if (!items.length) return alert("Add at least 1 item");
+if (!departmentId) {
+  toast.error("Select a department");
+  return;
+}
+
+if (!items.length) {
+  toast.error("Add at least one item");
+  return;
+}
 
     setLoading(true);
 
@@ -111,17 +122,17 @@ const updateItem = (index: number, field: string, value: any) => {
       });
 
       if (!res.success) {
-        alert(res.message);
-        return;
-      }
+  toast.error(res.message);
+  return;
+}
 
-      alert("Batch Created ✔");
+    toast.success("Batch created successfully");
       setItems([]);
       setNote("");
       setDepartmentId("");
     } catch (err) {
       console.error(err);
-      alert("Error");
+    toast.error("An error occurred while creating the batch");
     } finally {
       setLoading(false);
     }
@@ -132,11 +143,37 @@ const updateItem = (index: number, field: string, value: any) => {
 
       {/* HEADER */}
       <div className="flex items-center gap-3">
-        <Package className="w-6 h-6 text-blue-600" />
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Production Batch
-        </h1>
+        
+       
       </div>
+
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div><Package className="w-6 h-6 text-blue-600" />
+              <h1 className="text-3xl font-bold text-gray-800">
+                Production Batch
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Issue stock.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin/stock-finished/issue/add"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-red-600 px-5 font-medium text-white shadow-sm transition hover:bg-red-700"
+              >
+                Manual Production
+              </Link>
+
+              <Link
+                href="/admin/stock-finished/issue"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
+              >
+                Production Batches
+              </Link>
+            </div>
+          </div>
+
 
       {/* CARD */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-5 shadow-sm">

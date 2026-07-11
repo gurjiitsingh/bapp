@@ -11,6 +11,7 @@ import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
+import { stockProductionManual } from "@/app/(universal)/action/production/stockProductionManual";
 type Props = {
   products: ProductStockType[];
   batchId: string; // ✅ NEW
@@ -23,7 +24,7 @@ type FormType = {
   note: string;
 };
 
-export default function ProductionForm({
+export default function ManualProductionForm({
   products,
   batchId, // ✅ NEW
 }: Props) {
@@ -78,7 +79,7 @@ export default function ProductionForm({
     setIsSubmitting(true);
 
     try {
-      const result = await updateFinishedItemStock({
+      const result = await stockProductionManual({
         id: data.id,
         productName: selectedProduct.name,
         sellingPrice: selectedProduct.sellingPrice,

@@ -45,8 +45,7 @@ export default function InventoryTransactionTable({
   currentPage,
   hasMore,
 }: Props) {
-
-  console.log("transactions-----------------",transactions)
+ 
 
   const router = useRouter();
 
@@ -169,7 +168,7 @@ export default function InventoryTransactionTable({
               {/* PRICE */}
 
          <TableCell>
-        {Number(tx.unitCost).toFixed(2)}
+       
   {showFinancial ? (
     <div className="flex flex-col">
 

@@ -2,107 +2,185 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useMemo } from "react";
 
 export default function BatchDetails({ batch }: any) {
-    return (
-        <div className="  space-y-6">
 
-            {/* HEADER */}
-            <div className="flex justify-between">
-                <div> 
-                    <h1 className="text-2xl font-semibold text-gray-800">
-                    Batch Details
-                </h1>
-                    <p className="text-sm text-gray-500">
-                        {batch.id}
-                    </p>
-                </div>
-                <Link href={`/admin/stock-finished/issue/batches/close/${batch.id}`}>
-                    <Button className="btn-save-4">
-                        Close Batch
-                    </Button>
-                </Link>
-            </div>
+    const getItemTotal = (item: any) =>
+        item.quantity * item.averageCost * item.conversionFactor;
 
-            {/* INFO CARD */}
-            <div className="bg-white border rounded-xl p-4 grid grid-cols-3 gap-4">
+    const duration = (() => {
+  if (!batch.startTime) return null;
 
-                <div>
-                    <p className="text-sm text-gray-500">Department</p>
-                    <p className="font-medium">{batch.departmentName}</p>
-                </div>
+  const end = batch.endTime || Date.now();
+  const diff = end - batch.startTime;
 
-                <div>
-                    <p className="text-sm text-gray-500">Created At</p>
-                    <p className="font-medium">
-                        {new Date(batch.createdAt).toLocaleString()}
-                    </p>
-                </div>
+  const minutes = Math.floor(diff / (1000 * 60));
+  const hours = (diff / (1000 * 60 * 60)).toFixed(2);
 
-                <div>
-                    <p className="text-sm text-gray-500">Status</p>
-                    <p
-                        className={`font-medium ${batch.isClosed
-                                ? "text-red-600"
-                                : "text-green-600"
-                            }`}
-                    >
-                        {batch.isClosed ? "Closed" : "Open"}
-                    </p>
-                </div>
+  return { minutes, hours };
+})();
 
-                <div className="col-span-3">
-                    <p className="text-sm text-gray-500">Note</p>
-                    <p>{batch.note || "-"}</p>
-                </div>
-            </div>
+  return (
+  <div className="space-y-6">
 
-            {/* ITEMS TABLE */}
-            <div className="bg-white border rounded-xl overflow-hidden">
+    {/* HEADER */}
+    <div className="flex justify-between items-center">
+      <div>
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Batch Details
+        </h1>
+        <p className="text-sm text-gray-400">{batch.id}</p>
+      </div>
 
-                <div className="grid grid-cols-5 bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600">
-                    <div>Item</div>
-                    <div>Qty</div>
-                    <div>Unit</div>
-                    <div>Cost</div>
-                    <div>Total</div>
-                </div>
+      {batch.status !== "CLOSED" && (
+        <Link href={`/admin/stock-finished/issue/batches/close/${batch.id}`}>
+          <Button className="btn-save-4 shadow-sm">
+            Close Batch
+          </Button>
+        </Link>
+      )}
+    </div>
 
-                {batch.items.map((item: any) => (
-                    <div
-                        key={item.id}
-                        className="grid grid-cols-5 px-4 py-3 border-t"
-                    >
-                        <div className="font-medium text-gray-800">
-                            {item.inventoryItemName}
-                        </div>
+    {/* INFO CARD */}
+    <div className="bg-gray-50 rounded-2xl p-5 grid grid-cols-3 gap-4">
 
-                        <div>{item.quantity}</div>
+      <div className="bg-white rounded-xl p-3 shadow-sm">
+        <p className="text-xs text-gray-400">Department</p>
+        <p className="font-medium">{batch.departmentName}</p>
+      </div>
 
-                        <div>{item.unit}</div>
+      <div className="bg-white rounded-xl p-3 shadow-sm">
+        <p className="text-xs text-gray-400">Created At</p>
+        <p className="font-medium">
+          {batch.startTime
+            ? new Date(batch.startTime).toLocaleString()
+            : "-"}
+        </p>
+      </div>
 
-                        <div>₹ {item.costPerUnit.toFixed(2)}</div>
+      <div className="bg-white rounded-xl p-3 shadow-sm">
+        <p className="text-xs text-gray-400">End At</p>
+        <p className="font-medium">
+          {batch.endTime
+            ? new Date(batch.endTime).toLocaleString()
+            : "Running..."}
+        </p>
+      </div>
 
-                        <div className="font-medium">
-                            ₹ {item.totalCost.toFixed(2)}
-                        </div>
-                    </div>
-                ))}
+      {/* Duration */}
+      <div className="bg-blue-50 rounded-xl p-3">
+        <p className="text-xs text-blue-500">Duration</p>
+        <p className="font-semibold text-blue-700">
+          {duration
+            ? `${duration.hours} hrs (${duration.minutes} min)`
+            : "-"}
+        </p>
+      </div>
 
-                {!batch.items.length && (
-                    <div className="text-center py-6 text-gray-400">
-                        No items found
-                    </div>
-                )}
-            </div>
+      {/* Status */}
+      <div
+        className={`rounded-xl p-3 ${
+          batch.status === "CLOSED"
+            ? "bg-red-50"
+            : "bg-green-50"
+        }`}
+      >
+        <p className="text-xs text-gray-500">Status</p>
+        <p
+          className={`font-semibold ${
+            batch.status === "CLOSED"
+              ? "text-red-600"
+              : "text-green-600"
+          }`}
+        >
+          {batch.status === "CLOSED" ? "Closed" : "Open"}
+        </p>
+      </div>
 
-            {/* TOTAL */}
-            <div className="text-right text-lg font-semibold">
-                Total Cost: ₹{" "}
-                {batch.items
-                    .reduce((sum: number, i: any) => sum + i.totalCost, 0)
-                    .toFixed(2)}
-            </div>
+      {/* Note */}
+      <div className="col-span-3 bg-white rounded-xl p-3 shadow-sm">
+        <p className="text-xs text-gray-400">Note</p>
+        <p>{batch.note || "-"}</p>
+      </div>
+    </div>
+
+    {/* PRODUCTION SUMMARY */}
+    <div className="grid grid-cols-4 gap-4">
+
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs text-gray-400">Output Quantity</p>
+        <p className="text-lg font-semibold">{batch.outputQty}</p>
+      </div>
+
+      <div className="bg-white rounded-xl p-4 shadow-sm">
+        <p className="text-xs text-gray-400">Total Cost</p>
+        <p className="text-lg font-semibold">
+          ₹ {Number(batch.totalCost).toFixed(2)}
+        </p>
+      </div>
+
+      <div className="bg-green-50 rounded-xl p-4">
+        <p className="text-xs text-green-500">Avg Cost / Unit</p>
+        <p className="text-lg font-semibold text-green-700">
+          ₹ {Number(batch.avgCostPerUnit).toFixed(2)}
+        </p>
+      </div>
+
+      <div className="bg-amber-50 rounded-xl p-4">
+        <p className="text-xs text-amber-500">Cost Check</p>
+        <p className="text-lg font-semibold text-amber-700">
+          ₹ {(batch.totalCost / batch.outputQty).toFixed(2)}
+        </p>
+      </div>
+
+    </div>
+
+    {/* ITEMS TABLE */}
+    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+
+      <div className="grid grid-cols-5 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-500">
+        <div>Item</div>
+        <div>Qty</div>
+        <div>Cost</div>
+        <div>Total</div>
+      </div>
+
+      {batch.items.map((item: any) => (
+        <div
+          key={item.id}
+          className="grid grid-cols-5 px-4 py-3 hover:bg-gray-50 transition"
+        >
+          <div className="font-medium text-gray-800">
+            {item.inventoryItemName}
+          </div>
+
+          <div>
+            {item.quantity} {item.purchaseUnit}
+          </div>
+
+          <div>
+            ₹ {(item.averageCost * item.conversionFactor).toFixed(2)}
+          </div>
+
+          <div className="font-semibold">
+            ₹ {getItemTotal(item).toFixed(2)}
+          </div>
         </div>
-    );
+      ))}
+
+      {!batch.items.length && (
+        <div className="text-center py-6 text-gray-400">
+          No items found
+        </div>
+      )}
+    </div>
+
+    {/* TOTAL */}
+    <div className="text-right text-xl font-semibold text-gray-800">
+      Total Cost: ₹ {Number(batch.totalCost).toFixed(2)}
+    </div>
+
+  </div>
+);
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
- 
+
 
 import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
@@ -15,7 +15,7 @@ export async function createProductionBatch(
   const db = adminDb;
 
 
-  console.log("intput-----------------", input)
+
 
   try {
     if (!input.departmentId) {
@@ -28,114 +28,111 @@ export async function createProductionBatch(
 
 
     // ======================== BATCH ===============
-    
-    
-
-const now = new Date();
-
-const datePart = now
-  .toISOString()
-  .slice(0, 10)
-  .replace(/-/g, ""); // 20260710
-
-const timestamp = Date.now(); // unique
-
-const deptCode =
-  input.departmentName?.replace(/\s+/g, "-").toUpperCase() || "DEPT";
-
-const batchId = `${deptCode}-${datePart}-${timestamp}`;
-
-const rawRequest = input.items.map((item) => {
-  console.log("qty---------", item.quantity);
-
-  const qtyInGrams = item.quantity * (item.conversionFactor || 1);
-
-  return {
-    inventoryItemId: item.inventoryItemId,
-    quantity: qtyInGrams, // final in grams
-  };
-});
-
-console.log("rawRequest -------------",rawRequest)
-
-//     await db.runTransaction(async (tx) => {
-//       // =========================
-//       // ✅ 1. PREPARE RAW REQUEST
-//       // =========================
-
-//      const rawRequest = input.items.map((item) =>{
-//       console.log("qty---------", item.quantity);
-//    return   ({
-      
-
-//   inventoryItemId: item.inventoryItemId,
-//   quantity: item.quantity,
-// })});
 
 
 
-//       // =========================
-//       // ✅ 2. READ RAW INVENTORY
-//       // =========================
+    const now = new Date();
 
-//      const rawUpdates = await getManualRawInventoryData(
-//   tx,
-//   rawRequest
-// );
+    const datePart = now
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, ""); // 20260710
 
-//       // =========================
-//       // ✅ 3. VALIDATE STOCK
-//       // =========================
+    const timestamp = Date.now(); // unique
 
-//       validateRawStock(rawUpdates);
+    const deptCode =
+      input.departmentName?.replace(/\s+/g, "-").toUpperCase() || "DEPT";
 
-//       // =========================
-//       // ✅ 4. CREATE BATCH
-//       // =========================
+    const batchId = `${deptCode}-${datePart}-${timestamp}`;
 
-//       const batchRef = db
-//         .collection("production_batches")
-//         .doc(batchId);
 
-//       tx.set(batchRef, {
-//         id: batchId,
-//         departmentId: input.departmentId,
-//         departmentName: input.departmentName,
-//         createdAt: now,
-//         note: input.note || "",
-//         isClosed: false,
-//       });
 
-//       // =========================
-//       // ✅ 5. SAVE ITEMS
-//       // =========================
+    await db.runTransaction(async (tx) => {
+      // =========================
+      // ✅ 1. PREPARE RAW REQUEST
+      // =========================
 
-//       for (const item of input.items) {
-//         const ref = db.collection("production_batch_items").doc();
+      const rawRequest = input.items.map((item) => {
+        const qtyInGrams = item.quantity * (item.conversionFactor || 1);
 
-//         tx.set(ref, {
-//           id: ref.id,
-//           batchId,
-//           inventoryItemId: item.inventoryItemId,
-//           inventoryItemName: item.inventoryItemName,
-//           quantity: item.quantity,
-//           unit: item.unit,
-//           costPerUnit: item.costPerUnit,
-//           totalCost: item.quantity * item.costPerUnit,
-//           createdAt: now,
-//         });
-//       }
+        return {
+          inventoryItemId: item.inventoryItemId,
+          quantity: qtyInGrams, // ✅ ALWAYS BASE UNIT
+        };
+      });
 
-//       // =========================
-//       // ✅ 6. APPLY INVENTORY (IMPORTANT 🔥)
-//       // =========================
 
-//       await applyRawInventoryWrites(
-//         tx,
-//         rawUpdates,
-//         `production-batch-${batchId}`
-//       );
-//     });
+      // =========================
+      // ✅ 2. READ RAW INVENTORY
+      // =========================
+
+      const rawUpdates = await getManualRawInventoryData(
+        tx,
+        rawRequest
+      );
+
+      // =========================
+      // ✅ 3. VALIDATE STOCK
+      // =========================
+
+      validateRawStock(rawUpdates);
+
+      // =========================
+      // ✅ 4. CREATE BATCH
+      // =========================
+
+      console.log("point-----------------------1")
+
+      const batchRef = db
+        .collection("production_batches")
+        .doc(batchId);
+
+      tx.set(batchRef, {
+        id: batchId,
+        departmentId: input.departmentId,
+        departmentName: input.departmentName,
+        createdAt: now,
+        note: input.note || "",
+        startTime: now,
+        isClosed: false,
+      });
+
+      // =========================
+      // ✅ 5. SAVE ITEMS 
+      // =========================
+      console.log("point-----------------------2")
+      for (const item of input.items) {
+
+        console.log("items------------------",item)
+
+        const ref = db.collection("production_batch_items").doc();
+
+        tx.set(ref, {
+          id: ref.id,
+          batchId,
+          inventoryItemId: item.inventoryItemId,
+          inventoryItemName: item.inventoryItemName,
+          quantity: item.quantity,
+           averageCost: item.averageCost,        // 🔥 RAW (per gm)
+            purchaseUnit: item.purchaseUnit,
+          conversionFactor:item.conversionFactor,
+          consumptionUnit: item.consumptionUnit ,
+          costPerUnit: item.costPerUnit,
+          totalCost: item.quantity * item.costPerUnit,
+          createdAt: now,
+        });
+      }
+
+      // =========================
+      // ✅ 6. APPLY INVENTORY (IMPORTANT 🔥)
+      // =========================
+      console.log("point-----------------------3")
+      await applyRawInventoryWrites(
+        tx,
+        rawUpdates,
+        `production-batch-${batchId}`
+      );
+    });
 
     return {
       success: true,

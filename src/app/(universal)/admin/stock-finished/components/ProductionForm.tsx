@@ -126,29 +126,30 @@ export default function ProductionForm({
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">
         <div className="mb-6">
-          <div className="flex justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
                 Produce Finished Goods
               </h1>
-
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="mt-1 text-sm text-gray-500">
                 Record production and increase finished stock.
               </p>
             </div>
-            <div className="flex gap-3">
-               <Link
-              href="/admin/stock-finished/issue/add"
-              className="px-4 py-2 bg-red-600 text-white rounded-md"
-            >
-             Manual Production
-            </Link>
-            <Link
-              href="/admin/stock-finished/issue"
-              className="px-4 py-2 bg-red-600 text-white rounded-md"
-            >
-             Production Batches
-            </Link>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/admin/stock-finished/issue/add"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-red-600 px-5 font-medium text-white shadow-sm transition hover:bg-red-700"
+              >
+                Manual Production
+              </Link>
+
+              <Link
+                href="/admin/stock-finished/issue"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
+              >
+                Production Batches
+              </Link>
             </div>
           </div>
 

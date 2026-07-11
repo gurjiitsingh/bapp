@@ -3,7 +3,9 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function getProductionBatchById(batchId: string) {
-    console.log("bathid------", batchId)
+  console.log("bathid------", batchId)
+
+
   try {
     const batchRef = adminDb
       .collection("production_batches")
@@ -14,6 +16,10 @@ export async function getProductionBatchById(batchId: string) {
     if (!batchSnap.exists) {
       return { success: false, message: "Batch not found" };
     }
+    const getItemTotal = (item: any) =>
+      item.quantity * item.averageCost * item.conversionFactor;
+
+    
 
     const batchData = batchSnap.data()!;
 
@@ -23,35 +29,59 @@ export async function getProductionBatchById(batchId: string) {
       .where("batchId", "==", batchId)
       .get();
 
+
+
     const items = itemsSnap.docs.map((doc) => {
       const d = doc.data();
+
+
 
       return {
         id: doc.id,
         inventoryItemName: d.inventoryItemName || "",
         quantity: Number(d.quantity) || 0,
         unit: d.transactionUnit || "",
-        costPerUnit: Number(d.unitCost) || 0,
-        totalCost:
-          (Number(d.quantity) || 0) *
-          (Number(d.unitCost) || 0),
+        costPerUnit: Number(d.costPerUnit) || 0,
+        conversionFactor: Number(d.conversionFactor) || 0,
+        purchaseUnit: d.purchaseUnit || "",
+        consumptionUnit: d.consumptionUnit || "",
+        averageCost: Number(d.averageCost) || 0,
+        totalCost: Number(d.totalCost) || 0,
+
       };
     });
 
-    return {
-      success: true,
-      data: {
-        id: batchSnap.id,
-        departmentName: batchData.departmentName || "",
-        note: batchData.note || "",
-        isClosed: batchData.isClosed || false,
+  return {
+  success: true,
+  data: {
+    id: batchSnap.id,
+    departmentName: batchData.departmentName || "",
 
-        // ✅ FIX timestamp
-        createdAt: batchData.createdAt?.toMillis?.() || 0,
+    avgCostPerUnit: batchData.avgCostPerUnit || 0,
+    outputQty: batchData.outputQty || 0,
+    totalCost: batchData.totalCost || 0,
+    sellingPrice: batchData.sellingPrice || 0,
 
-        items,
-      },
-    };
+    note: batchData.note || "",
+
+    status: batchData.status || "OPEN",
+
+    startTime: batchData.startTime
+      ? batchData.startTime.toMillis()
+      : null,
+
+    endTime: batchData.endTime
+      ? batchData.endTime.toMillis()
+      : null,
+
+    items,
+
+    calculatedTotalCost: items.reduce(
+      (sum, item) => sum + getItemTotal(item),
+      0
+    ),
+  },
+};
   } catch (error: any) {
     console.error(error);
 
