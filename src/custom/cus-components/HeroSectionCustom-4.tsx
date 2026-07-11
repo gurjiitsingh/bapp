@@ -47,7 +47,7 @@ export default function HeroSectionModern3() {
           <h1
             className={`${chicle.className} text-4xl md:text-5xl text-white mb-3`}
           >
-            Pizzeria Milano Segle
+            Food App
           </h1>
 
           {/* Subtitle */}

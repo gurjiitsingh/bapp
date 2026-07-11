@@ -64,7 +64,7 @@ export default function HeroSectionSpotlight() {
           >
             {/* Spice Up  
             <br /> */}
-             Pizzeria Milano Segle
+             Food App
           </h1>
 
           {/* Subtitle */}

@@ -40,7 +40,7 @@ export default function HeroSectionAsymmetric() {
             className={`${chicle.className} text-4xl md:text-6xl text-[#2b2b2b] leading-tight mb-5`}
           >
             Taste the Real  
-            <br /> Pizzeria Milano Segle
+            <br /> Food App
           </h1>
 
           {/* Description */}

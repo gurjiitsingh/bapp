@@ -30,7 +30,7 @@ export default function HeroSectionCustom() {
 
           {/* Title */}
           <h1 className={`${chicle.className} text-4xl md:text-6xl text-[#2b2b2b] leading-tight`}>
-            Pizzeria Milano Segle
+            Food App
           </h1>
 
           {/* Subtitle */}
