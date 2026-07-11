@@ -82,7 +82,7 @@ export async function createProductionBatch(
       // ✅ 4. CREATE BATCH
       // =========================
 
-      console.log("point-----------------------1")
+     // console.log("point-----------------------1")
 
       const batchRef = db
         .collection("production_batches")
@@ -101,10 +101,10 @@ export async function createProductionBatch(
       // =========================
       // ✅ 5. SAVE ITEMS 
       // =========================
-      console.log("point-----------------------2")
+     // console.log("point-----------------------2")
       for (const item of input.items) {
 
-        console.log("items------------------", item)
+         
 
         const ref = db.collection("production_batch_items").doc();
 
@@ -145,7 +145,7 @@ export async function createProductionBatch(
       // =========================
       // ✅ 6. APPLY INVENTORY (IMPORTANT 🔥)
       // =========================
-      console.log("point-----------------------3")
+      //console.log("point-----------------------3")
       await applyRawInventoryWrites(
         tx,
         rawUpdates,

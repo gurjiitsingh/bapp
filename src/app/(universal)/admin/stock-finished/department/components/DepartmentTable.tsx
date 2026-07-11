@@ -53,13 +53,20 @@ const DepartmentTable = ({
             Manage all departments
           </p>
         </div>
-
-        <Link
-          href="/admin/stock-finished/department/add"
-          className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
-        >
-          + Add Department
-        </Link>
+        <div className="flex gap-4">
+          <Link
+            href="/admin/stock-finished/department/issue-stock/add"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Issue Stock
+          </Link>
+          <Link
+            href="/admin/stock-finished/department/add"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            + Add Department
+          </Link>
+        </div>
       </div>
 
       {/* Table */}
@@ -113,8 +120,8 @@ const DepartmentTable = ({
                 <td className="p-3">
                   <span
                     className={`px-2 py-1 rounded text-xs ${dep.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                       }`}
                   >
                     {dep.isActive
@@ -125,25 +132,25 @@ const DepartmentTable = ({
 
                 <td className="p-3 text-right font-bold space-x-2 ">
                   <div className="flex gap-6 justify-end">
-                  <Link
-                    href={`/admin/stock-finished/department/department-stock/${dep.id}`}
-                    className="group"
-                  >Stock</Link>
-                  <button
-                    onClick={() =>
-                      router.push(`/admin/departments/edit/${dep.id}`)
-                    }
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
+                    <Link
+                      href={`/admin/stock-finished/department/department-stock/${dep.id}`}
+                      className="group"
+                    >Stock</Link>
+                    <button
+                      onClick={() =>
+                        router.push(`/admin/departments/edit/${dep.id}`)
+                      }
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
 
-                  <button
-                    onClick={() => handleDelete(dep.id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
+                    <button
+                      onClick={() => handleDelete(dep.id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>

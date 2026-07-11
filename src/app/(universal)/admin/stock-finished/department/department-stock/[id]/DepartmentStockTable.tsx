@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Search } from "lucide-react";
+import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 
 type Props = {
   data: {
@@ -27,8 +28,22 @@ export default function DepartmentStockTable({
       .includes(search.toLowerCase())
   );
 
+    const [returnOpen, setReturnOpen] = useState(false);
+
+const [selectedItem, setSelectedItem] = useState<any>(null);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+
+            {/* <ReturnToDepartmentDialog
+        open={returnOpen}
+        onClose={() => {
+          setReturnOpen(false);
+          setSelectedItem(null);
+        }}
+         departmentName={departmentName}
+  item={selectedItem}
+      /> */}
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-100 p-4">
         <h2 className="font-semibold text-gray-800">
@@ -73,6 +88,9 @@ export default function DepartmentStockTable({
               <th className="px-4 py-3 font-medium text-right">
                 Stock Value
               </th>
+              {/* <th>
+                Action
+              </th> */}
             </tr>
           </thead>
 
@@ -116,6 +134,18 @@ export default function DepartmentStockTable({
                     2
                   )}
                 </td>
+                 {/* <td className="px-4 py-3 text-right font-semibold text-green-700">
+                      <button
+        type="button"
+   onClick={() => {
+  setSelectedItem(item);
+  setReturnOpen(true);
+}}
+        className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm text-white hover:bg-amber-600"
+      >
+        Return qty
+      </button> 
+                </td> */}
               </tr>
             ))}
           </tbody>
