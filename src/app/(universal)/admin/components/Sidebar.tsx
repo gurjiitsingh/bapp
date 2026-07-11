@@ -107,7 +107,7 @@ SHOW_PRODUCT_RECIPES: flag(
 
 
 
-const Sidebar = () => {
+const Sidebar = () => { 
   const { BRANDING } = useLanguage() || {
     BRANDING: {
       sidebar: {
@@ -284,7 +284,7 @@ const Sidebar = () => {
 
     <div className="
   pt-6
-  h-[100dvh]
+  min-h-[100dvh]
   overflow-y-auto
   w-[260px]
   flex flex-col justify-between
@@ -305,7 +305,7 @@ const Sidebar = () => {
 
 <button
   onClick={() => signOut({ callbackUrl: "/auth/login" })}
-  className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
+  className="flex items-center gap-3 mb-10 px-4 mb-10 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
 >
   <IoIosLogOut size={20} />
   {BRANDING.sidebar.logout}
