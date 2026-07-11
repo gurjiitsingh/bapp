@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { addDepartment } from "@/app/(universal)/action/department/addDepartment";
+import Link from "next/link";
+ 
 
 
 type TDepartmentForm = {
@@ -12,9 +14,12 @@ type TDepartmentForm = {
   code: string;
   type: "PRODUCTION" | "SERVICE";
   description?: string;
+
   managerId?: string;
   managerName?: string;
-  employeeCount: number; // required
+
+  employeeCount: number;
+
   isActive: boolean;
 };
 
@@ -76,16 +81,27 @@ const DepartmentForm = ({
       className="max-w-7xl p-4 md:p-6"
     >
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Create Department
-        </h1>
 
-        <p className="text-sm text-gray-500 mt-1">
-          Manage production or service departments
-        </p>
+
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Create Department
+          </h1>
+
+          <p className="mt-1 text-sm text-gray-500">
+            Manage production or service departments
+          </p>
+        </div>
+
+        <Link
+          href="/admin/stock-finished/department"
+          className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-red-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-gray-50"
+        >
+          ← All Departments
+        </Link>
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* LEFT */}
         <div className="xl:col-span-2 flex flex-col gap-5">
@@ -135,6 +151,32 @@ const DepartmentForm = ({
                   {errors.code?.message}
                 </p>
               </div>
+
+
+<div>
+  <label className="label-style-4">
+    Number of Employees
+  </label>
+
+  <input
+    type="number"
+    min={0}
+   {...register("employeeCount", {
+  required: "Please enter the number of employees",
+  valueAsNumber: true,
+  min: {
+    value: 1,
+    message: "Employee count must be at least 1",
+  },
+})}
+    className="input-style-4 mt-1"
+  />
+
+  <p className="text-xs text-red-500 mt-1">
+    {errors.employeeCount?.message}
+  </p>
+</div>
+
             </div>
 
             {/* Type */}

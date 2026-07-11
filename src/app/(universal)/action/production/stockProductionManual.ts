@@ -114,7 +114,16 @@ export async function stockProductionManual({
       // =========================
       // ✅ 3. WRITE
       // =========================
-      // 1 ✅ Update Batch
+      // 1  Decrease department stock
+
+// await updateDepartmentStock({
+//   departmentId,
+//   inventoryItemId,
+//   qtyChange: -usedQty,
+// });
+
+
+      // 2 ✅ Update Batch
 
 
       tx.update(
@@ -125,7 +134,7 @@ export async function stockProductionManual({
           totalCost: totalRawCost,          // (keep consistent)
           status: "CLOSED",                 // ✅ mark done
           endTime: new Date(),
-          
+
         }
       );
 

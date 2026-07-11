@@ -37,7 +37,7 @@ const ListView = ({ title }: productTableProps) => {
 
   return (
     <div className="mt-5 p-2">
-      <h3 className="text-2xl mb-4 font-semibold">{title || "Users"}</h3>
+      <h3 className="text-2xl mb-4 font-semibold">{title || "Employee"}</h3>
       <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
         <Table>
           <TableHeader>

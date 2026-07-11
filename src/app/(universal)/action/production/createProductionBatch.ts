@@ -8,6 +8,7 @@ import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
 import { CreateProductionBatchInputType } from "@/lib/types/production/CreateProductionBatchInputType";
 import { getManualRawInventoryData } from "./getManualRawInventoryData";
+import { updateDepartmentStock } from "./updateDepartmentStock";
 
 export async function createProductionBatch(
   input: CreateProductionBatchInputType
@@ -103,7 +104,7 @@ export async function createProductionBatch(
       console.log("point-----------------------2")
       for (const item of input.items) {
 
-        console.log("items------------------",item)
+        console.log("items------------------", item)
 
         const ref = db.collection("production_batch_items").doc();
 
@@ -113,14 +114,32 @@ export async function createProductionBatch(
           inventoryItemId: item.inventoryItemId,
           inventoryItemName: item.inventoryItemName,
           quantity: item.quantity,
-           averageCost: item.averageCost,        // 🔥 RAW (per gm)
-            purchaseUnit: item.purchaseUnit,
-          conversionFactor:item.conversionFactor,
-          consumptionUnit: item.consumptionUnit ,
+          averageCost: item.averageCost,        // 🔥 RAW (per gm)
+          purchaseUnit: item.purchaseUnit,
+          conversionFactor: item.conversionFactor,
+          consumptionUnit: item.consumptionUnit,
           costPerUnit: item.costPerUnit,
           totalCost: item.quantity * item.costPerUnit,
           createdAt: now,
         });
+
+
+  // =========================
+      // ✅ 6. MOVE STOCK TO DEPARTMENT
+      // =========================
+
+      await updateDepartmentStock({
+        departmentId: input.departmentId,
+        inventoryItemId : item.inventoryItemId,
+        inventoryItemName: item.inventoryItemName,
+        averageCost: item.averageCost,
+         conversionFactor: item.conversionFactor,
+         purchaseUnit: item.purchaseUnit,
+          consumptionUnit: item.consumptionUnit,
+        qtyChange: +item.quantity,
+      });
+
+
       }
 
       // =========================
@@ -132,6 +151,14 @@ export async function createProductionBatch(
         rawUpdates,
         `production-batch-${batchId}`
       );
+
+
+
+
+
+    
+
+
     });
 
     return {

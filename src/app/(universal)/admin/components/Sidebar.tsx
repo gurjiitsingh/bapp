@@ -125,7 +125,7 @@ const Sidebar = () => {
         
         coupon: "Coupon",
         delivery: "Delivery",
-        users: "Users",
+        users: "Employees",
         dayschedule: "Opening Timing",
         setting: "Setting",
         data_backup: "Data Backup",
@@ -243,7 +243,7 @@ const Sidebar = () => {
 
     { key: "SHOW_LOCATIONS", name: "Locations", link: "/admin/locations", icon: <TbTruckDelivery /> },
 
-    { key: "SHOW_USERS", name: BRANDING.sidebar.users, link: "/admin/users", icon: <FaUsers /> },
+    { key: "SHOW_USERS", name: "Employee", link: "/admin/users", icon: <FaUsers /> },
 
     { key: "SHOW_TIMMING", name: "Opening Timing", link: "/admin/day-schedule/form", icon: <MdAccessTime /> },
 

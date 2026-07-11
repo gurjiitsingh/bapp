@@ -17,7 +17,7 @@ export default function ProductionBatchForm({
   inventoryItems,
 }: Props) {
 
-  console.log("inventoryItems----------------", inventoryItems)
+  
 
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);

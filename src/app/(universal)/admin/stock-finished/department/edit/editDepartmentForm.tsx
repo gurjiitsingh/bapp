@@ -16,7 +16,7 @@ type TDepartmentForm = {
   code: string;
   type: "PRODUCTION" | "SERVICE";
   description?: string;
-employeeCount: number;
+  employeeCount: number;
   managerId?: string;
   managerName?: string;
 

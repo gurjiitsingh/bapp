@@ -8,11 +8,9 @@ type TDepartmentForm = {
 
   name: string;
   code: string;
-  employeeCount: number;
   type: "PRODUCTION" | "SERVICE";
   description?: string;
-
- 
+ employeeCount: number;
   managerId?: string;
   managerName?: string;
 
@@ -46,7 +44,7 @@ const department: TDepartmentForm = {
   code: departmentData.code || "",
   type: departmentData.type || "PRODUCTION",
   description: departmentData.description || "",
-employeeCount: departmentData.employeeCount ,
+ employeeCount:  departmentData.employeeCount,
   managerId: departmentData.managerId || "",
   managerName: departmentData.managerName || "",
 

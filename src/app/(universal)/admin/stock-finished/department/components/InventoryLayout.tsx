@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChartColumn, PackageMinus, Undo2 } from "lucide-react";
+import { ArrowDownFromLine, ChartColumn, PackageMinus, Undo2 } from "lucide-react";
 import {
   AlertTriangle,
   Boxes,
@@ -37,9 +37,9 @@ const tabs = [
   { name: "Dashboard", href: "/admin/stock-finished/" },
   { name: "Items", href: "/admin/stock-finished/" },
   { name: "New Item", href: "/admin/stock-finished/new" },
-  { name: "Sale", href: "/admin/stock-finished/sale/add" },
+  { name: "Sale", href: "/admin/distribution/truckdelivery-sale" },
   { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
-  { name: "Transactions", href: "/admin/stock-finished/transactions" },
+  { name: "Transactions", href: "/admin/distribution/stock-movements" },
   { name: "Categories", href: "/admin/stock-finished/categories" },
   { name: "wholesaleCustomer", href: "/admin/stock-finished/customer/all" },
 ];
@@ -47,15 +47,12 @@ const tabs = [
 export default function InventoryTabs() {
   const pathname = usePathname();
 
-  const isAccount = pathname.startsWith(
-  "/admin/stock-finished/account"
-);
   const isProduction =
     pathname ===
-    "/admin/stock-finished/issue";
+    "/admin/distribution/load-operator";
 
   const isSale = pathname.startsWith(
-    "/admin/stock-finished/sale"
+    "/admin/distribution/truckdelivery-sale"
   );
 
   const isCustomer = pathname.startsWith(
@@ -67,7 +64,7 @@ export default function InventoryTabs() {
     pathname === "/admin/stock-finished";
 
   const isTransactions = pathname.startsWith(
-    "/admin/stock-finished/transactions"
+    "/admin/distribution/stock-movements"
   );
 
   const isAdjustStock = pathname.startsWith(
@@ -79,7 +76,7 @@ export default function InventoryTabs() {
   );
 
   const isEstimate =
-  pathname === "/admin/stock-finished/department";
+  pathname === "/admin/distribution/unload-operator";
 
   return (
     <div className="  p-2 pt-5 md:px-6">
@@ -89,10 +86,10 @@ export default function InventoryTabs() {
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-2 xl:grid-cols-9 gap-3">
+        <div className="grid grid-cols-2 xl:grid-cols-8 gap-3">
 
           <Link
-            href="/admin/stock-finished/issue"
+            href="/admin/distribution/load-operator"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isProduction
                 ? "bg-purple-50 border-purple-300 shadow-md"
                 : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
@@ -120,7 +117,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Production
+              Load Vehicle
             </h3>
 
             <p
@@ -129,58 +126,14 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              Bathes & Cost
+              Transfer Products to Vehicle
             </p>
           </Link>
 
-          <Link
-  href="/admin/stock-finished/department"
-  className={`group rounded-3xl border shadow-sm p-5 transition ${
-    isEstimate
-      ? "bg-cyan-50 border-cyan-300 shadow-md"
-      : "bg-white border-gray-100 hover:border-cyan-300 hover:shadow-md"
-  }`}
->
-  <div
-    className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
-      isEstimate ? "bg-cyan-600" : "bg-cyan-100"
-    }`}
-  >
-    <ChartColumn
-      size={22}
-      className={
-        isEstimate
-          ? "text-white"
-          : "text-cyan-600"
-      }
-    />
-  </div>
-
-  <h3
-    className={`font-semibold mt-4 ${
-      isEstimate
-        ? "text-cyan-700"
-        : "text-gray-800"
-    }`}
-  >
-    Departments
-  </h3>
-
-  <p
-    className={`text-sm mt-1 ${
-      isEstimate
-        ? "text-cyan-600"
-        : "text-gray-500"
-    }`}
-  >
-   track Stock & Employees  
-  </p>
-</Link>
-
 
 
           <Link
-            href="/admin/stock-finished/sale/add"
+            href="/admin/distribution/truckdelivery-sale"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isSale
                 ? "bg-orange-50 border-orange-300 shadow-md"
                 : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
@@ -208,7 +161,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Sell Products
+              Truck Sale
             </h3>
 
             <p
@@ -217,14 +170,14 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              Sale Finished Products
+              Delivery Truck Sale
             </p>
           </Link>
 
         
 
 
-          <Link
+          {/* <Link
             href="/admin/stock-finished/"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isProducts
                 ? "bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
@@ -264,14 +217,14 @@ export default function InventoryTabs() {
             >
               View all products
             </p>
-          </Link>
+          </Link> */}
 
 
 
 
 
           <Link
-            href="/admin/stock-finished/transactions"
+            href="/admin/distribution/stock-movements"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isTransactions
                 ? "bg-amber-500/10 border-amber-500/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-amber-500/30 hover:shadow-md"
@@ -299,7 +252,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Product Transactions
+              Stock Movements
             </h3>
 
             <p
@@ -308,10 +261,12 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              View all stock movements/transactions.
+              View all stock movements.
             </p>
           </Link>
-          <Link
+   
+   
+          {/* <Link
             href="/admin/stock-finished/adjust-stock"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isAdjustStock
                 ? "bg-blue-500/10 border-blue-500/40 shadow-md"
@@ -351,12 +306,11 @@ export default function InventoryTabs() {
             >
               Add or remove finished items stock
             </p>
-          </Link>
+          </Link> */}
 
 
 
-  <Link
-            href="/admin/stock-finished/customer/all"
+       <Link  href="/admin/distribution/vehicle"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
                 ? "bg-yellow-50 border-yellow-300 shadow-md"
                 : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
@@ -384,7 +338,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Customers
+          Vehicle
             </h3>
 
             <p
@@ -393,13 +347,13 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              View customers and manage accounts
+              View /Add new Vehicles
             </p>
           </Link>
 
 
           <Link
-            href="/admin/stock-finished/customer/return"
+            href=" "
             className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomerReturn
                 ? "bg-red-500/10 border-red-500/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-red-500/30 hover:shadow-md"
@@ -427,7 +381,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Customer Return
+             Load Customer Return
             </h3>
 
             <p
@@ -436,57 +390,53 @@ export default function InventoryTabs() {
                   : "text-gray-500"
                 }`}
             >
-              Extra Finished Goods Return
+              Add customer to vehicle
             </p>
           </Link>
 
 
 
-
-
 <Link
-  href="/admin/stock-finished/account"
+  href="/admin/distribution/unload-operator"
   className={`group rounded-3xl border shadow-sm p-5 transition ${
-    isAccount
-      ? "bg-emerald-50 border-emerald-300 shadow-md"
-      : "bg-white border-gray-100 hover:border-emerald-300 hover:shadow-md"
+    isEstimate
+      ? "bg-cyan-50 border-cyan-300 shadow-md"
+      : "bg-white border-gray-100 hover:border-cyan-300 hover:shadow-md"
   }`}
 >
   <div
     className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
-      isAccount
-        ? "bg-emerald-600"
-        : "bg-emerald-100"
+      isEstimate ? "bg-cyan-600" : "bg-cyan-100"
     }`}
   >
-    <IndianRupee
-      size={22}
-      className={
-        isAccount
-          ? "text-white"
-          : "text-emerald-600"
-      }
-    />
+ <ArrowDownFromLine
+  size={22}
+  className={
+    isEstimate
+      ? "text-white"
+      : "text-cyan-600"
+  } 
+/>
   </div>
 
   <h3
     className={`font-semibold mt-4 ${
-      isAccount
-        ? "text-emerald-700"
+      isEstimate
+        ? "text-cyan-700"
         : "text-gray-800"
     }`}
   >
-    Business Accounts
+    Unload Vehicle
   </h3>
 
   <p
     className={`text-sm mt-1 ${
-      isAccount
-        ? "text-emerald-600"
+      isEstimate
+        ? "text-cyan-600"
         : "text-gray-500"
     }`}
   >
-    Assets, liabilities & financial summary
+    Transfer Product to Store
   </p>
 </Link>
 

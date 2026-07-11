@@ -30,7 +30,7 @@ const menuList: Titem[] = [
   { name: "Variants", link: "/admin/flavorsProductG", icon: <BsBorderStyle /> },
   { name: "Coupon", link: "/admin/coupon", icon: <TbCategoryPlus /> },
   { name: "Delivery", link: "/admin/delivery", icon: <TbCategoryPlus /> },
-  { name: "Users", link: "/admin/users", icon: <FaUserTie /> },
+  { name: "Employee", link: "/admin/users", icon: <FaUserTie /> },
   { name: "Setting", link: "/admin/setting", icon: <IoMdSettings /> },
 ];
 

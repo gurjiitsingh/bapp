@@ -12,16 +12,24 @@ type AddDepartmentInput = {
   managerId?: string;
   managerName?: string;
 
+  employeeCount: number;
+
   isActive?: boolean;
 };
 
 export async function addDepartment(data: AddDepartmentInput) {
   try {
     // ✅ Validation
-    if (!data.name || !data.code || !data.type) {
+    if (
+      !data.name ||
+      !data.code ||
+      !data.type ||
+      !Number.isFinite(data.employeeCount) ||
+      data.employeeCount < 1
+    ) {
       return {
         success: false,
-        message: "Missing required fields",
+        message: "Please provide all required fields, including a valid employee count.",
       };
     }
 
@@ -51,7 +59,7 @@ export async function addDepartment(data: AddDepartmentInput) {
 
       managerId: data.managerId || null,
       managerName: data.managerName || "",
-
+      employeeCount: data.employeeCount,
       isActive: data.isActive ?? true,
       createdAt: Date.now(),
     };

@@ -49,7 +49,7 @@ export default function Page() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              <span>Add New User</span>
+              <span>Add New Employee</span>
               
               {/* Dynamic hover bottom reflective sheen border */}
               <span className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none" />
