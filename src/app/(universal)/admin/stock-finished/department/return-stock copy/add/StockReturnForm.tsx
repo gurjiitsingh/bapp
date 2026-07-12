@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatchFromDpStock";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";

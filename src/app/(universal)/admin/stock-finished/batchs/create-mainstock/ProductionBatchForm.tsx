@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatchFromDpStock";
+ 
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
@@ -99,43 +99,43 @@ const updateItem = (index: number, field: string, value: any) => {
   };
 
   const handleSubmit = async () => {
-if (!departmentId) {
-  toast.error("Select a department");
-  return;
-}
+// if (!departmentId) {
+//   toast.error("Select a department");
+//   return;
+// }
 
-if (!items.length) {
-  toast.error("Add at least one item");
-  return;
-}
+// if (!items.length) {
+//   toast.error("Add at least one item");
+//   return;
+// }
 
-    setLoading(true);
+//     setLoading(true);
 
-    try {
-      const dept = departments.find((d) => d.id === departmentId);
+//     try {
+//       const dept = departments.find((d) => d.id === departmentId);
 
-      const res = await createProductionBatch({
-        departmentId,
-        departmentName: dept?.name || "",
-        items,
-        note,
-      });
+//       const res = await createProductionBatch({
+//         departmentId,
+//         departmentName: dept?.name || "",
+//         items,
+//         note,
+//       });
 
-      if (!res.success) {
-  toast.error(res.message);
-  return;
-}
+//       if (!res.success) {
+//   toast.error(res.message);
+//   return;
+// }
 
-    toast.success("Batch created successfully");
-      setItems([]);
-      setNote("");
-      setDepartmentId("");
-    } catch (err) {
-      console.error(err);
-    toast.error("An error occurred while creating the batch");
-    } finally {
-      setLoading(false);
-    }
+//     toast.success("Batch created successfully");
+//       setItems([]);
+//       setNote("");
+//       setDepartmentId("");
+//     } catch (err) {
+//       console.error(err);
+//     toast.error("An error occurred while creating the batch");
+//     } finally {
+//       setLoading(false);
+//     }
   };
 
   return (

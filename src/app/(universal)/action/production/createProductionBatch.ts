@@ -149,7 +149,12 @@ export async function createProductionBatch(
       await applyRawInventoryWrites(
         tx,
         rawUpdates,
-        `production-batch-${batchId}`
+        `production-batch-${batchId}`,
+        "TRANS TO DEPT",
+        "OUT",
+        "send to  department",
+        "system",
+        "PRODUCTION",
       );
 
 

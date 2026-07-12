@@ -36,29 +36,21 @@ const now = new Date();
 
     
  
-  await db.runTransaction(async (tx) => {
+await db.runTransaction(async (tx) => {
+
   // =====================================
   // 1. READ BATCH ITEM
   // =====================================
+  const batchItem = await getProductionBatchItem(tx, itemId);
 
-  const batchItem = await getProductionBatchItem(
-    tx,
-    itemId
-  );
-
-  // Validate item belongs to batch
   if (batchItem.batchId !== batchId) {
     throw new Error("Invalid batch item.");
   }
 
   // =====================================
-  // 2. READ PRODUCTION BATCH
+  // 2. READ BATCH
   // =====================================
-
-  const batchRef = db
-    .collection("production_batches")
-    .doc(batchId);
-
+  const batchRef = db.collection("production_batches").doc(batchId);
   const batchSnap = await tx.get(batchRef);
 
   if (!batchSnap.exists) {
@@ -66,7 +58,6 @@ const now = new Date();
   }
 
   const batchData = batchSnap.data()!;
-
   const departmentId = batchData.departmentId;
 
   if (!departmentId) {
@@ -76,55 +67,84 @@ const now = new Date();
   // =====================================
   // 3. READ DEPARTMENT STOCK
   // =====================================
-
-  const departmentStock =
-    await getDepartmentStockItemByIdTx(
-      tx,
-      departmentId,
-      batchItem.inventoryItemId
-    );
+  const departmentStock = await getDepartmentStockItemByIdTx(
+    tx,
+    departmentId,
+    batchItem.inventoryItemId
+  );
 
   // =====================================
   // 4. VALIDATION
   // =====================================
-
   if (returnQty <= 0) {
     throw new Error("Return quantity must be greater than zero.");
   }
 
   if (returnQty > batchItem.quantity) {
-    throw new Error(
-      "Return quantity exceeds issued quantity."
-    );
+    throw new Error("Return quantity exceeds issued quantity.");
   }
 
   // =====================================
   // 5. UPDATE BATCH ITEM
   // =====================================
-
-  const itemRef = db
-    .collection("production_batch_items")
-    .doc(itemId);
+  const itemRef = db.collection("production_batch_items").doc(itemId);
 
   tx.update(itemRef, {
     quantity: batchItem.quantity - returnQty,
   });
 
-  console.log("Department Stock:", departmentStock);
+  // =====================================
+  // 6. UPDATE DEPARTMENT STOCK
+  // =====================================
+  const departmentStockRef = db
+    .collection("departmentStock")
+    .doc(departmentStock!.id);
+
+  tx.update(departmentStockRef, {
+    quantity: departmentStock!.quantity + returnQty,
+    updatedAt: now,
+  });
 
   // =====================================
-// 6. UPDATE DEPARTMENT STOCK
-// =====================================
+  // 7. 🔥 RECALCULATE COST (INSIDE TX)
+  // =====================================
+  const itemsSnap = await  db
+  .collection("production_batch_items")
+    .where("batchId", "==", batchId)
+    .get();
 
-const departmentStockRef = db
-  .collection("departmentStock")
-  .doc(departmentStock!.id);
+  let newTotalRawCost = 0;
 
-tx.update(departmentStockRef, {
-  quantity: departmentStock!.quantity + returnQty,
-  updatedAt: now,
+  itemsSnap.docs.forEach((doc) => {
+    const d = doc.data();
+
+    const qty = Number(d.quantity) || 0;
+    const rate = Number(d.rate) || 0;
+
+    newTotalRawCost += qty * rate;
+  });
+
+  const outputQty = batchData.outputQty || 0;
+
+  if (outputQty <= 0) {
+    throw new Error("Invalid output quantity in batch.");
+  }
+
+  const newAvgCostPerUnit = newTotalRawCost / outputQty;
+
+  // =====================================
+  // 8. UPDATE BATCH COST
+  // =====================================
+  tx.update(batchRef, {
+    totalCost: newTotalRawCost,
+    avgCostPerUnit: newAvgCostPerUnit,
+    updatedAt: now,
+  });
+
 });
-});
+//END OF TRANSACITON
+
+
 
     return {
       success: true,

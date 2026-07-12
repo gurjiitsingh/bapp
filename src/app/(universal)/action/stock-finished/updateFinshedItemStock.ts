@@ -134,9 +134,19 @@ console.log("rawUpdates in working---------------", rawUpdates)
         await applyRawInventoryWrites(
           tx,
           rawUpdates,
-          "production-" + id
-        );
+          "production-" + id,
+           "CONSUMPTION",
+           "OUT",
+           "Consumed in producttion",
+           "PRODUCTION",
+        )
       }
+
+  //     type: string,
+  // direction: "OUT" | "IN" = "OUT",
+  // note: string = "Consumed in production",
+  // createdBy: string = "system",
+  // source: string = "PRODUCTION",
 
       const productionCostPerUnit =
         quantity > 0

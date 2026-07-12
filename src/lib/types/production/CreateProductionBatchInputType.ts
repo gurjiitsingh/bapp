@@ -1,7 +1,7 @@
 export type CreateProductionBatchInputType = {
   departmentId: string;
   departmentName: string;
-employeeCount: number;
+employeeCount?: number;
   items: {
     inventoryItemId: string;
     inventoryItemName: string;
