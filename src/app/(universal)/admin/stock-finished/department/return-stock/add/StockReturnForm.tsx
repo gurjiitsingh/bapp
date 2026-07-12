@@ -1,98 +1,97 @@
 "use client";
 
-import { useState } from "react";
+
  
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { issueStockToDepartment } from "@/app/(universal)/action/production/departments/issueStockToDepartment";
+ 
+import { returnStockToMainStore } from "@/app/(universal)/action/production/departments/returnStockToMainStore";
+import { useEffect, useState } from "react";
+
+import {
+  getDepartmentStock,
+  type DepartmentStock,
+} from "@/app/(universal)/action/production/departments/getDepartmentStock";
 
 type Props = {
-  departments: { id: string; name: string; employeeCount: number }[];
+  departments: { id: string; name: string }[];
   inventoryItems: InventoryItemType[];
 };
 
-export default function StockIssueForm({
+export default function StockReturnForm({
   departments,
   inventoryItems,
 }: Props) {
 
-  
 
+  const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
 
-const addItem = () => {
-  setItems([
-    ...items,
-    {
-      inventoryItemId: "",
-      inventoryItemName: "",
+  const addItem = () => {
+    setItems([
+      ...items,
+      {
+        inventoryItemId: "",
+        inventoryItemName: "",
 
-      quantity: 0,
+        quantity: 0,
 
-      purchaseUnit: "",
-      consumptionUnit: "",
+        purchaseUnit: "",
+        consumptionUnit: "",
 
-      conversionFactor: 1,
+        conversionFactor: 1,
 
-      averageCost: 0,     // ✅ ADD THIS
-      costPerUnit: 0,     // (derived)
+        averageCost: 0,     // ✅ ADD THIS
+        costPerUnit: 0,     // (derived)
 
-      purchaseMappings: [],
-    },
-  ]);
-};
-const updateItem = (index: number, field: string, value: any) => {
-  const updated = [...items];
-  updated[index][field] = value;
+        purchaseMappings: [],
+      },
+    ]);
+  };
+  const updateItem = (index: number, field: string, value: any) => {
+    const updated = [...items];
+    updated[index][field] = value;
 
-  // ✅ When item selected
-  if (field === "inventoryItemId") {
-    const selected = inventoryItems.find((i) => i.id === value);
+    // ✅ When item selected
+    if (field === "inventoryItemId") {
+      const selected = departmentStock.find(
+        (i) => i.inventoryItemId === value
+      );
 
-    if (selected) {
-      updated[index].inventoryItemName = selected.name;
+      if (selected) {
+        updated[index].inventoryItemName = selected.inventoryItemName;
+        updated[index].averageCost = selected.averageCost;
 
-      updated[index].purchaseMappings =
-        selected.purchaseMappings || [];
+        updated[index].purchaseUnit = selected.purchaseUnit;
+        updated[index].consumptionUnit = selected.consumptionUnit;
+        updated[index].conversionFactor = selected.conversionFactor;
+      }
 
-     updated[index].averageCost = selected.averageCost || 0;
 
-      // ✅ auto select FIRST unit
-      const firstUnit = selected.purchaseMappings?.[0];
+    }
 
-      if (firstUnit) {
-        updated[index].purchaseUnit = firstUnit.purchaseUnit;
+    // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
+    if (field === "purchaseUnit") {
+      const mapping = updated[index].purchaseMappings.find(
+        (m: any) => m.purchaseUnit === value
+      );
+
+      if (mapping) {
         updated[index].consumptionUnit =
-          firstUnit.consumptionUnit;
+          mapping.consumptionUnit;
 
-        // ✅ ADD THIS HERE
-        updated[index].conversionFactor = firstUnit.factor;
+        // ✅ THIS IS YOUR LINE — PUT HERE
+        updated[index].conversionFactor = mapping.factor;
       }
     }
-  }
 
-  // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
-  if (field === "purchaseUnit") {
-    const mapping = updated[index].purchaseMappings.find(
-      (m: any) => m.purchaseUnit === value
-    );
-
-    if (mapping) {
-      updated[index].consumptionUnit =
-        mapping.consumptionUnit;
-
-      // ✅ THIS IS YOUR LINE — PUT HERE
-      updated[index].conversionFactor = mapping.factor;
-    }
-  }
-
-  setItems(updated);
-};
+    setItems(updated);
+  };
 
 
   const removeItem = (index: number) => {
@@ -100,68 +99,87 @@ const updateItem = (index: number, field: string, value: any) => {
   };
 
   const handleSubmit = async () => {
-if (!departmentId) {
-  toast.error("Select a department");
-  return;
-}
+    if (!departmentId) {
+      toast.error("Select a department");
+      return;
+    }
 
-if (!items.length) {
-  toast.error("Add at least one item");
-  return;
-}
+    if (!items.length) {
+      toast.error("Add at least one item");
+      return;
+    }
 
     setLoading(true);
 
     try {
       const dept = departments.find((d) => d.id === departmentId);
 
-      const res = await issueStockToDepartment({
+      const res = await returnStockToMainStore({
         departmentId,
         departmentName: dept?.name || "",
-        employeeCount: dept?.employeeCount || 0,
         items,
         note,
       });
 
       if (!res.success) {
-  toast.error(res.message);
-  return;
-}
+        toast.error(res.message);
+        return;
+      }
 
-    toast.success("Stock issued successfully.");
+      toast.success("Batch created successfully");
       setItems([]);
       setNote("");
       setDepartmentId("");
     } catch (err) {
       console.error(err);
-    toast.error("An error occurred while creating the batch");
+      toast.error("An error occurred while creating the batch");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    async function loadDepartmentStock() {
+      if (!departmentId) {
+        setDepartmentStock([]);
+        return;
+      }
+
+      try {
+        const stock = await getDepartmentStock(departmentId);
+        setDepartmentStock(stock);
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to load department stock");
+      }
+    }
+
+    loadDepartmentStock();
+  }, [departmentId]);
+
   return (
-    <div className="p-6 max-w-5xl   space-y-6 bg-gray-50 min-h-screen">
+    <div className="p-6  max-w-5xl  space-y-6 bg-gray-50 min-h-screen">
 
       {/* HEADER */}
-   
 
-       <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+
+      <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            Stock Issue
+            Stock Return
           </h1>
 
           <p className="text-sm text-gray-500">
-            Transfer stock from the main store to a department.
+            Transfer stock from a department back to the main store.
           </p>
         </div>
-        <div className="flex gap-4"> 
-             <Link
-            href="/admin/stock-finished/department/return-stock/add"
-            className="inline-flex items-center justify-center rounded-xl bg-slate-400 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+        <div className="flex gap-4">
+          <Link
+            href="/admin/stock-finished/department/issue-stock/add"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
           >
-            Return Stock to main store
+            Issue Stock
           </Link>
           <Link
             href="/admin/stock-finished/department"
@@ -179,12 +197,15 @@ if (!items.length) {
       </div>
 
 
+
+
+
       {/* CARD */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-5 shadow-sm">
+      <div className="   border border-gray-200 rounded-xl p-5 space-y-5 shadow-sm">
 
         {/* Department */}
         <div>
-          <label className="text-sm text-gray-600">Destination Department</label>
+          <label className="text-sm text-gray-600">Source Department</label>
           <select
             value={departmentId}
             onChange={(e) => setDepartmentId(e.target.value)}
@@ -202,7 +223,7 @@ if (!items.length) {
         {/* ITEMS */}
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <h2 className="font-medium text-gray-700">Items to Issue</h2>
+            <h2 className="font-medium text-gray-700">Items to Return</h2>
 
             <button
               onClick={addItem}
@@ -235,9 +256,12 @@ if (!items.length) {
                   }
                 >
                   <option value="">Select</option>
-                  {inventoryItems.map((i) => (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
+                  {departmentStock.map((i) => (
+                    <option
+                      key={i.inventoryItemId}
+                      value={i.inventoryItemId}
+                    >
+                      {i.inventoryItemName} ({i.quantity} {i.purchaseUnit})
                     </option>
                   ))}
                 </select>
@@ -251,22 +275,12 @@ if (!items.length) {
                   }
                 />
 
-              <select
-  value={item.purchaseUnit}
-  onChange={(e) =>
-    updateItem(index, "purchaseUnit", e.target.value)
-  }
-  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
->
-  <option value="">Select Unit</option>
-
-  {item.purchaseMappings?.map((m: any, i: number) => (
-    <option key={i} value={m.purchaseUnit}>
-      {m.purchaseUnit}
-    </option>
-  ))}
-</select>
-{/* <div className="text-xs text-gray-500">
+                <input
+                  readOnly
+                  value={item.purchaseUnit}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
+                />
+                {/* <div className="text-xs text-gray-500">
   {item.consumptionUnit}
 </div> */}
 
@@ -310,7 +324,7 @@ if (!items.length) {
           disabled={loading}
           className="w-full bg-red-600 text-white py-2.5 rounded-lg hover:bg-red-700 transition font-medium"
         >
-          {loading ? "Issue Stock..." : "Issue Stock"}
+          {loading ? "Processing Return…" : "Return Stock"}
         </button>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { addDepartment } from "@/app/(universal)/action/department/addDepartment";
 import Link from "next/link";
+import toast from "react-hot-toast";
  
 
 
@@ -31,50 +32,76 @@ const DepartmentForm = ({
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } =
-    useForm<TDepartmentForm>({
-      defaultValues: {
-        name: "",
-        code: "",
-        type: "PRODUCTION",
-        description: "",
-        managerId: "",
-        managerName: "",
-        isActive: true,
-      },
-    });
+const {
+  register,
+  handleSubmit,
+  setValue,
+  getValues,
+  reset,
+  formState: { errors },
+} = useForm<TDepartmentForm>({
+  defaultValues: {
+    name: "",
+    code: "",
+    type: "PRODUCTION",
+    description: "",
+    managerId: "",
+    managerName: "",
+    employeeCount: 0,
+    isActive: true,
+  },
+});
 
-  async function onSubmit(
-    data: TDepartmentForm
-  ) {
-    if (isSubmitting) return;
+async function onSubmit(data: TDepartmentForm) {
+  if (isSubmitting) return;
 
-    setIsSubmitting(true);
+  const managerId = getValues("managerId");
+  const managerName = getValues("managerName");
 
-    try {
-      const result =
-        await addDepartment(data);
-
-      if (!result.success) {
-        alert(result.message);
-        return;
-      }
-
-      reset();
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    } finally {
-      setIsSubmitting(false);
-    }
+  if (!data.name.trim()) {
+    toast.error("Department name is required");
+    return;
   }
 
+  if (!data.code.trim()) {
+    toast.error("Department code is required");
+    return;
+  }
+
+  if (!data.employeeCount || data.employeeCount <= 0) {
+    toast.error("Please enter the number of employees");
+    return;
+  }
+
+  if (!managerId) {
+    toast.error("Please select a manager");
+    return;
+  }
+
+  if (!managerName) {
+    toast.error("Manager name is missing");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const result = await addDepartment(data);
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success("Department created successfully");
+    reset();
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong");
+  } finally {
+    setIsSubmitting(false);
+  }
+}
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}

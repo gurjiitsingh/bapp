@@ -3,9 +3,9 @@
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Search, Package2 } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+
 import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/updateFinshedItemStock";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
@@ -105,7 +105,7 @@ const router = useRouter();
 router.push(
   `/admin/stock-finished/batchs/batches/${batchId}`
 );
-router.refresh();
+//router.refresh();
 
       // ✅ update local stock UI
       setSelectedProduct((prev) =>

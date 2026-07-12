@@ -36,7 +36,7 @@ export async function updateDepartmentStockTx({
     inventoryItemName: update.inventoryItemName,
 
     quantity: update.newQuantity,
-
+    currentStock: update.newQuantity,
     averageCost: update.averageCost,
 
     purchaseUnit: update.purchaseUnit,

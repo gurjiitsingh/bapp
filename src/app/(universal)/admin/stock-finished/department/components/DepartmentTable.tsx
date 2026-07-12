@@ -56,9 +56,15 @@ const DepartmentTable = ({
         <div className="flex gap-4">
           <Link
             href="/admin/stock-finished/department/issue-stock/add"
-            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
           >
             Issue Stock
+          </Link>
+            <Link
+            href="/admin/stock-finished/department/return-stock/add"
+            className="inline-flex items-center justify-center rounded-xl bg-slate-400 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Return Stock to main store
           </Link>
           <Link
             href="/admin/stock-finished/department/add"

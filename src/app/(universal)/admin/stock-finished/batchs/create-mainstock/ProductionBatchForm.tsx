@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatch";
+import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatchFromDpStock";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
@@ -148,7 +148,8 @@ if (!items.length) {
       </div>
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div><Package className="w-6 h-6 text-blue-600" />
+            <div className="flex items-center gap-2">
+              <Package className="w-6 h-6 text-blue-600" />
               <h1 className="text-3xl font-bold text-gray-800">
                 Production Batch
               </h1>
@@ -158,15 +159,15 @@ if (!items.length) {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link
+              {/* <Link
                 href="/admin/stock-finished/issue/add"
                 className="inline-flex h-11 items-center justify-center rounded-xl bg-red-600 px-5 font-medium text-white shadow-sm transition hover:bg-red-700"
               >
                 Manual Production
-              </Link>
+              </Link> */}
 
               <Link
-                href="/admin/stock-finished/issue"
+                href="/admin/stock-finished/batchs"
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
               >
                 Production Batches

@@ -133,8 +133,16 @@ export async function issueStockToDepartment(
       await applyRawInventoryWrites(
         tx,
         rawUpdates,
-        transferId
-      );
+        transferId,
+         "TRANS TO DEPT",
+        "OUT",
+        "send to  department",
+        "system",
+        "PRODUCTION",
+
+      );     
+
+      
     });
 
     return {

@@ -111,10 +111,7 @@ export async function departmentStockTransaction(
         createdAt: input.createdAt,
       };
 
-      console.log(
-        "Saving departmentStockTransaction:",
-        JSON.stringify(data, null, 2)
-      );
+    
 
       if (tx) {
         tx.set(ref, data);

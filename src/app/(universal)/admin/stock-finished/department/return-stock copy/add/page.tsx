@@ -7,7 +7,7 @@ import StockReturnForm from "./StockReturnForm";
 export default async function Page() {
   const departmentsRaw = await getDepartments();
   const inventoryItemsRaw = await fetchInventoryItems();
-  // const departmentStock = getDepartmentStock(departmentId)
+ // const departmentStock = getDepartmentStock(departmentId)
 // console.log("departmentsRaw-------------------------",departmentsRaw)
 // console.log("inventoryItemsRaw-------------------------",inventoryItemsRaw)
  

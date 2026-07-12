@@ -145,7 +145,7 @@ export default function ProductionForm({
               </Link>
 
               <Link
-                href="/admin/stock-finished/issue"
+                href="/admin/stock-finished/batchs"
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
               >
                 Production Batches

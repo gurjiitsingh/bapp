@@ -60,12 +60,18 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
       </div>
 
       {/* INFO CARD */}
-      <div className="bg-gray-50 rounded-2xl p-5 grid grid-cols-3 gap-4">
+      <div className="bg-gray-50 rounded-2xl p-5 grid grid-cols-4 gap-4">
 
         <div className="bg-white rounded-xl p-3 shadow-sm">
           <p className="text-xs text-gray-400">Department</p>
           <p className="font-medium">{batch.departmentName}</p>
         </div>
+
+                      {/* Employees */}
+<div className="bg-white rounded-xl p-3 shadow-sm">
+  <p className="text-xs text-gray-400">Employees</p>
+  <p className="font-medium">{batch.employeeCount}</p>
+</div>
 
         <div className="bg-white rounded-xl p-3 shadow-sm">
           <p className="text-xs text-gray-400">Created At</p>
@@ -85,6 +91,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
           </p>
         </div>
 
+
         {/* Duration */}
         <div className="bg-blue-50 rounded-xl p-3">
           <p className="text-xs text-blue-500">Duration</p>
@@ -94,6 +101,16 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
               : "-"}
           </p>
         </div>
+
+  
+
+{/* Total Labor Hours */}
+<div className="bg-purple-50 rounded-xl p-3">
+  <p className="text-xs text-purple-500">Total Work Hours</p>
+  <p className="font-semibold text-purple-700">
+    {batch.laborHours?.toFixed(2)} hrs
+  </p>
+</div>
 
         {/* Status */}
         <div
@@ -191,7 +208,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
 }}
         className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm text-white hover:bg-amber-600"
       >
-        Not Used
+      Not Used quantity
       </button>
     </div>
           </div>

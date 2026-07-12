@@ -9,10 +9,11 @@ export default async function Page() {
 
  
   // ✅ SAFE mapping (VERY IMPORTANT)
-  const departments = (departmentsRaw || []).map((d: any) => ({
-    id: d.id,
-    name: d.name,
-  }));
+const departments = (departmentsRaw || []).map((d: any) => ({
+  id: d.id,
+  name: d.name,
+  employeeCount: Number(d.employeeCount) || 0,
+}));
 
 const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
   id: i.id,
@@ -42,7 +43,7 @@ const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
   updatedAt: i.updatedAt || null,
 }));
 
-  return (
+  return ( 
     <ProductionBatchForm
       departments={departments}
       inventoryItems={inventoryItems}

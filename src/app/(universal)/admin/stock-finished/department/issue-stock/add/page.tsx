@@ -12,6 +12,7 @@ export default async function Page() {
   const departments = (departmentsRaw || []).map((d: any) => ({
     id: d.id,
     name: d.name,
+    employeeCount: d.employeeCount,
   }));
 
 const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({

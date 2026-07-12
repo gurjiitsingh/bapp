@@ -52,7 +52,7 @@ export default function InventoryTabs() {
 );
   const isProduction =
     pathname ===
-    "/admin/stock-finished/issue";
+    "/admin/stock-finished/batchs";
 
   const isSale = pathname.startsWith(
     "/admin/stock-finished/sale"
@@ -92,7 +92,7 @@ export default function InventoryTabs() {
         <div className="grid grid-cols-2 xl:grid-cols-9 gap-3">
 
           <Link
-            href="/admin/stock-finished/issue"
+            href="/admin/stock-finished/batchs"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isProduction
                 ? "bg-purple-50 border-purple-300 shadow-md"
                 : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"

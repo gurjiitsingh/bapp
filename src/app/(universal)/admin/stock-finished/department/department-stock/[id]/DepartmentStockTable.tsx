@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
+import Link from "next/link";
 
 type Props = {
   data: {
@@ -45,8 +46,10 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
   item={selectedItem}
       /> */}
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 p-4">
-        <h2 className="font-semibold text-gray-800">
+
+ <div className="m-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex gap-4 items-center">
+            <h2 className="font-semibold text-gray-800">
           Department Stock
         </h2>
 
@@ -62,7 +65,42 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
             }
           />
         </div>
+        </div>
+        <div className="flex gap-4">
+          <Link
+            href="/admin/stock-finished/department/issue-stock/add"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Issue Stock
+          </Link>
+
+           <Link
+            href="/admin/stock-finished/department/return-stock/add"
+            className="inline-flex items-center justify-center rounded-xl bg-slate-400 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Return Stock to main store
+          </Link>
+          <Link
+            href="/admin/stock-finished/department"
+            className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            All Departments
+          </Link>
+          <Link
+            href="/admin/stock-finished/department/add"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            + Add Department
+          </Link>
+        </div>
       </div>
+
+
+      <div className="flex items-center justify-between border-b border-gray-100 p-4">
+     
+      </div>
+
+
 
       {/* Table */}
       <div className="overflow-x-auto">

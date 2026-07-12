@@ -47,7 +47,7 @@ export async function getManualRawInventoryData(
       purchaseUnit:
         data.purchaseUnit ||
         data.consumptionUnit ||
-        "pcs",
+        "gm",
 
       conversionFactor:
         Number(data.conversionFactor) || 1,

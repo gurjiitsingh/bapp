@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatch";
+import { createProductionBatch } from "@/app/(universal)/action/production/createProductionBatchFromDpStock";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { issueStockToDepartment } from "@/app/(universal)/action/production/departments/issueStockToDepartment";
+import { returnStockToMainStore } from "@/app/(universal)/action/production/departments/returnStockToMainStore";
 
 type Props = {
   departments: { id: string; name: string }[];
   inventoryItems: InventoryItemType[];
 };
 
-export default function StockIssueForm({
+export default function StockReturnForm({
   departments,
   inventoryItems,
 }: Props) {
@@ -115,7 +116,7 @@ if (!items.length) {
     try {
       const dept = departments.find((d) => d.id === departmentId);
 
-      const res = await issueStockToDepartment({
+      const res = await returnStockToMainStore({
         departmentId,
         departmentName: dept?.name || "",
         items,
@@ -167,7 +168,7 @@ if (!items.length) {
               </Link>
 
               <Link
-                href="/admin/stock-finished/issue"
+                href="/admin/stock-finished/batchs"
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
               >
                 Production Batches

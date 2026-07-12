@@ -1,15 +1,12 @@
 import { getDepartments } from "@/app/(universal)/action/department/getDepartments";
+import ProductionBatchForm from "./ProductionBatchForm";
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/fetchInventoryItems";
-import StockIssueForm from "./StockReturnForm";
-import StockReturnForm from "./StockReturnForm";
  
  
 export default async function Page() {
   const departmentsRaw = await getDepartments();
   const inventoryItemsRaw = await fetchInventoryItems();
-  // const departmentStock = getDepartmentStock(departmentId)
-// console.log("departmentsRaw-------------------------",departmentsRaw)
-// console.log("inventoryItemsRaw-------------------------",inventoryItemsRaw)
+
  
   // ✅ SAFE mapping (VERY IMPORTANT)
   const departments = (departmentsRaw || []).map((d: any) => ({
@@ -45,8 +42,8 @@ const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
   updatedAt: i.updatedAt || null,
 }));
 
-  return (
-    <StockReturnForm
+  return ( 
+    <ProductionBatchForm
       departments={departments}
       inventoryItems={inventoryItems}
     />

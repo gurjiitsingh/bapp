@@ -11,7 +11,7 @@ import { getManualRawInventoryData } from "./getManualRawInventoryData";
 import { updateDepartmentStock } from "./updateDepartmentStock";
 
 export async function createProductionBatch(
-  input: CreateProductionBatchInputType
+  input: CreateProductionBatchInputType 
 ) {
   const db = adminDb;
 

@@ -1,4 +1,4 @@
-"use server";
+ 
 
 export interface DepartmentStockUpdate {
   ref: FirebaseFirestore.DocumentReference | null;

@@ -142,7 +142,7 @@ export default function ProductionBatchTable({ batches }: any) {
             {/* ACTION */}
             <div className="flex justify-end">
               <Link
-                href={`/admin/stock-finished/issue/batches/${batch.id}`}
+                href={`/admin/stock-finished/batchs/batches/${batch.id}`}
                 className="
                   flex items-center gap-1
                   text-sm font-medium

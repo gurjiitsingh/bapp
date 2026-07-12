@@ -45,7 +45,7 @@ export default function ProductionBatchTable({ batches }: any) {
           />
 
           <Link
-            href="/admin/stock-finished/issue/add"
+            href="/admin/stock-finished/batchs/create-departmentstock"
             className="
               h-11 px-5 flex items-center justify-center
               rounded-xl
@@ -54,7 +54,7 @@ export default function ProductionBatchTable({ batches }: any) {
               hover:bg-red-700 transition
             "
           >
-            + Manual Production
+            + Sami Auto Production
           </Link>
 
            <Link
@@ -81,6 +81,7 @@ export default function ProductionBatchTable({ batches }: any) {
           px-6 py-3
           text-xs font-semibold
           text-gray-500 uppercase tracking-wider
+          bg-slate-100
         ">
           <div>Batch</div>
           <div>Department</div>
@@ -142,7 +143,7 @@ export default function ProductionBatchTable({ batches }: any) {
             {/* ACTION */}
             <div className="flex justify-end">
               <Link
-                href={`/admin/stock-finished/issue/batches/${batch.id}`}
+                href={`/admin/stock-finished/batchs/batches/${batch.id}`}
                 className="
                   flex items-center gap-1
                   text-sm font-medium

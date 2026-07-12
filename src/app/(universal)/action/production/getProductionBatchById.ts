@@ -33,9 +33,6 @@ export async function getProductionBatchById(batchId: string) {
 
     const items = itemsSnap.docs.map((doc) => {
       const d = doc.data();
-
-
-
       return {
         id: doc.id,
         inventoryItemName: d.inventoryItemName || "",
@@ -51,7 +48,23 @@ export async function getProductionBatchById(batchId: string) {
       };
     });
 
-  return {
+    const start = batchData.startTime?.toMillis?.() || null;
+const end = batchData.endTime?.toMillis?.() || null;
+
+let durationMs = 0;
+let durationHours = 0;
+let laborHours = 0;
+
+if (start) {
+  const endTime = end || Date.now();
+  durationMs = endTime - start;
+  durationHours = durationMs / (1000 * 60 * 60);
+
+  const employeeCount = batchData.employeeCount || 0;
+  laborHours = durationHours * employeeCount;
+}
+
+return {
   success: true,
   data: {
     id: batchSnap.id,
@@ -63,16 +76,15 @@ export async function getProductionBatchById(batchId: string) {
     sellingPrice: batchData.sellingPrice || 0,
 
     note: batchData.note || "",
-
     status: batchData.status || "OPEN",
 
-    startTime: batchData.startTime
-      ? batchData.startTime.toMillis()
-      : null,
+    employeeCount: batchData.employeeCount || 0,
 
-    endTime: batchData.endTime
-      ? batchData.endTime.toMillis()
-      : null,
+    startTime: start,
+    endTime: end,
+
+    durationHours,
+    laborHours,
 
     items,
 

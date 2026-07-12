@@ -7,7 +7,12 @@ import { adminDb } from "@/lib/firebaseAdmin";
 export async function applyRawInventoryWrites(
   tx: FirebaseFirestore.Transaction,
   updates: any[],
-  orderId: string
+  orderId: string,
+  type: string,
+  direction: "OUT" | "IN" = "OUT",
+  note: string = "Consumed in production",
+  createdBy: string = "system",
+  source: string = "PRODUCTION",
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
 
@@ -51,8 +56,7 @@ export async function applyRawInventoryWrites(
       supplierId: "",
       supplierName: "",
 
-      type: "CONSUMPTION",
-      direction: "OUT",
+
 
       purchaseQuantity: 0,
       purchaseUnit: u.purchaseUnit || "",
@@ -75,12 +79,12 @@ export async function applyRawInventoryWrites(
       paymentMethod: null,
 
       referenceType: "PRODUCTION",
+      type,
+      direction,
+      note,
+      createdBy,
+      source,
       referenceId: orderId,
-
-      note: "Consumed in production",
-      createdBy: "system",
-      source: "PRODUCTION",
-
       createdAt: now,
     });
   }

@@ -51,7 +51,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
         </div>
 
         {batch.status !== "CLOSED" && (
-          <Link href={`/admin/stock-finished/issue/batches/close/${batch.id}`}>
+          <Link href={`/admin/stock-finished/batchs/batches/close/${batch.id}`}>
             <Button className="btn-save-4 shadow-sm">
               Close Batch
             </Button>
