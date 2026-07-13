@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { useRouter } from "next/navigation";
 import {
   getDepartmentStock,
   type DepartmentStock,
@@ -22,7 +22,7 @@ export default function ProductionBatchForm({
   inventoryItems,
 }: Props) {
 
-
+const router = useRouter();
   const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
@@ -114,9 +114,16 @@ export default function ProductionBatchForm({
       }
 
       toast.success("Batch created successfully");
-      setItems([]);
-      setNote("");
-      setDepartmentId("");
+   
+
+    // ✅ reset form
+    setItems([]);
+    setNote("");
+    setDepartmentId("");
+
+    // ✅ redirect AFTER success
+    router.push("/admin/stock-finished/batchs");
+
     } catch (err) {
       console.error(err);
       toast.error("An error occurred while creating the batch");

@@ -6,6 +6,7 @@ import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 import Link from "next/link";
 
 type Props = {
+   departmentName: string; 
   data: {
     inventoryItemId: string;
     inventoryItemName: string;
@@ -20,6 +21,7 @@ type Props = {
 
 export default function DepartmentStockTable({
   data,
+  departmentName,
 }: Props) {
   const [search, setSearch] = useState("");
 
@@ -49,9 +51,12 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
 
  <div className="m-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex gap-4 items-center">
-            <h2 className="font-semibold text-gray-800">
-          Department Stock
-        </h2>
+        <h2 className="font-semibold text-gray-800">
+  Department Stock -{" "}
+  <span className="text-amber-600">
+    {departmentName}
+  </span>
+</h2>
 
         <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2">
           <Search size={16} className="text-gray-400" />

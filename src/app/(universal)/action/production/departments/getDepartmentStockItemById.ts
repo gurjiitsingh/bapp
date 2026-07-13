@@ -26,36 +26,32 @@ export async function getDepartmentStockItemByIdTx(
   departmentId: string,
   inventoryItemId: string
 ): Promise<DepartmentStockType | null> {
-  const ref = adminDb
-    .collection("departmentStock")
-    .doc(`${departmentId}_${inventoryItemId}`);
 
-  const snap = await tx.get(ref);
+ const query = adminDb
+  .collection("departmentStock")
+  .where("departmentId", "==", departmentId)
+  .where("inventoryItemId", "==", inventoryItemId)
+  .limit(1);
 
-  if (!snap.exists) {
-    return null;
-  }
+const snap = await tx.get(query);
 
-  const data = snap.data()!;
+if (snap.empty) {
+  return null;
+}
 
-  return {
-    id: snap.id,
+const doc = snap.docs[0];
+const data = doc.data();
 
-    departmentId: data.departmentId,
-
-    inventoryItemId: data.inventoryItemId,
-    inventoryItemName: data.inventoryItemName,
-
-    quantity: Number(data.quantity) || 0,
-
-    averageCost: Number(data.averageCost) || 0,
-
-    purchaseUnit: data.purchaseUnit || "",
-    consumptionUnit: data.consumptionUnit || "",
-    conversionFactor: Number(data.conversionFactor) || 1,
-
-    updatedAt: data.updatedAt
-      ? data.updatedAt.toMillis()
-      : 0,
-  };
+return {
+  id: doc.id,
+  departmentId: data.departmentId,
+  inventoryItemId: data.inventoryItemId,
+  inventoryItemName: data.inventoryItemName,
+  quantity: Number(data.quantity) || 0,
+  averageCost: Number(data.averageCost) || 0,
+  purchaseUnit: data.purchaseUnit || "",
+  consumptionUnit: data.consumptionUnit || "",
+  conversionFactor: Number(data.conversionFactor) || 1,
+  updatedAt: data.updatedAt?.toMillis?.() ?? 0,
+};
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
- 
+ import { useRouter } from "next/navigation";
+
 import { stockBatchToDepartment } from "@/app/(universal)/action/production/stockBatchToDepartment";
 import toast from "react-hot-toast";
 
@@ -20,6 +21,7 @@ export default function ReturnToDepartmentDialog({
   batchId,
   item,
 }: Props) {
+  const router = useRouter();
   const [qty, setQty] = useState(0);
 
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,7 @@ export default function ReturnToDepartmentDialog({
   if (!open || !item) return null;
 
   async function handleSave() {
-    if (qty <= 0) {
+    if (qty == 0) {
       toast.error("Enter return quantity");
       return;
     }
@@ -38,11 +40,11 @@ export default function ReturnToDepartmentDialog({
     }
 
     setLoading(true);
-
+const numericQty = Number(qty);
     const res = await stockBatchToDepartment({
       batchId,
       itemId: item.id,
-     returnQty: qty,
+     returnQty: numericQty,
     });
 
     setLoading(false);
@@ -50,6 +52,7 @@ export default function ReturnToDepartmentDialog({
     if (res.success) {
       toast.success(res.message);
       onClose();
+       router.refresh();
     } else {
       toast.error(res.message);
     }
@@ -80,15 +83,13 @@ export default function ReturnToDepartmentDialog({
             Return Quantity
           </label>
 
-          <input
-            type="number"
-            step="0.001"
-            value={qty}
-            onChange={(e) =>
-              setQty(Number(e.target.value))
-            }
-            className="mt-2 w-full rounded-lg border p-2"
-          />
+         <input
+  type="number"
+  step="0.001"
+  value={qty === 0 ? "" : qty}
+  onChange={(e) => setQty(Number(e.target.value))}
+  className="mt-2 w-full rounded-lg border p-2"
+/>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
