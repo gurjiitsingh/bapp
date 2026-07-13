@@ -72,7 +72,18 @@ export async function getDepartmentStockData(
       const doc = snap.docs[0];
       const data = doc.data();
 
-      const currentQuantity = Number(data.quantity || 0);
+    const currentQuantity = Number(data.quantity || 0);
+const currentAvgCost = Number(data.averageCost || 0);
+
+const newQuantity = currentQuantity + item.quantity;
+
+const newAverageCost =
+  newQuantity === 0
+    ? 0
+    : (
+        currentQuantity * currentAvgCost +
+        item.quantity * item.averageCost
+      ) / newQuantity;
 
       updates.push({
         ref: doc.ref,
@@ -86,7 +97,7 @@ export async function getDepartmentStockData(
         currentQuantity,
         newQuantity: currentQuantity + item.quantity,
 
-        averageCost: item.averageCost,
+          averageCost: newAverageCost,
 
         purchaseUnit: item.purchaseUnit,
         consumptionUnit: item.consumptionUnit,
