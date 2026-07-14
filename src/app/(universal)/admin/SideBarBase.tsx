@@ -18,7 +18,7 @@ export default function SideBarBase() {
   }, [path]);
 
   return (
-    <div className="">
+    <div className="bg-slate-800">
 
       <div className="hidden  lg:block">
         <Sidebar />

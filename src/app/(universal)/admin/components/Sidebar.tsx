@@ -290,6 +290,7 @@ const Sidebar = () => {
   flex flex-col justify-between
   px-3 py-6
   sb-bg shadow-md
+  bg-slate-800
 ">    <ul className="flex flex-col gap-1">
           {filteredMenu.map((item) => (
             <Tab key={item.link} item={item} />

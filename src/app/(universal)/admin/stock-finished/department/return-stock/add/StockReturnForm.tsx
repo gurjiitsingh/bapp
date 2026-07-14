@@ -126,7 +126,7 @@ export default function StockReturnForm({
         return;
       }
 
-      toast.success("Batch created successfully");
+      toast.success("Batch stock qty returned successfully");
       setItems([]);
       setNote("");
       setDepartmentId("");
