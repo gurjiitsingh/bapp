@@ -10,12 +10,14 @@ import {
   TeditCategorySchema,
 } from "@/lib/types/categoryType";
 import {
-  editCategory,
+  
   fetchCategoryById,
 } from "@/app/(universal)/action/category/dbOperations";
 import Link from "next/link";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 import { MasterCategoryType } from "@/lib/types/masterCategoryType";
+import { editCategory } from "@/app/(universal)/action/category/editCategory";
+import toast from "react-hot-toast";
 
 
 interface PageCompProps {
@@ -94,12 +96,23 @@ const PageComp = ({
       formData.append("image", "0");
     }
 
-    const result = await editCategory(formData);
-    if (!result?.errors) {
-      router.push("/admin/categories");
-    } else {
-      alert("Something went wrong");
-    }
+const result = await editCategory(formData);
+
+console.log(result);
+
+if (result?.errors) {
+  if (typeof result.errors === "string") {
+    toast.error(result.errors);
+  } else {
+    const firstError = Object.values(result.errors)[0] as string;
+    toast.error(firstError);
+  }
+  return;
+}
+
+toast.success("Category updated successfully");
+
+router.push("/admin/categories");
   }
 
 
