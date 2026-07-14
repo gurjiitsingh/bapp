@@ -26,6 +26,7 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import TableRows from "./TableRows";
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
+import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -37,7 +38,7 @@ export default function ListView({
   categories
 }: Props) {
 
-  
+
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
 
@@ -99,10 +100,17 @@ export default function ListView({
     ).length;
   }, [inventoryItems]);
 
+const totalStockValue = useMemo(() => {
+  return inventoryItems.reduce(
+    (sum, item) => sum + (Number(item.stockValue) || 0),
+    0
+  );
+}, [inventoryItems]);
+
   return (
     <div className="flex flex-col gap-5">
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* TOTAL */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
@@ -168,6 +176,30 @@ export default function ListView({
             </div>
           </div>
         </div>
+
+ {/*  STOCK value*/}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500">
+                Stock Value
+              </p>
+
+             <h3 className="text-3xl font-bold text-green-600 mt-2">
+  {formatCurrencyNumber(totalStockValue)}
+</h3>
+            </div>
+
+            <div className="h-12 w-12 rounded-2xl bg-rose-100 flex items-center justify-center">
+              <AlertTriangle
+                className="text-rose-600"
+                size={24}
+              />
+            </div>
+          </div>
+        </div>
+
+
       </div>
 
       {/* FILTER BAR */}
