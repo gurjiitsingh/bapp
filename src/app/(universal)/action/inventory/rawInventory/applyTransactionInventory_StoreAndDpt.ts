@@ -3,7 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
-export async function applyInventoryTransactionDptReturn(
+export async function applyTransactionInventory_StoreAndDpt(
   tx: FirebaseFirestore.Transaction,
   updates: any[],
   referenceId: string,
@@ -18,27 +18,38 @@ export async function applyInventoryTransactionDptReturn(
 
 console.log("u purchaseUnit----------------------", u.purchaseUnit)
 
-    const quantity = Number(u.returnQty || 0);
-    const unitCost = Number(u.averageCostStore || 0);
-    const stockValue = Number(u.stockValueStore || 0);
+    const quantity = Number(u.sendQty || 0);
+   // const unitCost = Number(u.storeAvgCost || 0);
+    const unitCost =
+  direction === "IN"
+    ? Number(u.dptAvgCost || 0)   // ✅ return
+    : Number(u.storeAvgCost || 0); // ✅ issue
+    const stockValue = Number(u.storeStockValue || 0);
 
     const movementValue = quantity * unitCost;
 
     totalValue += movementValue;
 
-    const beforeStock = Number(u.currentStockStore);
+    const beforeStock = Number(u.storeStock);
 
     const afterStock =
       direction === "OUT"
         ? beforeStock - quantity
         : beforeStock + quantity;
 
-    const afterStockValue =
-      direction === "OUT"
-        ? Math.max(0, stockValue - movementValue)
-        : stockValue + movementValue;
+        
 
-  
+    // const afterStockValue =
+    //   direction === "OUT"
+    //     ? Math.max(0, stockValue - movementValue)
+    //     : stockValue + movementValue;
+
+  // const newAvgCost =
+  // afterStock > 0
+  //   ? afterStockValue / afterStock
+  //   : 0; // ✅ ADDED: recalculated store average cost
+
+
     // =====================================
     // Ledger
     // =====================================
@@ -71,10 +82,10 @@ console.log("u purchaseUnit----------------------", u.purchaseUnit)
       quantity,
       unit: u.consumptionUnit,
 
-      unitCost:u.averageCostStore,
+      unitCost:unitCost,
 
-      beforeStock,
-      afterStock,
+      beforeStock ,
+      afterStock ,
 
       totalAmount: Number(
         movementValue.toFixed(2)

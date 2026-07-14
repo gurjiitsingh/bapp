@@ -8,6 +8,9 @@ import { applyRawInventoryWrites } from "../../inventory/rawInventory/applyRawIn
 import { departmentStockTransaction } from "./departmentStockTransaction";
 import { updateDepartmentStockTx } from "./UpdateDepartmentStockTx";
 import { getDepartmentStockData } from "./getDepartmentStockData";
+import { readRawInventoryData } from "../readRawInventoryData";
+import { applyTransactionInventory_StoreAndDpt } from "../../inventory/rawInventory/applyTransactionInventory_StoreAndDpt";
+import { writeInventoryData_StoreAndDpt } from "../../inventory/rawInventory/writeInventoryData_StoreAndDpt";
 
 export async function issueStockToDepartment(
   input: CreateProductionBatchInputType
@@ -38,22 +41,39 @@ export async function issueStockToDepartment(
       // 1. PREPARE RAW REQUEST
       // ==========================================
 
-      const rawRequest = input.items.map((item) => ({
-        inventoryItemId: item.inventoryItemId,
-        quantity:
-          item.quantity *
-          (item.conversionFactor || 1),
-      }));
+      // const rawRequest = input.items.map((item) => ({
+      //   inventoryItemId: item.inventoryItemId,
+      //   quantity:
+      //     item.quantity *
+      //     (item.conversionFactor || 1),
+      // }));
+
+         const rawRequest = input.items.map((item) => ({
+                inventoryItemId: item.inventoryItemId,
+                quantity: item.quantity * (item.conversionFactor || 1),
+                averageCostDpt: item.averageCost,
+                purchaseUnitDpt: item.purchaseUnit,
+                conversionFactorUsed: item.conversionFactor || 1,
+            }));
 
       // ==========================================
       // 2. READ RAW INVENTORY
       // ==========================================
 
+      // const rawUpdates =
+      //   await getManualRawInventoryData(
+      //     tx,
+      //     rawRequest
+      //   );
+
       const rawUpdates =
-        await getManualRawInventoryData(
+        await readRawInventoryData(
           tx,
-          rawRequest
+          "OUT",
+          rawRequest,
+
         );
+
 
       // ==========================================
       // 3. READ DEPARTMENT STOCK
@@ -130,19 +150,35 @@ export async function issueStockToDepartment(
       // 7. WRITE RAW INVENTORY
       // ==========================================
 
-      await applyRawInventoryWrites(
-        tx,
-        rawUpdates,
-        transferId,
-         "TRANS TO DEPT",
-        "OUT",
-        "send to  department",
-        "system",
-        "PRODUCTION",
+      // await applyRawInventoryWrites(
+      //   tx,
+      //   rawUpdates,
+      //   transferId,
+      //   "TRANS TO DEPT",
+      //   "OUT",
+      //   "send to  department",
+      //   "system",
+      //   "PRODUCTION",
 
-      );     
+      // );
 
+         await writeInventoryData_StoreAndDpt(
+                      tx,
+                      rawUpdates,
+                      transferId,
+                      "OUT"
+                  );
       
+
+         await applyTransactionInventory_StoreAndDpt(
+                      tx,
+                      rawUpdates,
+                      transferId,
+                      "STROE TO DPT",
+                      "OUT"
+                  );
+
+
     });
 
     return {

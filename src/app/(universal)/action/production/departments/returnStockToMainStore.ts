@@ -9,9 +9,9 @@ import { applyRawInventoryWritesM } from "../../inventory/rawInventory/applyRawI
 import { validateDepartmentStock } from "./validateDepartmentStock";
 import { getDepartmentStockDataM } from "./getDepartmentStockDataM";
 import { applyRawInventoryDptReturn } from "../../inventory/rawInventory/applyRawInventoryDptReturn";
-import { returnDptToMainStore } from "../../inventory/rawInventory/returnDptToMainStore";
-import { readManualRawInventoryData } from "../readManualRawInventoryData";
-import { applyInventoryTransactionDptReturn } from "../../inventory/rawInventory/applyInventoryTransactionDptReturn";
+import { readRawInventoryData } from "../readRawInventoryData";
+import { writeInventoryData_StoreAndDpt } from "../../inventory/rawInventory/writeInventoryData_StoreAndDpt";
+import { applyTransactionInventory_StoreAndDpt } from "../../inventory/rawInventory/applyTransactionInventory_StoreAndDpt";
 
 export async function returnStockToMainStore(
     input: CreateProductionBatchInputType
@@ -32,7 +32,7 @@ export async function returnStockToMainStore(
                 message: "Add items",
             };
         }
-//console.log("item---------------", input.items)
+        //console.log("item---------------", input.items)
         const now = new Date();
         const timestamp = Date.now();
         const transferId = `DEPT-RETURN-${timestamp}`;
@@ -47,22 +47,25 @@ export async function returnStockToMainStore(
                 quantity: item.quantity * (item.conversionFactor || 1),
                 averageCostDpt: item.averageCost,
                 purchaseUnitDpt: item.purchaseUnit,
+                conversionFactorUsed: item.conversionFactor || 1,
             }));
 
             // ==========================================
             // 2. READ RAW INVENTORY
             // ==========================================
-console.log("pt-------------------------1")
+            console.log("pt-------------------------1")
             const rawUpdates =
-                await readManualRawInventoryData(
+                await readRawInventoryData(
                     tx,
-                    rawRequest
+                    "IN",
+                    rawRequest,
+
                 );
 
             // ==========================================
             // 3. READ DEPARTMENT STOCK
             // ==========================================
-console.log("pt-------------------------2")
+            console.log("pt-------------------------2")
             const departmentUpdates =
                 await getDepartmentStockDataM(
                     tx,
@@ -79,7 +82,7 @@ console.log("pt-------------------------2")
             // ==========================================
             // 5. WRITE DEPARTMENT STOCK
             // ==========================================
-console.log("pt-------------------------3")
+            console.log("pt-------------------------3")
             for (const update of departmentUpdates) {
                 await updateDepartmentStockTxM({
                     transaction: tx,
@@ -133,11 +136,11 @@ console.log("pt-------------------------3")
                 });
             }
 
-             // ==========================================
+            // ==========================================
             // 7. Update RAW INVENTORY
             // ==========================================
-console.log("pt-------------------------4")
-            await returnDptToMainStore(
+            console.log("pt-------------------------4")
+            await writeInventoryData_StoreAndDpt(
                 tx,
                 rawUpdates,
                 transferId,
@@ -148,8 +151,8 @@ console.log("pt-------------------------4")
             // ==========================================
             // 7. WRITE RAW INVENTORY
             // ==========================================
-console.log("pt-------------------------5")
-            await applyInventoryTransactionDptReturn(
+            console.log("pt-------------------------5")
+            await applyTransactionInventory_StoreAndDpt(
                 tx,
                 rawUpdates,
                 transferId,
