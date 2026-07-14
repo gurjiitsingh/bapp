@@ -9,13 +9,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fetchCategories } from "@/app/(universal)/action/category/dbOperations";
 import { categoryType } from "@/lib/types/categoryType";
 import {
-  editProduct,
+  
   fetchProductById,
 } from "@/app/(universal)/action/products/dbOperation";
+ 
 import Link from "next/link";
 import { MasterCategoryType } from "@/lib/types/masterCategoryType";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 import imageCompression from "browser-image-compression";
+import toast from "react-hot-toast";
+import { editProduct } from "@/app/(universal)/action/products/editProduct";
 
 type Props = {
   masterCategories: MasterCategoryType[];
@@ -120,16 +123,28 @@ const EditProduct = ({
       formData.append("image", "0");
     }
 
-    const result = await editProduct(formData);
-    setIsSubmitting(false);
 
-    if (!result?.errors) {
-      //   alert(" Product updated successfully!");
-      router.push(`/admin/products?productId=${data.id}`);
-    } else {
-      alert("❌ Something went wrong. Check console for details.");
-      console.error(result.errors);
-    }
+
+const result = await editProduct(formData);
+
+setIsSubmitting(false);
+
+console.log("Server Result:", result);
+
+if (result?.errors) {
+  if (typeof result.errors === "string") {
+    toast.error(result.errors);
+  } else {
+    Object.values(result.errors).forEach((err) => {
+      toast.error(String(err));
+    });
+  }
+  return;
+}
+
+toast.success("Product updated successfully");
+
+router.push(`/admin/products?productId=${data.id}`);
   }
 
   return (

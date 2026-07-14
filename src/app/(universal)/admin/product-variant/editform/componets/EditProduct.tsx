@@ -9,9 +9,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { fetchCategories } from "@/app/(universal)/action/category/dbOperations";
 import { categoryType } from "@/lib/types/categoryType";
 import {
-  editProduct,
+   
   fetchProductById,
 } from "@/app/(universal)/action/products/dbOperation";
+import { editProduct } from "@/app/(universal)/action/products/editProduct";
 
 const EditProduct = () => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
@@ -87,7 +88,7 @@ const EditProduct = () => {
 
      formData.append("type", "variant");
 
-    if (data.image && data.image[0]) {
+    if (data.image && data.image[0]) { 
       formData.append("image", data.image[0]);
     }
 

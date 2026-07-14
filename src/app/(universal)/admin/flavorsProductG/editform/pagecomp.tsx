@@ -7,7 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 //import { fetchbrands } from "@/app/(universal)/action/brads/dbOperations";
 import {  flavorsProductGSchema, flavorsProductGSchemaType, flavorsProductGType } from "@/lib/types/flavorsProductGType";
 import {  useRouter, useSearchParams } from "next/navigation";
-import { editProduct, fetchProductById } from "@/app/(universal)/action/flavorsProductG/dbOperation";
+import {   fetchProductById } from "@/app/(universal)/action/flavorsProductG/dbOperation";
+import { editProduct } from "@/app/(universal)/action/products/editProduct";
 
 
 // type Terror = {
@@ -70,7 +71,7 @@ const PageComp = () => {
     // // formData.append("isFeatured",data.isFeatured)
      formData.append("id", data.id!);
 
-     const result = await editProduct(formData);
+     const result = await editProduct(formData); 
 
     if (!result?.errors) {
       router.push("/admin/flavorsProductG");

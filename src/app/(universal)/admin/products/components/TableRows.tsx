@@ -89,22 +89,25 @@ const [showModifierModal, setShowModifierModal] = useState(false);
     }
   }
 
-  return (<>
-  <TableRow
-    className={`
-      whitespace-nowrap
-      transition-colors
-      border-0
-      hover:bg-green-50
-      ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-    `}
-  >
+  return (
+   <>
     {showModifierModal && (
       <ModifierModal
         productId={product.id!}
         onClose={() => setShowModifierModal(false)}
       />
     )}
+
+    <TableRow
+      className={`
+        whitespace-nowrap
+        transition-colors
+        border-0
+        hover:bg-green-50
+        ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}
+      `}
+    >
+  
 
 
       <TableCell className="text-sm font-medium text-gray-700">
