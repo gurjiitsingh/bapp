@@ -273,7 +273,7 @@ export default function ClearERPDataPage() {
           <div className="flex items-center justify-between border rounded-xl p-4">
             <div>
               <h2 className="font-semibold">
-                Reset Product Stock
+                Reset Product Stock(disabled)
               </h2>
 
               <p className="text-sm text-gray-500">
@@ -281,7 +281,7 @@ export default function ClearERPDataPage() {
               </p>
             </div>
 
-            <Button
+            {/* <Button
               variant="destructive"
               disabled={loading !== null}
               onClick={() =>
@@ -294,13 +294,13 @@ export default function ClearERPDataPage() {
               {loading === "Reset Product Stock"
                 ? "Resetting..."
                 : "Reset"}
-            </Button>
+            </Button> */}
           </div>
 
           <div className="flex items-center justify-between border rounded-xl p-4">
             <div>
               <h2 className="font-semibold">
-                Reset Inventory Items
+                Reset Inventory Items(disabled)
               </h2>
 
               <p className="text-sm text-gray-500">
@@ -308,7 +308,7 @@ export default function ClearERPDataPage() {
               </p>
             </div>
 
-            <Button
+            {/* <Button
               variant="destructive"
               disabled={loading !== null}
               onClick={() =>
@@ -321,7 +321,7 @@ export default function ClearERPDataPage() {
               {loading === "Reset Inventory Items"
                 ? "Resetting..."
                 : "Reset"}
-            </Button>
+            </Button> */}
           </div>
 
 

@@ -27,6 +27,7 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
 import TableRows from "./TableRows";
 import { ProductStockType } from "@/lib/types/productStockType";
+import Link from "next/link";
 
 
 type Props = {
@@ -193,6 +194,13 @@ export default function ListView({
           </div>
 
           {/* INFO */}
+          <div className="flex gap-3 items-center">
+             <Link
+            href="/admin/stock-finished/products/add"
+            className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            + Products
+          </Link>
           <div className="text-sm text-gray-500">
             Showing{" "}
             <span className="font-semibold text-gray-700">
@@ -200,6 +208,8 @@ export default function ListView({
             </span>{" "}
             inventory items
           </div>
+
+</div>
         </div>
       </div>
 
