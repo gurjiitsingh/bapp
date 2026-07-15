@@ -2,16 +2,15 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
-import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
-import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
-import { getRawInventoryData } from "../inventory/rawInventory/getRawInventoryData";
 
 import { getStockLocation } from "../distribution/getStockLocation";
 import { addStockLocationTx } from "../distribution/addStockLocation";
 import { addStockMovement } from "../distribution/addStockMovement";
-import { applyFinishedTransactionsRead } from "../stock-finished/finishedStockLedger/applyFinishedTransactionsRead";
-import { applyFinishedTransactionsWrite } from "../stock-finished/finishedStockLedger/applyFinishedTransactionsWrite";
 import { getProductionBatchById } from "./getProductionBatchById";
+import { readProductStock } from "../stock-finished/finishedStockLedger/readProductStock";
+import { writeProductStockUpdates } from "../stock-finished/finishedStockLedger/writeProductStockUpdates";
+import { writeProductStockTransactions } from "../stock-finished/finishedStockLedger/writeProductStockTransactions";
+import { getProductionBatchByIdTx } from "./getProductionBatchByIdTx";
 
 
 
@@ -30,7 +29,7 @@ type AdjustStockType = {
   createdBy?: string;
 };
 
-export async function stockProductionManual({
+export async function stockProductionManual({ 
   id,
   batchId,
   productName,
@@ -64,7 +63,10 @@ export async function stockProductionManual({
       // =========================
 
 
-      const batchRes = await getProductionBatchById(batchId);
+    const batchRes = await getProductionBatchByIdTx(
+  tx,
+  batchId
+);
 
       if (!batchRes.success) {
         throw new Error("Batch not found");
@@ -72,29 +74,22 @@ export async function stockProductionManual({
 
       const batchData = batchRes.data;
 
-      console.log("batch--------------", batchData)
+      
 
 
 
       // 🔥 total raw cost (already correct)
       const totalRawCost = batchData!.calculatedTotalCost;
 
-      if (!quantity || quantity <= 0) {
-        throw new Error("Finished quantity must be greater than 0");
-      }
+
 
       const avgCostPerUnit = totalRawCost / quantity;
-      console.log("avgCostPerUnit----------------", avgCostPerUnit, totalRawCost, quantity)
+      
       //=============================
       // READ STOCK LOCATION
       //=============================
 
-      // const factoryLocation = await getStockLocation({
-      //   tx,
-      //   productId: id,
-      //   locationType: "FACTORY",
-      //   locationRef: "MAIN",
-      // });
+ 
 
       const storeLocation = await getStockLocation({
         tx,
@@ -109,21 +104,19 @@ export async function stockProductionManual({
 
 
       // 1 ✅ Read stock (finished currentStock)
-      const finishedData = await applyFinishedTransactionsRead(tx, id);
+      const finishedData = await readProductStock(tx, id);
 
       // =========================
       // ✅ 3. WRITE
       // =========================
       // 1  Decrease department stock
 
-// await updateDepartmentStock({
-//   departmentId,
-//   inventoryItemId,
-//   qtyChange: -usedQty,
-// });
+ 
 
 
       // 2 ✅ Update Batch
+
+      //console.log("finishedData-------------------",finishedData.product)
 
 
       tx.update(
@@ -143,24 +136,42 @@ export async function stockProductionManual({
       // 1 ✅ Update stock (finished currentStock)
       // 2 ✅ Create ledger entry (stockLedgerFinished transactions)
       // 2. Update finished product
-      await applyFinishedTransactionsWrite(tx, {
+      await writeProductStockUpdates(tx, {
         productId: id,
         batchId: batchId,
         productName,
         type: "PRODUCTION",
-        direction,
-        quantity,
+        direction:"IN",
         transactionUnit,
-
         unitPrice: 0,
-        totalAmount: 0,
+
+        quantity,
+        avgCostPerUnitProduct:avgCostPerUnit,
+        totalRawCost,
         note,
         createdBy,
         source: "ADMIN",
-
         readResult: finishedData,
       });
 
+
+         await writeProductStockTransactions(tx, {
+        productId: id,
+        batchId: batchId,
+        productName,
+        type: "PRODUCTION",
+        direction:"IN",
+        transactionUnit,
+        unitPrice:avgCostPerUnit,
+
+        quantity,
+        avgCostPerUnitProduct:avgCostPerUnit,
+        totalRawCost,
+        note,
+        createdBy,
+        source: "ADMIN",
+        readResult: finishedData,
+      });
 
 
       // =========================

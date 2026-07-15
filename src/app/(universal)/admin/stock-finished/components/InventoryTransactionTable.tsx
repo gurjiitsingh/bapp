@@ -35,7 +35,8 @@ const financialTypes = [
   "SALE",
   "PURCHASE",
   "CUSTOMER_RETURN",
-  "RETURN"
+  "RETURN",
+  "PRODUCTION"
 ];
 
 export default function InventoryTransactionTable({
@@ -60,16 +61,16 @@ export default function InventoryTransactionTable({
           <TableRow>
             <TableHead>Item</TableHead>
             <TableHead>Type</TableHead>
-            <TableHead>Supplier</TableHead>
+            <TableHead>Supp/Cus/Mana</TableHead>
             <TableHead>Avg Cost</TableHead>
             <TableHead>Qty</TableHead>
-            <TableHead>Amount</TableHead>
+            <TableHead>Amount/Value</TableHead>
             <TableHead>Before</TableHead>
             <TableHead>After</TableHead>
             <TableHead>User</TableHead>
             <TableHead>Date</TableHead>
           </TableRow>
-        </TableHeader>
+        </TableHeader> 
 
      <TableBody>
   {transactions.map((tx) => {
@@ -120,6 +121,7 @@ export default function InventoryTransactionTable({
         {/* UNIT PRICE */}
 
         <TableCell>
+        
           {showFinancial ? (
             <span className="font-medium">
               {formatPrice(tx.unitPrice)} /{" "}
@@ -142,6 +144,7 @@ export default function InventoryTransactionTable({
         {/* TOTAL */}
 
         <TableCell>
+          
           {showFinancial
             ? formatPrice(tx.totalAmount)
             : "-"}

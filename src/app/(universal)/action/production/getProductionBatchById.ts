@@ -3,7 +3,7 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 
 export async function getProductionBatchById(batchId: string) {
-  console.log("bathid------", batchId)
+   
 
 
   try {

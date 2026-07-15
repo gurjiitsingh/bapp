@@ -139,6 +139,7 @@ console.log("rawUpdates in working---------------", rawUpdates)
            "OUT",
            "Consumed in producttion",
            "PRODUCTION",
+           "PROD"
         )
       }
 

@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 
 type Props = {
-  departments: { id: string; name: string; employeeCount:number }[];
+  departments: { id: string; name: string; employeeCount:number,  managerName: string; }[];
   inventoryItems: InventoryItemType[];
 };
 
@@ -21,7 +21,7 @@ export default function ProductionBatchForm({
   departments,
   inventoryItems,
 }: Props) {
-
+ 
 const router = useRouter();
   const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
   const [departmentId, setDepartmentId] = useState("");
@@ -80,57 +80,52 @@ const router = useRouter();
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    if (!departmentId) {
-      toast.error("Select a department");
+const handleSubmit = async () => {
+  if (!departmentId) {
+    toast.error("Select a department");
+    return;
+  }
+
+  if (!items.length) {
+    toast.error("Add at least one item");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const selectedDepartment = departments.find(
+      (d) => d.id === departmentId
+    );
+
+    const res = await createProductionBatchFromDpStock({
+      departmentId,
+      departmentName: selectedDepartment?.name || "",
+      managerName: selectedDepartment?.managerName || "",
+      employeeCount: selectedDepartment?.employeeCount || 0,
+      items,
+      note,
+    });
+
+    if (!res.success) {
+      toast.error(res.message);
       return;
     }
 
-    if (!items.length) {
-      toast.error("Add at least one item");
-      return;
-    }
+    toast.success("Batch created successfully");
 
-    setLoading(true);
-
-    try {
-      const dept = departments.find((d) => d.id === departmentId);
-
-      
-
-    const res =
-  await createProductionBatchFromDpStock({
-    departmentId,
-    departmentName: dept?.name || "",
-    employeeCount:
-      dept?.employeeCount || 0,
-    items,
-    note,
-  });
-
-      if (!res.success) {
-        toast.error(res.message);
-        return;
-      }
-
-      toast.success("Batch created successfully");
-   
-
-    // ✅ reset form
     setItems([]);
     setNote("");
     setDepartmentId("");
 
-    // ✅ redirect AFTER success
     router.push("/admin/stock-finished/batchs");
-
-    } catch (err) {
-      console.error(err);
-      toast.error("An error occurred while creating the batch");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    toast.error("An error occurred while creating the batch");
+  } finally {
+    setLoading(false);
+  }
+};
 
 const selectedDepartment = departments.find(
   (d) => d.id === departmentId
