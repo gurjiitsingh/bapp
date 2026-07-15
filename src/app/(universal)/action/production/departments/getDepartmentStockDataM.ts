@@ -41,6 +41,9 @@ export async function getDepartmentStockDataM(
   const updates: DepartmentStockUpdate[] = [];
 
   for (const item of items) {
+
+
+
     const query = db
       .collection("departmentStock")
       .where("departmentId", "==", departmentId)
@@ -58,18 +61,16 @@ export async function getDepartmentStockDataM(
         exists: true,
 
         departmentId,
-
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
-
         currentQuantity: Number(data.quantity || 0),
         transferQuantity: item.quantity,
-
         averageCost: item.averageCost,
-
-        purchaseUnit: item.purchaseUnit,
-        consumptionUnit: item.consumptionUnit,
         conversionFactor: item.conversionFactor,
+        consumptionUnit: item.consumptionUnit,
+        purchaseUnit: item.purchaseUnit,
+        
+
       });
     } else {
       updates.push({

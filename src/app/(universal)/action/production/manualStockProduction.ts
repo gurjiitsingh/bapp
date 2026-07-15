@@ -14,13 +14,13 @@ import { updateDepartmentStockTxM } from "./departments/updateDepartmentStockTxM
 import { updateDepartmentStockTx } from "./departments/UpdateDepartmentStockTx";
 import { updateDepartmentStockTxMNew } from "./departments/updateDepartmentStockTxMNew";
 
-export async function createProductionBatchFromDpStock(
+export async function manualStockProduction(
   input: CreateProductionBatchInputType
 ) {
   const db = adminDb;
 
 
-  console.log("input -----------", input)
+  console.log("input -----------", input.items)
 
   try {
     if (!input.departmentId) {

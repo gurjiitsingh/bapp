@@ -15,10 +15,16 @@ export async function updateDepartmentStockTx({
   const db = adminDb;
   const now = new Date();
 
+  const newStockValue = update.newQuantity * update.newAverageCost!;
+
   if (update.exists && update.ref) {
+    console.log("update.newQuantity----------",update.newQuantity)
+    console.log("update.averageCost----------",update.averageCost)
+   // console.log("update.newQuantity----------",update.newQuantity)
     tx.update(update.ref, {
       quantity: update.newQuantity,
-      averageCost: update.averageCost,
+      averageCost: update.newAverageCost,
+      stockValue: newStockValue, 
       updatedAt: now,
     });
 
@@ -35,8 +41,8 @@ export async function updateDepartmentStockTx({
     inventoryItemId: update.inventoryItemId,
     inventoryItemName: update.inventoryItemName,
 
-    quantity: update.newQuantity,
-    currentStock: update.newQuantity,
+    quantity: update.newQuantity * update.conversionFactor,
+    currentStock: update.newQuantity * update.conversionFactor,
     averageCost: update.averageCost,
 
     purchaseUnit: update.purchaseUnit,

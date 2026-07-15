@@ -6,14 +6,14 @@ import {
   getDepartmentStock,
   type DepartmentStock,
 } from "@/app/(universal)/action/production/departments/getDepartmentStock";
-import {  createProductionBatchFromDpStock } from "@/app/(universal)/action/production/createProductionBatchFromDpStock";
+import {  manualStockProduction } from "@/app/(universal)/action/production/manualStockProduction";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
 type Props = {
-  departments: { id: string; name: string; employeeCount:number,  managerName: string; }[];
+  departments: { id: string; name: string; employeeCount: number, managerName: string; }[];
   inventoryItems: InventoryItemType[];
 };
 
@@ -21,8 +21,8 @@ export default function ProductionBatchForm({
   departments,
   inventoryItems,
 }: Props) {
- 
-const router = useRouter();
+
+  const router = useRouter();
   const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
@@ -80,56 +80,56 @@ const router = useRouter();
     setItems(items.filter((_, i) => i !== index));
   };
 
-const handleSubmit = async () => {
-  if (!departmentId) {
-    toast.error("Select a department");
-    return;
-  }
-
-  if (!items.length) {
-    toast.error("Add at least one item");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const selectedDepartment = departments.find(
-      (d) => d.id === departmentId
-    );
-
-    const res = await createProductionBatchFromDpStock({
-      departmentId,
-      departmentName: selectedDepartment?.name || "",
-      managerName: selectedDepartment?.managerName || "",
-      employeeCount: selectedDepartment?.employeeCount || 0,
-      items,
-      note,
-    });
-
-    if (!res.success) {
-      toast.error(res.message);
+  const handleSubmit = async () => {
+    if (!departmentId) {
+      toast.error("Select a department");
       return;
     }
 
-    toast.success("Batch created successfully");
+    if (!items.length) {
+      toast.error("Add at least one item");
+      return;
+    }
 
-    setItems([]);
-    setNote("");
-    setDepartmentId("");
+    setLoading(true);
 
-    router.push("/admin/stock-finished/batchs");
-  } catch (err) {
-    console.error(err);
-    toast.error("An error occurred while creating the batch");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const selectedDepartment = departments.find(
+        (d) => d.id === departmentId
+      );
 
-const selectedDepartment = departments.find(
-  (d) => d.id === departmentId
-);
+      const res = await manualStockProduction({
+        departmentId,
+        departmentName: selectedDepartment?.name || "",
+        managerName: selectedDepartment?.managerName || "",
+        employeeCount: selectedDepartment?.employeeCount || 0,
+        items,
+        note,
+      });
+
+      if (!res.success) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success("Batch created successfully");
+
+      setItems([]);
+      setNote("");
+      setDepartmentId("");
+
+      router.push("/admin/stock-finished/batchs");
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while creating the batch");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectedDepartment = departments.find(
+    (d) => d.id === departmentId
+  );
   useEffect(() => {
     async function loadDepartmentStock() {
       if (!departmentId) {
@@ -195,33 +195,33 @@ const selectedDepartment = departments.find(
 
         {/* Department */}
         <div className="flex gap-3">
-        <div>
-          <label className="text-sm text-gray-600">Department</label>
-          <select
-            value={departmentId}
-            onChange={(e) => setDepartmentId(e.target.value)}
-            className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">Select Department</option>
-            {departments.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div>
+            <label className="text-sm text-gray-600">Department</label>
+            <select
+              value={departmentId}
+              onChange={(e) => setDepartmentId(e.target.value)}
+              className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="">Select Department</option>
+              {departments.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-{selectedDepartment && (
-  <div className="mt-6 flex h-[42px] gap-3 items-center justify-between rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm">
-    <span className="text-gray-600">
-      Employee Count
-    </span>
+          {selectedDepartment && (
+            <div className="mt-6 flex h-[42px] gap-3 items-center justify-between rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm">
+              <span className="text-gray-600">
+                Employee Count
+              </span>
 
-    <span className="font-semibold text-blue-700">
-      {selectedDepartment.employeeCount}
-    </span>
-  </div>
-)}
+              <span className="font-semibold text-blue-700">
+                {selectedDepartment.employeeCount}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* ITEMS */}
@@ -253,40 +253,40 @@ const selectedDepartment = departments.find(
                 key={index}
                 className="grid grid-cols-5 gap-2 px-3 py-2 border-t items-center"
               >
-            <select
-  value={item.inventoryItemId}
-  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
-  onChange={(e) =>
-    updateItem(index, "inventoryItemId", e.target.value)
-  }
->
-  <option value="">Select</option>
+                <select
+                  value={item.inventoryItemId}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+                  onChange={(e) =>
+                    updateItem(index, "inventoryItemId", e.target.value)
+                  }
+                >
+                  <option value="">Select</option>
 
-  {departmentStock.map((i) => (
-    <option
-      key={i.inventoryItemId}
-      value={i.inventoryItemId}
-    >
-      {i.inventoryItemName} ({i.quantity} {i.purchaseUnit})
-    </option>
-  ))}
-</select>
+                  {departmentStock.map((i) => (
+                    <option
+                      key={i.inventoryItemId}
+                      value={i.inventoryItemId}
+                    >
+                      {i.inventoryItemName} ({i.quantity} {i.purchaseUnit})
+                    </option>
+                  ))}
+                </select>
 
-             <input
-  type="number"
-  value={item.quantity}
-  placeholder="0"
-  className="border border-gray-300 rounded-md px-2 py-1"
-  onChange={(e) =>
-    updateItem(index, "quantity", Number(e.target.value))
-  }
-/>
+                <input
+                  type="number"
+                  value={item.quantity}
+                  placeholder="0"
+                  className="border border-gray-300 rounded-md px-2 py-1"
+                  onChange={(e) =>
+                    updateItem(index, "quantity", Number(e.target.value))
+                  }
+                />
 
-           <input
-  readOnly
-  value={item.purchaseUnit}
-  className="border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
-/>
+                <input
+                  readOnly
+                  value={item.purchaseUnit}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-gray-100"
+                />
                 {/* <div className="text-xs text-gray-500">
   {item.consumptionUnit}
 </div> */}

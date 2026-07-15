@@ -43,7 +43,8 @@ export interface DepartmentStockUpdate {
   currentQuantity: number;
   newQuantity: number;
 
-  averageCost: number;
+  averageCost?: number;
+   newAverageCost?: number;
 
   purchaseUnit: string;
   consumptionUnit: string;
@@ -72,16 +73,16 @@ export async function getDepartmentStockData(
       const doc = snap.docs[0];
       const data = doc.data();
 
-    const currentQuantity = Number(data.quantity || 0);
+    const currentStockDPT = Number(data.quantity || 0);
 const currentAvgCost = Number(data.averageCost || 0);
 
-const newQuantity = currentQuantity + item.quantity;
+const newQuantity = currentStockDPT + item.quantity;
 
 const newAverageCost =
   newQuantity === 0
     ? 0
     : (
-        currentQuantity * currentAvgCost +
+        currentStockDPT * currentAvgCost +
         item.quantity * item.averageCost
       ) / newQuantity;
 
@@ -94,8 +95,8 @@ const newAverageCost =
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
 
-        currentQuantity,
-        newQuantity: currentQuantity + item.quantity,
+        currentQuantity:currentStockDPT,
+        newQuantity: currentStockDPT + item.quantity,
 
           averageCost: newAverageCost,
 

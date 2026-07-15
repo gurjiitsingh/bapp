@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search } from "lucide-react";
 import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 import Link from "next/link";
+import { formatQuantity } from "@/utils/inventory/formatQty";
 
 type Props = {
    departmentName: string; 
@@ -120,9 +121,9 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
                 Quantity
               </th>
 
-              <th className="px-4 py-3 font-medium">
+              {/* <th className="px-4 py-3 font-medium">
                 Unit
-              </th>
+              </th> */}
 
               <th className="px-4 py-3 font-medium text-right">
                 Avg Cost
@@ -159,12 +160,24 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
                 </td>
 
                 <td className="px-4 py-3 text-right font-medium">
-                  {item.quantity.toLocaleString("en-IN")}
+                {/* //  {item.quantity.toLocaleString("en-IN")} */}
+
+   <span className="font-medium">
+                        {formatQuantity(
+                          item.quantity /
+                            item.conversionFactor,
+                          item.purchaseUnit
+                        )}{" "}
+                        {item.purchaseUnit}
+                      </span>
+
+      
+                  
                 </td>
 
-                <td className="px-4 py-3 text-gray-600">
+                {/* <td className="px-4 py-3 text-gray-600"> 
                   {item.purchaseUnit}
-                </td>
+                </td> */}
 
                 <td className="px-4 py-3 text-right">
                   ₹
@@ -173,7 +186,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
 
                 <td className="px-4 py-3 text-right font-semibold text-green-700">
                   ₹
-                  {(item.quantity * item.averageCost*item.conversionFactor).toFixed(
+                  {(item.quantity * item.averageCost ).toFixed(
                     2
                   )}
                 </td>

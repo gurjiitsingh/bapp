@@ -1,7 +1,6 @@
 import { getDepartments } from "@/app/(universal)/action/department/getDepartments";
-import ProductionBatchForm from "./ProductionBatchForm";
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/fetchInventoryItems";
- 
+import ProductionBatchForm from "./ProductionBatchForm"; 
  
 export default async function Page() {
   const departmentsRaw = await getDepartments();

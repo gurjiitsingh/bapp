@@ -1,0 +1,88 @@
+"use server";
+
+import { adminDb } from "@/lib/firebaseAdmin";
+
+export async function readRawInventoryRecipes(
+  tx: FirebaseFirestore.Transaction,
+  orderItems: {
+    productId: string;
+    quantity: number;
+  }[]
+) {
+  const updates: any[] = [];
+
+  for (const item of orderItems) {
+    const soldQty = Number(item.quantity) || 0;
+
+    if (soldQty <= 0) continue;
+
+    const productRef = adminDb
+      .collection("productStock")
+      .doc(item.productId);
+
+    const productSnap = await tx.get(productRef);
+
+    if (!productSnap.exists) {
+      throw new Error(
+        `Product not found: ${item.productId}`
+      );
+    }
+
+    const recipeSnapshot = await adminDb
+      .collection("productRecipes")
+      .where("productId", "==", item.productId)
+      .get();
+
+    for (const doc of recipeSnapshot.docs) {
+      const recipe = doc.data();
+
+      const inventoryRef = adminDb
+        .collection("inventoryItems")
+        .doc(recipe.inventoryItemId);
+
+      const invSnap = await tx.get(inventoryRef);
+
+      if (!invSnap.exists) {
+        throw new Error(
+          `Inventory missing: ${recipe.inventoryItemId}`
+        );
+      }
+
+      const invData = invSnap.data()!;
+
+      const beforeStock =
+        Number(invData.currentStock) || 0;
+
+      const required =
+        (Number(recipe.quantity) || 0) * soldQty;
+
+      const afterStock =
+        beforeStock - required;
+
+     updates.push({
+  inventoryItemId: recipe.inventoryItemId,
+  inventoryItemName: invData.name || "",
+
+  quantity: required,
+
+  purchaseUnit:
+    invData.purchaseUnit ||
+    invData.consumptionUnit ||
+    "gm",
+
+  consumptionUnit:
+    invData.consumptionUnit || "pcs",
+
+  conversionFactor:
+    Number(invData.conversionFactor) || 1,
+
+  averageCost:
+    Number(invData.averageCost) || 0,
+
+  costPerUnit: 0,
+});
+    }
+  }
+
+  return updates;
+}
