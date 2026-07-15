@@ -40,7 +40,13 @@ export async function getDepartmentStock(
         purchaseUnit: data.purchaseUnit ?? "",
         consumptionUnit: data.consumptionUnit ?? "",
         conversionFactor: Number(data.conversionFactor ?? 1),
-
+ purchaseMappings: Array.isArray(data?.purchaseMappings)
+    ? data.purchaseMappings.map((m: any) => ({
+        purchaseUnit: m.purchaseUnit ?? "",
+        consumptionUnit: m.consumptionUnit ?? "",
+        factor: Number(m.factor ?? 1),
+      }))
+    : [],
         updatedAt:
           data.updatedAt &&
           typeof data.updatedAt.toMillis === "function"

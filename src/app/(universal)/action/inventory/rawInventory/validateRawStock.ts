@@ -1,10 +1,10 @@
 export function validateRawStock(updates: any[]) {
   for (const u of updates) {
-console.log(u.inventoryItemName, u.prev,u.required,  u.quantity,  u.next);
+//console.log(u.inventoryItemName, u.storeStock,u.sendQty,    u. afterStock);
     
     if (u.prev < u.quantity) {
       throw new Error(
-        `${u.itemName}: Available ${u.prev} ${u.transactionUnit}, Required ${u.quantity} ${u.transactionUnit}`
+        `${u.inventoryItemName}: Available ${u.storeStock} ${u.transactionUnit}, Required ${u.sendQty} ${u.transactionUnit}`
       );
     }
   }

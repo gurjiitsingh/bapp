@@ -173,7 +173,7 @@ export default function InventoryTransactionTable({
     <div className="flex flex-col">
 
       {tx.purchaseUnit &&
-      tx.purchaseUnit !== tx.unit &&
+      tx.purchaseUnit !== tx.consumptionUnit &&
       tx.conversionFactor ? (
         <>
           <span className="font-medium">
@@ -186,14 +186,14 @@ export default function InventoryTransactionTable({
 
           <span className="text-xs text-gray-500">
             {tx.unitCost != null
-              ? `${formatPriceS(tx.unitCost)} / ${tx.unit}`
+              ? `${formatPriceS(tx.unitCost)} / ${tx.consumptionUnit}`
               : "-"}
           </span>
         </>
       ) : (
         <span className="font-medium">
           {tx.unitCost != null
-            ? `${formatPrice(tx.unitCost)} / ${tx.unit}`
+            ? `${formatPrice(tx.unitCost)} / ${tx.consumptionUnit}`
             : "-"}
         </span>
       )}
@@ -210,7 +210,7 @@ export default function InventoryTransactionTable({
                 <div className="flex flex-col">
 
                   {tx.purchaseUnit &&
-                  tx.purchaseUnit !== tx.unit &&
+                  tx.purchaseUnit !== tx.consumptionUnit &&
                   tx.conversionFactor ? (
                     <>
                
@@ -226,18 +226,18 @@ export default function InventoryTransactionTable({
                       <span className="text-xs text-gray-500">
                         {formatQuantity(
                           tx.quantity,
-                          tx.unit
+                          tx.consumptionUnit
                         )}{" "}
-                        {tx.unit}
+                        {tx.consumptionUnit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
                       {formatQuantity(
                         tx.quantity,
-                        tx.unit
+                        tx.consumptionUnit
                       )}{" "}
-                      {tx.unit}
+                      {tx.consumptionUnit}
                     </span>
                   )}
 
@@ -256,7 +256,7 @@ export default function InventoryTransactionTable({
                 <div className="flex flex-col">
 
                   {tx.purchaseUnit &&
-                  tx.purchaseUnit !== tx.unit &&
+                  tx.purchaseUnit !== tx.consumptionUnit &&
                   tx.conversionFactor ? (
                     <>
                       <span className="font-medium">
@@ -271,18 +271,18 @@ export default function InventoryTransactionTable({
                       <span className="text-xs text-gray-500">
                         {formatQuantity(
                           tx.beforeStock,
-                          tx.unit
+                          tx.consumptionUnit
                         )}{" "}
-                        {tx.unit}
+                        {tx.consumptionUnit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
                       {formatQuantity(
                         tx.beforeStock,
-                        tx.unit
+                        tx.consumptionUnit
                       )}{" "}
-                      {tx.unit}
+                      {tx.consumptionUnit}
                     </span>
                   )}
 
@@ -295,7 +295,7 @@ export default function InventoryTransactionTable({
                 <div className="flex flex-col">
 
                   {tx.purchaseUnit &&
-                  tx.purchaseUnit !== tx.unit &&
+                  tx.purchaseUnit !== tx.consumptionUnit &&
                   tx.conversionFactor ? (
                     <>
                       <span className="font-medium">
@@ -310,18 +310,18 @@ export default function InventoryTransactionTable({
                       <span className="text-xs text-gray-500">
                         {formatQuantity(
                           tx.afterStock,
-                          tx.unit
+                          tx.consumptionUnit
                         )}{" "}
-                        {tx.unit}
+                        {tx.consumptionUnit}
                       </span>
                     </>
                   ) : (
                     <span className="font-medium">
                       {formatQuantity(
                         tx.afterStock,
-                        tx.unit
+                        tx.consumptionUnit
                       )}{" "}
-                      {tx.unit}
+                      {tx.consumptionUnit}
                     </span>
                   )}
 

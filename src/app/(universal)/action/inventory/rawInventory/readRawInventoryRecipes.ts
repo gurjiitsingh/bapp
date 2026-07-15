@@ -59,27 +59,46 @@ export async function readRawInventoryRecipes(
       const afterStock =
         beforeStock - required;
 
-     updates.push({
+updates.push({
+  ref: inventoryRef,
+
   inventoryItemId: recipe.inventoryItemId,
   inventoryItemName: invData.name || "",
 
-  quantity: required,
+  // ===== Units =====
+  purchaseQuantity: 0,
 
   purchaseUnit:
     invData.purchaseUnit ||
     invData.consumptionUnit ||
     "gm",
 
-  consumptionUnit:
-    invData.consumptionUnit || "pcs",
-
   conversionFactor:
     Number(invData.conversionFactor) || 1,
 
+  quantity: required,
+
+  transactionUnit:
+    invData.consumptionUnit || "gm",
+     consumptionUnit:
+    invData.consumptionUnit || "gm",
+
+  // ===== Cost =====
   averageCost:
     Number(invData.averageCost) || 0,
 
-  costPerUnit: 0,
+  stockValue:
+    Number(invData.stockValue) || 0,
+
+  unitCost:
+    Number(invData.averageCost) || 0,
+costPerUnit:
+    Number(invData.averageCost) || 0,
+  purchaseUnitCost: 0,
+
+  // ===== Stock =====
+  prev: beforeStock,
+  next: afterStock,
 });
     }
   }

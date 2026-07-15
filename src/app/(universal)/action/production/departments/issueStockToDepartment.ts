@@ -41,20 +41,15 @@ export async function issueStockToDepartment(
       // 1. PREPARE RAW REQUEST
       // ==========================================
 
-      // const rawRequest = input.items.map((item) => ({
-      //   inventoryItemId: item.inventoryItemId,
-      //   quantity:
-      //     item.quantity *
-      //     (item.conversionFactor || 1),
-      // }));
 
-         const rawRequest = input.items.map((item) => ({
-                inventoryItemId: item.inventoryItemId,
-                quantity: item.quantity * (item.conversionFactor || 1),
-                averageCostDpt: item.averageCost,
-                purchaseUnitDpt: item.purchaseUnit,
-                conversionFactorUsed: item.conversionFactor || 1,
-            }));
+
+      const rawRequest = input.items.map((item) => ({
+        inventoryItemId: item.inventoryItemId,
+        quantity: item.quantity * (item.conversionFactor || 1),
+        averageCostDpt: item.averageCost,
+        purchaseUnitDpt: item.purchaseUnit,
+        conversionFactorUsed: item.conversionFactor || 1,
+      }));
 
       // ==========================================
       // 2. READ RAW INVENTORY
@@ -65,7 +60,7 @@ export async function issueStockToDepartment(
       //     tx,
       //     rawRequest
       //   );
-
+      console.log("pt-----------------------0.3")
       const rawUpdates =
         await readRawInventoryData(
           tx,
@@ -78,20 +73,20 @@ export async function issueStockToDepartment(
       // ==========================================
       // 3. READ DEPARTMENT STOCK
       // ==========================================
-
+      console.log("pt-----------------------0.5")
       const departmentUpdates =
         await getDepartmentStockData(
           tx,
           input.departmentId,
           input.items
         );
-
+      console.log("pt-----------------------0.5")
       // ==========================================
       // 4. VALIDATE RAW STOCK
       // ==========================================
 
       validateRawStock(rawUpdates);
-
+      console.log("pt-----------------------1")
       // ==========================================
       // 5. WRITE DEPARTMENT STOCK
       // ==========================================
@@ -102,7 +97,7 @@ export async function issueStockToDepartment(
           update,
         });
       }
-
+      console.log("pt-----------------------2")
       // ==========================================
       // 6. WRITE DEPARTMENT LEDGER
       // ==========================================
@@ -145,38 +140,38 @@ export async function issueStockToDepartment(
           createdAt: now,
         });
       }
-
+      console.log("pt-----------------------3")
       // ==========================================
       // 7. WRITE RAW INVENTORY
       // ==========================================
 
-      // await applyRawInventoryWrites(
-      //   tx,
-      //   rawUpdates,
-      //   transferId,
-      //   "TRANS TO DEPT",
-      //   "OUT",
-      //   "send to  department",
-      //   "system",
-      //   "PRODUCTION",
+      await applyRawInventoryWrites(
+        tx,
+        rawUpdates,
+        transferId,
+        "TRANS TO DEPT",
+        "OUT",
+        "send to  department",
+        "system",
+        "PRODUCTION",
 
-      // );
+      );
 
-         await writeInventoryData_StoreAndDpt(
-                      tx,
-                      rawUpdates,
-                      transferId,
-                      "OUT"
-                  );
-      
+      await writeInventoryData_StoreAndDpt(
+        tx,
+        rawUpdates,
+        transferId,
+        "OUT"
+      );
 
-         await applyTransactionInventory_StoreAndDpt(
-                      tx,
-                      rawUpdates,
-                      transferId,
-                      "STROE TO DPT",
-                      "OUT"
-                  );
+
+      await applyTransactionInventory_StoreAndDpt(
+        tx,
+        rawUpdates,
+        transferId,
+        "STROE TO DPT",
+        "OUT"
+      );
 
 
     });

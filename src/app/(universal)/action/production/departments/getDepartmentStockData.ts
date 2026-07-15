@@ -44,11 +44,17 @@ export interface DepartmentStockUpdate {
   newQuantity: number;
 
   averageCost?: number;
-   newAverageCost?: number;
+  newAverageCost?: number;
 
   purchaseUnit: string;
   consumptionUnit: string;
   conversionFactor: number;
+
+  purchaseMappings?: {
+    purchaseUnit: string;
+    consumptionUnit: string;
+    factor: number;
+  }[];
 }
 
 export async function getDepartmentStockData(
@@ -61,6 +67,23 @@ export async function getDepartmentStockData(
   const updates: DepartmentStockUpdate[] = [];
 
   for (const item of items) {
+
+
+    const inventoryRef = adminDb
+      .collection("inventoryItems")
+      .doc(item.inventoryItemId);
+
+    const inventorySnap = await tx.get(inventoryRef);
+
+    if (!inventorySnap.exists) {
+      throw new Error(
+        `Inventory not found: ${item.inventoryItemId}`
+      );
+    }
+
+    const inventoryData = inventorySnap.data()!;
+
+
     const query = db
       .collection("departmentStock")
       .where("departmentId", "==", departmentId)
@@ -73,18 +96,26 @@ export async function getDepartmentStockData(
       const doc = snap.docs[0];
       const data = doc.data();
 
-    const currentStockDPT = Number(data.quantity || 0);
-const currentAvgCost = Number(data.averageCost || 0);
+      const currentStockDPT = Number(data.quantity || 0);
+      const currentAvgCost = Number(data.averageCost || 0);
 
-const newQuantity = currentStockDPT + item.quantity;
+      const newQuantity = currentStockDPT + item.quantity;
 
-const newAverageCost =
-  newQuantity === 0
-    ? 0
-    : (
-        currentStockDPT * currentAvgCost +
-        item.quantity * item.averageCost
-      ) / newQuantity;
+      const newAverageCost =
+        currentStockDPT === 0 || currentAvgCost === 0
+          ? item.averageCost
+          : (
+            currentStockDPT * currentAvgCost +
+            item.quantity * item.averageCost
+          ) / newQuantity;
+
+      console.log("currentStockDPT-----------------------------", currentStockDPT)
+      console.log("currentAvgCost-----------------------------", currentAvgCost)
+      console.log("item.quantity-----------------------------", item.quantity)
+      console.log("item.averageCost-----------------------------", item.averageCost)
+      console.log("newQuantity-----------------------------", newQuantity)
+      console.log("newAverageCost-----------------------------", newAverageCost.toFixed(10));
+      const avgCost = Number(newAverageCost.toFixed(10))
 
       updates.push({
         ref: doc.ref,
@@ -95,14 +126,16 @@ const newAverageCost =
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
 
-        currentQuantity:currentStockDPT,
+        currentQuantity: currentStockDPT,
         newQuantity: currentStockDPT + item.quantity,
 
-          averageCost: newAverageCost,
+        averageCost: newAverageCost,
+        newAverageCost,
 
         purchaseUnit: item.purchaseUnit,
         consumptionUnit: item.consumptionUnit,
         conversionFactor: item.conversionFactor,
+        purchaseMappings: inventoryData.purchaseMappings ?? [],
       });
     } else {
       updates.push({
@@ -117,11 +150,12 @@ const newAverageCost =
         currentQuantity: 0,
         newQuantity: item.quantity,
 
-        averageCost: item.averageCost,
+        averageCost: 1,// item.averageCost,
 
         purchaseUnit: item.purchaseUnit,
         consumptionUnit: item.consumptionUnit,
         conversionFactor: item.conversionFactor,
+        purchaseMappings: inventoryData.purchaseMappings ?? [],
       });
     }
   }

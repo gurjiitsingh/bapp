@@ -37,17 +37,13 @@ export async function manualStockProduction(
 
 
     const now = new Date();
-
     const datePart = now
       .toISOString()
       .slice(0, 10)
       .replace(/-/g, ""); // 20260710
-
     const timestamp = Date.now(); // unique
-
     const deptCode =
       input.departmentName?.replace(/\s+/g, "-").toUpperCase() || "DEPT";
-
     const batchId = `${deptCode}-${datePart}-${timestamp}`;
 
 

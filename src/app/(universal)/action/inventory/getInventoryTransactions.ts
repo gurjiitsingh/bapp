@@ -54,8 +54,8 @@ export async function getInventoryTransactions({
         quantity:
           data.quantity || 0,
 
-        unit:
-          data.unit || "",
+       consumptionUnit:
+          data.consumptionUnit || "",
 
         unitCost:
           data.unitCost || 0,

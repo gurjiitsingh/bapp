@@ -1,8 +1,9 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { before } from "node:test";
 
-export async function readRawInventoryData(
+export async function readRawInventoryData( 
   tx: FirebaseFirestore.Transaction,
   direction: "IN" | "OUT",
   items: {
@@ -59,14 +60,14 @@ updates.push({
   ref: inventoryRef,
 
   inventoryItemId: item.inventoryItemId,
-  itemName: data.name || "",
+  inventoryItemName: data.name || "",
 
   // ===== Quantity =====
   sendQty:qty, // 🔄 was "quantity"
 
   // ===== Units =====
   purchaseUnit: item.purchaseUnitDpt, // 🔄 was store purchaseUnit
-
+transactionUnit: item.purchaseUnitDpt,
   consumptionUnit:
     data.consumptionUnit || "gm",
 
@@ -75,7 +76,7 @@ updates.push({
 
   // ===== Cost =====
   storeAvgCost, // 🔄 was "unitCost"
-
+unitCost:storeAvgCost,
   dptAvgCost:
     Number(item.averageCostDpt) || 0,
 
@@ -85,8 +86,11 @@ updates.push({
 
   // ===== Stock =====
   storeStock, // 🔄 was "prev"
-
+  currentStock:storeStock,
+  before: storeStock,  
   afterStock, // 🔄 now calculated earlier (was later)
+  prev: storeStock, 
+  next: afterStock,
 });
   }
 

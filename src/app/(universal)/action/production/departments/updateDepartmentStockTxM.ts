@@ -27,9 +27,9 @@ export async function updateDepartmentStockTxM({
 const stockValue = StockQtyDPT * update.averageCost + qtyChange * update.averageCost;
 const newAvgCost = stockValue / newQuantity;
 
-console.log("currentQuantity---------------",update.inventoryItemName,":",  StockQtyDPT)
-console.log("transferQuantity---------------",update.inventoryItemName,":",  update.transferQuantity)
-console.log("newQuantity---------------",update.inventoryItemName,":",  newQuantity)
+// console.log("currentQuantity---------------",update.inventoryItemName,":",  StockQtyDPT)
+// console.log("transferQuantity---------------",update.inventoryItemName,":",  update.transferQuantity)
+// console.log("newQuantity---------------",update.inventoryItemName,":",  newQuantity)
   
 
 

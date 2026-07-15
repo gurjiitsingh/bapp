@@ -6,8 +6,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 export default function BatchDetails({ batch }: any) {
+
+   
 
   const getItemTotal = (item: any) =>
     item.quantity * item.averageCost * item.conversionFactor;
@@ -189,7 +192,14 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
             </div>
 
             <div>
-              {item.quantity} {item.purchaseUnit}
+            
+
+                       {displayStock(
+                item.quantity,
+                item.purchaseUnit,
+                item.consumptionUnit,
+                item.conversionFactor
+              )}
             </div>
 
             <div>

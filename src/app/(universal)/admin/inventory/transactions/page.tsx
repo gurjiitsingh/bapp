@@ -24,6 +24,8 @@ export default async function Page({
       page: currentPage,
     });
 
+    console.log("result-------------", result)
+
   return (
     <div className="p-4 md:p-6">
 

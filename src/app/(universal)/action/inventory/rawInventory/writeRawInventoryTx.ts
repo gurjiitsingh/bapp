@@ -4,7 +4,7 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 
 
-export async function applyRawInventoryWrites(
+export async function writeRawInventoryTx(
   tx: FirebaseFirestore.Transaction,
   updates: any[],
   orderId: string,
@@ -16,7 +16,7 @@ export async function applyRawInventoryWrites(
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
 
-  //console.log('tr updates-------------------------',updates)
+  
   let totalRawMaterialCost = 0;
 
   for (const u of updates) {
@@ -35,11 +35,12 @@ export async function applyRawInventoryWrites(
       (Number(u.stockValue) || 0) - consumedValue
     );
 
-    tx.update(u.ref, {
-      currentStock: u.afterStock,
-      stockValue: Number(newStockValue.toFixed(2)),
-      updatedAt: now,
-    });
+    // IT TAEK STOCK FROM DPT SO NO UPDATE
+    // tx.update(u.ref, {
+    //   currentStock: u.next,
+    //   stockValue: Number(newStockValue.toFixed(2)),
+    //   updatedAt: now,
+    // });
 
     // =====================================
     // Ledger
@@ -66,9 +67,9 @@ export async function applyRawInventoryWrites(
       conversionFactor: u.conversionFactor,
 
       quantity: u.quantity || 0,
-      // unit: u.transactionUnit,
-consumptionUnit:u.transactionUnit,
-      unitCost: u.unitCost,
+      unit: u.purchaseUnit, //u.transactionUnit,
+
+      unitCost: u.averageCost,
 
       beforeStock: u.prev,
       afterStock: u.next,

@@ -10,7 +10,7 @@ import {
   type DepartmentStock,
 } from "@/app/(universal)/action/production/departments/getDepartmentStock";
 
-import { autoStockProduction, updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/autoStockProduction";
+import { autoStockProduction  } from "@/app/(universal)/action/stock-finished/autoStockProduction";
 
 import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
@@ -175,10 +175,10 @@ export default function ProductionForm({
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">
-                Produce Finished Goods
+                Auto Production
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Record production and increase finished stock.
+                Production and inventory record.
               </p>
             </div>
 

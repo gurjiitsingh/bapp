@@ -16,7 +16,7 @@ export async function applyTransactionInventory_StoreAndDpt(
 
   for (const u of updates) {
 
-console.log("u purchaseUnit----------------------", u.purchaseUnit)
+//console.log("u purchaseUnit----------------------", u.purchaseUnit)
 
     const quantity = Number(u.sendQty || 0);
    // const unitCost = Number(u.storeAvgCost || 0);
@@ -63,7 +63,7 @@ console.log("u purchaseUnit----------------------", u.purchaseUnit)
       transactionId: ledgerRef.id,
 
       inventoryItemId: u.inventoryItemId,
-      inventoryItemName: u.itemName,
+      inventoryItemName: u.inventoryItemName,
 
       supplierId: "",
       supplierName: "",
@@ -80,7 +80,7 @@ console.log("u purchaseUnit----------------------", u.purchaseUnit)
         u.conversionFactor,
 
       quantity,
-      unit: u.consumptionUnit,
+      consumptionUnit: u.consumptionUnit,
 
       unitCost:unitCost,
 

@@ -61,11 +61,11 @@ const newAvgPrice =
 
 
 
-    console.log("dptAvgCost:", dptAvgCost)
-    console.log("sendQty:", sendQty)
-    console.log("storeAvgCost:", storeAvgCost)
-    console.log("storeStock:", storeStock)
-    console.log("convertionfactor:", u.conversionFactor)
+    // console.log("dptAvgCost:", dptAvgCost)
+    // console.log("sendQty:", sendQty)
+    // console.log("storeAvgCost:", storeAvgCost)
+    // console.log("storeStock:", storeStock)
+    // console.log("convertionfactor:", u.conversionFactor)
 
 
     // ✅ Update Inventory

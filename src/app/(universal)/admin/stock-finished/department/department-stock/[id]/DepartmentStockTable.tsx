@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 import Link from "next/link";
 import { formatQuantity } from "@/utils/inventory/formatQty";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
    departmentName: string; 
@@ -31,6 +32,7 @@ export default function DepartmentStockTable({
       .toLowerCase()
       .includes(search.toLowerCase())
   );
+   
 
     const [returnOpen, setReturnOpen] = useState(false);
 
@@ -163,12 +165,15 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
                 {/* //  {item.quantity.toLocaleString("en-IN")} */}
 
    <span className="font-medium">
-                        {formatQuantity(
-                          item.quantity /
-                            item.conversionFactor,
-                          item.purchaseUnit
-                        )}{" "}
-                        {item.purchaseUnit}
+ 
+
+     {displayStock(
+                item.quantity!,
+                item.purchaseUnit,
+                item.consumptionUnit,
+                item.conversionFactor
+              )}
+                     
                       </span>
 
       

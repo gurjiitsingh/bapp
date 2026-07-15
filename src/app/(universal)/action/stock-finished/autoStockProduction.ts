@@ -6,11 +6,16 @@ import { applyFinishedTransactionsRead } from "./finishedStockLedger/applyFinish
 import { getDepartmentStockDataM } from "../production/departments/getDepartmentStockDataM";
 import { readRawInventoryRecipes } from "../inventory/rawInventory/readRawInventoryRecipes";
 import { updateDepartmentStockTxM } from "../production/departments/updateDepartmentStockTxM";
+import { applyRawInventoryWrites } from "../inventory/rawInventory/applyRawInventoryWrites";
+import { writeRawInventoryTx } from "../inventory/rawInventory/writeRawInventoryTx";
+import { getManualRawInventoryData } from "../production/getManualRawInventoryData";
+import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
+import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinishedTransactionsWrite";
 
 
 type AdjustStockType = {
   id: string;
-  batchId: string;
+  batchId?: string;
   productName: string;
   sellingPrice: number;
   wholesalePrice: number;
@@ -31,7 +36,7 @@ type AdjustStockType = {
 
 export async function autoStockProduction({
   id,
-  batchId,
+  //batchId,
   productName,
   sellingPrice,
   wholesalePrice,
@@ -61,14 +66,20 @@ export async function autoStockProduction({
       return { success: false, message: "Invalid quantity" };
     }
 
+        const now = new Date();
+    const datePart = now
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, ""); // 20260710
+    const timestamp = Date.now(); // unique
+    const deptCode = departmentName?.replace(/\s+/g, "-").toUpperCase() || "DEPT";
+    const batchId = `${deptCode}-${datePart}-${timestamp}`;
 
     await db.runTransaction(async (tx) => {
-
       // =========================
       // ✅ 1. READ
       // =========================
       let rawUpdates: any[] = [];
-
 
       if (direction === "IN") {
         rawUpdates = await readRawInventoryRecipes(tx, [
@@ -87,22 +98,17 @@ export async function autoStockProduction({
           tx,
           departmentId,
           rawUpdates
-        );
-
-
-
+        );   
+        
       //=============================
       // READ STOCK 
       //=============================
-
 
       const finishedData = await applyFinishedTransactionsRead(tx, id);
 
       //=============================
       // READ STOCK LOCATION
       //=============================
-
-
 
       const storeLocation = await getStockLocation({
         tx,
@@ -116,7 +122,16 @@ export async function autoStockProduction({
       // ✅ 4. CREATE BATCH
       // =========================
 
+      const totalStockValue = Number(
+  rawUpdates
+    .reduce(
+      (total, item) => total + (Number(item.stockValue) || 0),
+      0
+    )
+    .toFixed(2)
+);
 
+const newBatchAvgCost = totalStockValue / quantity;
 
       const batchRef = db
         .collection("production_batches")
@@ -126,6 +141,8 @@ export async function autoStockProduction({
         id: batchId,
         departmentId: departmentId,
         departmentName: departmentName,
+        outputQty: quantity,
+        avgCostPerUnit: newBatchAvgCost,
         createdAt: now,
         note: note || "",
         startTime: now,
@@ -133,18 +150,16 @@ export async function autoStockProduction({
         isClosed: false,
       });
 
-
-
       // =========================
-      // ✅ 5. SAVE ITEMS 
+      // ✅ 5. SAVE ITEMS IN BATCH
       // =========================
-      console.log("rawUpdates-----------------------", rawUpdates)
-      console.log("departmentRecord-----------------------", departmentRecord)
+       
 
       for (const item of rawUpdates) {
+        console.log("rawUpdates-----------------------",item)
 
         const ref = db.collection("production_batch_items").doc();
-
+ 
         tx.set(ref, {
           id: ref.id,
           batchId,
@@ -179,25 +194,9 @@ export async function autoStockProduction({
           transaction: tx,
           update,
           qtyChange: -item.quantity,
-        });
-        //console.log("pt----------------------------", 5)
+        });      
+       }
 
-        //  await updateDepartmentStockTxMNew({
-        //         departmentId: input.departmentId,
-        //         inventoryItemId: item.inventoryItemId,
-        //         inventoryItemName: item.inventoryItemName,
-        //         averageCost: item.averageCost,
-        //         conversionFactor: item.conversionFactor,
-        //         purchaseUnit: item.purchaseUnit,
-        //         consumptionUnit: item.consumptionUnit,
-        //         qtyChange: -item.quantity,
-        //       });
-
-
-      }
-
-
-      //   console.log("department stock-------------", departmentRecord)
 
       let totalRawMaterialCost = 0;
       for (const u of rawUpdates) {
@@ -218,15 +217,13 @@ export async function autoStockProduction({
 
       }
 
-
-
-
       // =========================
       // ✅ 2. VALIDATE
       // =========================
-      // if (direction === "IN") {
-      //   validateRawStock(rawUpdates);
-      // }
+      
+      if (direction === "IN") {
+        validateRawStock(rawUpdates);
+      }
 
 
       // =========================
@@ -238,26 +235,22 @@ export async function autoStockProduction({
       // 1. Consume raw inventory
 
 
-      // if (direction === "IN") {
-      //   await applyRawInventoryWrites(
-      //     tx,
-      //     rawUpdates,
-      //     "production-" + id,
-      //     "CONSUMPTION",
-      //     "OUT",
-      //     "Consumed in producttion",
-      //     "PRODUCTION",
-      //     "PROD"
-      //   )
-      // }
+      if (direction === "IN") {
+        await writeRawInventoryTx(
+          tx,
+          rawUpdates,
+          "production-" + id,
+          "CONSUMPTION",
+          "OUT",
+          "Consumed in producttion",
+          "PRODUCTION",
+          "PRODUCTION"
+        )
 
-      //     type: string,
-      // direction: "OUT" | "IN" = "OUT",
-      // note: string = "Consumed in production",
-      // createdBy: string = "system",
-      // source: string = "PRODUCTION",
 
-      const productionCostPerUnit =
+      }
+
+       const productionCostPerUnit =
         quantity > 0
           ? totalRawMaterialCost / quantity
           : 0;
@@ -265,25 +258,23 @@ export async function autoStockProduction({
 
 
       // 1 ✅ Update stock (finished currentStock)
-      // 2 ✅ Create ledger entry (stockLedgerFinished transactions)
-      // 2. Update finished product
-      // await applyFinishedTransactionsWrite(tx, {
-      //   productId: id,
-      //   batchId: "ABC",
-      //   productName,
-      //   type: "PRODUCTION",
-      //   direction,
-      //   quantity,
-      //   transactionUnit,
+        await applyFinishedTransactionsWrite(tx, {
+        productId: id,
+        batchId: "ABC",
+        productName,
+        type: "PRODUCTION",
+        direction,
+        quantity,
+        transactionUnit,
 
-      //   unitPrice: productionCostPerUnit,
-      //   totalAmount: totalRawMaterialCost,
-      //   note,
-      //   createdBy,
-      //   source: "ADMIN",
+        unitPrice: productionCostPerUnit,
+        totalAmount: totalRawMaterialCost,
+        note,
+        createdBy,
+        source: "ADMIN",
 
-      //   readResult: finishedData,
-      // });
+        readResult: finishedData,
+      });
 
 
 
