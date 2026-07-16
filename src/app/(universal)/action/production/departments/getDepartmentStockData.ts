@@ -23,20 +23,7 @@ export async function getDepartmentStockData(
   const updates: DepartmentStockUpdate[] = [];
 
   for (const item of items) {
-    // Inventory Item
-    const inventoryRef = adminDb
-      .collection("inventoryItems")
-      .doc(item.inventoryItemId);
-
-    const inventorySnap = await tx.get(inventoryRef);
-
-    if (!inventorySnap.exists) {
-      throw new Error(
-        `Inventory not found: ${item.inventoryItemId}`
-      );
-    }
-
-    const inventoryData = inventorySnap.data()!;
+  
 
     // Department Stock
     const query = adminDb
@@ -65,9 +52,9 @@ export async function getDepartmentStockData(
 }
 
     if (dirction == "IN") {
-      newQuantity = currentQuantity + item.quantity * item.conversionFactor;}
+      newQuantity = currentQuantity + item.quantity ;}
       else {
-        newQuantity = currentQuantity - item.quantity * item.conversionFactor;
+        newQuantity = currentQuantity - item.quantity ;
       }
 
 let newAverageCost = 0;
@@ -115,8 +102,7 @@ newStockValue = currentQuantity * currentAverageCost;
         consumptionUnit: item.consumptionUnit,
         conversionFactor: item.conversionFactor,
 
-        purchaseMappings:
-          inventoryData.purchaseMappings ?? [],
+       
       });
     }
 

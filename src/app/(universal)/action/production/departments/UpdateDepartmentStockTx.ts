@@ -19,7 +19,7 @@ export async function updateDepartmentStockTx({
 
   const newStockValue = update.newQuantity! * update.newAverageCost!;
 
-  console.log("update in dpt stock-----------------------", update)
+  
  
   if (update.exists && update.ref) {
 

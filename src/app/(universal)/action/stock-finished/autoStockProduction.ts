@@ -11,6 +11,9 @@ import { writeRawInventoryTx } from "../inventory/rawInventory/writeRawInventory
 import { getManualRawInventoryData } from "../production/getManualRawInventoryData";
 import { validateRawStock } from "../inventory/rawInventory/validateRawStock";
 import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinishedTransactionsWrite";
+import { getDepartmentStockData } from "../production/departments/getDepartmentStockData";
+import { updateDepartmentStockTx } from "../production/departments/UpdateDepartmentStockTx";
+import { getDepartmentStockDataForProduction } from "../production/departments/getDepartmentStockDataForProduction";
 
 
 type AdjustStockType = {
@@ -66,7 +69,7 @@ export async function autoStockProduction({
       return { success: false, message: "Invalid quantity" };
     }
 
-        const now = new Date();
+    const now = new Date();
     const datePart = now
       .toISOString()
       .slice(0, 10)
@@ -79,10 +82,10 @@ export async function autoStockProduction({
       // =========================
       // ✅ 1. READ
       // =========================
-      let rawUpdates: any[] = [];
+      let rawInventoryReads: any[] = [];
 
       if (direction === "IN") {
-        rawUpdates = await readRawInventoryRecipes(tx, [
+        rawInventoryReads = await readRawInventoryRecipes(tx, [
           { productId: id, quantity }
         ]);
       }
@@ -94,12 +97,15 @@ export async function autoStockProduction({
 
 
       const departmentRecord =
-        await getDepartmentStockDataM(
+        await getDepartmentStockDataForProduction(
           tx,
           departmentId,
-          rawUpdates
-        );   
-        
+          "OUT",
+          rawInventoryReads
+        );
+
+      //console.log("recipies needed-----------------------",departmentRecord)
+
       //=============================
       // READ STOCK 
       //=============================
@@ -123,15 +129,15 @@ export async function autoStockProduction({
       // =========================
 
       const totalStockValue = Number(
-  rawUpdates
-    .reduce(
-      (total, item) => total + (Number(item.stockValue) || 0),
-      0
-    )
-    .toFixed(2)
-);
+        rawInventoryReads
+          .reduce(
+            (total, item) => total + (Number(item.stockValue) || 0),
+            0
+          )
+          .toFixed(2)
+      );
 
-const newBatchAvgCost = totalStockValue / quantity;
+      const newBatchAvgCost = totalStockValue / quantity;
 
       const batchRef = db
         .collection("production_batches")
@@ -153,36 +159,25 @@ const newBatchAvgCost = totalStockValue / quantity;
       // =========================
       // ✅ 5. SAVE ITEMS IN BATCH
       // =========================
-       
 
-      for (const item of rawUpdates) {
-        console.log("rawUpdates-----------------------",item)
+      const departmentMap = new Map(
+        departmentRecord.map((u) => [
+          u.inventoryItemId,
+          u,
+        ])
+      );
 
-        const ref = db.collection("production_batch_items").doc();
- 
-        tx.set(ref, {
-          id: ref.id,
-          batchId,
-          inventoryItemId: item.inventoryItemId,
-          inventoryItemName: item.inventoryItemName,
-          quantity: item.quantity,
-          averageCost: item.averageCost,        // 🔥 RAW (per gm)
-          purchaseUnit: item.purchaseUnit,
-          conversionFactor: item.conversionFactor,
-          consumptionUnit: item.consumptionUnit,
-          costPerUnit: item.costPerUnit,
-          totalCost: item.quantity * item.costPerUnit,
-          createdAt: now,
-        });
 
+      for (const item of rawInventoryReads) {
 
         // =========================
         // ✅ 6. CONSUME DEPARTMENT STOCK
         // =========================
 
-        const update = departmentRecord.find(
-          (u) => u.inventoryItemId === item.inventoryItemId
+        const update = departmentMap.get(
+          item.inventoryItemId
         );
+
 
         if (!update) {
           throw new Error(
@@ -190,67 +185,96 @@ const newBatchAvgCost = totalStockValue / quantity;
           );
         }
 
-        await updateDepartmentStockTxM({
+        const ref = db.collection("production_batch_items").doc();
+
+     const averageCost = Number(update.newAverageCost);
+
+tx.set(ref, {
+  id: ref.id,
+  batchId,
+
+  inventoryItemId: item.inventoryItemId,
+  inventoryItemName: item.inventoryItemName,
+
+  quantity: item.quantity,
+
+  averageCost,
+  costPerUnit: averageCost,
+  totalCost: Number(item.quantity) * averageCost,
+
+  purchaseUnit: update.purchaseUnit,
+  consumptionUnit: update.consumptionUnit,
+  conversionFactor: update.conversionFactor,
+
+  createdAt: now,
+});
+
+
+
+
+        await updateDepartmentStockTx({
           transaction: tx,
           update,
-          qtyChange: -item.quantity,
-        });      
-       }
+
+        });
+
+        //    await updateDepartmentStockTxM({
+        //   transaction: tx,
+        //   update,
+        //   qtyChange: -item.quantity,
+        // });     
+
+      }
+
 
 
       let totalRawMaterialCost = 0;
-      for (const u of rawUpdates) {
-        // =====================================
-        // Cost of this inventory item
-        // =====================================
 
+      for (const update of departmentRecord) {
         const consumedValue =
-          (Number(u.quantity) || 0) *
-          (Number(u.unitCost) || 0);
+          (Number(update.quantityChange) || 0) *
+          (Number(update.newAverageCost) || 0);
 
         totalRawMaterialCost += consumedValue;
-
-        const newStockValue = Math.max(
-          0,
-          (Number(u.stockValue) || 0) - consumedValue
-        );
-
       }
+
+      // let totalRawMaterialCost = 0;
+      // for (const u of rawInventoryReads) {
+      //   // =====================================
+      //   // Cost of this inventory item
+      //   // =====================================
+
+      //   const consumedValue =
+      //     (Number(u.quantity) || 0) *
+      //     (Number(u.unitCost) || 0);
+
+      //   totalRawMaterialCost += consumedValue;
+
+      //   const newStockValue = Math.max(
+      //     0,
+      //     (Number(u.stockValue) || 0) - consumedValue
+      //   );
+
+      // }
 
       // =========================
       // ✅ 2. VALIDATE
       // =========================
-      
+
       if (direction === "IN") {
-        validateRawStock(rawUpdates);
+        validateRawStock(rawInventoryReads);
       }
 
 
       // =========================
       // ✅ 3. WRITE
       // =========================
-      // 1 ✅ Update stock (inventroy currentStock)
-      // 2 ✅ Create ledger entry (stockLedgerInventory transactions)
 
-      // 1. Consume raw inventory
+      // 1 ✅ NO NEED TO UPDATE RAW INVENTORY PRODUCTION TAKE STOCK FROM DPT
 
 
-      if (direction === "IN") {
-        await writeRawInventoryTx(
-          tx,
-          rawUpdates,
-          "production-" + id,
-          "CONSUMPTION",
-          "OUT",
-          "Consumed in producttion",
-          "PRODUCTION",
-          "PRODUCTION"
-        )
 
-
-      }
-
-       const productionCostPerUnit =
+      const productionCostPerUnit =
         quantity > 0
           ? totalRawMaterialCost / quantity
           : 0;
@@ -258,7 +282,7 @@ const newBatchAvgCost = totalStockValue / quantity;
 
 
       // 1 ✅ Update stock (finished currentStock)
-        await applyFinishedTransactionsWrite(tx, {
+      await applyFinishedTransactionsWrite(tx, {
         productId: id,
         batchId: "ABC",
         productName,

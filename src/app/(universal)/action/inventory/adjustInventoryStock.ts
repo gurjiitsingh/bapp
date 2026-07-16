@@ -9,7 +9,7 @@ import {
   revalidateTag,
 } from "next/cache";
 
-
+import { InventoryLedgerType } from "@/lib/types/inventory/InventoryLedgerType";
 
 
 
@@ -18,6 +18,7 @@ import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionTy
 import { applyInventoryMovement } from "./applyInventoryMovement";
 import { applySupplierTransaction } from "../inventorySupplier/applySupplierTransaction";
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
+import { inventoryPurchase } from "./inventoryPurchase";
 
 type PaymentMethod =
   | "CASH"
@@ -228,7 +229,9 @@ if (type === "CLEAR") {
       // ================= UPDATE INVENTORY =================
 
 
-      await applyInventoryMovement(tx, {
+
+
+      await inventoryPurchase(tx, {
         inventoryItemId,
 
         type,
@@ -280,6 +283,8 @@ if (type === "CLEAR") {
 
         source: "WEB_ADMIN",
       });
+
+//======================== UPDAT SUPPLIER ACCONT =====================
       if (needsSupplierLedger && supplierId) {
         await updateSupplierAccount(tx, {
           supplierId,

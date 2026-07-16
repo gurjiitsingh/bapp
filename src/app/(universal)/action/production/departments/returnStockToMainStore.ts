@@ -2,13 +2,12 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { CreateProductionBatchInputType } from "@/lib/types/production/CreateProductionBatchInputType";
-import { getManualRawInventoryData } from "../getManualRawInventoryData";
+ 
 import { departmentStockTransaction } from "./departmentStockTransaction";
-import { updateDepartmentStockTxM } from "./updateDepartmentStockTxM";
-import { applyRawInventoryWritesM } from "../../inventory/rawInventory/applyRawInventoryWritesM";
+ 
+ 
 import { validateDepartmentStock } from "./validateDepartmentStock";
-import { getDepartmentStockDataM } from "./getDepartmentStockDataM";
-import { applyRawInventoryDptReturn } from "../../inventory/rawInventory/applyRawInventoryDptReturn";
+ 
 import { readRawInventoryData } from "../readRawInventoryData";
 import { writeInventoryData_StoreAndDpt } from "../../inventory/rawInventory/writeInventoryData_StoreAndDpt";
 import { applyTransactionInventory_StoreAndDpt } from "../../inventory/rawInventory/applyTransactionInventory_StoreAndDpt";
@@ -46,18 +45,31 @@ export async function returnStockToMainStore(
             // 1. PREPARE RAW REQUEST
             // ==========================================
 
-            const rawRequest = input.items.map((item) => ({
-                inventoryItemId: item.inventoryItemId,
-                quantity: item.quantity *   (item.conversionFactor || 1),
-                averageCostDpt: item.averageCost,
-                purchaseUnitDpt: item.purchaseUnit,
-                conversionFactorUsed: item.conversionFactor || 1,
-            })); 
+            const itemsInConsumptionUnit = input.items.map((item) => ({
+  ...item,
+  quantity: item.quantity * (item.conversionFactor || 1),
+}));
+
+   const rawRequest = itemsInConsumptionUnit.map((item) => ({
+  inventoryItemId: item.inventoryItemId,
+  quantity: item.quantity,
+  averageCostDpt: item.averageCost,
+  purchaseUnitDpt: item.purchaseUnit,
+  conversionFactorUsed: item.conversionFactor || 1,
+}));
+
+            // const rawRequest = input.items.map((item) => ({
+            //     inventoryItemId: item.inventoryItemId,
+            //     quantity: item.quantity *   (item.conversionFactor || 1),
+            //     averageCostDpt: item.averageCost,
+            //     purchaseUnitDpt: item.purchaseUnit,
+            //     conversionFactorUsed: item.conversionFactor || 1,
+            // })); 
 
             // ==========================================
             // 2. READ RAW INVENTORY
             // ==========================================
-            console.log("pt-------------------------1")
+             
             const rawUpdates =
                 await readRawInventoryData(
                     tx,
@@ -69,26 +81,26 @@ export async function returnStockToMainStore(
             // ==========================================
             // 3. READ DEPARTMENT STOCK
             // ==========================================
-            console.log("pt-------------------------2")
-            const departmentUpdates =
+           
+            const departmentRecord =
                 await getDepartmentStockData(
                     tx,
                     input.departmentId,
                     "OUT",
-                    input.items
+                      itemsInConsumptionUnit
                 );
-
+console.log("Dpt stock returned -----------------------",departmentRecord)
             // ==========================================
             // 4. VALIDATE RAW STOCK
             // ==========================================
 
-            validateDepartmentStock(departmentUpdates);
+            validateDepartmentStock(departmentRecord);
 
             // ==========================================
             // 5. WRITE DEPARTMENT STOCK
             // ==========================================
-            console.log("pt-------------------------3")
-            for (const update of departmentUpdates) {
+            
+            for (const update of departmentRecord) {
                 await updateDepartmentStockTx({ 
                     transaction: tx,
                     update,

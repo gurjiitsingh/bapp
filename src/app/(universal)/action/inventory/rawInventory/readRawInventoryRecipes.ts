@@ -62,10 +62,13 @@ export async function readRawInventoryRecipes(
 updates.push({
   ref: inventoryRef,
 
+  //======= Requried Feilds ===========
   inventoryItemId: recipe.inventoryItemId,
   inventoryItemName: invData.name || "",
+  quantity: required,
 
-  // ===== Units =====
+
+  // ===== On Requried Feilds =====
   purchaseQuantity: 0,
 
   purchaseUnit:
@@ -76,7 +79,7 @@ updates.push({
   conversionFactor:
     Number(invData.conversionFactor) || 1,
 
-  quantity: required,
+  
 
   transactionUnit:
     invData.consumptionUnit || "gm",
@@ -92,7 +95,7 @@ updates.push({
 
   unitCost:
     Number(invData.averageCost) || 0,
-costPerUnit:
+    costPerUnit:
     Number(invData.averageCost) || 0,
   purchaseUnitCost: 0,
 

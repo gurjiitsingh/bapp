@@ -14,7 +14,7 @@ const COST_TYPES = new Set([
     "CLEAR",
 ]);
 
-export async function applyInventoryMovement(
+export async function inventoryPurchase(
     tx: FirebaseFirestore.Transaction,
     {
         inventoryItemId,

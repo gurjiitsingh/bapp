@@ -118,7 +118,7 @@ export default function StockPurchaseForm({
   const unitCost = watch("unitCost", 0);
   const totalAmount = watch("totalAmount", 0);
 
-  const transactionUnit = watch("transactionUnit", "pcs");
+  const transactionUnit = watch("transactionUnit", "gm");
 
   const paymentStatus = watch("paymentStatus", "PAID");
 

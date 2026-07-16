@@ -76,8 +76,10 @@ export default function InventoryTransactionTable({
             </TableHead>
 
             <TableHead>
-              Supplier
-            </TableHead>
+                  Party
+                </TableHead>
+
+             
 
          
 
@@ -157,10 +159,17 @@ export default function InventoryTransactionTable({
 
               {/* SUPPLIER */}
 
-              <TableCell>
-                {tx.supplierName || "-"}
-              </TableCell>
+            <TableCell>
+  <div className="flex flex-col">
+    <span>{tx.partyName || "-"}</span>
 
+    {tx.partyType && (
+      <span className="text-xs text-gray-500">
+        {tx.partyType}
+      </span>
+    )}
+  </div>
+</TableCell>
              
 
             
