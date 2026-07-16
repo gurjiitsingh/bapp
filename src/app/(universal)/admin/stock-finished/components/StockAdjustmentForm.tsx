@@ -18,7 +18,7 @@ import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType"
 
 import { displayStock } from "@/utils/inventory/displayStock";
 import { ProductType } from "@/lib/types/productType";
-import { updateFinishedItemStock } from "@/app/(universal)/action/stock-finished/autoStockProduction";
+ 
 import { ProductStock } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
 import { adjustFinishedItemStock } from "@/app/(universal)/action/stock-finished/AdjustFinshedItemStock";

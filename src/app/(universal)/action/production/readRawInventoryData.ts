@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
 import { before } from "node:test";
 
 export async function readRawInventoryData( 
@@ -14,11 +15,12 @@ export async function readRawInventoryData(
     conversionFactorUsed: number;
   }[]
 ) {
-  const updates: any[] = [];
+  const updates: RawInventoryUpdate[] = [];
 
   for (const item of items) {
     const qty = Number(item.quantity) || 0;
 
+  
     if (qty <= 0) continue;
 
     const inventoryRef = adminDb
@@ -31,7 +33,7 @@ export async function readRawInventoryData(
       throw new Error(
         `Inventory not found: ${item.inventoryItemId}`
       );
-    }
+    } 
 
     const data = snap.data()!;
 
@@ -39,6 +41,9 @@ export async function readRawInventoryData(
     const storeStock = Number(data.currentStock) || 0;
     const storeAvgCost = Number(data.averageCost) || 0;
     const storeStockValue = Number(data.stockValue) || 0;
+
+console.log("send qty --------------------", qty)
+console.log("befor stock --------------------", data.currentStock)
 
     // ===== Stock Calculation =====
     let afterStock = 0;
@@ -87,7 +92,7 @@ unitCost:storeAvgCost,
   // ===== Stock =====
   storeStock, // 🔄 was "prev"
   currentStock:storeStock,
-  before: storeStock,  
+  beforeStock: storeStock,  
   afterStock, // 🔄 now calculated earlier (was later)
   prev: storeStock, 
   next: afterStock,

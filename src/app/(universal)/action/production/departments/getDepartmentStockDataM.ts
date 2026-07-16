@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
 
 interface DepartmentStockRequest {
   inventoryItemId: string;
@@ -12,24 +13,6 @@ interface DepartmentStockRequest {
   conversionFactor: number;
 }
 
-export interface DepartmentStockUpdate {
-  ref: FirebaseFirestore.DocumentReference | null;
-  exists: boolean;
-
-  departmentId: string;
-
-  inventoryItemId: string;
-  inventoryItemName: string;
-
-  currentQuantity: number;
-  transferQuantity: number;
-
-  averageCost: number;
-
-  purchaseUnit: string;
-  consumptionUnit: string;
-  conversionFactor: number;
-}
 
 export async function getDepartmentStockDataM(
   tx: FirebaseFirestore.Transaction,
@@ -64,7 +47,7 @@ export async function getDepartmentStockDataM(
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
         currentQuantity: Number(data.quantity || 0),
-        transferQuantity: item.quantity,
+        quantityChange: item.quantity, 
         averageCost: item.averageCost,
         conversionFactor: item.conversionFactor,
         consumptionUnit: item.consumptionUnit,
@@ -83,7 +66,7 @@ export async function getDepartmentStockDataM(
         inventoryItemName: item.inventoryItemName,
 
         currentQuantity: 0,
-        transferQuantity: item.quantity,
+         quantity: item.quantity,
 
         averageCost: item.averageCost,
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
 
 interface DepartmentStockRequest {
   inventoryItemId: string;
@@ -12,63 +13,17 @@ interface DepartmentStockRequest {
   conversionFactor: number;
 }
 
-export interface DepartmentStockUpdateM {
-  ref: FirebaseFirestore.DocumentReference | null;
-  exists: boolean;
-
-  departmentId: string;
-
-  inventoryItemId: string;
-  inventoryItemName: string;
-
-  currentQuantity: number;
-  transferQuantity: number;
-
-  averageCost: number;
-
-  purchaseUnit: string;
-  consumptionUnit: string;
-  conversionFactor: number;
-}
-
-export interface DepartmentStockUpdate {
-  ref: FirebaseFirestore.DocumentReference | null;
-  exists: boolean;
-
-  departmentId: string;
-
-  inventoryItemId: string;
-  inventoryItemName: string;
-
-  currentQuantity: number;
-  newQuantity: number;
-
-  averageCost?: number;
-  newAverageCost?: number;
-
-  purchaseUnit: string;
-  consumptionUnit: string;
-  conversionFactor: number;
-
-  purchaseMappings?: {
-    purchaseUnit: string;
-    consumptionUnit: string;
-    factor: number;
-  }[];
-}
 
 export async function getDepartmentStockData(
   tx: FirebaseFirestore.Transaction,
   departmentId: string,
+  dirction: "IN" | "OUT",
   items: DepartmentStockRequest[]
 ): Promise<DepartmentStockUpdate[]> {
-  const db = adminDb;
-
   const updates: DepartmentStockUpdate[] = [];
 
   for (const item of items) {
-
-
+    // Inventory Item
     const inventoryRef = adminDb
       .collection("inventoryItems")
       .doc(item.inventoryItemId);
@@ -83,8 +38,8 @@ export async function getDepartmentStockData(
 
     const inventoryData = inventorySnap.data()!;
 
-
-    const query = db
+    // Department Stock
+    const query = adminDb
       .collection("departmentStock")
       .where("departmentId", "==", departmentId)
       .where("inventoryItemId", "==", item.inventoryItemId)
@@ -92,73 +47,78 @@ export async function getDepartmentStockData(
 
     const snap = await tx.get(query);
 
-    if (!snap.empty) {
-      const doc = snap.docs[0];
-      const data = doc.data();
+    const exists = !snap.empty;
+    const doc = exists ? snap.docs[0] : null;
+    const data = doc?.data();
 
-      const currentStockDPT = Number(data.quantity || 0);
-      const currentAvgCost = Number(data.averageCost || 0);
+    const currentQuantity = Number(data?.quantity ?? 0);
+    const currentAverageCost = Number(data?.averageCost ?? 0);
 
-      const newQuantity = currentStockDPT + item.quantity;
+    // console.log("new qty in dp-------------------",currentQuantity, item.quantity, item)
 
-      const newAverageCost =
-        currentStockDPT === 0 || currentAvgCost === 0
-          ? item.averageCost
+    let newQuantity = 0;
+
+    if (dirction === "OUT" && item.quantity > currentQuantity) {
+  throw new Error(
+    `Insufficient department stock for ${item.inventoryItemName}`
+  );
+}
+
+    if (dirction == "IN") {
+      newQuantity = currentQuantity + item.quantity * item.conversionFactor;}
+      else {
+        newQuantity = currentQuantity - item.quantity * item.conversionFactor;
+      }
+
+let newAverageCost = 0;
+let newStockValue = 0;
+if (dirction == "IN") {
+        newAverageCost =
+        currentQuantity === 0 || currentAverageCost === 0
+          ? Number(item.averageCost)
           : (
-            currentStockDPT * currentAvgCost +
+            currentQuantity * currentAverageCost +
             item.quantity * item.averageCost
           ) / newQuantity;
 
-      console.log("currentStockDPT-----------------------------", currentStockDPT)
-      console.log("currentAvgCost-----------------------------", currentAvgCost)
-      console.log("item.quantity-----------------------------", item.quantity)
-      console.log("item.averageCost-----------------------------", item.averageCost)
-      console.log("newQuantity-----------------------------", newQuantity)
-      console.log("newAverageCost-----------------------------", newAverageCost.toFixed(10));
-      const avgCost = Number(newAverageCost.toFixed(10))
+      // Prevent floating point precision issues
+      newAverageCost = Number(newAverageCost.toFixed(10));
+
+        newStockValue = Number(
+        (newQuantity * newAverageCost).toFixed(2)
+      );
+        }else{
+newAverageCost = currentAverageCost;
+newStockValue = currentQuantity * currentAverageCost;
+        }
+
+
+     
 
       updates.push({
-        ref: doc.ref,
-        exists: true,
+        ref: doc?.ref ?? null,
+        exists,
 
         departmentId,
 
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
 
-        currentQuantity: currentStockDPT,
-        newQuantity: currentStockDPT + item.quantity,
+        quantityChange: item.quantity,
+        currentQuantity,
+        newQuantity,
 
-        averageCost: newAverageCost,
         newAverageCost,
+        newStockValue,
 
         purchaseUnit: item.purchaseUnit,
         consumptionUnit: item.consumptionUnit,
         conversionFactor: item.conversionFactor,
-        purchaseMappings: inventoryData.purchaseMappings ?? [],
-      });
-    } else {
-      updates.push({
-        ref: null,
-        exists: false,
 
-        departmentId,
-
-        inventoryItemId: item.inventoryItemId,
-        inventoryItemName: item.inventoryItemName,
-
-        currentQuantity: 0,
-        newQuantity: item.quantity,
-
-        averageCost: 1,// item.averageCost,
-
-        purchaseUnit: item.purchaseUnit,
-        consumptionUnit: item.consumptionUnit,
-        conversionFactor: item.conversionFactor,
-        purchaseMappings: inventoryData.purchaseMappings ?? [],
+        purchaseMappings:
+          inventoryData.purchaseMappings ?? [],
       });
     }
-  }
 
-  return updates;
-}
+    return updates;
+  }

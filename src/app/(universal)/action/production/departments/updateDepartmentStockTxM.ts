@@ -1,11 +1,12 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { DepartmentStockUpdate, DepartmentStockUpdateM } from "./getDepartmentStockData";
+import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
+ 
 
 interface UpdateDepartmentStockInput {
   transaction: FirebaseFirestore.Transaction;
-  update: DepartmentStockUpdateM;
+  update: DepartmentStockUpdate;
 
   // Actual stock movement:
   // +5 = add 5
@@ -22,10 +23,10 @@ export async function updateDepartmentStockTxM({
   const now = new Date();
   const StockQtyDPT =  (update.currentQuantity);
     const newQuantity = 
-   StockQtyDPT + qtyChange;
+   StockQtyDPT! + qtyChange;
 
-const stockValue = StockQtyDPT * update.averageCost + qtyChange * update.averageCost;
-const newAvgCost = stockValue / newQuantity;
+const stockValue = update.newStockValue;//StockQtyDPT * update.newAverageCost + qtyChange * update.newAverageCost;
+const newAvgCost = stockValue! / newQuantity;
 
 // console.log("currentQuantity---------------",update.inventoryItemName,":",  StockQtyDPT)
 // console.log("transferQuantity---------------",update.inventoryItemName,":",  update.transferQuantity)
@@ -74,7 +75,7 @@ const newAvgCost = stockValue / newQuantity;
 
     quantity: newQuantity,
 
-    averageCost: update.averageCost,
+    averageCost: update.newAverageCost,
 
     purchaseUnit: update.purchaseUnit,
     consumptionUnit: update.consumptionUnit,

@@ -1,7 +1,8 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { DepartmentStockUpdate } from "./getDepartmentStockData";
+import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
+ 
 
 interface UpdateDepartmentStockInput {
   transaction: FirebaseFirestore.Transaction;
@@ -14,17 +15,18 @@ export async function updateDepartmentStockTx({
 }: UpdateDepartmentStockInput) {
   const db = adminDb;
   const now = new Date();
-  //  console.log("update---------------------",update)
 
-  const newStockValue = update.newQuantity * update.newAverageCost!;
 
+  const newStockValue = update.newQuantity! * update.newAverageCost!;
+
+  console.log("update in dpt stock-----------------------", update)
+ 
   if (update.exists && update.ref) {
-  //  console.log("update.newQuantity----------",update.newQuantity)
-    console.log("update.averageCost----------",update.averageCost)
-   // console.log("update.newQuantity----------",update.newQuantity)
+
     tx.update(update.ref, {
-      quantity: update.newQuantity,
+      quantity: update.newQuantity, 
       averageCost: update.newAverageCost,
+      currentStock: update.newQuantity,
       stockValue: newStockValue, 
       updatedAt: now,
     });
@@ -44,10 +46,10 @@ export async function updateDepartmentStockTx({
     inventoryItemId: update.inventoryItemId,
     inventoryItemName: update.inventoryItemName,
 
-    quantity: update.newQuantity * update.conversionFactor,
-    currentStock: update.newQuantity * update.conversionFactor,
+    quantity: update.newQuantity,
+    currentStock: update.newQuantity,
     averageCost: update.newAverageCost,
-
+stockValue: newStockValue, 
     purchaseUnit: update.purchaseUnit,
     consumptionUnit: update.consumptionUnit,
     conversionFactor: update.conversionFactor,

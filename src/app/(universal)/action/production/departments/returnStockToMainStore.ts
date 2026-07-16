@@ -12,11 +12,15 @@ import { applyRawInventoryDptReturn } from "../../inventory/rawInventory/applyRa
 import { readRawInventoryData } from "../readRawInventoryData";
 import { writeInventoryData_StoreAndDpt } from "../../inventory/rawInventory/writeInventoryData_StoreAndDpt";
 import { applyTransactionInventory_StoreAndDpt } from "../../inventory/rawInventory/applyTransactionInventory_StoreAndDpt";
+import { getDepartmentStockData } from "./getDepartmentStockData";
+import { updateDepartmentStockTx } from "./UpdateDepartmentStockTx";
 
 export async function returnStockToMainStore(
     input: CreateProductionBatchInputType
 ) {
     const db = adminDb;
+
+ //   console.log("input----------------",input)
 
     try {
         if (!input.departmentId) {
@@ -44,11 +48,11 @@ export async function returnStockToMainStore(
 
             const rawRequest = input.items.map((item) => ({
                 inventoryItemId: item.inventoryItemId,
-                quantity: item.quantity * (item.conversionFactor || 1),
+                quantity: item.quantity *   (item.conversionFactor || 1),
                 averageCostDpt: item.averageCost,
                 purchaseUnitDpt: item.purchaseUnit,
                 conversionFactorUsed: item.conversionFactor || 1,
-            }));
+            })); 
 
             // ==========================================
             // 2. READ RAW INVENTORY
@@ -67,9 +71,10 @@ export async function returnStockToMainStore(
             // ==========================================
             console.log("pt-------------------------2")
             const departmentUpdates =
-                await getDepartmentStockDataM(
+                await getDepartmentStockData(
                     tx,
                     input.departmentId,
+                    "OUT",
                     input.items
                 );
 
@@ -84,10 +89,10 @@ export async function returnStockToMainStore(
             // ==========================================
             console.log("pt-------------------------3")
             for (const update of departmentUpdates) {
-                await updateDepartmentStockTxM({
+                await updateDepartmentStockTx({ 
                     transaction: tx,
                     update,
-                    qtyChange: -update.transferQuantity,
+                 
                 });
             }
 
@@ -136,31 +141,33 @@ export async function returnStockToMainStore(
                 });
             }
 
-            // ==========================================
-            // 7. Update RAW INVENTORY
-            // ==========================================
-            console.log("pt-------------------------4")
-            await writeInventoryData_StoreAndDpt(
-                tx,
-                rawUpdates,
-                transferId,
-                "IN"
-            );
+          // ==========================================
+      // 7. WRITE INVENTORY STOCK
+      // ==========================================
 
 
-            // ==========================================
-            // 7. WRITE RAW INVENTORY
-            // ==========================================
-            console.log("pt-------------------------5")
-            await applyTransactionInventory_StoreAndDpt(
-                tx,
-                rawUpdates,
-                transferId,
-                "DPT RETURN",
-                "IN"
-            );
+      await writeInventoryData_StoreAndDpt(
+        tx,
+        rawUpdates,
+        transferId,
+        "IN"
+      );
 
-            console.log("pt-------------------------6")
+
+          // ==========================================
+      // 7. WRITE INVENTORY LEDGER 
+      // ==========================================
+      //UPDATE: stockLedgerInventory
+      await applyTransactionInventory_StoreAndDpt(
+        tx,
+        rawUpdates,
+        transferId,
+        "DPT RETURN",
+        "IN"
+      );
+
+         
+
         });
 
         return {

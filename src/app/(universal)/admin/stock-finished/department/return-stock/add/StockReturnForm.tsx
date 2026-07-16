@@ -261,7 +261,11 @@ export default function StockReturnForm({
                       key={i.inventoryItemId}
                       value={i.inventoryItemId}
                     >
-                      {i.inventoryItemName} ({i.quantity} {i.purchaseUnit})
+                 {i.inventoryItemName} (
+  {(i.quantity / i.conversionFactor).toFixed(2)}
+  {" "}
+  {i.purchaseUnit}
+)
                     </option>
                   ))}
                 </select>

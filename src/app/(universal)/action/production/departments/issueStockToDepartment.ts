@@ -49,7 +49,7 @@ export async function issueStockToDepartment(
         averageCostDpt: item.averageCost,
         purchaseUnitDpt: item.purchaseUnit,
         conversionFactorUsed: item.conversionFactor || 1,
-      }));
+      })); 
 
       // ==========================================
       // 2. READ RAW INVENTORY
@@ -67,17 +67,18 @@ export async function issueStockToDepartment(
           "OUT",
           rawRequest,
 
-        );
+        ); 
 
 
       // ==========================================
       // 3. READ DEPARTMENT STOCK
       // ==========================================
-      console.log("pt-----------------------0.5")
+      console.log("pt-----------------------0.4")
       const departmentUpdates =
         await getDepartmentStockData(
           tx,
           input.departmentId,
+          "IN",
           input.items
         );
       console.log("pt-----------------------0.5")
@@ -92,7 +93,7 @@ export async function issueStockToDepartment(
       // ==========================================
 
       for (const update of departmentUpdates) {
-        await updateDepartmentStockTx({
+        await updateDepartmentStockTx({ 
           transaction: tx,
           update,
         });
@@ -142,20 +143,9 @@ export async function issueStockToDepartment(
       }
       console.log("pt-----------------------3")
       // ==========================================
-      // 7. WRITE RAW INVENTORY
+      // 7. WRITE INVENTORY STOCK
       // ==========================================
 
-      await applyRawInventoryWrites(
-        tx,
-        rawUpdates,
-        transferId,
-        "TRANS TO DEPT",
-        "OUT",
-        "send to  department",
-        "system",
-        "PRODUCTION",
-
-      );
 
       await writeInventoryData_StoreAndDpt(
         tx,
@@ -165,6 +155,10 @@ export async function issueStockToDepartment(
       );
 
 
+       // ==========================================
+      // 7. WRITE INVENTORY LEDGER 
+      // ==========================================
+      //UPDATE: stockLedgerInventory
       await applyTransactionInventory_StoreAndDpt(
         tx,
         rawUpdates,
@@ -172,6 +166,23 @@ export async function issueStockToDepartment(
         "STROE TO DPT",
         "OUT"
       );
+
+
+
+
+
+      //THIS IS NOT USED 
+      // await applyRawInventoryWrites(
+      //   tx,
+      //   rawUpdates,
+      //   transferId,
+      //   "TRANS TO DEPT",
+      //   "OUT",
+      //   "send to  department",
+      //   "system",
+      //   "PRODUCTION",
+
+      // );
 
 
     });

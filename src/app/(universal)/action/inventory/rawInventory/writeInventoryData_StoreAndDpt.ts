@@ -2,10 +2,11 @@
 
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
 
 export async function writeInventoryData_StoreAndDpt(
   tx: FirebaseFirestore.Transaction,
-  updates: any[],
+  updates: RawInventoryUpdate[],
   referenceId: string,
   direction: "IN" | "OUT" = "IN" // default should be IN for return
 ) {
