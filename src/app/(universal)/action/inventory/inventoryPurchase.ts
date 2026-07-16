@@ -50,29 +50,6 @@ export async function inventoryPurchase(
     }: ApplyInventoryTransactionType) {
 
 
-//        console.log(`
-// ===== applyInventoryMovement =====
-// type: ${type}
-// direction: ${direction}
-
-// quantity: ${quantity}
-// unitCost: ${unitCost}
-
-// purchaseQuantity: ${purchaseQuantity}
-// purchaseUnit: ${purchaseUnit}
-// purchaseUnitCost: ${purchaseUnitCost}
-// conversionFactor: ${conversionFactor}
-// stockValue: ${stockValue}
-// supplierId: ${supplierId}
-// supplierName: ${supplierName}
-
-// totalAmount: ${totalAmount}
-// paidAmount: ${paidAmount}
-// dueAmount: ${dueAmount}
-// =================================
-// `);
-
-
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     if (quantity <= 0) {
@@ -90,16 +67,6 @@ export async function inventoryPurchase(
     }
 
     const inventory = snap.data()!;
-
-    // =====================================================
-    // UPDATE INVENTORY ITEM (MASTER STOCK)
-    // Updates current stock and inventory valuation.
-    // Future fields:
-    // - currentStock
-    // - averageCost
-    // - stockValue
-    // =====================================================
-
 
     // =====================================================
     // UPDATE INVENTORY ITEM (MASTER STOCK)
@@ -124,65 +91,6 @@ export async function inventoryPurchase(
     const finalUnitCost = Number(unitCost || beforeAverageCost);
 
 
-//         console.log("adjust-----------------------",
-//   type,
-//   direction,
-//   quantity,
-//   beforeStock,
-//   beforeStockValue,
-// );
-
-    // --------------------------------------
-    // OPENING STOCK
-    // --------------------------------------
-
-     
-
-  if (type === "OPENING_STOCK") {
-    afterStock = quantity;
-    afterStockValue = stockValue!;
-
-    afterAverageCost =
-        afterStock > 0
-            ? afterStockValue / afterStock
-            : 0;
-}
-
-// --------------------------------------
-// SUPPLIER RETURN
-// --------------------------------------
-
-else if (
-    type === "SUPPLIER_RETURN" &&
-    direction === "OUT"
-) {
-    afterStock = beforeStock - quantity;
-
-    if (afterStock < 0) {
-        throw new Error("Insufficient stock");
-    }
-
-    afterStockValue = Math.max(
-        0,
-        beforeStockValue - stockValue!
-    );
-
-    afterAverageCost =
-        afterStock > 0
-            ? afterStockValue / afterStock
-            : 0;
-}
-
-
-    // --------------------------------------
-    // PURCHASE / CUSTOMER RETURN
-    // --------------------------------------
-
-    else if (
-        (type === "PURCHASE" ||
-            type === "CUSTOMER_RETURN") &&
-        direction === "IN"
-    ) {
         afterStock = beforeStock + quantity;
 
         // afterStockValue =
@@ -195,96 +103,6 @@ else if (
                 : 0;
 
                 
-    }
-
-    // --------------------------------------
-    // ADJUSTMENT IN
-    // --------------------------------------
-
-    else if (
-        type === "ADJUSTMENT" &&
-        direction === "IN"
-    ) {
-        afterStock = beforeStock + quantity;
-
-        afterStockValue =
-            beforeStockValue + totalAmount;
-
-        afterAverageCost =
-            afterStock > 0
-                ? afterStockValue / afterStock
-                : 0;
-    }
-
-
-
-
-    // --------------------------------------
-    // WASTAGE / ADJUSTMENT OUT / SUPPLIER RETURN
-    // --------------------------------------
-
-    
-
-    else if (
-   type === "ADJUSTMENT" &&     direction === "OUT"
-    ) {
-        // const removedValue =
-        //     quantity * beforeAverageCost;
-
-        const currentAverage =
-    beforeStock > 0
-        ? beforeStockValue / beforeStock
-        : 0;
-
-const removedValue =
-    currentAverage * quantity;
-
-        afterStock = beforeStock - quantity;
-
-        if (afterStock < 0) {
-            throw new Error("Insufficient stock");
-        }
-
-        afterStockValue = Math.max(
-            0,
-            beforeStockValue - removedValue
-        );
-
-        afterAverageCost =
-            afterStock > 0
-                ? afterStockValue / afterStock
-                : 0;
-    }
-
-
- else if (type === "WASTAGE") {
-
-    afterStock = beforeStock - quantity;
-
-    const currentAverage =
-        beforeStock > 0
-            ? beforeStockValue / beforeStock
-            : 0;
-
-    const removedValue =
-        currentAverage * quantity;
-
-    if (afterStock < 0) {
-        throw new Error("Insufficient stock");
-    }
-
-    afterStockValue = Math.max(
-        0,
-        beforeStockValue - removedValue
-    );
-
-    afterAverageCost =
-        afterStock > 0
-            ? afterStockValue / afterStock
-            : 0;
-}
-
-
     // Final safety
     afterStockValue = Number(
         afterStockValue.toFixed(2)
