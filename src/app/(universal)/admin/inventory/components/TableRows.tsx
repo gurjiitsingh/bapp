@@ -180,7 +180,8 @@ const displayAverageCost =
                 : "text-gray-800"
               }`}
           >
-          {displayAverageCost}/{primaryMapping.purchaseUnit}
+          {/* {displayAverageCost}/{primaryMapping.purchaseUnit} */}
+         { item.purchaseUnitCost}
           </span>
 
           <span className="text-xs text-gray-400">

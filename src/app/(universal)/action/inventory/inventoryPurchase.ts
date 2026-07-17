@@ -81,6 +81,8 @@ export async function inventoryPurchase(
     const beforeStockValue =
         Number(inventory.stockValue) || 0;
 
+    const purchaseUnitCostN =  Number(purchaseUnitCost) || 0;   
+
     let afterStock = beforeStock;
     let afterAverageCost = beforeAverageCost;
     let afterStockValue = beforeStockValue;
@@ -113,18 +115,47 @@ export async function inventoryPurchase(
     // );
     afterAverageCost = afterAverageCost;
 
+    let stockQtyInPurchaseUnit = inventory.currentStock / conversionFactor!;
+
+//    NEW STRATAGY TO CALCULATE RATE
+let newPurchaseUnitCostStockValue = 0;
+let newPurchaseUnitCost = 0;
+
+let purchaseQtyInPurchaseUnit = Number(quantity / conversionFactor!)
+
+const existingPurchaseUnitCost =
+  Number(inventory.purchaseUnitCost ?? 0);
+
+if (existingPurchaseUnitCost > 0) {
+ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurchaseUnit +  inventory.purchaseUnitCost * stockQtyInPurchaseUnit ).toFixed(2));
+
+  newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / (purchaseQtyInPurchaseUnit + stockQtyInPurchaseUnit )).toFixed(2));
+}else{
+newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurchaseUnit   ).toFixed(2));
+
+  newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / purchaseQtyInPurchaseUnit).toFixed(2));
+
+
+}
+// console.log("stockQtyInPurchaseUnit -----------------",stockQtyInPurchaseUnit)
+// console.log("stocke qty -----------------",stockQtyInPurchaseUnit)
+// console.log("purchase qty -----------------",purchaseQtyInPurchaseUnit)
+// console.log("newPurchaseUnitCostStockValue -----------------",newPurchaseUnitCostStockValue)
+// console.log("newpruchage -----------------",newPurchaseUnitCost)
+
+
+
   tx.update(inventoryRef, {
     currentStock: afterStock,
-    stockValue: afterStockValue,
+    stockValue: newPurchaseUnitCostStockValue,//afterStockValue,
     averageCost: afterAverageCost,
     costPrice: afterAverageCost,
     purchaseUnit ,
-    purchaseUnitCost ,
+    purchaseUnitCost:newPurchaseUnitCost ,
     updatedAt: now,
 });
 
-     
-
+  
 
     // =====================================================
     // CREATE INVENTORY LEDGER TRANSACTION
@@ -171,14 +202,9 @@ export async function inventoryPurchase(
           // =====================================================
           purchaseQuantity: purchaseQty,
         
-          purchaseUnit:
-            purchaseUnit ||
-            inventory.purchaseUnit ||
-            inventory.consumptionUnit,
+          purchaseUnit:  purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
         
-          purchaseUnitCost: isCostMovement
-            ? (purchaseUnitCost ?? finalUnitCost)
-            : 0,
+          purchaseUnitCost: newPurchaseUnitCost,
         
           // =====================================================
           // TRANSACTION DETAILS
@@ -191,7 +217,7 @@ export async function inventoryPurchase(
           transactionQuantity: quantity,
         
           transactionUnit:
-            inventory.consumptionUnit || "pcs",
+            inventory.consumptionUnit || "gm",
         
           transactionUnitCost: finalUnitCost,
         
@@ -229,7 +255,7 @@ export async function inventoryPurchase(
           type,
           direction,
         
-          note,
+          note, 
         
           // =====================================================
           // SOURCE
