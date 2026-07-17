@@ -6,19 +6,11 @@ import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 import Link from "next/link";
 import { formatQuantity } from "@/utils/inventory/formatQty";
 import { displayStock } from "@/utils/inventory/displayStock";
+import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 
 type Props = {
    departmentName: string; 
-  data: {
-    inventoryItemId: string;
-    inventoryItemName: string;
-    quantity: number;
-    averageCost: number;
-    purchaseUnit: string;
-    consumptionUnit: string;
-    conversionFactor: number;
-    updatedAt: number;
-  }[];
+  data: DepartmentStockType[];
 };
 
 export default function DepartmentStockTable({
@@ -186,12 +178,12 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
 
                 <td className="px-4 py-3 text-right">
                   ₹
-                  {(item.averageCost*item.conversionFactor).toFixed(2)}
+                  {(item.averageCost).toFixed(2)}
                 </td>
 
                 <td className="px-4 py-3 text-right font-semibold text-green-700">
                   ₹
-                  {(item.quantity * item.averageCost ).toFixed(
+                  {(item.stockValue!).toFixed(
                     2
                   )}
                 </td>

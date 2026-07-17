@@ -136,6 +136,7 @@ if (type === "CLEAR") {
   tx.update(inventoryRef, {
     currentStock: 0,
     stockValue: 0,
+    purchaseUnitCost: 0,
     averageCost: 0,
     costPrice: 0,
   //  stockStatus: "out_of_stock",

@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   getDepartmentStock,
-  type DepartmentStock,
+  
 } from "@/app/(universal)/action/production/departments/getDepartmentStock";
 import {  manualStockProduction } from "@/app/(universal)/action/production/manualStockProduction";
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 
 type Props = {
   departments: { id: string; name: string; employeeCount: number, managerName: string; }[];
@@ -23,7 +24,7 @@ export default function ProductionBatchForm({
 }: Props) {
 
   const router = useRouter();
-  const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
+  const [departmentStock, setDepartmentStock] = useState<DepartmentStockType[]>([]);
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
   const [note, setNote] = useState("");

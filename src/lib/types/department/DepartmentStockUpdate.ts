@@ -8,7 +8,7 @@ export interface DepartmentStockUpdate {
   inventoryItemName: string;
 
   averageCost?: number;
- 
+ newPurchaseUnitCost: number,
   quantity?: number;
 
   quantityChange?: number;

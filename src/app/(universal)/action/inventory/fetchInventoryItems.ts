@@ -17,57 +17,6 @@ export const fetchInventoryItems =
       const inventoryItems = snapshot.docs.map((doc) => {
         const data = doc.data();
 
-
-  //       purchaseMappings:
-  // data.purchaseMappings?.length
-  //   ? data.purchaseMappings
-  //   : [
-  //       {
-  //         purchaseUnit:
-  //           data.purchaseUnit ||
-  //           data.consumptionUnit ||
-  //           "pcs",
-  //         consumptionUnit:
-  //           data.consumptionUnit || "pcs",
-  //         factor:
-  //           Number(data.conversionFactor) || 1,
-  //       },
-  //     ],
-
-
-
-
-
-      // ✅ FIX purchaseMappings
-        // const purchaseMappings =
-        //   data.purchaseMappings?.length
-        //     ? data.purchaseMappings.map((m: any) => ({
-        //         purchaseUnit:
-        //           m.purchaseUnit || "pcs",
-
-        //         consumptionUnit:
-        //           m.consumptionUnit ||
-        //           data.consumptionUnit ||
-        //           "pcs",
-
-        //         factor: Number(m.factor) || 1,
-        //       }))
-        //     : [
-        //         {
-        //           purchaseUnit:
-        //             data.purchaseUnit ||
-        //             data.consumptionUnit ||
-        //             "pcs",
-
-        //           consumptionUnit:
-        //             data.consumptionUnit || "pcs",
-
-        //           factor:
-        //             Number(data.conversionFactor) || 1,
-        //         },
-        //       ];
-
-
       return {
   id: doc.id,
 
@@ -83,7 +32,11 @@ export const fetchInventoryItems =
   purchaseMappings:
     data.purchaseMappings || [],
 
-    
+    purchaseUnit: data.purchaseUnit || 'gm',
+   purchaseUnitCost:data.purchaseUnitCost || 0, 
+
+   conversionFactor: data.conversionFactor || 1,
+
   currentStock:
     Number(data.currentStock) || 0,
 

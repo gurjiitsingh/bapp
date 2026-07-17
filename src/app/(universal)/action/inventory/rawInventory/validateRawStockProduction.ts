@@ -1,4 +1,4 @@
-export function validateRawStock(updates: any[]) {
+export function validateRawStockProduction(updates: any[]) {
   for (const u of updates) {
 console.log(u.inventoryItemName, u.storeStock,u.sendQty);
     

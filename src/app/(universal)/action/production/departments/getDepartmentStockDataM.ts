@@ -48,6 +48,7 @@ export async function getDepartmentStockDataM(
         inventoryItemName: item.inventoryItemName,
         currentQuantity: Number(data.quantity || 0),
         quantityChange: item.quantity, 
+        newPurchaseUnitCost: 0,
         averageCost: item.averageCost,
         conversionFactor: item.conversionFactor,
         consumptionUnit: item.consumptionUnit,
@@ -64,7 +65,7 @@ export async function getDepartmentStockDataM(
 
         inventoryItemId: item.inventoryItemId,
         inventoryItemName: item.inventoryItemName,
-
+newPurchaseUnitCost:0,
         currentQuantity: 0,
          quantity: item.quantity,
 

@@ -12,8 +12,9 @@ import { useEffect, useState } from "react";
 
 import {
   getDepartmentStock,
-  type DepartmentStock,
+ 
 } from "@/app/(universal)/action/production/departments/getDepartmentStock";
+import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 
 type Props = {
   departments: { id: string; name: string }[];
@@ -26,7 +27,7 @@ export default function StockReturnForm({
 }: Props) {
 
 
-  const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
+  const [departmentStock, setDepartmentStock] = useState<DepartmentStockType[]>([]);
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
   const [note, setNote] = useState("");
@@ -53,6 +54,11 @@ export default function StockReturnForm({
       },
     ]);
   };
+
+  const selectedIds = items
+  .map((i) => i.inventoryItemId)
+  .filter(Boolean);
+
   const updateItem = (index: number, field: string, value: any) => {
     const updated = [...items];
     updated[index][field] = value;
@@ -249,26 +255,31 @@ export default function StockReturnForm({
                 key={index}
                 className="grid grid-cols-5 gap-2 px-3 py-2 border-t items-center"
               >
-                <select
-                  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
-                  onChange={(e) =>
-                    updateItem(index, "inventoryItemId", e.target.value)
-                  }
-                >
-                  <option value="">Select</option>
-                  {departmentStock.map((i) => (
-                    <option
-                      key={i.inventoryItemId}
-                      value={i.inventoryItemId}
-                    >
-                 {i.inventoryItemName} (
-  {(i.quantity / i.conversionFactor).toFixed(2)}
-  {" "}
-  {i.purchaseUnit}
-)
-                    </option>
-                  ))}
-                </select>
+              <select
+  value={item.inventoryItemId}
+  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+  onChange={(e) =>
+    updateItem(index, "inventoryItemId", e.target.value)
+  }
+>
+  <option value="">Select</option>
+
+  {inventoryItems.map((i) => {
+    const alreadySelected =
+      selectedIds.includes(i.id) &&
+      item.inventoryItemId !== i.id; // allow current row
+
+    return (
+      <option
+        key={i.id}
+        value={i.id}
+        disabled={alreadySelected}
+      >
+        {i.name}
+      </option>
+    );
+  })}
+</select>
 
                 <input
                   type="number"

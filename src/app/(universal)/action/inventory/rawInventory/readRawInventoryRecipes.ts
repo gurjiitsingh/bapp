@@ -66,7 +66,7 @@ updates.push({
   inventoryItemId: recipe.inventoryItemId,
   inventoryItemName: invData.name || "",
   quantity: required,
-
+consumption: required,
 
   // ===== On Requried Feilds =====
   purchaseQuantity: 0,

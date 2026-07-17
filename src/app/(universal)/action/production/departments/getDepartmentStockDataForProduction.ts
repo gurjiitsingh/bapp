@@ -8,6 +8,7 @@ interface DepartmentStockRequest {
   inventoryItemName: string;
   quantity: number;
   averageCost: number;
+  purchaseUnitCost: number;
   purchaseUnit: string;
   consumptionUnit: string;
   conversionFactor: number;
@@ -101,6 +102,7 @@ export async function getDepartmentStockDataForProduction(
       inventoryItemName: item.inventoryItemName,
 
       quantityChange: item.quantity,
+     
       currentQuantity,
       newQuantity,
 
@@ -110,6 +112,10 @@ export async function getDepartmentStockDataForProduction(
       // Use Department Stock values if available
       purchaseUnit:
         data?.purchaseUnit ?? item.purchaseUnit,
+
+  newPurchaseUnitCost:
+    data?.purchaseUnitCost ??
+    item.purchaseUnitCost, 
 
       consumptionUnit:
         data?.consumptionUnit ??

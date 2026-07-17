@@ -1,23 +1,32 @@
 "use client";
 
-import { stockBatchToDepartment } from "@/app/(universal)/action/production/stockBatchToDepartment";
+ 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import ReturnToDepartmentDialog from "./ReturnToDepartmentDialog";
 import { displayStock } from "@/utils/inventory/displayStock";
+import { ProductionBatchType } from "@/lib/types/batch/ProductionBatch";
+import { ProductionBatchItemType } from "@/app/(universal)/action/production/getProductionBatchItem";
 
-export default function BatchDetails({ batch }: any) {
+type Props = {
+  batch: ProductionBatchType ;
+  items: ProductionBatchItemType[];
+};
+
+export default function BatchDetails({
+  batch,
+  items,
+}: Props) {
 
    
-
-  const getItemTotal = (item: any) =>
-    item.quantity * item.averageCost * item.conversionFactor;
+ 
 
   const [returnOpen, setReturnOpen] = useState(false);
 
-const [selectedItem, setSelectedItem] = useState<any>(null);
+const [selectedItem, setSelectedItem] =
+  useState<ProductionBatchItemType | null>(null);
 
   const duration = (() => {
     if (!batch.startTime) return null;
@@ -148,12 +157,12 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
           <p className="text-lg font-semibold">{batch.outputQty}</p>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-gray-400">Total Cost</p>
-          <p className="text-lg font-semibold">
-            ₹ {Number(batch.totalCost).toFixed(2)}
-          </p>
-        </div>
+       <div className="bg-white rounded-xl p-4 shadow-sm">
+  <p className="text-xs text-gray-400">Batch Cost</p>
+  <p className="text-lg font-semibold">
+    ₹ {Number(batch.batchCost).toFixed(2)}
+  </p>
+</div>
 
         <div className="bg-green-50 rounded-xl p-4">
           <p className="text-xs text-green-500">Avg Cost / Unit</p>
@@ -165,7 +174,10 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
         <div className="bg-amber-50 rounded-xl p-4">
           <p className="text-xs text-amber-500">Cost Check</p>
           <p className="text-lg font-semibold text-amber-700">
-            ₹ {(batch.totalCost / batch.outputQty).toFixed(2)}
+         ₹ {(
+  Number(batch.batchCost) /
+  Math.max(Number(batch.outputQty), 1)
+).toFixed(2)}
           </p>
         </div>
 
@@ -182,7 +194,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
            <div className="text-right">Action</div>
         </div>
 
-        {batch.items.map((item: any) => (
+        {items.map((item: any) => (
           <div
             key={item.id}
             className="grid grid-cols-5 px-4 py-3 hover:bg-gray-50 transition"
@@ -203,11 +215,11 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
             </div>
 
             <div>
-              ₹ {(item.averageCost * item.conversionFactor).toFixed(2)}
+              ₹ {(item.averageCost).toFixed(2)}/{item.purchaseUnit}
             </div>
 
             <div className="font-semibold">
-              ₹ {getItemTotal(item).toFixed(2)}
+              ₹ {item.itemTotalCost}
             </div>
             <div className="text-right">
       <button
@@ -224,7 +236,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
           </div>
         ))}
 
-        {!batch.items.length && (
+        {!items.length && (
           <div className="text-center py-6 text-gray-400">
             No items found
           </div>
@@ -232,9 +244,9 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
       </div>
 
       {/* TOTAL */}
-      <div className="text-right text-xl font-semibold text-gray-800">
-        Total Cost: ₹ {Number(batch.totalCost).toFixed(2)}
-      </div>
+    <div className="text-right text-xl font-semibold text-gray-800">
+  Batch Cost: ₹ {Number(batch.batchCost).toFixed(2)}
+</div>
 
     </div>
   );

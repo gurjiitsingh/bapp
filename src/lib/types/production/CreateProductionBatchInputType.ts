@@ -8,7 +8,8 @@ employeeCount?: number;
     inventoryItemName: string;
 
     quantity: number;
-
+purchaseUnitCost: number;
+// purchaseUnitCostInv: number;
     purchaseUnit: string;
     consumptionUnit: string;
 

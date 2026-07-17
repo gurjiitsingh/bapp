@@ -1,23 +1,25 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { RawInventoryUpdateDptReturnType } from "@/lib/types/inventory/RawInventoryUpdateDptReturnType";
 import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
-import { RawInventoryUpdateIssue } from "@/lib/types/inventory/RawInventoryUpdateTypeIssue";
 import { before } from "node:test";
 
-export async function readRawInventoryData( 
+export async function readRawInventoryDataReturn( 
   tx: FirebaseFirestore.Transaction,
   direction: "IN" | "OUT",
   items: {
-    inventoryItemId: string;
+    inventoryItemId: string;  
     quantity: number;
-    averageCostInv: number;
-    purchaseUnitInv: string;
-    purchaseUnitCostInv: number;
+    averageCostDpt: number;
+    purchaseUnitDpt: string;
+    
+    purchaseUnitCostDpt: number;
+    
     conversionFactorUsed: number;
   }[]
 ) {
-  const updates: RawInventoryUpdateIssue[] = [];
+  const updates: RawInventoryUpdateDptReturnType[] = [];
 
   for (const item of items) {
     const qty = Number(item.quantity) || 0;
@@ -73,9 +75,9 @@ updates.push({
   sendQty:qty, // 🔄 was "quantity"
 
   // ===== Units =====
-  purchaseUnitCostInv: item.purchaseUnitCostInv,
-  purchaseUnit: item.purchaseUnitInv, // 🔄 was store purchaseUnit
-transactionUnit: item.purchaseUnitInv,
+  purchaseUnitCostInv: item.purchaseUnitCostDpt,
+  purchaseUnit: item.purchaseUnitDpt, // 🔄 was store purchaseUnit
+transactionUnit: item.purchaseUnitDpt,
   consumptionUnit:
     data.consumptionUnit || "gm",
 
@@ -86,7 +88,7 @@ transactionUnit: item.purchaseUnitInv,
   storeAvgCost, // 🔄 was "unitCost"
 unitCost:storeAvgCost,
   dptAvgCost:
-    Number(item.averageCostInv) || 0,
+    Number(item.averageCostDpt) || 0,
 
   storeStockValue, // 🔄 was "stockValue"
 

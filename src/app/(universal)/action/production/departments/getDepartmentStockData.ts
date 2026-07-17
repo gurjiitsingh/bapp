@@ -9,6 +9,8 @@ interface DepartmentStockRequest {
   quantity: number;
   averageCost: number;
   purchaseUnit: string;
+  purchaseUnitCostInv?: number;
+  purchaseUnitCost?: number
   consumptionUnit: string;
   conversionFactor: number;
 }
@@ -23,7 +25,7 @@ export async function getDepartmentStockData(
   const updates: DepartmentStockUpdate[] = [];
 
   for (const item of items) {
-  
+
 
     // Department Stock
     const query = adminDb
@@ -39,72 +41,162 @@ export async function getDepartmentStockData(
     const data = doc?.data();
 
     const currentQuantity = Number(data?.quantity ?? 0);
-    const currentAverageCost = Number(data?.averageCost ?? 0);
 
-    // console.log("new qty in dp-------------------",currentQuantity, item.quantity, item)
+ 
 
+    
+const DPTpurchaseUnitCost = Number(data?.purchaseUnitCost);
+
+const safePurchaseUnitCost = Number.isFinite(DPTpurchaseUnitCost)
+  ? DPTpurchaseUnitCost
+  : 0;
+
+console.log("item.purchaseUnitCostInv-------------------------------------", item.purchaseUnitCost)
     let newQuantity = 0;
+    let currentStockInPurchaseUnit = 0;
+    let newStockInPurchaseUnit = 0;
 
     if (dirction === "OUT" && item.quantity > currentQuantity) {
-  throw new Error(
-    `Insufficient department stock for ${item.inventoryItemName}`
+      throw new Error(
+        `Insufficient department stock for ${item.inventoryItemName}`
+      );
+    }
+
+    if (dirction == "IN") {
+      newQuantity = currentQuantity + item.quantity;
+    }
+    else {
+      newQuantity = currentQuantity - item.quantity;
+    }
+
+    let newAverageCost = 0;
+    let newStockValue = 0;
+    let newPurchaseUnitCost = 0;
+
+
+
+    
+ if (dirction === "IN") {
+  // Existing stock expressed in purchase units (bags, boxes, etc.)
+  currentStockInPurchaseUnit =
+    Number(data?.currentStock ?? 0) /
+    Number(data?.conversionFactor ?? item.conversionFactor ?? 1);
+
+  // Incoming stock expressed in purchase units
+  newStockInPurchaseUnit =
+    Number(item.quantity) /
+    Number(item.conversionFactor);
+
+  const incomingPurchaseUnitCost =
+    Number(item.purchaseUnitCost ?? 0);
+
+  // First stock entry
+  if (currentStockInPurchaseUnit === 0) {
+    newPurchaseUnitCost = incomingPurchaseUnitCost;
+  } else {
+    // Weighted average purchase unit cost
+    newPurchaseUnitCost =
+      (
+        currentStockInPurchaseUnit * safePurchaseUnitCost +
+        newStockInPurchaseUnit * incomingPurchaseUnitCost
+      ) /
+      (
+        currentStockInPurchaseUnit +
+        newStockInPurchaseUnit
+      );
+  }
+
+  // Round to 2 decimals
+  newPurchaseUnitCost = Number(
+    newPurchaseUnitCost.toFixed(2)
+  );
+
+  // Total stock in purchase units after transfer
+  const totalStockInPurchaseUnit =
+    Number(newQuantity) /
+    Number(item.conversionFactor);
+
+  newStockValue = Number(
+    (
+      totalStockInPurchaseUnit *
+      newPurchaseUnitCost
+    ).toFixed(2)
+  );
+
+  // Average cost per consumption unit (gm, ml, pcs)
+  newAverageCost = Number(
+    (
+      newPurchaseUnitCost /
+      Number(item.conversionFactor)
+    ).toFixed(10)
+  );
+} else {
+  // OUT transaction keeps the same cost
+  newPurchaseUnitCost = safePurchaseUnitCost;
+
+  newAverageCost =
+    Number(data?.averageCost ?? 0);
+
+  const remainingPurchaseQty =
+    Number(newQuantity) /
+    Number(item.conversionFactor);
+
+  newStockValue = Number(
+    (
+      remainingPurchaseQty *
+      newPurchaseUnitCost
+    ).toFixed(2)
   );
 }
 
-    if (dirction == "IN") {
-      newQuantity = currentQuantity + item.quantity ;}
-      else {
-        newQuantity = currentQuantity - item.quantity ;
-      }
+console.log("=================================");
+console.log("Item:", item.inventoryItemName);
+console.log("Current Stock:", currentQuantity);
+console.log("Transfer Qty:", item.quantity);
 
-let newAverageCost = 0;
-let newStockValue = 0;
-if (dirction == "IN") {
-        newAverageCost =
-        currentQuantity === 0 || currentAverageCost === 0
-          ? Number(item.averageCost)
-          : (
-            currentQuantity * currentAverageCost +
-            item.quantity * item.averageCost
-          ) / newQuantity;
+currentStockInPurchaseUnit =
+  Number(data?.currentStock ?? 0) /
+  Number(data?.conversionFactor ?? 1);
 
-      // Prevent floating point precision issues
-      newAverageCost = Number(newAverageCost.toFixed(10));
+newStockInPurchaseUnit =
+  Number(item.quantity ?? 0) /
+  Number(item.conversionFactor ?? 1);
 
-        newStockValue = Number(
-        (newQuantity * newAverageCost).toFixed(2)
-      );
-        }else{
-newAverageCost = currentAverageCost;
-newStockValue = currentQuantity * currentAverageCost;
-        }
+console.log("Current Stock (Purchase Unit):", currentStockInPurchaseUnit);
+console.log("Incoming Stock (Purchase Unit):", newStockInPurchaseUnit);
+console.log("Current Purchase Unit Cost:", safePurchaseUnitCost);
+console.log("Incoming Purchase Unit Cost:", item.purchaseUnitCost);
+console.log("newPurchaseUnitCost---------------:", newPurchaseUnitCost);
+console.log("newStockValue---------------:", newStockValue);
 
 
-     
 
-      updates.push({
-        ref: doc?.ref ?? null,
-        exists,
+console.log("=================================");
 
-        departmentId,
 
-        inventoryItemId: item.inventoryItemId,
-        inventoryItemName: item.inventoryItemName,
+    updates.push({
+      ref: doc?.ref ?? null,
+      exists,
 
-        quantityChange: item.quantity,
-        currentQuantity,
-        newQuantity,
+      departmentId,
 
-        newAverageCost,
-        newStockValue,
+      inventoryItemId: item.inventoryItemId,
+      inventoryItemName: item.inventoryItemName,
 
-        purchaseUnit: item.purchaseUnit,
-        consumptionUnit: item.consumptionUnit,
-        conversionFactor: item.conversionFactor,
+      quantityChange: item.quantity,
+      currentQuantity,
+      newQuantity,
+      newPurchaseUnitCost,
+      newAverageCost,
+      newStockValue,
 
-       
-      });
-    }
+      purchaseUnit: item.purchaseUnit,
+      consumptionUnit: item.consumptionUnit,
+      conversionFactor: item.conversionFactor,
 
-    return updates;
+
+    });
   }
+
+  return updates;
+}

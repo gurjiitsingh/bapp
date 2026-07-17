@@ -13,6 +13,7 @@ import { writeInventoryData_StoreAndDpt } from "../../inventory/rawInventory/wri
 import { applyTransactionInventory_StoreAndDpt } from "../../inventory/rawInventory/applyTransactionInventory_StoreAndDpt";
 import { getDepartmentStockData } from "./getDepartmentStockData";
 import { updateDepartmentStockTx } from "./UpdateDepartmentStockTx";
+import { readRawInventoryDataReturn } from "../readRawInventoryDataReturn";
 
 export async function returnStockToMainStore(
     input: CreateProductionBatchInputType
@@ -55,6 +56,7 @@ export async function returnStockToMainStore(
   quantity: item.quantity,
   averageCostDpt: item.averageCost,
   purchaseUnitDpt: item.purchaseUnit,
+  purchaseUnitCostDpt: item.purchaseUnitCost,
   conversionFactorUsed: item.conversionFactor || 1,
 }));
 
@@ -71,7 +73,7 @@ export async function returnStockToMainStore(
             // ==========================================
              
             const rawUpdates =
-                await readRawInventoryData(
+                await readRawInventoryDataReturn(
                     tx,
                     "IN",
                     rawRequest,

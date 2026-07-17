@@ -6,7 +6,7 @@ import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { getStockLocation } from "../distribution/getStockLocation";
 import { addStockLocationTx } from "../distribution/addStockLocation";
 import { addStockMovement } from "../distribution/addStockMovement";
-import { getProductionBatchById } from "./getProductionBatchById";
+import { getProductionBatchById } from "./batch/getProductionBatchById";
 import { readProductStock } from "../stock-finished/finishedStockLedger/readProductStock";
 import { writeProductStockUpdates } from "../stock-finished/finishedStockLedger/writeProductStockUpdates";
 import { writeProductStockTransactions } from "../stock-finished/finishedStockLedger/writeProductStockTransactions";

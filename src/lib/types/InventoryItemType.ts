@@ -259,6 +259,7 @@ export type InventoryItemType = {
   currentStock?: number;
   minStock?: number;
 
+  purchaseUnitCost?: number;
   averageCost?: number;
   stockValue?: number;
 

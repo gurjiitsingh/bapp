@@ -7,7 +7,7 @@ import { Search, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   getDepartmentStock,
-  type DepartmentStock,
+ 
 } from "@/app/(universal)/action/production/departments/getDepartmentStock";
 
 import { autoStockProduction  } from "@/app/(universal)/action/stock-finished/autoStockProduction";
@@ -16,6 +16,7 @@ import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType"
 import { ProductStockType } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 type Props = {
   products: ProductStockType[];
    departments: { id: string; name: string; employeeCount:number,  managerName: string; }[];
@@ -35,7 +36,7 @@ export default function ProductionForm({
   inventoryItems,
 }: Props) {
 
-  const [departmentStock, setDepartmentStock] = useState<DepartmentStock[]>([]);
+  const [departmentStock, setDepartmentStock] = useState<DepartmentStockType[]>([]);
     const [departmentId, setDepartmentId] = useState("");
     const [items, setItems] = useState<any[]>([]);
   const [isSubmitting, setIsSubmitting] =

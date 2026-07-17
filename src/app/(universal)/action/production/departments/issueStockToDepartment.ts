@@ -41,24 +41,21 @@ export async function issueStockToDepartment(
       // 1. PREPARE RAW REQUEST
       // ==========================================
 
+      console.log("item-----------------------------------", input.items)
+
 const itemsInConsumptionUnit = input.items.map((item) => ({
   ...item,
   quantity: item.quantity * (item.conversionFactor || 1),
 }));
 
-      // const rawRequest = input.items.map((item) => ({
-      //   inventoryItemId: item.inventoryItemId,
-      //   quantity: item.quantity * (item.conversionFactor || 1),
-      //   averageCostDpt: item.averageCost,
-      //   purchaseUnitDpt: item.purchaseUnit,
-      //   conversionFactorUsed: item.conversionFactor || 1,
-      // })); 
+  //console.log("purchaseUnitCostInv----------------------")
 
       const rawRequest = itemsInConsumptionUnit.map((item) => ({
   inventoryItemId: item.inventoryItemId,
   quantity: item.quantity,
-  averageCostDpt: item.averageCost,
-  purchaseUnitDpt: item.purchaseUnit,
+  averageCostInv: item.averageCost,
+  purchaseUnitInv: item.purchaseUnit,
+  purchaseUnitCostInv: item.purchaseUnitCost,
   conversionFactorUsed: item.conversionFactor || 1,
 }));
 
@@ -92,7 +89,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
           "IN",
           itemsInConsumptionUnit
         );
-     console.log("Dpt stock issue -----------------------",departmentRecord)
+    // console.log("Dpt stock issue -----------------------",departmentRecord)
       // ==========================================
       // 4. VALIDATE RAW STOCK
       // ==========================================

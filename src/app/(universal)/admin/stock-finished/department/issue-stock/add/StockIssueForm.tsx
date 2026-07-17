@@ -25,6 +25,10 @@ export default function StockIssueForm({
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const selectedIds = items
+  .map((i) => i.inventoryItemId)
+  .filter(Boolean);
+
 const addItem = () => {
   setItems([
     ...items,
@@ -36,6 +40,10 @@ const addItem = () => {
 
       purchaseUnit: "",
       consumptionUnit: "",
+      
+   purchaseUnitCost: 0, 
+
+   
 
       conversionFactor: 1,
 
@@ -55,25 +63,31 @@ const updateItem = (index: number, field: string, value: any) => {
     const selected = inventoryItems.find((i) => i.id === value);
 
     if (selected) {
-      updated[index].inventoryItemName = selected.name;
+  updated[index].inventoryItemName = selected.name;
 
-      updated[index].purchaseMappings =
-        selected.purchaseMappings || [];
+  updated[index].purchaseUnitCost =
+    selected.purchaseUnitCost || 0;
 
-     updated[index].averageCost = selected.averageCost || 0;
+  updated[index].averageCost =
+    selected.averageCost || 0;
 
-      // ✅ auto select FIRST unit
-      const firstUnit = selected.purchaseMappings?.[0];
+  // KEEP THIS
+  updated[index].purchaseMappings =
+    selected.purchaseMappings || [];
 
-      if (firstUnit) {
-        updated[index].purchaseUnit = firstUnit.purchaseUnit;
-        updated[index].consumptionUnit =
-          firstUnit.consumptionUnit;
+  const firstUnit = selected.purchaseMappings?.[0];
 
-        // ✅ ADD THIS HERE
-        updated[index].conversionFactor = firstUnit.factor;
-      }
-    }
+  if (firstUnit) {
+    updated[index].purchaseUnit =
+      firstUnit.purchaseUnit;
+
+    updated[index].consumptionUnit =
+      firstUnit.consumptionUnit;
+
+    updated[index].conversionFactor =
+      firstUnit.factor;
+  }
+}
   }
 
   // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
@@ -228,19 +242,31 @@ if (!items.length) {
                 key={index}
                 className="grid grid-cols-5 gap-2 px-3 py-2 border-t items-center"
               >
-                <select
-                  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
-                  onChange={(e) =>
-                    updateItem(index, "inventoryItemId", e.target.value)
-                  }
-                >
-                  <option value="">Select</option>
-                  {inventoryItems.map((i) => (
-                    <option key={i.id} value={i.id}>
-                      {i.name}
-                    </option>
-                  ))}
-                </select>
+             <select
+  value={item.inventoryItemId}
+  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+  onChange={(e) =>
+    updateItem(index, "inventoryItemId", e.target.value)
+  }
+>
+  <option value="">Select</option>
+
+  {inventoryItems.map((i) => {
+    const alreadySelected =
+      selectedIds.includes(i.id) &&
+      item.inventoryItemId !== i.id; // allow current row
+
+    return (
+      <option
+        key={i.id}
+        value={i.id}
+        disabled={alreadySelected}
+      >
+        {i.name}
+      </option>
+    );
+  })}
+</select>
 
                 <input
                   type="number"
