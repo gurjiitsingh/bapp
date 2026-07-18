@@ -34,9 +34,13 @@ export async function getProductionBatchItems(
       costPerUnit: Number(d.costPerUnit) || 0,
 
       totalCost: Number(d.totalCost) || 0,
-      itemTotalCost: Number(d.itemTotalCost || 0),
+      itemTotalCost: Number(d.itemTotalCost || 0).toFixed(2),
 
-      createdAt: d.createdAt ?? null,
+      createdAt:
+        d.createdAt &&
+        typeof d.createdAt.toMillis === "function"
+          ? d.createdAt.toMillis()
+          : null,
     };
   });
 }

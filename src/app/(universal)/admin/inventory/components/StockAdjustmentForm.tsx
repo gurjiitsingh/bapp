@@ -313,27 +313,26 @@ export default function StockAdjustmentForm({
   }
 
   try {
-    const result = await adjustInventoryStock({
-      inventoryItemId: data.inventoryItemId,
-      type: data.type,
-      direction: data.direction,
+ const result = await adjustInventoryStock({
+  inventoryItemId: data.inventoryItemId,
+  type: data.type,
+  direction: data.direction,
 
-      // INTERNAL
-      quantity: finalQuantity,
+  // INTERNAL VALUES (consumption unit)
+  quantity: finalQuantity,
+  unitCost: averageCost,
+  stockValue: Number(data.stockValue),
 
-      unitCost: averageCost,
-      stockValue: Number(data.stockValue),
+  // DISPLAY / PURCHASE UNIT VALUES
+  purchaseQuantity: originalQuantity,
+  purchaseUnit: data.transactionUnit,
+  purchaseUnitCost: Number(data.averageCost),
+  conversionFactor: mapping?.factor ?? 1,
 
-      // ORIGINAL
-      purchaseQuantity: originalQuantity,
-      purchaseUnit: data.transactionUnit,
-      purchaseUnitCost: 0,
-      conversionFactor: mapping?.factor ?? 1,
-
-      paymentStatus: "PAID",
-      note: data.note,
-      createdBy: "admin",
-    });
+  paymentStatus: "PAID",
+  note: data.note,
+  createdBy: "admin",
+});
 
     if (!result.success) {
       toast.error(result.message);

@@ -151,6 +151,7 @@ export async function autoStockProduction({
 
 
       let batchCost = 0;
+     
 
       for (const update of departmentRecord) {
         batchCost +=
@@ -159,6 +160,7 @@ export async function autoStockProduction({
           (Number(update.conversionFactor) || 1);
       }
 
+const avgCostPerUnitProduction = batchCost / quantity;
 
       tx.set(batchRef, {
         id: batchId,
@@ -167,8 +169,9 @@ export async function autoStockProduction({
 
         outputQty: quantity,
 
-        avgCostPerUnit: batchCost / quantity,
-        batchCost,                    // ✅ total of all consumed items
+       batchCost ,       // Total cost of producing the batch
+       avgCostPerUnit:avgCostPerUnitProduction,   // Cost of one finished unit
+ 
 
         createdAt: now,
         note: note || "",
@@ -221,83 +224,34 @@ export async function autoStockProduction({
       
       
 
-
-        // console.log("========== Department Production Ledger ==========");
-        // console.log("Item Name          :", item.inventoryItemName);
-
-        // console.log("Entered Quantity   :", item.quantity / item.conversionFactor);
-        // console.log("Average Cost       :", averageCost);
-        // console.log("Conversion Factor  :", item.conversionFactor);
-
-        // console.log(
-        //   "Final Quantity     :",
-        //   item.quantity / update.conversionFactor
-        // );
-
-        // console.log("Cost Per Unit      :", averageCost);
-
-        // console.log("Total Cost     :", Number(update.quantityChange) * averageCost / update.conversionFactor)
-
-        // console.log("Purchase Unit      :", update.purchaseUnit);
-        // console.log("Consumption Unit   :", update.consumptionUnit);
-        // console.log("Conversion Factor  :", update.conversionFactor);
-
-        // console.log("quantityChange  :", update.quantityChange);
-        // console.log("===============================================");
-
-
         await updateDepartmentStockTx({
           transaction: tx,
           update,
 
-        });
-
-        //    await updateDepartmentStockTxM({
-        //   transaction: tx,
-        //   update,
-        //   qtyChange: -item.quantity,
-        // });     
-
+        });    
+      
       }
 
-
-
-      let totalRawMaterialCost = 0;
-
-      for (const update of departmentRecord) {
-        const consumedValue =
-          (Number(update.quantityChange) || 0) *
-          (Number(update.newAverageCost) || 0);
-
-        totalRawMaterialCost += consumedValue;
-      }
-
-   
-
+ 
 
       // =========================
       // ✅ 3. WRITE
       // =========================
-
      
-      const productionCostPerUnit =
-        quantity > 0
-          ? totalRawMaterialCost / quantity
-          : 0;
-
+     
 
       // 1 ✅ Update stock (finished currentStock)
       await applyFinishedTransactionsWrite(tx, {
         productId: id,
-        batchId: "ABC",
+        batchId: batchId, 
         productName,
         type: "PRODUCTION",
         direction,
         quantity,
         transactionUnit,
 
-        unitPrice: productionCostPerUnit,
-        totalAmount: totalRawMaterialCost,
+        unitPrice: avgCostPerUnitProduction,
+        totalAmount: batchCost,
         note,
         createdBy,
         source: "ADMIN",
@@ -382,3 +336,34 @@ export async function autoStockProduction({
     };
   }
 }
+
+
+
+
+
+
+
+
+
+        // console.log("========== Department Production Ledger ==========");
+        // console.log("Item Name          :", item.inventoryItemName);
+
+        // console.log("Entered Quantity   :", item.quantity / item.conversionFactor);
+        // console.log("Average Cost       :", averageCost);
+        // console.log("Conversion Factor  :", item.conversionFactor);
+
+        // console.log(
+        //   "Final Quantity     :",
+        //   item.quantity / update.conversionFactor
+        // );
+
+        // console.log("Cost Per Unit      :", averageCost);
+
+        // console.log("Total Cost     :", Number(update.quantityChange) * averageCost / update.conversionFactor)
+
+        // console.log("Purchase Unit      :", update.purchaseUnit);
+        // console.log("Consumption Unit   :", update.consumptionUnit);
+        // console.log("Conversion Factor  :", update.conversionFactor);
+
+        // console.log("quantityChange  :", update.quantityChange);
+        // console.log("===============================================");

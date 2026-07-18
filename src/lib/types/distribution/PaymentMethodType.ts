@@ -3,4 +3,5 @@ export type PaymentMethodType =
   | "CARD"
   | "UPI"
   | "WALLET"
-  | "CREDIT";
+  | "CREDIT"
+  | "CHECK"

@@ -11,19 +11,25 @@ import {
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { inventoryAdjust } from "./inventoryAdjust";
+import { inventoryPurchase } from "./inventoryPurchase";
+import { applySupplierTransaction } from "../inventorySupplier/applySupplierTransaction";
+import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
   type: InventoryTransactionNameType;
-
+  supplierId?: string;
+  supplierName: string;
   direction: "IN" | "OUT";
 
   // INTERNAL (consumption unit)
   quantity: number;
   unitCost: number;
   stockValue?: number;
-
+  paymentMethod?: PaymentMethodType;
+  paidAmount?: number;
   // USER INPUT (purchase unit)
   purchaseQuantity?: number;
   purchaseUnit?: string;
@@ -40,16 +46,18 @@ type AdjustInventoryStockType = {
   referenceType?: "MANUAL";
 };
 
-export async function adjustInventoryStock({
+export async function purchaseStock({
   inventoryItemId,
 
   type,
   direction,
-
+  supplierId,
+  supplierName,
   quantity,
   unitCost,
   stockValue,
-
+paidAmount,
+ paymentMethod,
   purchaseQuantity,
   purchaseUnit,
   purchaseUnitCost,
@@ -67,8 +75,10 @@ export async function adjustInventoryStock({
 
   console.log("inventoryItemId:", inventoryItemId);
   console.log("type:", type);
-  console.log("direction:", direction);
 
+  console.log("supplierName:", supplierName);
+  console.log("supplierId:", supplierId);
+  console.log("unitCost:", unitCost);
   console.log("quantity:", quantity);
   console.log("unitCost:", unitCost);
 
@@ -101,7 +111,7 @@ export async function adjustInventoryStock({
       };
     }
 
-    if (type !== "CLEAR" && quantity <= 0) {
+    if (quantity <= 0) {
       return {
         success: false,
         message: "Quantity must be greater than 0",
@@ -109,21 +119,16 @@ export async function adjustInventoryStock({
     }
 
     // Cost required only when user is adding/replacing stock
-    if (
-      (type === "OPENING_STOCK") ||
-      (type === "ADJUSTMENT" &&
-        direction === "IN")
-    ) {
-      if ((purchaseUnitCost ?? 0) <= 0) {
-        return {
-          success: false,
-          message:
-            "Unit cost must be greater than 0",
-        };
-      }
+    if ((purchaseUnitCost ?? 0) <= 0) {
+      return {
+        success: false,
+        message: "Unit cost must be greater than 0",
+      };
     }
 
     await adminDb.runTransaction(async (tx) => {
+
+
       const inventoryRef = adminDb
         .collection("inventoryItems")
         .doc(inventoryItemId);
@@ -137,80 +142,50 @@ export async function adjustInventoryStock({
         );
       }
 
-      // =====================================================
-      // CLEAR STOCK
-      // =====================================================
 
-      if (type === "CLEAR") {
-        tx.update(inventoryRef, {
-          currentStock: 0,
-          stockValue: 0,
-          purchaseUnitCost: 0,
-          averageCost: 0,
-          costPrice: 0,
-          updatedAt:
-            admin.firestore.FieldValue.serverTimestamp(),
-        });
 
-        return;
-      }
+let currentBalance = 0;
+let currentCreditBalance = 0;
 
-      const inventoryData =
-        inventorySnap.data();
+if (supplierId) {
+  const supplierAccountRef = adminDb
+    .collection("supplierAccounts")
+    .doc(supplierId);
 
-      let averageCost = 0;
-      let totalAmount = 0;
+  const supplierAccountSnap =
+    await tx.get(supplierAccountRef);
 
-      switch (type) {
-        case "OPENING_STOCK":
-          averageCost = Number(unitCost);
+  if (supplierAccountSnap.exists) {
+    const supplierData =
+      supplierAccountSnap.data()!;
 
-          totalAmount =
-            Number(stockValue) ||
-            quantity * averageCost;
+    currentBalance = Number(
+      supplierData.balance ?? 0
+    );
 
-          break;
-
-        case "ADJUSTMENT":
-          if (direction === "IN") {
-            averageCost = Number(unitCost);
-
-            totalAmount =
-              Number(stockValue) ||
-              quantity * averageCost;
-          } else {
-            // Use current average cost
-            averageCost = Number(
-              inventoryData?.averageCost || 0
-            );
-
-            totalAmount =
-              quantity * averageCost;
-          }
-
-          break;
-
-        case "WASTAGE":
-          averageCost = Number(
-            inventoryData?.averageCost || 0
-          );
-
-          totalAmount =
-            quantity * averageCost;
-
-          break;
-      }
+    currentCreditBalance = Number(
+      supplierData.creditBalance ?? 0
+    );
+  }
+}
 
       // =====================================================
       // UPDATE INVENTORY
       // =====================================================
 
-      await inventoryAdjust(tx, {
+      const averageCost = Number(unitCost);
+
+      const totalAmount =
+        Number(stockValue) ||
+        quantity * averageCost;
+
+      await inventoryPurchase(tx, {
         inventoryItemId,
 
-        type,
-        direction,
-
+        type: "PURCHASE",
+        direction: "IN",
+supplierId,
+  supplierName,
         quantity,
 
         unitCost: averageCost,
@@ -230,11 +205,72 @@ export async function adjustInventoryStock({
 
         source: "WEB_ADMIN",
       });
+
+
+
+
+
+
+const total = Number(totalAmount);
+const paid = Number(paidAmount);
+const due = Math.max(total - paid, 0);
+
+
+await updateSupplierAccount(tx, {
+  supplierId: supplierId!,
+  supplierName,
+
+  type: "PURCHASE",
+
+  totalAmount: total,
+  paidAmount: paid,
+  dueAmount: due,
+
+  currentBalance,
+  currentCreditBalance,
+
+  paymentMethod,
+});
+
+await applySupplierTransaction(tx, {
+  supplierId,
+  supplierName,
+
+  type: "PURCHASE",
+
+  totalAmount: total,
+  paidAmount: paid,
+  dueAmount: due,
+
+  currentBalance,
+  currentCreditBalance,
+
+  paymentMethod,
+
+  referenceType,
+  referenceId,
+
+  note,
+  createdBy,
+  source: "WEB_ADMIN",
+});
+
+
+
+
+
+
+
+
+
+
+
+
     });
 
-    revalidateTag("inventory-items", "max");
-    revalidatePath("/admin/inventory");
-    revalidatePath("/admin/inventory/dashboard");
+    // revalidateTag("inventory-items", "max");
+    // revalidatePath("/admin/inventory");
+    // revalidatePath("/admin/inventory/dashboard");
 
     return {
       success: true,

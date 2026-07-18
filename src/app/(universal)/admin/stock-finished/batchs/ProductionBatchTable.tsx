@@ -44,18 +44,7 @@ export default function ProductionBatchTable({ batches }: any) {
             "
           />
 
-          <Link
-            href="/admin/stock-finished/batchs/create-departmentstock"
-            className="
-              h-11 px-5 flex items-center justify-center
-              rounded-xl
-              bg-red-600 text-white font-medium
-              shadow-sm
-              hover:bg-red-700 transition
-            "
-          >
-            + Sami Auto Production
-          </Link>
+        
 
            <Link
             href="/admin/stock-finished/production"
@@ -68,6 +57,19 @@ export default function ProductionBatchTable({ batches }: any) {
             "
           >
             + Automatic Production
+          </Link>
+
+            <Link
+            href="/admin/stock-finished/batchs/create-departmentstock"
+            className="
+              h-11 px-5 flex items-center justify-center
+              rounded-xl
+              bg-slate-500 text-white font-medium
+              shadow-sm
+              hover:bg-slate-600 transition
+            "
+          >
+             Manual Production
           </Link>
         </div>
       </div>

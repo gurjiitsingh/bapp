@@ -272,59 +272,7 @@ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurcha
         
         tx.set(ledgerRef, ledger);
 
-    // tx.set(ledgerRef, {
-    //     transactionId: ledgerRef.id,
-
-    //     inventoryItemId,
-    //     inventoryItemName: inventory.name || "",
-
-    //     supplierId: supplierId || "",
-    //     supplierName: supplierName || "",
-
-    //     type,
-    //     direction,
-
-    //     purchaseQuantity: purchaseQty,
-
-    //     purchaseUnit:
-    //         purchaseUnit ||
-    //         inventory.purchaseUnit ||
-    //         inventory.consumptionUnit,
-
-    //     purchaseUnitCost: isCostMovement
-    //         ? (purchaseUnitCost ?? finalUnitCost)
-    //         : 0,
-
-    //     conversionFactor:
-    //         conversionFactor ??
-    //         inventory.conversionFactor ??
-    //         1,
-
-    //     quantity,
-    //     unit:
-    //         inventory.consumptionUnit || "pcs",
-
-    //     unitCost: finalUnitCost,
-
-    //     beforeStock,
-    //     afterStock,
-
-    //     totalAmount: isCostMovement ? totalAmount : 0,
-    //     paidAmount: isCostMovement ? paidAmount : 0,
-    //     dueAmount: isCostMovement ? dueAmount : 0,
-    //     paymentStatus: isCostMovement ? paymentStatus : null,
-    //     paymentMethod: isCostMovement ? paymentMethod : null,
-
-    //     referenceType,
-    //     referenceId,
-
-    //     note,
-    //     createdBy,
-
-    //     createdAt: now,
-    //     source,
-    // });
-
+    
     return {
         beforeStock,
         afterStock,

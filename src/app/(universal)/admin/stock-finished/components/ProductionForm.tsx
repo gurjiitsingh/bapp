@@ -184,17 +184,19 @@ export default function ProductionForm({
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <Link
+              {/* <Link
                 href="/admin/stock-finished/issue/add"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-red-600 px-5 font-medium text-white shadow-sm transition hover:bg-red-700"
-              >
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
+       
+                  >
                 Manual Production
-              </Link>
+              </Link> */}
 
               <Link
                 href="/admin/stock-finished/batchs"
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-red-200 bg-white px-5 font-medium text-red-600 shadow-sm transition hover:bg-red-50"
-              >
+                       className="inline-flex h-11 items-center justify-center rounded-xl bg-red-600 px-5 font-medium text-white shadow-sm transition hover:bg-red-700"
+           
+             >
                 Production Batches
               </Link>
             </div>

@@ -244,9 +244,9 @@ const [selectedItem, setSelectedItem] =
       </div>
 
       {/* TOTAL */}
-    <div className="text-right text-xl font-semibold text-gray-800">
+    {/* <div className="text-right text-xl font-semibold text-gray-800">
   Batch Cost: ₹ {Number(batch.batchCost).toFixed(2)}
-</div>
+</div> */}
 
     </div>
   );
