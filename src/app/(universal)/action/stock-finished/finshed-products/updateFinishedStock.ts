@@ -12,6 +12,13 @@ type UpdateFinishedStockParams = {
 
   quantity: number;
 
+  sellingPrice?: number;
+  wholesalePrice?: number;
+  costPrice?: number;
+
+  // This updates the Firestore field: avgCost
+  avgCost?: number;
+
   allowNegativeStock?: boolean;
 };
 
@@ -20,8 +27,23 @@ export async function updateFinishedStock({
   productId,
   mode,
   quantity,
+  sellingPrice,
+  wholesalePrice,
+  costPrice,
+  avgCost,
   allowNegativeStock = false,
 }: UpdateFinishedStockParams) {
+  console.log("========== updateFinishedStock ==========");
+  console.log("productId:", productId);
+  console.log("mode:", mode);
+  console.log("quantity:", quantity);
+  console.log("sellingPrice:", sellingPrice);
+  console.log("wholesalePrice:", wholesalePrice);
+  console.log("costPrice:", costPrice);
+  console.log("avgCost:", avgCost);
+  console.log("allowNegativeStock:", allowNegativeStock);
+  console.log("========================================");
+
   const now = admin.firestore.FieldValue.serverTimestamp();
 
   const productRef = adminDb
@@ -58,11 +80,45 @@ export async function updateFinishedStock({
     throw new Error("Insufficient stock");
   }
 
-  tx.update(productRef, {
+  const finalAvgCost =
+    avgCost ?? Number(product.avgCost ?? 0);
+
+  const updateData: Record<string, any> = {
     currentStock: afterStock,
-    stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
+    stockStatus:
+      afterStock > 0
+        ? "in_stock"
+        : "out_of_stock",
+    stockValue: Number(
+      (afterStock * finalAvgCost).toFixed(2)
+    ),
     updatedAt: now,
-  });
+  };
+
+  if (sellingPrice !== undefined) {
+    updateData.sellingPrice = sellingPrice;
+  }
+
+  if (wholesalePrice !== undefined) {
+    updateData.wholesalePrice =
+      wholesalePrice;
+  }
+
+  if (costPrice !== undefined) {
+    updateData.costPrice = costPrice;
+  }
+
+  if (avgCost !== undefined) {
+    updateData.avgCost = avgCost;
+  }
+
+  tx.update(productRef, updateData);
+
+  console.log("afterStock:", afterStock);
+  console.log("finalAvgCost:", finalAvgCost);
+  console.log("stockValue:", updateData.stockValue);
+  console.log("updateData:", updateData);
+  console.log("========================================");
 
   return {
     beforeStock,

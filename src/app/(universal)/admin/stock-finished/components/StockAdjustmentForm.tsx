@@ -31,21 +31,19 @@ type FormType = {
   id: string;
 
   type:
-  | "PURCHASE"
-  | "OPENING_STOCK"
-  | "ADJUSTMENT"
-  | "WASTAGE"
-  // | "SUPPLIER_RETURN"
-  | "PURCHASE_RETURN"
-  | "CUSTOMER_RETURN";
+    | "PURCHASE"
+    | "OPENING_STOCK"
+    | "ADJUSTMENT"
+    | "UPDATE" 
+    | "WASTAGE"
+    | "PURCHASE_RETURN"
+    | "CUSTOMER_RETURN";
 
-  direction:
-  | "IN"
-  | "OUT";
-
+  direction: "IN" | "OUT";
+averageCost: number;
   quantity: number;
 
-  transactionUnit: InventoryUnit
+  transactionUnit: InventoryUnit;
 
   note: string;
 };
@@ -75,19 +73,22 @@ export default function StockAdjustmentForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
-      type: "OPENING_STOCK",
-      direction: "IN",
-      quantity: 0,
-      transactionUnit: "kg",
-      note: "",
-    },
+  type: "OPENING_STOCK",
+  direction: "IN",
+  quantity: 0,
+  transactionUnit: "kg",
+  averageCost: 0,
+  
+
+  note: "",
+},
   });
 
   const type = watch(
     "type"
   );
-
-  const transactionUnit = watch("transactionUnit");
+const averageCost = watch("averageCost");
+   
 
 
 
@@ -98,31 +99,42 @@ export default function StockAdjustmentForm({
 
 
   useEffect(() => {
-    switch (type) {
-      case "OPENING_STOCK":
-        setValue("direction", "IN");
-        break;
+  switch (type) {
+    case "OPENING_STOCK":
+      setValue("direction", "IN");
+      break;
 
-      case "CUSTOMER_RETURN":
-        setValue("direction", "IN");
-        break;
+    case "CUSTOMER_RETURN":
+      setValue("direction", "IN");
+      break;
 
-      case "PURCHASE_RETURN":
-        setValue("direction", "OUT");
-        break;
+    case "PURCHASE_RETURN":
+      setValue("direction", "OUT");
+      break;
 
-      case "WASTAGE":
-        setValue("direction", "OUT");
-        break;
+    case "WASTAGE":
+      setValue("direction", "OUT");
+      break;
 
-      case "ADJUSTMENT":
-        // user selects direction
-        break;
+    case "ADJUSTMENT":
+    case "UPDATE":
+      // User selects direction
+      break;
 
-      default:
-        break;
-    }
-  }, [type, setValue]);
+    default:
+      break;
+  }
+}, [type, setValue]);
+
+
+useEffect(() => {
+  if (type === "UPDATE" && selectedProduct) {
+    setValue(
+      "averageCost",
+      Number(selectedProduct.avgCost ?? 0)
+    );
+  }
+}, [type, selectedProduct, setValue]);
 
   // =====================================================
   // FILTER INVENTORY
@@ -149,72 +161,110 @@ export default function StockAdjustmentForm({
   // SUBMIT
   // =====================================================
 
-  async function onSubmit(data: FormType) {
-    if (isSubmitting) return;
+async function onSubmit(data: FormType) {
 
-    if (!selectedProduct) {
-      toast.error("Please select an inventory item.");
+
+
+  if (isSubmitting) return;
+  if (!selectedProduct) {
+    toast.error("Please select a product.");
+    return;
+  }
+
+  const quantity = Number(data.quantity);
+
+  if (quantity < 0) {
+    toast.error("Quantity cannot be negative.");
+    return;
+  }
+
+  if (
+    data.type !== "UPDATE" &&
+    quantity === 0
+  ) {
+    toast.error(
+      "Quantity must be greater than zero."
+    );
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const mode =
+      data.type === "UPDATE"
+        ? "SET"
+        : data.direction === "IN"
+        ? "INCREASE"
+        : "DECREASE";
+
+console.log("Form Data:", data);
+console.log("averageCost:", data.averageCost);
+
+        //FUNCIONT CALL######################
+    const result =
+      await adjustFinishedItemStock({
+        id: data.id,
+
+        mode,
+
+        quantity,
+
+        sellingPrice:
+          selectedProduct.sellingPrice,
+
+        wholesalePrice:
+          selectedProduct.wholesalePrice,
+
+        costPrice:
+          selectedProduct.costPrice,
+
+        avgCost: data.averageCost,
+      });
+
+    if (!result.success) {
+      toast.error(
+        result.message ||
+          "Failed to update stock."
+      );
       return;
     }
 
- 
-    const quantity = Number(data.quantity);
+    let updatedStock =
+      selectedProduct.currentStock;
 
-if (quantity < 0) {
-  toast.error("Quantity cannot be negative.");
-  return;
-}
+    switch (mode) {
+      case "SET":
+        updatedStock = quantity;
+        break;
 
-const finalQuantity = quantity;
+      case "INCREASE":
+        updatedStock += quantity;
+        break;
 
-    setIsSubmitting(true);
-
-    try {
-      const result = await adjustFinishedItemStock({
-        id: data.id,
-        productName: selectedProduct.name,
-        sellingPrice: 0,
-        wholesalePrice: 0,
-        costPrice: 0,
-        avgCost: 0,
-
-        direction: data.direction,
-        type: data.type,
-        quantity: data.quantity,
-        transactionUnit: data.transactionUnit,
-
-        note: data.note,
-
-        createdBy: "admin",
-      });
-
-      if (!result.success) {
-        toast.error(result.message || "Failed to update stock.");
-        return;
-      }
-
-      let updatedStock = selectedProduct.currentStock;
-
-      if (data.direction === "IN") {
-        updatedStock += finalQuantity;
-      } else {
-        updatedStock -= finalQuantity;
-      }
-
-      setSelectedProduct({
-        ...selectedProduct,
-        currentStock: updatedStock,
-      });
-
-      toast.success("Stock updated successfully.");
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+      case "DECREASE":
+        updatedStock -= quantity;
+        break;
     }
+
+    setSelectedProduct({
+      ...selectedProduct,
+      currentStock: updatedStock,
+    });
+
+    toast.success(
+      "Stock updated successfully."
+    );
+  } catch (error) {
+    console.error(error);
+
+    toast.error(
+      "Something went wrong. Please try again."
+    );
+  } finally {
+    setIsSubmitting(false);
   }
+}
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">
@@ -292,14 +342,16 @@ const finalQuantity = quantity;
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => {
-                          setSelectedProduct(item); // ✅ correct
+                  onClick={() => {
+  setSelectedProduct(item);
 
-                          setValue("id", item.id);
+  setValue("id", item.id);
+  setValue("averageCost", item.avgCost ?? 0);
+  setValue("quantity", item.currentStock ?? 0); // add this
 
-                          setSearch(item.name);
-                          setShowDropdown(false);
-                        }}
+  setSearch(item.name);
+  setShowDropdown(false);
+}}
                         className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
                       >
                         <div className="font-medium text-gray-800">
@@ -376,34 +428,38 @@ const finalQuantity = quantity;
                 Transaction Type
               </label>
 
-              <select
-                {...register("type")}
-                className="input-style-4"
-              >
-                <option value="OPENING_STOCK">
-                  Opening Stock
-                </option>
+         <select
+  {...register("type")}
+  className="input-style-4"
+>
+  <option value="OPENING_STOCK">
+    Opening Stock
+  </option>
 
-                <option value="ADJUSTMENT">
-                  Stock Adjustment
-                </option>
+  <option value="ADJUSTMENT">
+    Stock Adjustment
+  </option>
 
-                <option value="CUSTOMER_RETURN">
-                  Customer Return
-                </option>
+  <option value="UPDATE">
+    Update (Testing)
+  </option>
 
-                <option value="PURCHASE_RETURN">
-                  Purchase Return
-                </option>
+  <option value="CUSTOMER_RETURN">
+    Customer Return
+  </option>
 
-                <option value="WASTAGE">
-                  Wastage
-                </option>
-              </select>
+  <option value="PURCHASE_RETURN">
+    Purchase Return
+  </option>
+
+  <option value="WASTAGE">
+    Wastage
+  </option>
+</select>
             </div>
 
             {/* Direction (Only for Adjustment) */}
-            {type === "ADJUSTMENT" && (
+          {type === "ADJUSTMENT" && (
               <div className="flex flex-col gap-2">
                 <label className="label-style-4">
                   Adjustment Direction
@@ -431,7 +487,13 @@ const finalQuantity = quantity;
           {/* ===================================================== */}
 
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+  className={`grid gap-4 ${
+    type === "UPDATE"
+      ? "grid-cols-1 md:grid-cols-2"
+      : "grid-cols-1 md:grid-cols-2"
+  }`}
+>
 
             {/* Quantity */}
 
@@ -457,7 +519,7 @@ const finalQuantity = quantity;
 
             {/* Unit */}
 
-            <div className="flex flex-col gap-2">
+         {type !== "UPDATE" && (   <div className="flex flex-col gap-2">
               <label className="label-style-4">
                 Unit
               </label>
@@ -477,7 +539,25 @@ const finalQuantity = quantity;
                 <option value="ltr">Liter (ltr)</option>
                 <option value="ml">Milliliter (ml)</option>
               </select>
-            </div>
+            </div>)}
+
+{type === "UPDATE" && (
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      Average Cost
+    </label>
+
+   <input
+  type="number"
+  step="0.0001"
+  {...register("averageCost", {
+    valueAsNumber: true,
+  })}
+  defaultValue={selectedProduct?.avgCost ?? 0}
+  className="input-style-4"
+/>
+  </div>
+)}
 
           </div>
 
