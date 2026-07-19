@@ -183,12 +183,12 @@ function TableRows({
 
       <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
-          {item.avgCost} Rs
+          {item.avgCost?.toFixed(2)} Rs
         </span>
       </TableCell>
       <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
-          {(item.currentStock) * (item.avgCost!)} Rs
+          {((item.currentStock) * (item.avgCost!)).toFixed(2)} Rs
         </span>
       </TableCell>
 

@@ -104,35 +104,35 @@ const [openPayment, setOpenPayment] =
   {/* Purchase Summary */}
   <div className="flex justify-between gap-3 p-4 bg-gray-200 rounded-xl lg:col-span-2">
     <div>
-      <p className="text-sm font-medium text-zinc-500">
+      {/* <p className="text-sm font-medium text-zinc-500">
         Total Purchase
       </p>
 
       <p className="text-2xl font-bold tracking-tight text-blue-700">
         ₹ {account.totalPurchase!.toLocaleString()}
-      </p>
+      </p> */}
     </div>
 
     <div>
       <div className="grid grid-cols-3 gap-3">
-        <MiniCard title="Cash" value={account.cashPaid} />
+        {/* <MiniCard title="Cash" value={account.cashPaid} />
         <MiniCard title="UPI" value={account.upiPaid} />
-        <MiniCard title="Card" value={account.cardPaid} />
+        <MiniCard title="Card" value={account.cardPaid} /> */}
       </div>
     </div>
   </div>
 
   {/* Return */}
-  <Card
+  {/* <Card
     title="Total Return"
     value={account.totalReturn}
-  />
+  /> */}
 
   {/* Paid */}
-  <Card
+  {/* <Card
     title="Total Paid"
     value={account.totalPaid}
-  />
+  /> */}
 
   {/* Due Balance */}
   <div className="p-4 flex justify-between items-center bg-gray-200 rounded-xl lg:col-span-2">

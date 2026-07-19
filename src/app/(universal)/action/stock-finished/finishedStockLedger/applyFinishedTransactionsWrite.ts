@@ -151,11 +151,11 @@ export async function applyFinishedTransactionsWrite(
     ),
 
     avgCost: Number(
-      unitPrice
+      unitPrice.toFixed(2)
     ),
 
     costPrice: Number(
-      afterCostPrice.toFixed(6)
+      afterCostPrice.toFixed(2)
     ),
 
     stockStatus:

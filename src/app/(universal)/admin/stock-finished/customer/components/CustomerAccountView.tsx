@@ -115,24 +115,24 @@ export default function CustomerAccountView({
 
         <div className="flex justify-between gap-2 p-3 bg-gray-200 rounded-xl col-span-2">
           <div>
-            <p className="text-sm font-medium text-zinc-500">
+            {/* <p className="text-sm font-medium text-zinc-500">
               Total Sales
-            </p>
+            </p> */}
 
-            <p
+            {/* <p
               className={`text-2xl font-bold tracking-tight ${(account.totalSales ?? 0) > 0
                 ? "text-blue-700"
                 : "text-zinc-700"
                 }`}
             >
               ₹ {(account.totalSales ?? 0).toLocaleString()}
-            </p>
+            </p> */}
           </div>
           <div>
             <div className="grid grid-cols-3 gap-3">
-              <MiniCard title="Cash" value={account.cashPaid} />
+              {/* <MiniCard title="Cash" value={account.cashPaid} />
               <MiniCard title="UPI" value={account.upiPaid} />
-              <MiniCard title="Card" value={account.cardPaid} />
+              <MiniCard title="Card" value={account.cardPaid} /> */}
             </div>
           </div>
 
@@ -140,8 +140,8 @@ export default function CustomerAccountView({
 
         </div>
 
-        <Card title="Total Return" value={account.totalReturn} />
-        <Card title="Total Paid" value={account.totalPaid} />
+        {/* <Card title="Total Return" value={account.totalReturn} />
+        <Card title="Total Paid" value={account.totalPaid} /> */}
         <Card title="Credit" value={account.creditBalance} />
         <div className="p-3 flex justify-between  col-span-2 bg-gray-200 rounded-xl">
           <div className="flex flex-col">

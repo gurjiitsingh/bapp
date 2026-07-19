@@ -7,6 +7,7 @@ import { readRawInventoryRecipes } from "../inventory/rawInventory/readRawInvent
 import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinishedTransactionsWrite";
 import { updateDepartmentStockTx } from "../production/departments/UpdateDepartmentStockTx";
 import { getDepartmentStockDataForProduction } from "../production/departments/getDepartmentStockDataForProduction";
+import { validateRawStockProduction } from "../inventory/rawInventory/validateRawStockProduction";
 
 
 
@@ -123,9 +124,9 @@ export async function autoStockProduction({
       // ✅ 2. VALIDATE
       // =========================
 
-      // if (direction === "IN") {
-      //   validateRawStockProduction(rawInventoryReads);
-      // }
+      if (direction === "IN") {
+        validateRawStockProduction(rawInventoryReads);
+      }
 
       // =========================
       // ✅ 4. CREATE BATCH
