@@ -20,7 +20,7 @@ export async function returnStockToMainStore(
 ) {
     const db = adminDb;
 
- //   console.log("input----------------",input)
+   // console.log("input----------------",input)
 
     try {
         if (!input.departmentId) {
@@ -36,7 +36,7 @@ export async function returnStockToMainStore(
                 message: "Add items",
             };
         }
-        //console.log("item---------------", input.items)
+    //   console.log("item---------------", input.items)
         const now = new Date();
         const timestamp = Date.now();
         const transferId = `DEPT-RETURN-${timestamp}`;
@@ -56,17 +56,11 @@ export async function returnStockToMainStore(
   quantity: item.quantity,
   averageCostDpt: item.averageCost,
   purchaseUnitDpt: item.purchaseUnit,
-  purchaseUnitCostDpt: item.purchaseUnitCost,
+  purchaseUnitCostDpt: item.purchaseUnitCost,//undefind remove it later
   conversionFactorUsed: item.conversionFactor || 1,
 }));
 
-            // const rawRequest = input.items.map((item) => ({
-            //     inventoryItemId: item.inventoryItemId,
-            //     quantity: item.quantity *   (item.conversionFactor || 1),
-            //     averageCostDpt: item.averageCost,
-            //     purchaseUnitDpt: item.purchaseUnit,
-            //     conversionFactorUsed: item.conversionFactor || 1,
-            // })); 
+    //   console.log("rawRequest---------------------", rawRequest) 
 
             // ==========================================
             // 2. READ RAW INVENTORY
@@ -91,7 +85,7 @@ export async function returnStockToMainStore(
                     "OUT",
                       itemsInConsumptionUnit
                 );
-console.log("Dpt stock returned -----------------------",departmentRecord)
+//console.log("Dpt stock returned -----------------------",departmentRecord)
             // ==========================================
             // 4. VALIDATE RAW STOCK
             // ==========================================

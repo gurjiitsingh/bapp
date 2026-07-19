@@ -165,12 +165,7 @@ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurcha
 
     const purchaseQty =
         purchaseQuantity ??
-        quantity /
-        Number(
-            conversionFactor ??
-            inventory.conversionFactor ??
-            1
-        );
+        quantity 
 
 
 
@@ -210,7 +205,7 @@ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurcha
           // TRANSACTION DETAILS
           // =====================================================
           conversionFactor:
-            conversionFactor ??
+            conversionFactor ?? 
             inventory.conversionFactor ??
             1,
         

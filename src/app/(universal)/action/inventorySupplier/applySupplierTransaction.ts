@@ -1,5 +1,6 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -17,7 +18,7 @@ type ApplySupplierTransactionParams = {
   creditAmount?: number;
 currentCreditBalance?: number;
 
-  paymentMethod?: PaymentMethod;
+  paymentMethod?: PaymentMethodType;
 
   referenceType?: string;
   referenceId?: string;

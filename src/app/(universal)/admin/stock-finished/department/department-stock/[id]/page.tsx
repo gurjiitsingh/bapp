@@ -20,7 +20,7 @@ export default async function DepartmentStockPage({
  
 const department = await getDepartmentById(id);
   const stock = await getDepartmentStock(id);
-//  console.log("sotck dp------------------",stock)
+ //  console.log("sotck dp------------------",stock)
 
   return (
     <DepartmentStockTable data={stock} 

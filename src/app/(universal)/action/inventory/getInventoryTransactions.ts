@@ -54,7 +54,7 @@ export async function getInventoryTransactions({
         // =====================================================
         // MOVEMENT (renamed)
         // =====================================================
-        quantity: data.transactionQuantity,
+        quantity: data.quantity,
         unit: data.transactionUnit,
         unitCost: data.transactionUnitCost,
 

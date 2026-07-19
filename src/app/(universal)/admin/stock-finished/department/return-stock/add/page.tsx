@@ -9,7 +9,7 @@ export default async function Page() {
   const inventoryItemsRaw = await fetchInventoryItems();
   // const departmentStock = getDepartmentStock(departmentId)
 // console.log("departmentsRaw-------------------------",departmentsRaw)
-// console.log("inventoryItemsRaw-------------------------",inventoryItemsRaw)
+ //console.log("inventoryItemsRaw-------------------------",inventoryItemsRaw)
  
   // ✅ SAFE mapping (VERY IMPORTANT)
   const departments = (departmentsRaw || []).map((d: any) => ({

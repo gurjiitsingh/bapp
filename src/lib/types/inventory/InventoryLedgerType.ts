@@ -38,7 +38,7 @@ export interface InventoryLedgerType {
   purchaseQuantity: number;
   purchaseUnit: string;
   purchaseUnitCost: number;
-
+quantity?:number;
   // =====================================================
   // TRANSACTION DETAILS
   // RENAMED

@@ -4,11 +4,11 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
 
-export async function applyTransactionInventory_StoreAndDpt(
+export async function applyTransactionInventory_StoreAndDpt( 
   tx: FirebaseFirestore.Transaction,
   updates: RawInventoryUpdate[],
   referenceId: string,
-  type:string,
+  type: string,
   direction: "IN" | "OUT" = "OUT"
 ) {
   const now = admin.firestore.FieldValue.serverTimestamp();
@@ -17,14 +17,14 @@ export async function applyTransactionInventory_StoreAndDpt(
 
   for (const u of updates) {
 
-//console.log("u purchaseUnit----------------------", u.purchaseUnit)
+    console.log("u.purchaseUnitCost----------------------", u.purchaseUnitCost)
 
     const quantity = Number(u.sendQty || 0);
-   // const unitCost = Number(u.storeAvgCost || 0);
+    // const unitCost = Number(u.storeAvgCost || 0);
     const unitCost =
-  direction === "IN"
-    ? Number(u.dptAvgCost || 0)   // ✅ return
-    : Number(u.storeAvgCost || 0); // ✅ issue
+      direction === "IN"
+        ? Number(u.dptAvgCost || 0)   // ✅ return
+        : Number(u.storeAvgCost || 0); // ✅ issue
     const stockValue = Number(u.storeStockValue || 0);
 
     const movementValue = quantity * unitCost;
@@ -38,17 +38,10 @@ export async function applyTransactionInventory_StoreAndDpt(
         ? beforeStock - quantity
         : beforeStock + quantity;
 
-        
 
-    // const afterStockValue =
-    //   direction === "OUT"
-    //     ? Math.max(0, stockValue - movementValue)
-    //     : stockValue + movementValue;
-
-  // const newAvgCost =
-  // afterStock > 0
-  //   ? afterStockValue / afterStock
-  //   : 0; // ✅ ADDED: recalculated store average cost
+    console.log("========== Inventory Movement ==========");
+    console.log(u);
+    console.log("========================================");
 
 
     // =====================================
@@ -66,27 +59,43 @@ export async function applyTransactionInventory_StoreAndDpt(
       inventoryItemId: u.inventoryItemId,
       inventoryItemName: u.inventoryItemName,
 
-      supplierId: "",
-      supplierName: "",
+      partyId: "",
+      partyName: "",
 
       type,
 
       direction,
 
-      purchaseQuantity: 0,
+      purchaseQuantity: u.sendQty/u.conversionFactor,
       purchaseUnit: u.purchaseUnit || "",
-      purchaseUnitCost: 0,
+      purchaseUnitCost: u.purchaseUnitCost,
 
       conversionFactor:
         u.conversionFactor,
 
-      quantity,
+
+        partyType: "SYSTEM",
+
+transactionQuantity: u.sendQty,
+
+transactionUnit: u.consumptionUnit,
+
+transactionUnitCost: unitCost,
+
+sourceModule:
+  direction === "OUT"
+    ? "PRODUCTION"
+    : "DEPARTMENT_RETURN", 
+
+createdById: "system",
+
+      quantity: u.sendQty/u.conversionFactor,
       consumptionUnit: u.consumptionUnit,
 
-      unitCost:unitCost,
+      unitCost: unitCost,
 
-      beforeStock ,
-      afterStock ,
+      beforeStock,
+      afterStock,
 
       totalAmount: Number(
         movementValue.toFixed(2)

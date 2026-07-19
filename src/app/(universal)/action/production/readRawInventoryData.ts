@@ -19,9 +19,11 @@ export async function readRawInventoryData(
 ) {
   const updates: RawInventoryUpdateIssue[] = [];
 
+  
+
   for (const item of items) {
     const qty = Number(item.quantity) || 0;
-
+console.log("purcahseunitcost----------------------------", item.purchaseUnitInv)
   
     if (qty <= 0) continue;
 

@@ -72,7 +72,7 @@ export default function StockReturnForm({
       if (selected) {
         updated[index].inventoryItemName = selected.inventoryItemName;
         updated[index].averageCost = selected.averageCost;
-
+ //updated[index].purchaseUnitCost = selected.purchaseUnitCost;
         updated[index].purchaseUnit = selected.purchaseUnit;
         updated[index].consumptionUnit = selected.consumptionUnit;
         updated[index].conversionFactor = selected.conversionFactor;

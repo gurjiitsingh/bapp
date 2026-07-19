@@ -17,30 +17,40 @@ export async function updateDepartmentStockTx({
   const now = new Date();
 
 
-  const newStockValue = Number((update.newQuantity! * update.newAverageCost!)/update.conversionFactor).toFixed(2);
-
+  const newStockValue = Number(
+  (
+    (update.newQuantity! * update.newPurchaseUnitCost) /
+    update.conversionFactor
+  ).toFixed(2)
+);
   
-//   console.log("========== Department Stock Update ==========");
-// console.log("Quantity          :", update.newQuantity);
-// console.log("Average Cost      :", update.newPurchaseUnitCost); // or update.newAverageCost
-// console.log("update.newAverageCost       :", update.newAverageCost);
-// console.log("Purchase Unit Cost:", update.newPurchaseUnitCost);
-// console.log("Current Stock     :", update.newQuantity);
-// console.log("Stock Value       :", newStockValue);
+  console.log("========== Department Stock Update ==========");
+console.log("Quantity New value        :", update.newQuantity);
+console.log("Average Cost      :", update.newPurchaseUnitCost); // or update.newAverageCost
+console.log("Average Cost      :", update.newPurchaseUnitCost);
+console.log("update.conversionFactor       :", update.conversionFactor);
+console.log("Purchase Unit Cost:", update.newPurchaseUnitCost);
+console.log("Current Stock     :", update.newQuantity);
+console.log("Stock Value       :", newStockValue);
 
-// console.log("============================================");
+const data = {
+    quantity: update.newQuantity,
+    averageCost: update.newPurchaseUnitCost,
+    purchaseUnitCost: update.newPurchaseUnitCost,
+    currentStock: update.newQuantity,
+    stockValue: newStockValue,
+    updatedAt: now,
+};
+
+console.log("Updating Firestore with:", data);
+
+
+
+
  
   if (update.exists && update.ref) {
 
-    tx.update(update.ref, {
-      quantity: update.newQuantity, 
-      averageCost: update.newPurchaseUnitCost,//update.newAverageCost,
-      purchaseUnitCost: update.newPurchaseUnitCost,
-      currentStock: update.newQuantity,
-      stockValue: newStockValue, 
-      updatedAt: now,
-    });
-
+    tx.update(update.ref, data);
     return;
   }
 

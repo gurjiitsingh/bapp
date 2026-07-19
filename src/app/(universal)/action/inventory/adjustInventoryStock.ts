@@ -11,25 +11,28 @@ import {
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { inventoryAdjust } from "./inventoryAdjust";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type AdjustInventoryStockType = {
   inventoryItemId: string;
 
   type: InventoryTransactionNameType;
-
+supplierId?:string;
+supplierName?:string;
   direction: "IN" | "OUT";
 
   // INTERNAL (consumption unit)
   quantity: number;
   unitCost: number;
   stockValue?: number;
-
+paidAmount?: number;
+dueAmount?: number;
   // USER INPUT (purchase unit)
   purchaseQuantity?: number;
   purchaseUnit?: string;
   purchaseUnitCost?: number;
   conversionFactor?: number;
-
+paymentMethod?:PaymentMethodType;
   paymentStatus: PaymentStatus;
 
   note?: string;
@@ -54,7 +57,7 @@ export async function adjustInventoryStock({
   purchaseUnit,
   purchaseUnitCost,
   conversionFactor,
-
+paymentMethod,
   paymentStatus,
 
   note,

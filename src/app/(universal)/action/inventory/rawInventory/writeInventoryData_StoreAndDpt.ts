@@ -62,12 +62,12 @@ const newAvgPrice =
 
 
 
-    // console.log("dptAvgCost:", dptAvgCost)
-    // console.log("sendQty:", sendQty)
-    // console.log("storeAvgCost:", storeAvgCost)
-    // console.log("storeStock:", storeStock)
-    // console.log("convertionfactor:", u.conversionFactor)
+//  console.log("========== Inventory Update ==========");
+// console.log("currentStock :", newStockQty);
+// console.log("stockValue   :", newStockValue);
+// console.log("averageCost  :", newAvgPrice);
 
+// console.log("======================================");
 
     // ✅ Update Inventory
  tx.update(u.ref, {

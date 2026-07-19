@@ -24,6 +24,7 @@ import {
 } from "@/utils/inventory/formatPrice";
 
 import { formatQuantity } from "@/utils/inventory/formatQty";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
   transactions?: any[];
@@ -177,8 +178,8 @@ export default function InventoryTransactionTable({
               {/* PRICE */}
 
          <TableCell>
-       
-  {showFinancial ? (
+       {tx.purchaseUnitCost}
+  {/* {showFinancial ? (
     <div className="flex flex-col">
 
       {tx.purchaseUnit &&
@@ -210,7 +211,7 @@ export default function InventoryTransactionTable({
     </div>
   ) : (
     "-"
-  )}
+  )} */}
 </TableCell>
 
               {/* QUANTITY */}
@@ -218,37 +219,13 @@ export default function InventoryTransactionTable({
               <TableCell>
                 <div className="flex flex-col">
 
-                  {tx.purchaseUnit &&
-                  tx.purchaseUnit !== tx.consumptionUnit &&
-                  tx.conversionFactor ? (
-                    <>
-               
-                      <span className="font-medium">
-                        {formatQuantity(
-                          tx.quantity /
-                            tx.conversionFactor,
-                          tx.purchaseUnit
-                        )}{" "}
-                        {tx.purchaseUnit}
-                      </span>
 
-                      <span className="text-xs text-gray-500">
-                        {formatQuantity(
-                          tx.quantity,
-                          tx.consumptionUnit
-                        )}{" "}
-                        {tx.consumptionUnit}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="font-medium">
-                      {formatQuantity(
-                        tx.quantity,
-                        tx.consumptionUnit
-                      )}{" "}
-                      {tx.consumptionUnit}
-                    </span>
-                  )}
+
+
+
+                 {Number(tx.purchaseQuantity).toFixed(2)}
+               
+                
 
                 </div>
               </TableCell>
@@ -256,15 +233,15 @@ export default function InventoryTransactionTable({
               {/* TOTAL */}
 
               <TableCell>
-                { tx.totalAmount}
+                {Number(tx.purchaseQuantity* tx.purchaseUnitCost).toFixed(2)}
               </TableCell>
 
               {/* BEFORE */}
 
               <TableCell>
                 <div className="flex flex-col">
-
-                  {tx.purchaseUnit &&
+  {Number(tx.beforeStock/tx.conversionFactor).toFixed(2)}
+                  {/* {tx.purchaseUnit &&
                   tx.purchaseUnit !== tx.consumptionUnit &&
                   tx.conversionFactor ? (
                     <>
@@ -293,7 +270,7 @@ export default function InventoryTransactionTable({
                       )}{" "}
                       {tx.consumptionUnit}
                     </span>
-                  )}
+                  )} */}
 
                 </div>
               </TableCell>
@@ -302,8 +279,8 @@ export default function InventoryTransactionTable({
 
               <TableCell>
                 <div className="flex flex-col">
-
-                  {tx.purchaseUnit &&
+{Number(tx.afterStock/tx.conversionFactor).toFixed(2)}
+                  {/* {tx.purchaseUnit &&
                   tx.purchaseUnit !== tx.consumptionUnit &&
                   tx.conversionFactor ? (
                     <>
@@ -332,7 +309,7 @@ export default function InventoryTransactionTable({
                       )}{" "}
                       {tx.consumptionUnit}
                     </span>
-                  )}
+                  )} */}
 
                 </div>
               </TableCell>

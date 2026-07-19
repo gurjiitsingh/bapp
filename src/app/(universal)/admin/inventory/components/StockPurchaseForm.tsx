@@ -23,7 +23,8 @@ import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionTy
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { purchaseStock } from "@/app/(universal)/action/inventory/purchaseStock";
-import { PaymentMethodType } from "@/lib/types/PaymentMethodType";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
+ 
 
  
 

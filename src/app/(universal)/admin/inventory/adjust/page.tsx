@@ -156,7 +156,7 @@ const selectedMapping =
 
   paymentStatus: "PAID", // or whatever values your PaymentStatus type allows
 
-  paymentMethod: "CASH",
+ // paymentMethod: "CASH",
 
   note: data.note,
 

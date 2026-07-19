@@ -51,7 +51,7 @@ const safePurchaseUnitCost = Number.isFinite(DPTpurchaseUnitCost)
   ? DPTpurchaseUnitCost
   : 0;
 
-console.log("item.purchaseUnitCostInv-------------------------------------", item.purchaseUnitCost)
+//console.log("item.purchaseUnitCostInv-------------------------------------", item.purchaseUnitCost)
     let newQuantity = 0;
     let currentStockInPurchaseUnit = 0;
     let newStockInPurchaseUnit = 0;
@@ -153,6 +153,18 @@ console.log("=================================");
 console.log("Item:", item.inventoryItemName);
 console.log("Current Stock:", currentQuantity);
 console.log("Transfer Qty:", item.quantity);
+
+const conversionFactor =
+  Number(data?.conversionFactor ?? item.conversionFactor);
+
+if (
+  !Number.isFinite(conversionFactor) ||
+  conversionFactor <= 0
+) {
+  throw new Error(
+    `Conversion factor is missing or invalid for "${item.inventoryItemName}". Please update the inventory item before continuing.`
+  );
+}
 
 currentStockInPurchaseUnit =
   Number(data?.currentStock ?? 0) /

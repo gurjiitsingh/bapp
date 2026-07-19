@@ -24,7 +24,7 @@ export async function getDepartmentStock(
         quantity: Number(data.quantity ?? 0),
 
         averageCost: Number(data.averageCost ?? 0),
-stockValue: Number(data.stockValue /15000),
+stockValue: Number(data.stockValue),
         purchaseUnit: data.purchaseUnit ?? "",
         consumptionUnit: data.consumptionUnit ?? "",
         conversionFactor: Number(data.conversionFactor ?? 1),
