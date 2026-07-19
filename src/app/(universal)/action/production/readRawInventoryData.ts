@@ -23,7 +23,7 @@ export async function readRawInventoryData(
 
   for (const item of items) {
     const qty = Number(item.quantity) || 0;
-console.log("purcahseunitcost----------------------------", item.purchaseUnitInv)
+//console.log("purcahseunitcost----------------------------", item.purchaseUnitInv)
   
     if (qty <= 0) continue;
 

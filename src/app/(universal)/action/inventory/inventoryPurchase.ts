@@ -25,7 +25,7 @@ export async function inventoryPurchase(
         quantity,
         stockValue,
         unitCost,
- 
+
         purchaseQuantity,
         purchaseUnit,
         purchaseUnitCost,
@@ -81,7 +81,7 @@ export async function inventoryPurchase(
     const beforeStockValue =
         Number(inventory.stockValue) || 0;
 
-    const purchaseUnitCostN =  Number(purchaseUnitCost) || 0;   
+    const purchaseUnitCostN = Number(purchaseUnitCost) || 0;
 
     let afterStock = beforeStock;
     let afterAverageCost = beforeAverageCost;
@@ -93,18 +93,18 @@ export async function inventoryPurchase(
     const finalUnitCost = Number(unitCost || beforeAverageCost);
 
 
-        afterStock = beforeStock + quantity;
+    afterStock = beforeStock + quantity;
 
-        // afterStockValue =
-        //     beforeStockValue + totalAmount;
-        afterStockValue = beforeStockValue + stockValue!;
+    // afterStockValue =
+    //     beforeStockValue + totalAmount;
+    afterStockValue = beforeStockValue + stockValue!;
 
-        afterAverageCost =
-            afterStock > 0
-                ? afterStockValue / afterStock
-                : 0;
+    afterAverageCost =
+        afterStock > 0
+            ? afterStockValue / afterStock
+            : 0;
 
-                
+
     // Final safety
     afterStockValue = Number(
         afterStockValue.toFixed(2)
@@ -117,45 +117,45 @@ export async function inventoryPurchase(
 
     let stockQtyInPurchaseUnit = inventory.currentStock / conversionFactor!;
 
-//    NEW STRATAGY TO CALCULATE RATE
-let newPurchaseUnitCostStockValue = 0;
-let newPurchaseUnitCost = 0;
+    //    NEW STRATAGY TO CALCULATE RATE
+    let newPurchaseUnitCostStockValue = 0;
+    let newPurchaseUnitCost = 0;
 
-let purchaseQtyInPurchaseUnit = Number(quantity / conversionFactor!)
+    let purchaseQtyInPurchaseUnit = Number(quantity / conversionFactor!)
 
-const existingPurchaseUnitCost =
-  Number(inventory.purchaseUnitCost ?? 0);
+    const existingPurchaseUnitCost =
+        Number(inventory.purchaseUnitCost ?? 0);
 
-if (existingPurchaseUnitCost > 0) {
- newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurchaseUnit +  inventory.purchaseUnitCost * stockQtyInPurchaseUnit ).toFixed(2));
+    if (existingPurchaseUnitCost > 0) {
+        newPurchaseUnitCostStockValue = Number((purchaseUnitCostN * purchaseQtyInPurchaseUnit + inventory.purchaseUnitCost * stockQtyInPurchaseUnit).toFixed(2));
 
-  newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / (purchaseQtyInPurchaseUnit + stockQtyInPurchaseUnit )).toFixed(2));
-}else{
-newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurchaseUnit   ).toFixed(2));
+        newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / (purchaseQtyInPurchaseUnit + stockQtyInPurchaseUnit)).toFixed(2));
+    } else {
+        newPurchaseUnitCostStockValue = Number((purchaseUnitCostN * purchaseQtyInPurchaseUnit).toFixed(2));
 
-  newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / purchaseQtyInPurchaseUnit).toFixed(2));
-
-
-}
-// console.log("stockQtyInPurchaseUnit -----------------",stockQtyInPurchaseUnit)
-// console.log("stocke qty -----------------",stockQtyInPurchaseUnit)
-// console.log("purchase qty -----------------",purchaseQtyInPurchaseUnit)
-// console.log("newPurchaseUnitCostStockValue -----------------",newPurchaseUnitCostStockValue)
-// console.log("newpruchage -----------------",newPurchaseUnitCost)
+        newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / purchaseQtyInPurchaseUnit).toFixed(2));
 
 
+    }
+    // console.log("stockQtyInPurchaseUnit -----------------",stockQtyInPurchaseUnit)
+    // console.log("stocke qty -----------------",stockQtyInPurchaseUnit)
+    // console.log("purchase qty -----------------",purchaseQtyInPurchaseUnit)
+    // console.log("newPurchaseUnitCostStockValue -----------------",newPurchaseUnitCostStockValue)
+    // console.log("newpruchage -----------------",newPurchaseUnitCost)
 
-  tx.update(inventoryRef, {
-    currentStock: afterStock,
-    stockValue: newPurchaseUnitCostStockValue,//afterStockValue,
-    averageCost: afterAverageCost,
-    costPrice: afterAverageCost,
-    purchaseUnit ,
-    purchaseUnitCost:newPurchaseUnitCost ,
-    updatedAt: now,
-});
 
-  
+
+    tx.update(inventoryRef, {
+        currentStock: afterStock,
+        stockValue: newPurchaseUnitCostStockValue,//afterStockValue,
+        averageCost: afterAverageCost,
+        costPrice: afterAverageCost,
+        purchaseUnit,
+        purchaseUnitCost: newPurchaseUnitCost,
+        updatedAt: now,
+    });
+
+
 
     // =====================================================
     // CREATE INVENTORY LEDGER TRANSACTION
@@ -165,7 +165,7 @@ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurcha
 
     const purchaseQty =
         purchaseQuantity ??
-        quantity 
+        quantity
 
 
 
@@ -173,101 +173,103 @@ newPurchaseUnitCostStockValue = Number((purchaseUnitCostN *  purchaseQtyInPurcha
         adminDb.collection("stockLedgerInventory").doc();
 
 
-        const ledger: InventoryLedgerType = {
-          // =====================================================
-          // DOCUMENT
-          // =====================================================
-          transactionId: ledgerRef.id,
-        
-          // =====================================================
-          // INVENTORY ITEM
-          // =====================================================
-          inventoryItemId,
-          inventoryItemName: inventory.name || "",
-        
-          // =====================================================
-          // PARTY
-          // =====================================================
-          partyId: supplierId || "",
-          partyName: supplierName || "",
-          partyType: supplierId ? "SUPPLIER" : "SYSTEM",
-        
-          // =====================================================
-          // PURCHASE DETAILS
-          // =====================================================
-          purchaseQuantity: purchaseQty,
-        
-          purchaseUnit:  purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
-        
-          purchaseUnitCost: newPurchaseUnitCost,
-        
-          // =====================================================
-          // TRANSACTION DETAILS
-          // =====================================================
-          conversionFactor:
-            conversionFactor ?? 
+    const ledger: InventoryLedgerType = {
+        // =====================================================
+        // DOCUMENT
+        // =====================================================
+        transactionId: ledgerRef.id,
+
+        // =====================================================
+        // INVENTORY ITEM
+        // =====================================================
+        inventoryItemId,
+        inventoryItemName: inventory.name || "",
+
+        // =====================================================
+        // PARTY
+        // =====================================================
+        partyId: supplierId || "",
+        partyName: supplierName || "",
+        partyType: supplierId ? "SUPPLIER" : "SYSTEM",
+
+        // =====================================================
+        // PURCHASE DETAILS
+        // =====================================================
+        purchaseQuantity: purchaseQty,
+
+        purchaseUnit: purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
+
+        purchaseUnitCost: newPurchaseUnitCost,
+        quantity: purchaseQty,
+        consumptionUnit: inventory.consumptionUnit,
+        unitCost: unitCost,
+        // =====================================================
+        // TRANSACTION DETAILS
+        // =====================================================
+        conversionFactor:
+            conversionFactor ??
             inventory.conversionFactor ??
             1,
-        
-          transactionQuantity: quantity,
-        
-          transactionUnit:
+
+        transactionQuantity: quantity,
+
+        transactionUnit:
             inventory.consumptionUnit || "gm",
-        
-          transactionUnitCost: finalUnitCost,
-        
-          // =====================================================
-          // STOCK
-          // =====================================================
-          beforeStock,
-          afterStock,
-        
-          // =====================================================
-          // VALUE
-          // =====================================================
-          totalAmount: isCostMovement ? totalAmount : 0,
-        
-          // =====================================================
-          // PAYMENT
-          // =====================================================
-          paidAmount: isCostMovement ? paidAmount : 0,
-          dueAmount: isCostMovement ? dueAmount : 0,
-        
-          paymentStatus: isCostMovement
+
+        transactionUnitCost: finalUnitCost,
+
+        // =====================================================
+        // STOCK
+        // =====================================================
+        beforeStock,
+        afterStock,
+
+        // =====================================================
+        // VALUE
+        // =====================================================
+        totalAmount: isCostMovement ? totalAmount : 0,
+
+        // =====================================================
+        // PAYMENT
+        // =====================================================
+        paidAmount: isCostMovement ? paidAmount : 0,
+        dueAmount: isCostMovement ? dueAmount : 0,
+
+        paymentStatus: isCostMovement
             ? paymentStatus
             : null,
-        
-          paymentMethod: isCostMovement
+
+        paymentMethod: isCostMovement
             ? paymentMethod
             : null,
-        
-          // =====================================================
-          // TRANSACTION INFO
-          // =====================================================
-          referenceType,
-          referenceId,
-        
-          type,
-          direction,
-        
-          note, 
-        
-          // =====================================================
-          // SOURCE
-          // =====================================================
-          sourceModule: source,
-        
-          // =====================================================
-          // AUDIT
-          // =====================================================
-          createdById: createdBy,
-        
-          createdAt: now,
-        };
-        
-        tx.set(ledgerRef, ledger);
 
-    
+        // =====================================================
+        // TRANSACTION INFO
+        // =====================================================
+        referenceType,
+        referenceId,
+
+        type,
+        direction,
+
+        note,
+
+        // =====================================================
+        // SOURCE
+        // =====================================================
+        sourceModule: source,
+
+        // =====================================================
+        // AUDIT
+        // =====================================================
+        createdById: createdBy,
+
+        createdAt: now,
+    };
+
+    tx.set(ledgerRef, ledger);
+
+
     return {
         beforeStock,
         afterStock,

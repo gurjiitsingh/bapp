@@ -18,6 +18,7 @@ export async function getDepartmentStock(
       const data = doc.data();
 
       return {
+        id: doc.id,
         inventoryItemId: data.inventoryItemId ?? "",
         inventoryItemName: data.inventoryItemName ?? "",
 

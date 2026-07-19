@@ -187,8 +187,8 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
                     2
                   )}
                 </td>
-                 {/* <td className="px-4 py-3 text-right font-semibold text-green-700">
-                      <button
+                 <td className="px-4 py-3 text-right font-semibold text-green-700">
+                      {/* <button
         type="button"
    onClick={() => {
   setSelectedItem(item);
@@ -197,8 +197,14 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
         className="rounded-lg bg-amber-500 px-3 py-1.5 text-sm text-white hover:bg-amber-600"
       >
         Return qty
-      </button> 
-                </td> */}
+      </button>  */}
+      <Link
+  href={`/admin/stock-finished/department/edit-stock/${item.id}`}
+  className="rounded-lg bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
+>
+  Edit
+</Link>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,4 +1,5 @@
 export type DepartmentStockType = {
+  id: string;
   inventoryItemId: string;
   inventoryItemName: string;
 
