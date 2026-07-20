@@ -1,4 +1,4 @@
-import { getProductionBatches } from "@/app/(universal)/action/production/getProductionBatches";
+import { getProductionBatches } from "@/app/(universal)/action/production/batch/getProductionBatches";
 import ProductionBatchTable from "./ProductionBatchTable";
  
 
