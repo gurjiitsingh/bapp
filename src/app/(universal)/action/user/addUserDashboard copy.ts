@@ -7,39 +7,20 @@ import { FieldValue } from "firebase-admin/firestore";
 export async function addUserDashboard(formData: FormData) {
   const fullName = String(formData.get("fullName") || "").trim();
   const username = String(formData.get("username") || "").trim();
-
   const email = String(formData.get("email") || "")
     .trim()
     .toLowerCase();
-
   const mobile = String(formData.get("mobile") || "").trim();
-
-  const password = String(formData.get("password") || "").trim();
-
-  const role = String(formData.get("role") || "user").trim().toLowerCase();
-
-  const status = String(formData.get("status") || "active")
-    .trim()
-    .toLowerCase();
-
+  const password = String(formData.get("password") || "");
+  const role = String(formData.get("role") || "user");
+  const status = String(formData.get("status") || "active");
   const employeeId = String(formData.get("employeeId") || "").trim();
-
-  const department = String(formData.get("department") || "")
-    .trim()
-    .toUpperCase();
-
+  
   const address = String(formData.get("address") || "").trim();
-
   const notes = String(formData.get("notes") || "").trim();
-
-  // Optional fields
-  const branchId = String(formData.get("branchId") || "MAIN").trim();
-
-  const allowPosLogin =
-    String(formData.get("allowPosLogin") || "true") === "true";
-
-  const pin = String(formData.get("pin") || "").trim();
-
+const department = String(formData.get("department") || "")
+  .trim()
+  .toUpperCase();
   try {
     if (!fullName || !mobile || !password) {
       return {
@@ -63,61 +44,20 @@ export async function addUserDashboard(formData: FormData) {
 
     const hashedPassword = await hashPassword(password);
 
-    // Optional PIN hashing
-    const hashedPin = pin ? await hashPassword(pin) : "";
-
-    const permissions = {
-      sale: true,
-
-      refund: role === "admin" || role === "manager",
-
-      discount: role === "admin" || role === "manager",
-
-      editPrice: role === "admin",
-
-      inventory:
-        role === "admin" ||
-        role === "manager" ||
-        department === "STORE",
-
-      reports: role === "admin" || role === "manager",
-
-      production:
-        role === "admin" ||
-        department === "PRODUCTION",
-
-      settings: role === "admin",
-
-      manageUsers: role === "admin",
-    };
-
     const docRef = await adminDb.collection("users").add({
       fullName,
       username,
       email,
       mobile,
-
       hashedPassword,
-      hashedPin,
-
       role,
-      department,
-
-      employeeId,
-      branchId,
-
       status,
-      active: status === "active",
-
-      allowPosLogin,
-
-      permissions,
-
+      isVerified: true,
+      isAdmin: role === "admin",
+      employeeId,
+      department,
       address,
       notes,
-
-      isVerified: true,
-
       time: new Intl.DateTimeFormat("en-IN", {
         year: "numeric",
         month: "short",
@@ -126,7 +66,6 @@ export async function addUserDashboard(formData: FormData) {
         minute: "2-digit",
         hour12: true,
       }).format(new Date()),
-
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
