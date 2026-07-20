@@ -30,13 +30,13 @@ export default async function Page({
   return (
     <div className="p-6">
       <ProductionBatchTable
-        batches={res.data}
-        hasNext={res.hasNext}
-        hasPrev={res.hasPrev}
-        firstDocId={res.firstDocId}
-        lastDocId={res.lastDocId}
-        selectedDate={params.date ?? ""}
-      />
+  batches={res.data}
+  hasNext={res.hasNext}
+  hasPrev={res.hasPrev}
+  firstDocId={res.firstDocId}
+  lastDocId={res.lastDocId}
+  selectedDate={params.date ?? ""}
+/>
     </div>
   );
 }

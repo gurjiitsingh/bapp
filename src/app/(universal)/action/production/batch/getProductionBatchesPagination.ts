@@ -139,11 +139,14 @@ export async function getProductionBatchesPagination({
       error
     );
 
-    return {
-      success: false,
-      message:
-        error.message ||
-        "Failed to fetch production batches",
-    };
+   return {
+  success: false,
+  message: error.message || "Failed",
+  data: [],
+  hasNext: false,
+  hasPrev: false,
+  firstDocId: "",
+  lastDocId: "",
+};
   }
 }
