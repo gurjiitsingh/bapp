@@ -22,6 +22,9 @@ export async function getDepartmentStockDataForProduction(
 ): Promise<DepartmentStockUpdate[]> {
   const updates: DepartmentStockUpdate[] = [];
 
+
+
+
   for (const item of items) {
     // Inventory Item (only to ensure it exists)
     const inventoryRef = adminDb
@@ -29,6 +32,15 @@ export async function getDepartmentStockDataForProduction(
       .doc(item.inventoryItemId);
 
     const inventorySnap = await tx.get(inventoryRef);
+
+    const inventoryData = inventorySnap.data();
+
+// console.log("========== INVENTORY ==========");
+// console.log("Inventory Item:", item.inventoryItemName);
+// console.log("Inventory ID:", item.inventoryItemId);
+// console.log("Inventory Current Stock:", inventoryData?.currentStock);
+// console.log("Inventory Avg Cost:", inventoryData?.avgCost);
+// console.log("================================");
 
     if (!inventorySnap.exists) {
       throw new Error(
@@ -49,8 +61,32 @@ export async function getDepartmentStockDataForProduction(
     const doc = exists ? snap.docs[0] : null;
     const data = doc?.data();
 
+// console.log("========== DEPARTMENT STOCK ==========");
+// console.log("Department ID:", departmentId);
+// console.log("Direction:", dirction);
+
+// console.log("Department Stock Exists:", exists);
+// console.log("Department Doc ID:", doc?.id);
+
+// console.log("Inventory Item:", item.inventoryItemName);
+// console.log("Inventory Item ID:", item.inventoryItemId);
+
+// console.log("Department Quantity:", data?.quantity);
+// console.log("Department Avg Cost:", data?.averageCost);
+// console.log("Department Purchase Unit:", data?.purchaseUnit);
+// console.log("Department Consumption Unit:", data?.consumptionUnit);
+
+// console.log("======================================");
+
+
     const currentQuantity = Number(data?.quantity ?? 0);
     const currentAverageCost = Number(data?.averageCost ?? 0);
+
+// console.log("========== STOCK CHECK ==========");
+// console.log("Required Qty:", item.quantity);
+// console.log("Department Qty:", currentQuantity);
+// console.log("Will Fail:", item.quantity > currentQuantity);
+// console.log("=================================");
 
     if (
       dirction === "OUT" &&
@@ -91,6 +127,18 @@ export async function getDepartmentStockDataForProduction(
         (newQuantity * currentAverageCost).toFixed(2)
       );
     }
+
+//     console.log("========== UPDATE OBJECT ==========");
+// console.log({
+//   departmentId,
+//   inventoryItemId: item.inventoryItemId,
+//   currentQuantity,
+//   quantityChange: item.quantity,
+//   newQuantity,
+//   newAverageCost,
+//   newStockValue,
+// });
+// console.log("===================================");
 
     updates.push({
       ref: doc?.ref ?? null,

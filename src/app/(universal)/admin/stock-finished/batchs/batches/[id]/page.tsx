@@ -8,7 +8,7 @@ export default async function Page({ params }: any) {
   const batchRes = await getProductionBatchById(resolvedParams.id);
   const itemsRes = await getProductionBatchItems(resolvedParams.id);
 
-  console.log("batchRes--------------------------", batchRes)
+  // console.log("batchRes--------------------------", batchRes)
 
 
   return (

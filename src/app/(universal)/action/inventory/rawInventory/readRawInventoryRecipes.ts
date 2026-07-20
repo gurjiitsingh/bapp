@@ -59,6 +59,31 @@ export async function readRawInventoryRecipes(
       const afterStock =
         beforeStock - required;
 
+//         console.log("========== RECIPE READ ==========");
+// console.log("Product ID:", item.productId);
+// console.log("Sold Qty:", soldQty);
+
+// console.log("Recipe ID:", doc.id);
+// console.log("Inventory Item ID:", recipe.inventoryItemId);
+
+// console.log("Recipe Quantity:", recipe.quantity);
+// console.log("Required Quantity:", required);
+
+// console.log("Inventory Name:", invData.name);
+
+// console.log("Current Stock:", invData.currentStock);
+// console.log("Purchase Unit:", invData.purchaseUnit);
+// console.log("Consumption Unit:", invData.consumptionUnit);
+// console.log("Conversion Factor:", invData.conversionFactor);
+
+// console.log("Average Cost:", invData.averageCost);
+// console.log("Stock Value:", invData.stockValue);
+
+// console.log("Before Stock:", beforeStock);
+// console.log("After Stock:", afterStock);
+
+// console.log("=================================");
+
 updates.push({
   ref: inventoryRef,
 
