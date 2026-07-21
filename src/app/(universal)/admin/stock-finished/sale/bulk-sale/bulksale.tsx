@@ -235,31 +235,52 @@ export default function BulkSaleForm({
 
     toast.success(result.message);
 
-    form.reset({
-      vehicleId: data.vehicleId,
+   const updatedProducts = products.map((product) => {
+  const sold = items.find(
+    (i) => i.productId === product.id
+  );
 
-      wholeSaleCutomerId: "",
-      wholeSaleCutomerName: "",
+  if (!sold) return product;
 
-      remarks: "",
+  return {
+    ...product,
+    currentStock: product.currentStock - sold.quantity,
+  };
+});
 
-      paymentStatus: "PAID",
+setProducts(updatedProducts);
 
-      totalAmount: 0,
-      paidAmount: 0,
-      dueAmount: 0,
+form.reset({
+  vehicleId: data.vehicleId,
 
-      items: products.map((p) => ({
-        productId: p.id,
-        quantity: 0,
-        wholesalePrice:
-          p.wholesalePrice ??
-          p.sellingPrice,
-      })),
-    });
+  wholeSaleCutomerId: "",
+  wholeSaleCutomerName: "",
+
+  remarks: "",
+
+  paymentStatus: "PAID",
+
+  totalAmount: 0,
+  paidAmount: 0,
+  dueAmount: 0,
+
+  items: updatedProducts.map((p) => ({
+    productId: p.id,
+    quantity: 0,
+    wholesalePrice:
+      p.wholesalePrice ?? p.sellingPrice,
+  })),
+});
 
     setCustomerSearch("");
   };
+
+ const totalStock = useMemo(() => {
+  return products.reduce(
+    (sum, item) => sum + item.currentStock,
+    0
+  );
+}, [products]); 
 
 
   return (
@@ -749,14 +770,9 @@ export default function BulkSaleForm({
                   </p>
 
                   <p>
-                    Total Stock :
-                    <strong>
-                      {rows.reduce(
-                        (sum, item) => sum + item.currentStock,
-                        0
-                      )}
-                    </strong>
-                  </p>
+  Total Stock :
+  <strong>{totalStock}</strong>
+</p>
 
                 </div>
 

@@ -1,5 +1,5 @@
 
-import ProductionForm from "./ProductionForm";
+import ProductionForm from "../production/ProductionForm";
 import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
 import { getDepartments } from "@/app/(universal)/action/department/getDepartments";
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/fetchInventoryItems";

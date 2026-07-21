@@ -63,9 +63,9 @@ const [selectedItem, setSelectedItem] =
         </div>
 
         {batch.status !== "CLOSED" && (
-          <Link href={`/admin/stock-finished/batchs/batches/close/${batch.id}`}>
+          <Link href={`/admin/stock-finished/batchs/edit-batch/${batch.id}`}>
             <Button className="btn-save-4 shadow-sm">
-              Close Batch
+              Edit Batch
             </Button>
           </Link>
         )}
