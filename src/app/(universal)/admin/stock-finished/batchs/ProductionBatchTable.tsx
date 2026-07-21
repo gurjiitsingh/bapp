@@ -86,74 +86,77 @@ export default function ProductionBatchTable({
   return (
     <div className="space-y-6">
       {/* HEADER */}
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-  {/* Left */}
-  <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        {/* Left */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
 
-    <div>
-      <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
-        Production Batches
-      </h1>
+          <div>
+            <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
+              Production Batches
+            </h1>
 
-      <p className="text-sm text-gray-500 mt-1">
-        Track and manage production records
-      </p>
-    </div>
+            <p className="text-sm text-gray-500 mt-1">
+              Track and manage production records
+            </p>
+          </div>
 
-    {/* Search */}
-    <div className="flex items-center gap-2 lg:ml-8">
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="h-11 px-4 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-red-200"
-      />
+          {/* Search */}
+          <div className="flex items-center gap-2 lg:ml-8">
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-11 px-4 rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-red-200"
+            />
 
-      <button
-        onClick={searchByDate}
-        className="h-11 px-4 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2"
-      >
-        <Search size={18} />
-        Search
-      </button>
+            <button
+              onClick={searchByDate}
+              className="h-11 px-4 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <Search size={18} />
+              Search
+            </button>
 
-      <button
-        onClick={clearSearch}
-        className="h-11 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 transition"
-      >
-        Clear
-      </button>
-    </div>
+            <button
+              onClick={clearSearch}
+              className="h-11 px-4 rounded-xl bg-gray-200 hover:bg-gray-300 transition"
+            >
+              Clear
+            </button>
+          </div>
 
-  </div>
+        </div>
 
-  {/* Right */}
-  <div className="flex flex-wrap items-center gap-3">
+        {/* Right */}
+        <div className="flex flex-wrap items-center gap-3">
 
-    <Link
-      href="/admin/stock-finished/production"
-      className="h-11 px-5 flex items-center justify-center rounded-xl bg-red-600 text-white font-medium shadow-sm hover:bg-red-700 transition"
-    >
-      + Automatic Production
-    </Link>
+          <Link
+            href="/admin/stock-finished/production"
+            className="h-11 px-5 flex items-center justify-center rounded-xl bg-red-600 text-white font-medium shadow-sm hover:bg-red-700 transition"
+          >
+            + Automatic Production
+          </Link>
 
-    <Link
-      href="/admin/stock-finished/batchs/create-departmentstock"
-      className="h-11 px-5 flex items-center justify-center rounded-xl bg-slate-500 text-white font-medium shadow-sm hover:bg-slate-600 transition"
-    >
-      Manual Production
-    </Link>
+          <Link
+            href="/admin/stock-finished/batchs/create-departmentstock"
+            className="h-11 px-5 flex items-center justify-center rounded-xl bg-slate-500 text-white font-medium shadow-sm hover:bg-slate-600 transition"
+          >
+            Manual Production
+          </Link>
 
-  </div>
+        </div>
 
-</div>
+      </div>
 
       {/* TABLE */}
       <div className="bg-white/70 backdrop-blur rounded-2xl shadow-sm overflow-hidden">
-        <div className="grid grid-cols-5 px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-slate-100">
+        <div className="grid grid-cols-7 px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider bg-slate-100">
           <div>Batch</div>
           <div>Department</div>
+           <div>Product Name</div>
+          <div>Qty</div>
+
           <div>Date</div>
           <div>Status</div>
           <div className="text-right">
@@ -164,7 +167,7 @@ export default function ProductionBatchTable({
         {batches.map((batch: any) => (
           <div
             key={batch.id}
-            className="grid grid-cols-5 items-center px-6 py-4 hover:bg-gray-50 transition"
+            className="grid grid-cols-7 items-center px-6 py-4 hover:bg-gray-50 transition"
           >
             <div className="font-medium">
               <Link
@@ -178,6 +181,9 @@ export default function ProductionBatchTable({
             </div>
 
             <div>{batch.departmentName}</div>
+             <div>{batch.productName}</div>
+             <div>{batch.outputQty}{" "}{batch.productUnit}</div>
+             
 
             <div className="text-sm text-gray-500">
               {new Date(

@@ -41,7 +41,7 @@ const DepartmentTable = ({
 
   return (
     <div className="p-5">
-      {/* Header */}
+     
       {/* Header */}
       <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -66,9 +66,15 @@ const DepartmentTable = ({
           >
             Return Stock to main store
           </Link>
+            <Link
+            href="/admin/stock-finished/department/transactions"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00897b]  px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Transactions
+          </Link>
           <Link
             href="/admin/stock-finished/department/add"
-            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+            className="inline-flex items-center justify-center rounded-xl bg-amber-500  px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
           >
             + Add Department
           </Link>

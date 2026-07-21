@@ -58,7 +58,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
   purchaseUnitCostInv: item.purchaseUnitCost,
   conversionFactorUsed: item.conversionFactor || 1,
 }));
-console.log("purchaseUnitCostInv----------------------", rawRequest)
+//console.log("purchaseUnitCostInv----------------------", rawRequest)
       // ==========================================
       // 2. READ RAW INVENTORY
       // ==========================================

@@ -53,6 +53,27 @@ export async function autoStockProduction({
   managerName,
   employeeCount,
 }: AdjustStockType) {
+
+
+  console.log("income----------------------", id,
+  //batchId,
+  productName,
+  sellingPrice,
+  wholesalePrice,
+  costPrice,
+  avgCost,
+  direction,
+
+  quantity,
+  transactionUnit,
+  note,
+  createdBy,
+
+  // DPARTMENT
+  departmentId,
+  departmentName,
+  managerName,
+  employeeCount,)
   const db = adminDb;
   const now = new Date();
   try {
@@ -167,7 +188,8 @@ const avgCostPerUnitProduction = batchCost / quantity;
         id: batchId,
         departmentId,
         departmentName,
-
+productName,
+productUnit: transactionUnit,
         outputQty: quantity,
 
        batchCost ,       // Total cost of producing the batch

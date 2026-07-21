@@ -102,6 +102,9 @@ export async function getProductionBatchesPagination({
 
         departmentName:
           data.departmentName || "",
+productName: data.productName || "",
+          outputQty: data.outputQty || 0,
+          productUnit: data.productUnit || "kg",
 
         createdAt:
           data.createdAt?.toMillis?.() || 0,
