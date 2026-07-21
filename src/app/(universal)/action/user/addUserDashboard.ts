@@ -99,7 +99,8 @@ export async function addUserDashboard(formData: FormData) {
 
       hashedPassword,
       hashedPin,
-
+      loginPin: "123456",
+      allowPosLogin: true,
       role,
       department,
 
@@ -109,7 +110,7 @@ export async function addUserDashboard(formData: FormData) {
       status,
       active: status === "active",
 
-      allowPosLogin,
+      
 
       permissions,
 

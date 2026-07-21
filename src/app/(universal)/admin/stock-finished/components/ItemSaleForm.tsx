@@ -27,6 +27,7 @@ import { ProductType } from "@/lib/types/productType";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
 import { ProductStock } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 type PaymentMethod = "CASH" | "UPI" | "CARD";
 
@@ -375,8 +376,11 @@ setCustomerSearch("");
         {/* HEADER */}
         {/* ===================================================== */}
 
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
+
+
+         <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 className="text-3xl font-bold text-gray-800">
             Sale
           </h1>
 
@@ -384,6 +388,16 @@ setCustomerSearch("");
             Sale Finished stock manually
           </p>
         </div>
+        <div className="flex gap-4">
+         
+          <Link
+            href="/admin/stock-finished/sale/bulk-sale"
+            className="inline-flex items-center justify-center rounded-xl bg-[#00897b] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+          >
+            Bulk Sale
+          </Link>
+        </div>
+      </div>
 
         {/* ===================================================== */}
         {/* FORM */}

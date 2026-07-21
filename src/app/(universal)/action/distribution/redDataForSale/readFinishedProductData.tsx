@@ -12,6 +12,8 @@ export async function readFinishedProductData({
   tx: FirebaseFirestore.Transaction;
   productId: string;
 }) {
+
+  console.log("productId--------------", productId)
   const productRef = adminDb
     .collection("productStock")
     .doc(productId);

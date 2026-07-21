@@ -62,7 +62,7 @@ export default function InventoryTransactionTable({
             <TableHead>Item</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Supp/Cus/Mana</TableHead>
-            <TableHead>Avg Cost</TableHead>
+            <TableHead>Avg Cost/Price</TableHead>
             <TableHead>Qty</TableHead>
             <TableHead>Amount/Value</TableHead>
             <TableHead>Before</TableHead>
