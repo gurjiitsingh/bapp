@@ -144,7 +144,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
             item.costPerUnit,
           type: "ISSUE_TO_DEPARTMENT",
           direction: "IN",
-          referenceType: "PRODUCTION_BATCH",
+          referenceType: "ISSUE_TO_DEPARTMENT",
 
           createdAt: now,
         });

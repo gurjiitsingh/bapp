@@ -8,6 +8,7 @@ import { applyFinishedTransactionsWrite } from "./finishedStockLedger/applyFinis
 import { updateDepartmentStockTx } from "../production/departments/UpdateDepartmentStockTx";
 import { getDepartmentStockDataForProduction } from "../production/departments/getDepartmentStockDataForProduction";
 import { validateRawStockProduction } from "../inventory/rawInventory/validateRawStockProduction";
+import { departmentStockTransaction } from "../production/departments/departmentStockTransaction";
 
 
 
@@ -56,24 +57,24 @@ export async function autoStockProduction({
 
 
   console.log("income----------------------", id,
-  //batchId,
-  productName,
-  sellingPrice,
-  wholesalePrice,
-  costPrice,
-  avgCost,
-  direction,
+    //batchId,
+    productName,
+    sellingPrice,
+    wholesalePrice,
+    costPrice,
+    avgCost,
+    direction,
 
-  quantity,
-  transactionUnit,
-  note,
-  createdBy,
+    quantity,
+    transactionUnit,
+    note,
+    createdBy,
 
-  // DPARTMENT
-  departmentId,
-  departmentName,
-  managerName,
-  employeeCount,)
+    // DPARTMENT
+    departmentId,
+    departmentName,
+    managerName,
+    employeeCount,)
   const db = adminDb;
   const now = new Date();
   try {
@@ -109,7 +110,7 @@ export async function autoStockProduction({
       //=============================
       // DEPARTMENT STOCK
       //=============================
-  
+
 
 
       const departmentRecord =
@@ -120,7 +121,7 @@ export async function autoStockProduction({
           rawInventoryReads
         );
 
-    //  console.log("recipies needed-----------------------",departmentRecord)
+
 
       //=============================
       // READ STOCK 
@@ -141,7 +142,7 @@ export async function autoStockProduction({
 
 
 
-        // =========================
+      // =========================
       // ✅ 2. VALIDATE
       // =========================
 
@@ -153,7 +154,7 @@ export async function autoStockProduction({
       // ✅ 4. CREATE BATCH
       // =========================
 
-          
+
 
       const batchRef = db
         .collection("production_batches")
@@ -173,7 +174,7 @@ export async function autoStockProduction({
 
 
       let batchCost = 0;
-     
+
 
       for (const update of departmentRecord) {
         batchCost +=
@@ -182,19 +183,19 @@ export async function autoStockProduction({
           (Number(update.conversionFactor) || 1);
       }
 
-const avgCostPerUnitProduction = batchCost / quantity;
+      const avgCostPerUnitProduction = batchCost / quantity;
 
       tx.set(batchRef, {
         id: batchId,
         departmentId,
         departmentName,
-productName,
-productUnit: transactionUnit,
+        productName,
+        productUnit: transactionUnit,
         outputQty: quantity,
 
-       batchCost ,       // Total cost of producing the batch
-       avgCostPerUnit:avgCostPerUnitProduction,   // Cost of one finished unit
- 
+        batchCost,       // Total cost of producing the batch
+        avgCostPerUnit: avgCostPerUnitProduction,   // Cost of one finished unit
+
 
         createdAt: now,
         note: note || "",
@@ -244,29 +245,29 @@ productUnit: transactionUnit,
           createdAt: now,
         });
 
-      
-      
+
+
 
         await updateDepartmentStockTx({
           transaction: tx,
           update,
 
-        });    
-      
+        });
+
       }
 
- 
+
 
       // =========================
       // ✅ 3. WRITE
       // =========================
-     
-     
+
+
 
       // 1 ✅ Update stock (finished currentStock)
       await applyFinishedTransactionsWrite(tx, {
         productId: id,
-        batchId: batchId, 
+        batchId: batchId,
         productName,
         type: "PRODUCTION",
         direction,
@@ -283,6 +284,50 @@ productUnit: transactionUnit,
       });
 
 
+
+      // ==========================================
+      // 6. WRITE DEPARTMENT LEDGER
+      // ==========================================
+      console.log("rawInventoryReads-----------------------", rawInventoryReads)
+     for (const item of rawInventoryReads) {
+  const update = departmentMap.get(item.inventoryItemId);
+
+  if (!update) {
+    throw new Error(
+      `Department stock not found for ${item.inventoryItemName}`
+    );
+  }
+
+  await departmentStockTransaction({
+    transaction: tx,
+
+    transferId: "kk",
+
+    departmentId,
+    departmentName,
+
+    inventoryItemId: item.inventoryItemId,
+    inventoryItemName: item.inventoryItemName,
+
+    quantity: update.quantityChange!,
+
+    purchaseUnit: update.purchaseUnit,
+    consumptionUnit: update.consumptionUnit,
+    conversionFactor: update.conversionFactor,
+
+    averageCost: update.newAverageCost!,
+    costPerUnit: update.newAverageCost!,
+    totalCost:
+      (update.quantityChange! * update.newAverageCost!) /
+      update.conversionFactor,
+
+    type: "PRODUCTION",
+    direction: "OUT",
+    referenceType: "DEPARTMENT_PRODUCTION",
+
+    createdAt: now,
+  });
+}
 
       // =========================
       // ✅ Update Factory Location
@@ -333,7 +378,7 @@ productUnit: transactionUnit,
       //   createdBy,
       // });
 
- // 1 ✅ NO NEED TO UPDATE RAW INVENTORY PRODUCTION TAKE STOCK FROM DPT
+      // 1 ✅ NO NEED TO UPDATE RAW INVENTORY PRODUCTION TAKE STOCK FROM DPT
 
     });
 
@@ -368,25 +413,25 @@ productUnit: transactionUnit,
 
 
 
-        // console.log("========== Department Production Ledger ==========");
-        // console.log("Item Name          :", item.inventoryItemName);
+// console.log("========== Department Production Ledger ==========");
+// console.log("Item Name          :", item.inventoryItemName);
 
-        // console.log("Entered Quantity   :", item.quantity / item.conversionFactor);
-        // console.log("Average Cost       :", averageCost);
-        // console.log("Conversion Factor  :", item.conversionFactor);
+// console.log("Entered Quantity   :", item.quantity / item.conversionFactor);
+// console.log("Average Cost       :", averageCost);
+// console.log("Conversion Factor  :", item.conversionFactor);
 
-        // console.log(
-        //   "Final Quantity     :",
-        //   item.quantity / update.conversionFactor
-        // );
+// console.log(
+//   "Final Quantity     :",
+//   item.quantity / update.conversionFactor
+// );
 
-        // console.log("Cost Per Unit      :", averageCost);
+// console.log("Cost Per Unit      :", averageCost);
 
-        // console.log("Total Cost     :", Number(update.quantityChange) * averageCost / update.conversionFactor)
+// console.log("Total Cost     :", Number(update.quantityChange) * averageCost / update.conversionFactor)
 
-        // console.log("Purchase Unit      :", update.purchaseUnit);
-        // console.log("Consumption Unit   :", update.consumptionUnit);
-        // console.log("Conversion Factor  :", update.conversionFactor);
+// console.log("Purchase Unit      :", update.purchaseUnit);
+// console.log("Consumption Unit   :", update.consumptionUnit);
+// console.log("Conversion Factor  :", update.conversionFactor);
 
-        // console.log("quantityChange  :", update.quantityChange);
-        // console.log("===============================================");
+// console.log("quantityChange  :", update.quantityChange);
+// console.log("===============================================");

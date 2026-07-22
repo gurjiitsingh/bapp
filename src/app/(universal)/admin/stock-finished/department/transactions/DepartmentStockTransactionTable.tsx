@@ -17,6 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { formatQuantity } from "@/utils/inventory/formatQty";
+import { displayStock } from "@/utils/inventory/displayStock";
 
 type Props = {
   transactions?: any[];
@@ -46,12 +48,12 @@ export default function DepartmentStockTransactionTable({
           <TableRow>
 
             <TableHead>Department</TableHead>
-  <TableHead>Direction</TableHead>
+            <TableHead>Direction</TableHead>
             <TableHead>Item</TableHead>
 
             <TableHead>Type</TableHead>
 
-          
+
 
             <TableHead>Quantity</TableHead>
 
@@ -80,14 +82,13 @@ export default function DepartmentStockTransactionTable({
               <TableCell>
                 {tx.departmentName}
               </TableCell>
-               <TableCell>
+              <TableCell>
 
                 <span
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${
-                    tx.direction === "IN"
+                  className={`rounded-full px-2 py-1 text-xs font-medium ${tx.direction === "IN"
                       ? "bg-green-100 text-green-700"
                       : "bg-red-100 text-red-700"
-                  }`}
+                    }`}
                 >
                   {tx.direction}
                 </span>
@@ -101,7 +102,7 @@ export default function DepartmentStockTransactionTable({
                     {tx.inventoryItemName}
                   </span>
 
-                 
+
 
                 </div>
               </TableCell>
@@ -110,19 +111,28 @@ export default function DepartmentStockTransactionTable({
                 {tx.type}
               </TableCell>
 
-             
+
 
               <TableCell>
-              
 
-                 <div className="flex flex-col">
+
+                <div className="flex flex-col">
 
                   <span className="font-medium">
-                    {Number(tx.quantity).toFixed(2)}
+                    {/* {formatQuantity(tx.quantity)}{" "} */}
+                    {/* {tx.quantity}{" "} */}
+
+                    {displayStock(
+                      tx.quantity,
+                      tx.purchaseUnit,
+                      tx.consumptionUnit,
+                      tx.conversionFactor
+                    )}
+
                   </span>
 
                   <span className="text-xs text-gray-500">
-                    {tx.purchaseUnit}
+                    {/* {tx.purchaseUnit} */}
                   </span>
 
                 </div>
@@ -144,7 +154,7 @@ export default function DepartmentStockTransactionTable({
                   </span>
 
                   <span className="text-xs text-gray-500">
-                    {tx.trasferId}
+                    {/* {tx.trasferId} */}
                   </span>
 
                 </div>
@@ -153,8 +163,8 @@ export default function DepartmentStockTransactionTable({
               <TableCell>
                 {tx.createdAt
                   ? new Date(
-                      tx.createdAt
-                    ).toLocaleString()
+                    tx.createdAt
+                  ).toLocaleString()
                   : "-"}
               </TableCell>
 
