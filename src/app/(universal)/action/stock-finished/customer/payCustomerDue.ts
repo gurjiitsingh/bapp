@@ -4,7 +4,12 @@ import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-type PaymentMethod = "CASH" | "UPI" | "CARD";
+type PaymentMethod =
+  | "CASH"
+  | "UPI"
+  | "CARD"
+  | "CHECK"
+  | "BANK_TRANSFER";
 
 export async function payCustomerDue(formData: FormData) {
   try {
@@ -18,6 +23,16 @@ export async function payCustomerDue(formData: FormData) {
     const paymentMethod =
       (formData.get("paymentMethod") as PaymentMethod) ||
       "CASH";
+
+
+    const referenceNumber =
+      (formData.get("referenceNumber") as string)?.trim() || "";
+
+    const bankName =
+      (formData.get("bankName") as string)?.trim() || "";
+
+    const paymentDate =
+      (formData.get("paymentDate") as string)?.trim() || "";
 
     const note =
       (formData.get("note") as string)?.trim() || "";
@@ -48,14 +63,28 @@ export async function payCustomerDue(formData: FormData) {
       const currentBalance =
         Number(account.balance || 0);
 
-      if (amount > currentBalance) {
-        throw new Error(
-          "Amount exceeds due balance"
-        );
-      }
+      // if (amount > currentBalance) {
+      //   throw new Error(
+      //     "Amount exceeds due balance"
+      //   );
+      // }
 
-      const newBalance =
-        currentBalance - amount;
+      const currentDue = Number(account.balance || 0);
+      let currentCredit = Number(account.creditBalance || 0);
+
+      let newDue = currentDue;
+      let newCredit = currentCredit;
+
+      if (amount >= currentDue) {
+        // Pay all due, remainder becomes customer credit
+        const advance = amount - currentDue;
+
+        newDue = 0;
+        newCredit += advance;
+      } else {
+        // Partial payment
+        newDue = currentDue - amount;
+      }
 
       const customerName =
         account.customerName || "";
@@ -63,15 +92,14 @@ export async function payCustomerDue(formData: FormData) {
       let cash = 0;
       let upi = 0;
       let card = 0;
+      let check = 0;
+      let bankTransfer = 0;
 
-      if (paymentMethod === "CASH")
-        cash = amount;
-
-      if (paymentMethod === "UPI")
-        upi = amount;
-
-      if (paymentMethod === "CARD")
-        card = amount;
+      if (paymentMethod === "CASH") cash = amount;
+      if (paymentMethod === "UPI") upi = amount;
+      if (paymentMethod === "CARD") card = amount;
+      if (paymentMethod === "CHECK") check = amount;
+      if (paymentMethod === "BANK_TRANSFER") bankTransfer = amount;
 
       // ======================================
       // UPDATE CUSTOMER ACCOUNT
@@ -84,34 +112,29 @@ export async function payCustomerDue(formData: FormData) {
           customerName,
 
           totalCredit:
-            admin.firestore.FieldValue.increment(
-              amount
-            ),
+            admin.firestore.FieldValue.increment(amount),
 
           totalPaid:
-            admin.firestore.FieldValue.increment(
-              amount
-            ),
+            admin.firestore.FieldValue.increment(amount),
 
           cashPaid:
-            admin.firestore.FieldValue.increment(
-              cash
-            ),
+            admin.firestore.FieldValue.increment(cash),
 
           upiPaid:
-            admin.firestore.FieldValue.increment(
-              upi
-            ),
+            admin.firestore.FieldValue.increment(upi),
 
           cardPaid:
-            admin.firestore.FieldValue.increment(
-              card
-            ),
+            admin.firestore.FieldValue.increment(card),
 
-          balance:
-            admin.firestore.FieldValue.increment(
-              -amount
-            ),
+          checkPaid:
+            admin.firestore.FieldValue.increment(check),
+
+          bankTransferPaid:
+            admin.firestore.FieldValue.increment(bankTransfer),
+
+          balance: newDue,
+
+          creditBalance: newCredit,
 
           updatedAt:
             admin.firestore.FieldValue.serverTimestamp(),
@@ -127,34 +150,40 @@ export async function payCustomerDue(formData: FormData) {
         .collection("customerLedger")
         .doc();
 
-      tx.set(ledgerRef, {
-        transactionId: ledgerRef.id,
+     tx.set(ledgerRef, {
+  transactionId: ledgerRef.id,
 
-        customerId,
-        customerName,
+  customerId,
+  customerName,
 
-        type: "PAYMENT",
+  type: "PAYMENT",
 
-        totalAmount: amount,
-        paidAmount: amount,
-        dueAmount: 0,
+  totalAmount: amount,
+  paidAmount: amount,
 
-        paymentMethod,
+  dueAmount: newDue,
+  creditAmount: newCredit,
 
-        balance: newBalance,
+  balance: newDue,
 
-        referenceType: "PAYMENT",
-        referenceId: ledgerRef.id,
+  paymentMethod,
 
-        note:
-          note || "Customer payment",
+  // New fields
+  referenceNumber,
+  bankName,
+  paymentDate,
 
-        createdBy: "admin",
-        source: "ADMIN",
+  referenceType: "PAYMENT",
+  referenceId: ledgerRef.id,
 
-        createdAt:
-          admin.firestore.FieldValue.serverTimestamp(),
-      });
+  note: note || "Customer payment",
+
+  createdBy: "admin",
+  source: "ADMIN",
+
+  createdAt:
+    admin.firestore.FieldValue.serverTimestamp(),
+});
     });
 
     revalidateTag(
