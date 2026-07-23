@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Table,
@@ -11,210 +11,277 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { Button } from "@/components/ui/button";
-
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
-import { formatQuantity } from "@/utils/inventory/formatQty";
+import { Input } from "@/components/ui/input";
 import { displayStock } from "@/utils/inventory/displayStock";
+import { DepartmentType } from "@/lib/types/department/DepartmentType";
+
+ 
+
+type Transaction = any;
 
 type Props = {
-  transactions?: any[];
-  currentPage: number;
-  hasMore: boolean;
+  departments: DepartmentType[];
 };
 
 export default function DepartmentStockTransactionTable({
-  transactions = [],
-  currentPage,
-  hasMore,
+  departments,
 }: Props) {
-  const router = useRouter();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  function goToPage(page: number) {
-    router.push(
-      `/admin/stock-finished/department/transactions?page=${page}`
-    );
+  const [type, setType] = useState("ISSUE_TO_DEPARTMENT");
+  const [departmentId, setDepartmentId] =
+  useState("ALL");
+  const [search, setSearch] = useState("");
+
+  const [date, setDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  async function loadTransactions() {
+    setLoading(true);
+
+    try {
+const params = new URLSearchParams({
+  date,
+  type,
+  departmentId,
+});
+
+      const res = await fetch(
+        `/api/department/department-stock-transactions?${params}`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      const json = await res.json();
+
+      setTransactions(json.data ?? []);
+    } catch (err) {
+      console.error(err);
+      setTransactions([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
+  useEffect(() => {
+  loadTransactions();
+}, [date, type, departmentId]);
+
+const filteredTransactions = useMemo(() => {
+  if (!search.trim()) return transactions;
+
+  const q = search.trim().toLowerCase();
+
+  return transactions.filter((tx) =>
+    [
+      tx.departmentName,
+      tx.inventoryItemName,
+      tx.createdBy,
+      tx.type,
+      tx.referenceType,
+      tx.remarks,
+    ]
+      .filter(Boolean)
+      .some((value) =>
+        String(value)
+          .toLowerCase()
+          .includes(q)
+      )
+  );
+}, [transactions, search]);
+
+ 
+
   return (
-    <div className="rounded-2xl overflow-hidden border bg-white">
+    <>
+      {/* Filters */}
+      <div className="mb-5 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 md:grid-cols-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Date
+          </label>
 
-      <Table>
+          <Input
+            type="date"
+            value={date}
+            onChange={(e) =>
+              setDate(e.target.value)
+            }
+          />
+        </div>
 
-        <TableHeader className="bg-zinc-200">
-          <TableRow>
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Transaction Type
+          </label>
 
-            <TableHead>Department</TableHead>
-            <TableHead>Direction</TableHead>
-            <TableHead>Item</TableHead>
+          <select
+            value={type}
+            onChange={(e) =>
+              setType(e.target.value)
+            }
+            className="h-10 w-full rounded-md border border-slate-200 px-3"
+          >
+            <option value="ISSUE_TO_DEPARTMENT">
+              Issue to Department
+            </option>
 
-            <TableHead>Type</TableHead>
+            <option value="RETURN_TO_MAIN_STORE">
+              Return to Main Store
+            </option>
 
+            <option value="PRODUCTION">
+              Production
+            </option>
 
+            <option value="ALL">
+              All
+            </option>
+          </select>
+        </div>
+        <div>
+  <label className="mb-1 block text-sm font-medium">
+    Department
+  </label>
 
-            <TableHead>Quantity</TableHead>
+  <select
+    value={departmentId}
+    onChange={(e) =>
+      setDepartmentId(e.target.value)
+    }
+    className="h-10 w-full rounded-md border border-slate-200 px-3"
+  >
+    <option value="ALL">
+      All Departments
+    </option>
 
-            {/* <TableHead>Unit Cost</TableHead>
+    {departments.map((department) => (
+      <option
+        key={department.id}
+        value={department.id}
+      >
+        {department.name}
+      </option>
+    ))}
+  </select>
+</div>
 
-            <TableHead>Total Cost</TableHead> */}
+        <div>
+          <label className="mb-1 block text-sm font-medium">
+            Search
+          </label>
 
-            <TableHead>Reference</TableHead>
+         <Input
+  value={search}
+  placeholder="Search item, remarks, user..."
+  onChange={(e) => setSearch(e.target.value)}
+/>
+        </div>
+      </div>
 
-            <TableHead>Date</TableHead>
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+        <Table>
+          <TableHeader className="bg-zinc-200">
+            <TableRow>
+              <TableHead>Department</TableHead>
+              <TableHead>Direction</TableHead>
+              <TableHead>Item</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Quantity</TableHead>
+              <TableHead>Reference</TableHead>
+              <TableHead>Date</TableHead>
+            </TableRow>
+          </TableHeader>
 
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-
-          {transactions.map((tx) => (
-            <TableRow
-              key={tx.id}
-              className="
-                odd:bg-zinc-50
-                even:bg-zinc-100
-                hover:bg-blue-50
-              "
-            >
-              <TableCell>
-                {tx.departmentName}
-              </TableCell>
-              <TableCell>
-
-                <span
-                  className={`rounded-full px-2 py-1 text-xs font-medium ${tx.direction === "IN"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                    }`}
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="py-10 text-center"
                 >
-                  {tx.direction}
-                </span>
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : filteredTransactions.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={7}
+                  className="py-10 text-center text-gray-500"
+                >
+                  No transactions found.
+                </TableCell>
+              </TableRow>
+            ) : (
+            filteredTransactions.map((tx) => (
+                <TableRow
+                  key={tx.id}
+                  className="odd:bg-zinc-50 even:bg-zinc-100 hover:bg-blue-50"
+                >
+                  <TableCell className="font-medium">
+                    {tx.departmentName}
+                  </TableCell>
 
-              </TableCell>
+                  <TableCell>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${
+                        tx.direction === "IN"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {tx.direction}
+                    </span>
+                  </TableCell>
 
-              <TableCell>
-                <div className="flex flex-col">
-
-                  <span className="font-medium">
+                  <TableCell>
                     {tx.inventoryItemName}
-                  </span>
+                  </TableCell>
 
+                  <TableCell>
+                    <span className="rounded bg-gray-100 px-2 py-1 text-xs">
+                      {tx.type}
+                    </span>
+                  </TableCell>
 
-
-                </div>
-              </TableCell>
-
-              <TableCell>
-                {tx.type}
-              </TableCell>
-
-
-
-              <TableCell>
-
-
-                <div className="flex flex-col">
-
-                  <span className="font-medium">
-                    {/* {formatQuantity(tx.quantity)}{" "} */}
-                    {/* {tx.quantity}{" "} */}
-
+                  <TableCell>
                     {displayStock(
                       tx.quantity,
                       tx.purchaseUnit,
                       tx.consumptionUnit,
                       tx.conversionFactor
                     )}
+                  </TableCell>
 
-                  </span>
+                  <TableCell>
+                    {tx.referenceType || "-"}
+                  </TableCell>
 
-                  <span className="text-xs text-gray-500">
-                    {/* {tx.purchaseUnit} */}
-                  </span>
+                  <TableCell>
+                    {tx.createdAt
+                      ? new Date(
+                          tx.createdAt
+                        ).toLocaleString()
+                      : "-"}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
-                </div>
-              </TableCell>
-
-              {/* <TableCell>
-                {Number(tx.costPerUnit).toFixed(2)}
-              </TableCell>
-
-              <TableCell>
-                {Number(tx.totalCost).toFixed(2)}
-              </TableCell> */}
-
-              <TableCell>
-                <div className="flex flex-col">
-
-                  <span>
-                    {tx.referenceType}
-                  </span>
-
-                  <span className="text-xs text-gray-500">
-                    {/* {tx.trasferId} */}
-                  </span>
-
-                </div>
-              </TableCell>
-
-              <TableCell>
-                {tx.createdAt
-                  ? new Date(
-                    tx.createdAt
-                  ).toLocaleString()
-                  : "-"}
-              </TableCell>
-
-            </TableRow>
-          ))}
-
-        </TableBody>
-
-      </Table>
-
-      <div className="flex items-center justify-between border-t p-4">
-
-        <div className="text-sm text-gray-500">
-          Page {currentPage}
+        <div className="border-t border-slate-500  bg-gray-50 px-4 py-3">
+          <span className="text-sm text-gray-600">
+            Total Transactions:{" "}
+            <span className="font-semibold">
+           {filteredTransactions.length}
+            </span>
+          </span>
         </div>
-
-        <div className="flex gap-2">
-
-          <Button
-            variant="outline"
-            disabled={currentPage <= 1}
-            onClick={() =>
-              goToPage(currentPage - 1)
-            }
-          >
-            <ChevronLeft
-              className="mr-1"
-              size={16}
-            />
-            Previous
-          </Button>
-
-          <Button
-            variant="outline"
-            disabled={!hasMore}
-            onClick={() =>
-              goToPage(currentPage + 1)
-            }
-          >
-            Next
-            <ChevronRight
-              className="ml-1"
-              size={16}
-            />
-          </Button>
-
-        </div>
-
       </div>
-
-    </div>
+    </>
   );
 }
