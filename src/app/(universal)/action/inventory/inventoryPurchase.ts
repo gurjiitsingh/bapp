@@ -83,6 +83,8 @@ export async function inventoryPurchase(
 
     const purchaseUnitCostN = Number(purchaseUnitCost) || 0;
 
+    const totalPurchaseAmount = purchaseUnitCostN * purchaseQuantity!;
+
     let afterStock = beforeStock;
     let afterAverageCost = beforeAverageCost;
     let afterStockValue = beforeStockValue;
@@ -199,7 +201,7 @@ export async function inventoryPurchase(
 
         purchaseUnit: purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
 
-        purchaseUnitCost: newPurchaseUnitCost,
+        purchaseUnitCost: purchaseUnitCostN,
         quantity: purchaseQty,
         consumptionUnit: inventory.consumptionUnit,
         unitCost: unitCost,
@@ -227,7 +229,7 @@ export async function inventoryPurchase(
         // =====================================================
         // VALUE
         // =====================================================
-        totalAmount: isCostMovement ? totalAmount : 0,
+        totalAmount: totalPurchaseAmount ? totalPurchaseAmount : 0,
 
         // =====================================================
         // PAYMENT
