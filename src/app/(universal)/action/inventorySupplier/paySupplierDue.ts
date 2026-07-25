@@ -1,13 +1,17 @@
 "use server";
 
-import { adminDb } from "@/lib/firebaseAdmin";
 import admin from "firebase-admin";
+import { adminDb } from "@/lib/firebaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 
-type PaymentMethod = "CASH" | "UPI" | "CARD";
+type PaymentMethod =
+  | "CASH"
+  | "UPI"
+  | "CARD"
+  | "CHECK"
+  | "BANK_TRANSFER";
 
 export async function paySupplierDue(formData: FormData) {
-
   try {
     const supplierId =
       (formData.get("supplierId") as string) || "";
@@ -15,11 +19,20 @@ export async function paySupplierDue(formData: FormData) {
     const amount = Number(formData.get("amount") || 0);
 
     const paymentMethod =
-      (formData.get("paymentMethod") as PaymentMethod) || "CASH";
-    
+      (formData.get("paymentMethod") as PaymentMethod) ||
+      "CASH";
+
+    const referenceNumber =
+      (formData.get("referenceNumber") as string)?.trim() || "";
+
+    const bankName =
+      (formData.get("bankName") as string)?.trim() || "";
+
+    const paymentDate =
+      (formData.get("paymentDate") as string)?.trim() || "";
+
     const note =
       (formData.get("note") as string)?.trim() || "";
-      
 
     if (!supplierId || amount <= 0) {
       return {
@@ -29,113 +42,176 @@ export async function paySupplierDue(formData: FormData) {
       };
     }
 
-    // =====================================================
-    // ✅ GET CURRENT BALANCE (SOURCE OF TRUTH)
-    // =====================================================
+    await adminDb.runTransaction(async (tx) => {
+      const accountRef = adminDb
+        .collection("supplierAccounts")
+        .doc(supplierId);
 
-    const accountRef = adminDb
-      .collection("supplierAccounts")
-      .doc(supplierId);
+      const accountSnap = await tx.get(accountRef);
 
-    const accountSnap = await accountRef.get();
+      if (!accountSnap.exists) {
+        throw new Error("Supplier account not found");
+      }
 
-    const currentBalance =
-      Number(accountSnap.data()?.balance) || 0;
+      const account = accountSnap.data() || {};
 
-    // 🚨 Prevent overpayment
-    if (amount > currentBalance) {
-      return {
-        errors: {
-          amount: "Amount exceeds due balance",
-        },
-      };
-    }
+      const currentDue = Number(account.balance || 0);
+      let currentCredit = Number(account.creditBalance || 0);
 
-    const newBalance = currentBalance - amount;
+      let newDue = currentDue;
+      let newCredit = currentCredit;
 
-    // =====================================================
-    // 🔥 ATOMIC BATCH (VERY IMPORTANT)
-    // =====================================================
+      // ======================================
+      // PAYMENT LOGIC
+      // ======================================
 
-    const batch = adminDb.batch();
+      if (amount >= currentDue) {
+        // Clear all due, remaining becomes supplier advance
+        const advance = amount - currentDue;
 
-    // 1️⃣ Update supplier account
-    batch.set(
-      accountRef,
-      {
-        supplierId,
+        newDue = 0;
+        newCredit += advance;
+      } else {
+        // Partial payment
+        newDue = currentDue - amount;
+      }
 
-        totalDebit:
-          admin.firestore.FieldValue.increment(amount),
-        totalPaid:
-          admin.firestore.FieldValue.increment(amount),
+      const supplierName =
+        account.supplierName || "";
 
-        // payment method tracking
-        ...(paymentMethod === "CASH" && {
+      let cash = 0;
+      let upi = 0;
+      let card = 0;
+      let check = 0;
+      let bankTransfer = 0;
+
+      switch (paymentMethod) {
+        case "CASH":
+          cash = amount;
+          break;
+
+        case "UPI":
+          upi = amount;
+          break;
+
+        case "CARD":
+          card = amount;
+          break;
+
+        case "CHECK":
+          check = amount;
+          break;
+
+        case "BANK_TRANSFER":
+          bankTransfer = amount;
+          break;
+      }
+
+      // ======================================
+      // UPDATE SUPPLIER ACCOUNT
+      // ======================================
+
+      tx.set(
+        accountRef,
+        {
+          supplierId,
+          supplierName,
+
+          totalDebit:
+            admin.firestore.FieldValue.increment(amount),
+
+          totalPaid:
+            admin.firestore.FieldValue.increment(amount),
+
           cashPaid:
-            admin.firestore.FieldValue.increment(amount),
-        }),
-        ...(paymentMethod === "UPI" && {
+            admin.firestore.FieldValue.increment(cash),
+
           upiPaid:
-            admin.firestore.FieldValue.increment(amount),
-        }),
-        ...(paymentMethod === "CARD" && {
+            admin.firestore.FieldValue.increment(upi),
+
           cardPaid:
-            admin.firestore.FieldValue.increment(amount),
-        }),
+            admin.firestore.FieldValue.increment(card),
 
-        balance:
-          admin.firestore.FieldValue.increment(-amount),
+          checkPaid:
+            admin.firestore.FieldValue.increment(check),
 
-        updatedAt:
+          bankTransferPaid:
+            admin.firestore.FieldValue.increment(bankTransfer),
+
+          balance: newDue,
+
+          creditBalance: newCredit,
+
+          updatedAt:
+            admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      // ======================================
+      // SUPPLIER LEDGER
+      // ======================================
+
+      const ledgerRef = adminDb
+        .collection("supplierLedger")
+        .doc();
+
+      tx.set(ledgerRef, {
+        transactionId: ledgerRef.id,
+
+        supplierId,
+        supplierName,
+
+        type: "PAYMENT",
+
+        totalAmount: amount,
+        paidAmount: amount,
+
+        dueAmount: newDue,
+        creditAmount: newCredit,
+
+        balance: newDue,
+
+        paymentMethod,
+
+        referenceNumber,
+        bankName,
+
+        paymentDate: paymentDate
+          ? admin.firestore.Timestamp.fromDate(
+              new Date(paymentDate)
+            )
+          : null,
+
+        referenceType: "PAYMENT",
+        referenceId: ledgerRef.id,
+
+        note: note || "Supplier payment",
+
+        createdBy: "admin",
+        source: "ADMIN",
+
+        createdAt:
           admin.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
-
-    // 2️⃣ Add ledger entry (history only)
-    const ledgerRef = adminDb
-      .collection("supplierLedger")
-      .doc();
-
-    batch.set(ledgerRef, {
-      supplierId,
-
-      type: "PAYMENT",
-
-      totalAmount: 0,
-      paidAmount: amount,
-      dueAmount: 0,
-
-      paymentMethod,
-
-      balance: newBalance, // optional snapshot
-
-      note: note || "Supplier payment",
-
-      createdAt:
-        admin.firestore.FieldValue.serverTimestamp(),
+      });
     });
 
-    await batch.commit();
-
-    // =====================================================
-    // 🔁 REVALIDATE
-    // =====================================================
-
     revalidateTag("supplier-ledger", "max");
-    revalidatePath(`/admin/inventory/supplier/${supplierId}`);
+    revalidateTag("supplier-accounts", "max");
+
+    revalidatePath(
+      `/admin/inventory/supplier/${supplierId}`
+    );
 
     return {
       success: true,
       message: "Payment recorded",
     };
-  } catch (error) {
-    console.error("❌ Payment failed:", error);
-
+  } catch (error: any) {
     return {
       errors: {
-        general: "Something went wrong",
+        general:
+          error?.message || "Something went wrong",
       },
     };
   }
