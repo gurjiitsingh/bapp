@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { displayStock } from "@/utils/inventory/displayStock";
+import { displayStock_1 } from "@/utils/inventory/displayStock_1";
 
 type Props = {
   initialTransactions?: any[];
@@ -131,7 +132,7 @@ const filteredTransactions = useMemo(() => {
   );
 }, [transactions, search]);
 
-console.log("filteredTransactions", filteredTransactions);
+console.log("filteredTransactions---------------", filteredTransactions);
 return (
   <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
     {/* ===================================================== */}
@@ -275,7 +276,17 @@ return (
     <TableCell>{tx.type}</TableCell>
     <TableCell>{tx.partyName}</TableCell>
     <TableCell>{tx.purchaseUnitCost}</TableCell>
-    <TableCell>{tx.purchaseQuantity}</TableCell>
+    <TableCell>
+      {/* {tx.quantity} */}
+      
+
+      {displayStock_1(
+                            tx.quantity,
+                            tx.purchaseUnit,
+                            tx.consumptionUnit,
+                            tx.conversionFactor
+                          )}
+    </TableCell>
     <TableCell>
       {(tx.purchaseQuantity * tx.purchaseUnitCost).toFixed(2)}
     </TableCell>

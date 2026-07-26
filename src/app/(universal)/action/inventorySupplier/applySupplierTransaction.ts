@@ -14,6 +14,10 @@ type ApplySupplierTransactionParams = {
   paidAmount: number;
   dueAmount: number;
 
+  quantity?: number;
+conversionFactor?:number;
+purchaseUnit?: string;
+
   currentBalance: number;
   creditAmount?: number;
 currentCreditBalance?: number;

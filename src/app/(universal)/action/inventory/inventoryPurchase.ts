@@ -150,6 +150,7 @@ export async function inventoryPurchase(
     tx.update(inventoryRef, {
         currentStock: afterStock,
         stockValue: newPurchaseUnitCostStockValue,//afterStockValue,
+        consumptionUnit:inventory.consumptionUnit,
         averageCost: afterAverageCost,
         costPrice: afterAverageCost,
         purchaseUnit,
@@ -169,7 +170,7 @@ export async function inventoryPurchase(
         purchaseQuantity ??
         quantity
 
-
+console.log("inventory-------------------", inventory)
 
     const ledgerRef =
         adminDb.collection("stockLedgerInventory").doc();
@@ -202,7 +203,7 @@ export async function inventoryPurchase(
         purchaseUnit: purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
 
         purchaseUnitCost: purchaseUnitCostN,
-        quantity: purchaseQty,
+        quantity: quantity,
         consumptionUnit: inventory.consumptionUnit,
         unitCost: unitCost,
         // =====================================================

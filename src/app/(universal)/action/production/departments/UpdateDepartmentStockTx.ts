@@ -46,6 +46,7 @@ export async function updateDepartmentStockTx({
     quantity: update.newQuantity,
     averageCost: averageCost,
     purchaseUnitCost: purchaseUnitCost,
+    consumptionUnit:update.consumptionUnit,
     currentStock: update.newQuantity,
     stockValue: newStockValue,
     updatedAt: now,

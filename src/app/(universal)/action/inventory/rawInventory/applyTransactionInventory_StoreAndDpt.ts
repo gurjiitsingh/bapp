@@ -17,7 +17,7 @@ export async function applyTransactionInventory_StoreAndDpt(
 
   for (const u of updates) {
 
-    console.log("u.purchaseUnitCost----------------------", u.purchaseUnitCost)
+  //  console.log("u.purchaseUnitCost----------------------", u.purchaseUnitCost)
 
     const quantity = Number(u.sendQty || 0);
     // const unitCost = Number(u.storeAvgCost || 0);
@@ -66,7 +66,7 @@ export async function applyTransactionInventory_StoreAndDpt(
 
       direction,
 
-      purchaseQuantity: u.sendQty/u.conversionFactor,
+      purchaseQuantity: u.sendQty,
       purchaseUnit: u.purchaseUnit || "",
       purchaseUnitCost: u.purchaseUnitCost,
 
@@ -89,7 +89,7 @@ sourceModule:
 
 createdById: "system",
 
-      quantity: u.sendQty/u.conversionFactor,
+      quantity: u.sendQty,
       consumptionUnit: u.consumptionUnit,
 
       unitCost: unitCost,

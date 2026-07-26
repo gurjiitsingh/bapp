@@ -67,13 +67,13 @@ export async function getInventoryTransactionsSelected({
         quantity: data.quantity,
         unit: data.transactionUnit,
         unitCost: data.transactionUnitCost,
-
+transactionUnitCost: data.transactionUnitCost,
         // PURCHASE
         purchaseQuantity: data.purchaseQuantity,
         purchaseUnit: data.purchaseUnit,
         purchaseUnitCost: data.purchaseUnitCost,
         conversionFactor: data.conversionFactor,
-
+consumptionUnit: data.consumptionUnit ? data.consumptionUnit  : data.transactionUnit,
         // STOCK
         beforeStock: data.beforeStock,
         afterStock: data.afterStock,

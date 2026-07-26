@@ -56,8 +56,8 @@ export async function purchaseStock({
   quantity,
   unitCost,
   stockValue,
-paidAmount,
- paymentMethod,
+  paidAmount,
+  paymentMethod,
   purchaseQuantity,
   purchaseUnit,
   purchaseUnitCost,
@@ -144,30 +144,30 @@ paidAmount,
 
 
 
-let currentBalance = 0;
-let currentCreditBalance = 0;
+      let currentBalance = 0;
+      let currentCreditBalance = 0;
 
-if (supplierId) {
-  const supplierAccountRef = adminDb
-    .collection("supplierAccounts")
-    .doc(supplierId);
+      if (supplierId) {
+        const supplierAccountRef = adminDb
+          .collection("supplierAccounts")
+          .doc(supplierId);
 
-  const supplierAccountSnap =
-    await tx.get(supplierAccountRef);
+        const supplierAccountSnap =
+          await tx.get(supplierAccountRef);
 
-  if (supplierAccountSnap.exists) {
-    const supplierData =
-      supplierAccountSnap.data()!;
+        if (supplierAccountSnap.exists) {
+          const supplierData =
+            supplierAccountSnap.data()!;
 
-    currentBalance = Number(
-      supplierData.balance ?? 0
-    );
+          currentBalance = Number(
+            supplierData.balance ?? 0
+          );
 
-    currentCreditBalance = Number(
-      supplierData.creditBalance ?? 0
-    );
-  }
-}
+          currentCreditBalance = Number(
+            supplierData.creditBalance ?? 0
+          );
+        }
+      }
 
       // =====================================================
       // UPDATE INVENTORY
@@ -184,10 +184,9 @@ if (supplierId) {
 
         type: "PURCHASE",
         direction: "IN",
-supplierId,
-  supplierName,
+        supplierId,
+        supplierName,
         quantity,
-
         unitCost: averageCost,
         totalAmount,
         stockValue,
@@ -211,49 +210,51 @@ supplierId,
 
 
 
-const total = Number(totalAmount);
-const paid = Number(paidAmount);
-const due = Math.max(total - paid, 0);
+      const total = Number(totalAmount);
+      const paid = Number(paidAmount);
+      const due = Math.max(total - paid, 0);
 
 
-await updateSupplierAccount(tx, {
-  supplierId: supplierId!,
-  supplierName,
+      await updateSupplierAccount(tx, {
+        supplierId: supplierId!,
+        supplierName,
 
-  type: "PURCHASE",
+        type: "PURCHASE",
 
-  totalAmount: total,
-  paidAmount: paid,
-  dueAmount: due,
+        totalAmount: total,
+        paidAmount: paid,
+        dueAmount: due,
 
-  currentBalance,
-  currentCreditBalance,
+        currentBalance,
+        currentCreditBalance,
 
-  paymentMethod,
-});
+        paymentMethod,
+      });
 
-await applySupplierTransaction(tx, {
-  supplierId,
-  supplierName,
+      await applySupplierTransaction(tx, {
+        supplierId,
+        supplierName,
 
-  type: "PURCHASE",
+        type: "PURCHASE",
 
-  totalAmount: total,
-  paidAmount: paid,
-  dueAmount: due,
+        totalAmount: total,
+        paidAmount: paid,
+        dueAmount: due,
 
-  currentBalance,
-  currentCreditBalance,
+        currentBalance,
+        currentCreditBalance,
+        quantity,
+        conversionFactor,
+        purchaseUnit,
+        paymentMethod,
 
-  paymentMethod,
+        referenceType,
+        referenceId,
 
-  referenceType,
-  referenceId,
-
-  note,
-  createdBy,
-  source: "WEB_ADMIN",
-});
+        note,
+        createdBy,
+        source: "WEB_ADMIN",
+      });
 
 
 

@@ -1,12 +1,13 @@
 "use client";
 
-import { convertDepartmentTransactionQuantitiesToGm } from "@/app/(universal)/action/production/departments/convertDepartmentTransactionQuantitiesToGm";
 import { useState } from "react";
- 
-export default function ConvertTransactionsButton() {
+
+import { convertDepartmentTransactionQuantitiesToGm } from "@/app/(universal)/action/production/departments/convertDepartmentTransactionQuantitiesToGm";
+
+export default function page() {
   const [loading, setLoading] = useState(false);
 
-  async function page() {
+  async function handleConvert() {
     const confirmed = confirm(
       "This will permanently convert matching transaction quantities to consumption units. Continue?"
     );
@@ -30,7 +31,11 @@ export default function ConvertTransactionsButton() {
         );
       }
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Conversion error:",
+        error
+      );
+
       alert("Something went wrong.");
     } finally {
       setLoading(false);
@@ -42,7 +47,7 @@ export default function ConvertTransactionsButton() {
       type="button"
       onClick={handleConvert}
       disabled={loading}
-      className="h-11 px-5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+      className="h-11 px-5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {loading
         ? "Converting..."
