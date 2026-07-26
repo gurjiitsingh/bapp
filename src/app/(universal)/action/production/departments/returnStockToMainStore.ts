@@ -108,7 +108,7 @@ export async function returnStockToMainStore(
             // 6. WRITE DEPARTMENT LEDGER
             // ==========================================
 
-            for (const item of input.items) {
+            for (const item of itemsInConsumptionUnit) {
                 await departmentStockTransaction({
                     transaction: tx,
 

@@ -48,7 +48,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
   quantity: item.quantity * (item.conversionFactor || 1),
 }));
 
-  //console.log("purchaseUnitCostInv----------------------")
+  
 
       const rawRequest = itemsInConsumptionUnit.map((item) => ({
   inventoryItemId: item.inventoryItemId,
@@ -58,7 +58,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
   purchaseUnitCostInv: item.purchaseUnitCost,
   conversionFactorUsed: item.conversionFactor || 1,
 }));
-//console.log("purchaseUnitCostInv----------------------", rawRequest)
+console.log("purchaseUnitCostInv----------------------", rawRequest)
       // ==========================================
       // 2. READ RAW INVENTORY
       // ==========================================
@@ -111,7 +111,7 @@ const itemsInConsumptionUnit = input.items.map((item) => ({
       // 6. WRITE DEPARTMENT LEDGER
       // ==========================================
 
-      for (const item of input.items) {
+      for (const item of itemsInConsumptionUnit) {
         await departmentStockTransaction({
           transaction: tx,
 

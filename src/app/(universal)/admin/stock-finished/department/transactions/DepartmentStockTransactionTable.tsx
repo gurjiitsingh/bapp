@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { DepartmentType } from "@/lib/types/department/DepartmentType";
+import { displayStock_1 } from "@/utils/inventory/displayStock_1";
 
  
 
@@ -94,6 +95,15 @@ const filteredTransactions = useMemo(() => {
 }, [transactions, search]);
 
  
+filteredTransactions.forEach((item: any) => {
+  console.log("item---",item)
+//   console.log(
+//     `item: ${item.inventoryItemName} | Qty: ${item.quantity} | Purchase Unit: ${item.purchaseUnit} | Consumption Unit: ${item.consumptionUnit} | Conversion Factor: ${item.conversionFactor
+// }`
+//   );
+});
+ 
+
 
   return (
     <>
@@ -248,7 +258,7 @@ const filteredTransactions = useMemo(() => {
                   </TableCell>
 
                   <TableCell>
-                    {displayStock(
+                    {displayStock_1(
                       tx.quantity,
                       tx.purchaseUnit,
                       tx.consumptionUnit,
