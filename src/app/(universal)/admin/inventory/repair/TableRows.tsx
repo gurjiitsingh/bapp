@@ -1,6 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { Input } from '@/components/ui/input';
+import { useRouter } from 'next/navigation';
+import { updateInventoryField } from '@/app/(universal)/action/inventory/repair/updateInventoryField';
 
 import {
   TableCell,
@@ -43,9 +46,23 @@ function TableRows({
 }: {
   item: InventoryItemType;
 }) {
-  console.log("item---------------",item)
+
+  const router = useRouter();
+
+ 
+
+  const [qtyValue, setQtyValue] = useState(
+    String(item.currentStock ?? 0)
+  );
+
+  const [costValue, setCostValue] = useState(
+    String(item.averageCost ?? 0)
+  );
   const { settings } = UseSiteContext();
-const [openUnitDialog, setOpenUnitDialog] = useState(false);
+  const [openUnitDialog, setOpenUnitDialog] = useState(false);
+
+
+
   // ==========================================
   // PRIMARY PURCHASE MAPPING
   // ==========================================
@@ -85,6 +102,45 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
     }
   }
 
+  async function saveQty() {
+    const value = Number(qtyValue);
+
+    if (isNaN(value)) return;
+
+    const result = await updateInventoryField(
+      item.id,
+      'currentStock',
+      value
+    );
+
+    if (!result.success) {
+      alert(result.message);
+      return;
+    }
+
+    router.refresh();
+  }
+
+  async function saveCost() {
+    const value = Number(costValue);
+
+    if (isNaN(value)) return;
+
+    const result = await updateInventoryField(
+      item.id,
+      'averageCost',
+      value
+    );
+
+    if (!result.success) {
+      alert(result.message);
+      return;
+    }
+
+    router.refresh();
+  }
+
+
   return (
     <TableRow className="hover:bg-rose-50/40 transition-all border-b border-gray-100">
 
@@ -108,15 +164,7 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
               {item.name}
             </span>
 
-            {/* {item.barcode ? (
-              <span className="text-xs text-gray-400 mt-1">
-                Barcode: {item.barcode}
-              </span>
-            ) : (
-              <span className="text-xs text-gray-300 mt-1 italic">
-                No barcode
-              </span>
-            )} */}
+
 
           </div>
         </div>
@@ -126,50 +174,49 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
           CATEGORY
       ======================================== */}
 
-      <TableCell>
+      {/* <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.categoryName}
         </span>
-      </TableCell>
+      </TableCell> */}
 
       {/* ========================================
           SKU
       ======================================== */}
 
-      {/* <TableCell>
-        {item.sku ? (
-          <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-            {item.sku}
-          </span>
-        ) : (
-          <span className="text-gray-300 italic text-sm">
-            —
-          </span>
-        )}
-      </TableCell> */}
+
+
+
+  
 
       {/* ========================================
-          PURCHASE UNIT
+          STOCK
       ======================================== */}
 
-     <TableCell>
-  <button
-  type="button"
-  onClick={() => setOpenUnitDialog(true)}
-  className="capitalize text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
->
-  {item.purchaseUnit?.trim()
-    ? item.purchaseUnit
-    : "-"}
-</button>
-  <PurchaseUnitDialog
-    open={openUnitDialog}
-    onOpenChange={setOpenUnitDialog}
-    item={item}
-  />
-</TableCell>
+      <TableCell>
+        <div className="flex flex-col gap-1">
 
-      {/* ========================================
+          <Input
+            value={qtyValue}
+            onChange={(e) => setQtyValue(e.target.value)}
+            onBlur={saveQty}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveQty();
+            }}
+            inputMode="numeric"
+            type="number"
+            step="1"
+            className="h-9 w-32"
+          />
+
+          <span className="text-xs text-gray-400">
+            Qty
+          </span>
+
+        </div>
+      </TableCell>
+
+          {/* ========================================
           CONVERSION FACTOR
       ======================================== */}
 
@@ -180,67 +227,63 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
             {item.conversionFactor}
           </span>
 
-          
+
 
         </div>
       </TableCell>
 
-      {/* ========================================
-          STOCK
+
+ {/* ========================================
+          PURCHASE UNIT
       ======================================== */}
 
       <TableCell>
-        <div className="flex flex-col">
-
-          <span
-            className={`font-bold text-base ${
-              isLowStock
-                ? "text-rose-600"
-                : "text-gray-800"
-            }`}
-          >
-            {displayStock(
-              currentStock,
-              primaryMapping.purchaseUnit,
-              item.consumptionUnit,
-              primaryMapping.factor
-            )}
-          </span>
-
-          <span className="text-xs text-gray-400">
-            Available
-          </span>
-
-        </div>
+        <button
+          type="button"
+          onClick={() => setOpenUnitDialog(true)}
+          className="capitalize text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+        >
+          {item.purchaseUnit?.trim()
+            ? item.purchaseUnit
+            : "-"}
+        </button>
+        <PurchaseUnitDialog
+          open={openUnitDialog}
+          onOpenChange={setOpenUnitDialog}
+          item={item}
+        />
       </TableCell>
+       <TableCell>
+        {item.currentStock!/item.conversionFactor}
+       </TableCell>
 
       {/* ========================================
           AVG COST / PURCHASE UNIT COST
       ======================================== */}
 
       <TableCell>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
 
-          <span
-            className={`font-bold text-base ${
-              isLowStock
-                ? "text-rose-600"
-                : "text-gray-800"
-            }`}
-          >
-            Rs{" "}
-            {Number(
-              item.purchaseUnitCost
-            ).toFixed(2)}
-          </span>
+          <Input
+            value={costValue}
+            onChange={(e) => setCostValue(e.target.value)}
+            onBlur={saveCost}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') saveCost();
+            }}
+            inputMode="decimal"
+            type="number"
+            step="0.01"
+            className="h-9 w-32"
+          />
 
           <span className="text-xs text-gray-400">
-            / {primaryMapping.purchaseUnit}
+            Avg Cost
           </span>
 
         </div>
       </TableCell>
-
+     
       {/* ========================================
           STOCK VALUE
       ======================================== */}
@@ -266,7 +309,7 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
           MIN STOCK
       ======================================== */}
 
-      <TableCell>
+      {/* <TableCell>
         <span className="text-sm font-medium text-gray-700">
           {displayStock(
             minStock,
@@ -275,13 +318,13 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
             primaryMapping.factor
           )}
         </span>
-      </TableCell>
+      </TableCell> */}
 
       {/* ========================================
           STATUS
       ======================================== */}
 
-      <TableCell>
+      {/* <TableCell>
         <div className="flex flex-col gap-2">
 
           <div>
@@ -307,7 +350,7 @@ const [openUnitDialog, setOpenUnitDialog] = useState(false);
           )}
 
         </div>
-      </TableCell>
+      </TableCell> */}
 
       {/* ========================================
           ACTIONS

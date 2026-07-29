@@ -37,7 +37,7 @@ export default function ListView({
   categories,
 }: Props) {
 
-  console.log("inventoryItems------------------",inventoryItems)
+  console.log("inventoryItems------------------", inventoryItems)
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
 
@@ -279,42 +279,46 @@ export default function ListView({
                   Item
                 </TableHead>
 
-                <TableHead>
+                {/* <TableHead>
                   Category
-                </TableHead>
+                </TableHead> */}
 
                 {/* <TableHead>
                   SKU
                 </TableHead> */}
 
-                <TableHead>
-                  Unit
-                </TableHead>
+
 
                 {/* NEW */}
-                <TableHead>
-                  Conversion
-                </TableHead>
+
 
                 <TableHead>
                   Stock
                 </TableHead>
-
+                <TableHead>
+                  Conversion
+                </TableHead>
+                <TableHead>
+                  Purchase Unit
+                </TableHead>
+                 <TableHead>
+                  Unit
+                </TableHead>
                 <TableHead>
                   Avg Cost
                 </TableHead>
-
+               
                 <TableHead>
                   Stock Value
                 </TableHead>
 
-                <TableHead>
+                {/* <TableHead>
                   Min Stock
-                </TableHead>
+                </TableHead> */}
 
-                <TableHead>
+                {/* <TableHead>
                   Status
-                </TableHead>
+                </TableHead> */}
 
                 <TableHead className="text-right pr-5">
                   Actions

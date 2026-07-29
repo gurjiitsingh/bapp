@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ListView from "./components/ListView";
 
 import Link from "next/link";
-
+import { Wrench } from 'lucide-react';
 import { Plus, Package2, ArrowLeft } from "lucide-react";
 import { fetchInventoryItems } from "../../action/inventory/dbOperation";
 import { fetchInventoryCategories } from "../../action/inventoryCategory/fetchInventoryCategories";
@@ -44,7 +44,7 @@ export default async function Page() {
               </div>
 
               <div className="flex items-center gap-3">
-               
+
 
                 <Link href="/admin/inventory/add">
                   <button className="btn-save-4 flex items-center gap-2">
@@ -52,13 +52,12 @@ export default async function Page() {
                     Add Inventory Item
                   </button>
                 </Link>
-              </div>
-                    <div className="flex items-center gap-3">
-               
+
+
 
                 <Link href="/admin/inventory/repair">
                   <button className="btn-save-4 flex items-center gap-2">
-                    <Plus size={18} />
+                    <Wrench size={18} />
                     Repair
                   </button>
                 </Link>
