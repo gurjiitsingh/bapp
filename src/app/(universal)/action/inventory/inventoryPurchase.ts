@@ -117,44 +117,260 @@ export async function inventoryPurchase(
     // );
     afterAverageCost = afterAverageCost;
 
-    let stockQtyInPurchaseUnit = inventory.currentStock / conversionFactor!;
+// =====================================================
+// PURCHASE UNIT DEBUG
+// =====================================================
 
-    //    NEW STRATAGY TO CALCULATE RATE
-    let newPurchaseUnitCostStockValue = 0;
-    let newPurchaseUnitCost = 0;
+console.log("==============================================");
+console.log("🟦 INVENTORY PURCHASE COST CALCULATION");
+console.log("==============================================");
 
-    let purchaseQtyInPurchaseUnit = Number(quantity / conversionFactor!)
+console.log("📦 Inventory Item:", inventoryItemId);
 
-    const existingPurchaseUnitCost =
-        Number(inventory.purchaseUnitCost ?? 0);
+console.log("----------- EXISTING INVENTORY -----------");
+console.log("Existing currentStock:", inventory.currentStock);
+console.log(
+    "Existing purchaseUnit:",
+    inventory.purchaseUnit
+);
+console.log(
+    "Existing purchaseUnitCost:",
+    inventory.purchaseUnitCost
+);
+console.log(
+    "Existing consumptionUnit:",
+    inventory.consumptionUnit
+);
 
-    if (existingPurchaseUnitCost > 0) {
-        newPurchaseUnitCostStockValue = Number((purchaseUnitCostN * purchaseQtyInPurchaseUnit + inventory.purchaseUnitCost * stockQtyInPurchaseUnit).toFixed(2));
 
-        newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / (purchaseQtyInPurchaseUnit + stockQtyInPurchaseUnit)).toFixed(2));
-    } else {
-        newPurchaseUnitCostStockValue = Number((purchaseUnitCostN * purchaseQtyInPurchaseUnit).toFixed(2));
+console.log("----------- NEW PURCHASE -----------");
+console.log(
+    "New purchaseQuantity:",
+    purchaseQuantity
+);
+console.log(
+    "New purchaseUnit:",
+    purchaseUnit
+);
+console.log(
+    "New purchaseUnitCost:",
+    purchaseUnitCostN
+);
+console.log(
+    "New conversionFactor:",
+    conversionFactor
+);
 
-        newPurchaseUnitCost = Number((newPurchaseUnitCostStockValue / purchaseQtyInPurchaseUnit).toFixed(2));
+console.log("----------- TRANSACTION -----------");
+console.log("Transaction quantity:", quantity);
+console.log(
+    "Transaction unit:",
+    inventory.consumptionUnit
+);
 
 
-    }
-    // console.log("stockQtyInPurchaseUnit -----------------",stockQtyInPurchaseUnit)
-    // console.log("stocke qty -----------------",stockQtyInPurchaseUnit)
-    // console.log("purchase qty -----------------",purchaseQtyInPurchaseUnit)
-    // console.log("newPurchaseUnitCostStockValue -----------------",newPurchaseUnitCostStockValue)
-    // console.log("newpruchage -----------------",newPurchaseUnitCost)
+// =====================================================
+// EXISTING VALUES
+// =====================================================
 
+const existingConversionFactor =
+    Number(inventory.conversionFactor) || 1;
+
+const newConversionFactor =
+    Number(conversionFactor) || 1;
+
+const existingStockQty =
+    Number(inventory.currentStock) || 0;
+
+const existingPurchaseUnitCost =
+    Number(inventory.purchaseUnitCost) || 0;
+
+const newPurchaseQuantity =
+    Number(purchaseQuantity) || 0;
+
+let newPurchaseUnitCost =
+    Number(purchaseUnitCostN) || 0;
+
+
+// =====================================================
+// EXISTING STOCK IN EXISTING PURCHASE UNIT
+// =====================================================
+
+const existingStockInPurchaseUnit =
+    existingStockQty /
+    existingConversionFactor;
+
+
+// =====================================================
+// NEW PURCHASE QUANTITY
+// =====================================================
+//
+// purchaseQuantity is already in the NEW purchase unit.
+//
+// Example:
+// 2 kg = 2 kg
+// 3 bag(15) = 3 bag(15)
+//
+// Do NOT divide purchaseQuantity by conversionFactor.
+//
+// =====================================================
+
+const newPurchaseQtyInPurchaseUnit =
+    newPurchaseQuantity;
+
+
+
+    // =====================================================
+// NEW PURCHASE VALUE
+// =====================================================
+
+const newPurchaseStockValue =
+    newPurchaseQtyInPurchaseUnit *
+    newPurchaseUnitCost;
+
+// =====================================================
+// EXISTING STOCK VALUE
+// =====================================================
+
+const existingStockValue = inventory.stockValue;
+const newInventorySotckValue = inventory.stockValue + newPurchaseStockValue
+     
+
+
+
+
+// =====================================================
+// TOTAL PURCHASE UNIT QUANTITY
+// =====================================================
+
+const newConsumptionUnitQuantity = purchaseQuantity! * conversionFactor!
+
+
+// =====================================================
+// NEW AVERAGE PURCHASE UNIT COST
+// =====================================================
+
+const newPurchaseUnitCostAverage =
+    newConsumptionUnitQuantity > 0
+        ? (
+            existingStockValue +
+            newPurchaseStockValue
+        ) /
+        newConsumptionUnitQuantity
+        : newPurchaseUnitCost;
+
+
+// =====================================================
+// VALUES USED BELOW
+// =====================================================
+
+const newPurchaseUnitCostStockValue =
+    Number(
+        (
+            existingStockValue +
+            newPurchaseStockValue
+        ).toFixed(2)
+    );
+
+ newPurchaseUnitCost =
+    Number(
+        purchaseUnitCost
+    );
+
+
+// =====================================================
+// DEBUG RESULT
+// =====================================================
+
+console.log("==============================================");
+console.log("🧮 PURCHASE UNIT CALCULATION");
+console.log("==============================================");
+
+console.log(
+    "Existing purchase unit:",
+    inventory.purchaseUnit
+);
+console.log(
+    "Existing Inventory conversionFactor:",
+    existingConversionFactor
+);
+
+
+
+console.log(
+    "Existing stock:",
+    existingStockQty
+);
+
+// console.log(
+//     "Existing stock in purchase unit:",
+//     existingStockInPurchaseUnit
+// );
+
+
+
+ 
+
+console.log(
+    "Existing stock purchase value:",
+    existingStockValue
+);
+
+console.log("----------------")
+
+console.log(
+    "New purchase unit:",
+    purchaseUnit
+);
+console.log(
+    "New conversionFactor:",
+    newConversionFactor
+);
+console.log(
+    "New purchase quantity:",
+    newPurchaseQuantity
+);
+console.log(
+    "New purchase unit cost:",
+    newPurchaseUnitCost
+);
+console.log(
+    "New purchase stock value:",
+    newPurchaseStockValue
+);
+console.log(
+    "New purchase in consumption quantity:",
+    newConsumptionUnitQuantity
+);
+
+console.log(
+    "New Stock in consumption quantity:",
+    afterStock
+);
+
+const newStockInPurchaseUnit = afterStock/existingConversionFactor
+const newAvgCostInPurchaseUnit = newInventorySotckValue/newStockInPurchaseUnit;
+
+
+
+
+console.log("New stock in purchase unit--------------", newStockInPurchaseUnit)
+console.log(
+    "New avg cost in purchase quantity:",
+    newAvgCostInPurchaseUnit
+);
+console.log("NEW INVENTORY STOCK VALUE:",newInventorySotckValue);
+console.log("==============================================");
 
 
     tx.update(inventoryRef, {
         currentStock: afterStock,
-        stockValue: newPurchaseUnitCostStockValue,//afterStockValue,
+        stockValue: newInventorySotckValue,//afterStockValue,
         consumptionUnit:inventory.consumptionUnit,
-        averageCost: afterAverageCost,
-        costPrice: afterAverageCost,
-        purchaseUnit,
-        purchaseUnitCost: newPurchaseUnitCost,
+        averageCost: newAvgCostInPurchaseUnit,
+        costPrice: newAvgCostInPurchaseUnit,
+        // purchaseUnit,
+        purchaseUnitCost: newAvgCostInPurchaseUnit,
         updatedAt: now,
     });
 
@@ -170,7 +386,7 @@ export async function inventoryPurchase(
         purchaseQuantity ??
         quantity
 
-console.log("inventory-------------------", inventory)
+ 
 
     const ledgerRef =
         adminDb.collection("stockLedgerInventory").doc();

@@ -48,7 +48,8 @@ export const fetchInventoryItems = cache(
                     data.conversionFactor || 1,
                 },
               ],
-
+purchaseUnit:data.purchaseUnit || "",
+conversionFactor:data.conversionFactor || 1 ,
             consumptionUnit:
               data.consumptionUnit || "pcs",
 

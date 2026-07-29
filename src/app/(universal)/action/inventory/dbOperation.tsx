@@ -58,7 +58,8 @@ export const fetchInventoryItems = cache(
 
   purchaseMappings:
     data.purchaseMappings || [],
-
+purchaseUnit:data.purchaseUnit || "",
+conversionFactor:data.conversionFactor || 1 ,
     
   currentStock:
     Number(data.currentStock) || 0,

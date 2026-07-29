@@ -26,7 +26,8 @@ const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
 
   currentStock: Number(i.currentStock) || 0,
   minStock: Number(i.minStock) || 0,
-
+purchaseUnit:i.purchaseUnit || "",
+conversionFactor:i.conversionFactor || 1 ,
   averageCost: Number(i.averageCost) || 0,
   stockValue: Number(i.stockValue) || 0,
 

@@ -34,7 +34,8 @@ const inventoryItems = (inventoryItemsRaw || []).map((i: any) => ({
   stockValue: Number(i.stockValue) || 0,
 
   sellingPrice: Number(i.sellingPrice) || 0,
-
+purchaseUnit:i.purchaseUnit || "",
+conversionFactor:i.conversionFactor || 1 ,
   categoryId: i.categoryId || "",
   supplierId: i.supplierId || "",
   supplierIds: i.supplierIds || [],

@@ -71,7 +71,7 @@ export async function purchaseStock({
   referenceId,
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
-  console.log("========== adjustInventoryStock ==========");
+  console.log("========== Purchase Inventory Stock ==========");
 
   console.log("inventoryItemId:", inventoryItemId);
   console.log("type:", type);
