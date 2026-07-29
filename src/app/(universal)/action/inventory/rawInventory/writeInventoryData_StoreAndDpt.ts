@@ -20,7 +20,7 @@ export async function writeInventoryData_StoreAndDpt(
   let totalValue = 0;
 
   for (const u of updates) {
-    console.log("u----------------------u--",u)
+   // console.log("u----------------------u--",u)
     const dptAvgCost = Number(u.dptAvgCost || 0); //averageCost Dpt
     const sendQty = Number(u.sendQty || 0);//return qty
     const storeAvgCost = Number(u.storeAvgCost || 0); // avagCost inventory
