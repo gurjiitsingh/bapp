@@ -3,6 +3,7 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
+import { average } from "firebase/firestore";
 
 export async function writeInventoryData_StoreAndDpt(
   tx: FirebaseFirestore.Transaction,
@@ -20,7 +21,7 @@ export async function writeInventoryData_StoreAndDpt(
   let totalValue = 0;
 
   for (const u of updates) {
-   // console.log("u----------------------u--",u)
+    console.log("u----------------------u--",u)
     const dptAvgCost = Number(u.dptAvgCost || 0); //averageCost Dpt
     const sendQty = Number(u.sendQty || 0);//return qty
     const storeAvgCost = Number(u.storeAvgCost || 0); // avagCost inventory
@@ -32,22 +33,25 @@ export async function writeInventoryData_StoreAndDpt(
     // const movementValue = quantity * unitCost;
 let newStockQty = 0;
 let newStockValue = 0;
+let newAvgPrice = 0;
+let conversionFactor = u.conversionFactor
 
 if (direction === "IN") {
   newStockQty = storeStock + sendQty;
   newStockValue =
   Number((storeStockValue + (sendQty * dptAvgCost)).toFixed(2));
-
+newAvgPrice = newStockValue / (newStockQty/conversionFactor)
 } else {
   if (sendQty > storeStock) {
     throw new Error("Stock underflow");
   }
 
   newStockQty = storeStock - sendQty;
-newStockValue =
-  Number((storeStockValue - (sendQty * storeAvgCost)).toFixed(2));
+
+newStockValue =  Number((newStockQty * storeAvgCost/conversionFactor).toFixed(2));
+newAvgPrice = newStockValue / (newStockQty/conversionFactor)
 }
-   
+  
 // NOT USE ANYWHERE
  if (direction === "IN") {
   totalValue += sendQty * dptAvgCost;
@@ -55,26 +59,27 @@ newStockValue =
   totalValue += sendQty * storeAvgCost;
 }
   
-const newAvgPrice =
-  newStockQty > 0
-    ? Number((newStockValue / newStockQty).toFixed(4))
-    : 0;
+
+ 
 
 
+ 
+ console.log("========== Inventory Update ==========");
+ 
+  console.log("sendQty :", sendQty);
+ console.log("currentStock :", u.storeStock);
 
 
-//  console.log("========== Inventory Update ==========");
-// console.log("currentStock :", newStockQty);
-// console.log("stockValue   :", newStockValue);
-// console.log("averageCost  :", newAvgPrice);
+console.log("newCurrentStock :", newStockQty);
+console.log("stockValue   :", newStockValue);
+console.log("averageCost  :", newAvgPrice);
 
-// console.log("======================================");
+console.log("======================================");
 
     // ✅ Update Inventory
  tx.update(u.ref, {
   currentStock: newStockQty,  
   stockValue: newStockValue,
-  consumptionUnit:u.consumptionUnit,
   averageCost: newAvgPrice,
   updatedAt: now,
 });
