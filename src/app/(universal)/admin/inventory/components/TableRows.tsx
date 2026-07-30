@@ -181,11 +181,13 @@ const displayAverageCost =
               }`}
           >
           {/* {displayAverageCost}/{primaryMapping.purchaseUnit} */}
-         { item.purchaseUnitCost}
+         { item.averageCost}
           </span>
 
-          <span className="text-xs text-gray-400">
-            Available
+            <span className="text-xs text-gray-400">
+          per  {item.purchaseUnit?.trim()
+            ? item.purchaseUnit
+            : "-"}
           </span>
         </div>
       </TableCell>

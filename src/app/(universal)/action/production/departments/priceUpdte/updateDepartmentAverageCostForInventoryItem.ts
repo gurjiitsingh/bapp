@@ -177,7 +177,7 @@ export async function updateAllDepartmentAverageCosts() {
         batch.update(
           departmentDoc.ref,
           {
-            averageCost:inventoryData.purchaseUnitCost,
+            averageCost:inventoryData.averageCost,
 
           
 

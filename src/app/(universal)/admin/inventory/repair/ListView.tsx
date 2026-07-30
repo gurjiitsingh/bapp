@@ -298,11 +298,12 @@ export default function ListView({
                 <TableHead>
                   Conversion
                 </TableHead>
+                
+                 <TableHead className="text-right">
+                  Units
+                </TableHead>
                 <TableHead>
                   Purchase Unit
-                </TableHead>
-                 <TableHead>
-                  Unit
                 </TableHead>
                 <TableHead>
                   Avg Cost

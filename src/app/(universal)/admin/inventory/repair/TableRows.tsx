@@ -210,7 +210,7 @@ function TableRows({
           />
 
           <span className="text-xs text-gray-400">
-            Qty
+           Qty in gm
           </span>
 
         </div>
@@ -237,11 +237,16 @@ function TableRows({
           PURCHASE UNIT
       ======================================== */}
 
-      <TableCell>
+  
+       <TableCell className="text-right">
+        {item.currentStock!/item.conversionFactor}
+       </TableCell>
+
+           <TableCell >
         <button
           type="button"
           onClick={() => setOpenUnitDialog(true)}
-          className="capitalize text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
+          className="capitalize  border-b  text-sm font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer"
         >
           {item.purchaseUnit?.trim()
             ? item.purchaseUnit
@@ -253,9 +258,6 @@ function TableRows({
           item={item}
         />
       </TableCell>
-       <TableCell>
-        {item.currentStock!/item.conversionFactor}
-       </TableCell>
 
       {/* ========================================
           AVG COST / PURCHASE UNIT COST
@@ -278,7 +280,9 @@ function TableRows({
           />
 
           <span className="text-xs text-gray-400">
-            Avg Cost
+          per  {item.purchaseUnit?.trim()
+            ? item.purchaseUnit
+            : "-"}
           </span>
 
         </div>
