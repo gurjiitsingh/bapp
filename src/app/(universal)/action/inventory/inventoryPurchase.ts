@@ -116,9 +116,9 @@ console.log("====================================");
         stockValue: afterStockValue,//afterStockValue,
        // consumptionUnit: inventory.consumptionUnit? inventory.consumptionUnit : "gm",
         averageCost: afterAverageCost,
-        costPrice: afterAverageCost,
+      //  costPrice: afterAverageCost,
         purchaseUnit: purchaseUnit,
-        purchaseUnitCost: afterAverageCost,
+        purchaseUnitCost: purchaseUnitCost,// THIS IS RECENT  PURCHASE COST FOR
         updatedAt: now,
     });
 
