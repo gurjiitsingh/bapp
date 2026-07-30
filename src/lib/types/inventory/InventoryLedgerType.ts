@@ -72,11 +72,11 @@ consumptionUnit?:string;
   // =====================================================
   // PAYMENT
   // =====================================================
-  paidAmount: number;
-  dueAmount: number;
+  paidAmount?: number;
+  dueAmount?: number;
 
-  paymentStatus: string | null;
-  paymentMethod: string | null;
+  paymentStatus?: string | null;
+  paymentMethod?: string | null;
 
   // =====================================================
   // TRANSACTION INFO

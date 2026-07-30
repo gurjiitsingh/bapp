@@ -376,11 +376,11 @@ if (mapping) {
         unitCost: finalUnitCost,
 
         // ORIGINAL
-        purchaseQuantity: originalQuantity,
+        purchaseQuantity: originalQuantity || 0,
 
-        purchaseUnit: data.transactionUnit,
+        purchaseUnit: data.transactionUnit || "kg",
 
-        purchaseUnitCost: originalUnitCost,
+        purchaseUnitCost: originalUnitCost || 1,
 
        conversionFactor:
   mapping?.factor || 1,

@@ -68,9 +68,12 @@ export async function purchaseStock({
   note,
   createdBy,
 
-  referenceId,
+   
   referenceType = "MANUAL",
 }: AdjustInventoryStockType) {
+
+
+  const referenceId = "kjkljk"
   console.log("========== Purchase Inventory Stock ==========");
 
   console.log("inventoryItemId:", inventoryItemId);
@@ -78,25 +81,22 @@ export async function purchaseStock({
 
   console.log("supplierName:", supplierName);
   console.log("supplierId:", supplierId);
-  console.log("unitCost:", unitCost);
-  console.log("quantity:", quantity);
-  console.log("unitCost:", unitCost);
 
+  console.log("quantity:", quantity);
   console.log("purchaseQuantity:", purchaseQuantity);
   console.log("purchaseUnit:", purchaseUnit);
   console.log("purchaseUnitCost:", purchaseUnitCost);
   console.log("conversionFactor:", conversionFactor);
+  console.log("purchaseStockValue:", stockValue);
 
   console.log("paymentStatus:", paymentStatus);
-
   console.log("note:", note);
   console.log("createdBy:", createdBy);
-
   console.log("referenceId:", referenceId);
   console.log("referenceType:", referenceType);
+  
 
-  console.log("stockValue:", stockValue);
-
+   console.log("unitCost:", unitCost);
   console.log("==========================================");
 
   try {
@@ -173,7 +173,10 @@ export async function purchaseStock({
       // UPDATE INVENTORY
       // =====================================================
 
-      const averageCost = Number(unitCost);
+      const averageCost = Number(purchaseUnitCost);
+
+    //  const  totalAmountPurchased = Number(purchaseUnitCost);,
+    //  const   StockValuePuchased,
 
       const totalAmount =
         Number(stockValue) ||
@@ -186,15 +189,15 @@ export async function purchaseStock({
         direction: "IN",
         supplierId,
         supplierName,
+        
         quantity,
-        unitCost: averageCost,
-        totalAmount,
-        stockValue,
+      
+      
 
-        purchaseQuantity,
-        purchaseUnit,
-        purchaseUnitCost,
-        conversionFactor,
+        purchaseQuantity: purchaseQuantity!,
+        purchaseUnit: purchaseUnit! ,
+        purchaseUnitCost: purchaseUnitCost!,
+        conversionFactor: conversionFactor!,
 
         referenceType,
         referenceId,
