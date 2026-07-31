@@ -3,13 +3,17 @@
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Search, Package2 } from "lucide-react";
-
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { estimateProduction } from "@/app/(universal)/action/stock-finished/estimateProduction";
 import { ProductStockType } from "@/lib/types/productStockType";
 type Props = {
   products: ProductStockType[];
+
+  productId?: string;
+  currentStock?: number;
+  consumptionUnit?: string;
 };
 
 type FormType = {
@@ -21,6 +25,9 @@ type FormType = {
 
 export default function ProductionEstimateForm({
   products,
+  productId,
+  currentStock,
+  consumptionUnit,
 }: Props) {
 
  
@@ -108,6 +115,42 @@ export default function ProductionEstimateForm({
 
     setIsSubmitting(false);
   }
+
+  
+  useEffect(() => {
+  if (!productId) return;
+
+  const product = products.find(
+    (p) => p.id === productId
+  );
+
+  if (!product) return;
+
+  setSelectedProduct(product);
+
+  setValue("id", product.id);
+  setSearch(product.name);
+  setShowDropdown(false);
+
+  // ✅ Fill production quantity with current stock
+  if (currentStock !== undefined) {
+    setValue("quantity", currentStock);
+  }
+
+  // ✅ Set unit
+  if (consumptionUnit) {
+    setValue(
+      "transactionUnit",
+      consumptionUnit as InventoryUnit
+    );
+  }
+}, [
+  productId,
+  currentStock,
+  consumptionUnit,
+  products,
+  setValue,
+]);
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
@@ -371,17 +414,15 @@ export default function ProductionEstimateForm({
             {estimate.items.length}
           </p>
         </div>
-         <div className="rounded-2xl bg-green-50 border border-green-100 p-5">
+<div className="rounded-2xl bg-green-50 border border-green-100 p-5">
           <p className="text-sm text-gray-500">
             Estimated Cost/Unit
           </p>
 
           <p className="text-3xl font-bold text-green-700 mt-2">
-            ₹ {((estimate.totalEstimatedCost)/quantity).toFixed(2)}
+            ₹ {(estimate.totalEstimatedCost/currentStock!).toFixed(2)}
           </p>
         </div>
-
-
         <div className="rounded-2xl bg-green-50 border border-green-100 p-5">
           <p className="text-sm text-gray-500">
             Estimated Cost

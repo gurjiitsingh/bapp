@@ -1,7 +1,8 @@
 
 "use client";
 
-import React from "react";
+
+import React, { useState } from "react";
 
 import {
   TableCell,
@@ -24,7 +25,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Package2,
-  Sparkles,
 } from "lucide-react";
 
 import { deleteInventoryItem } from "@/app/(universal)/action/stock-finished/dbOperation";
@@ -35,6 +35,7 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { ProductStockType } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
 import { updateWholesalePrice } from "@/app/(universal)/action/stock-finished/finshed-products/updateWholesalePrice";
+import { updateProductStockValues } from "@/app/(universal)/action/stock-finished/repair/updateProductStockValues";
 
 
 
@@ -46,7 +47,8 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
-
+  const [stock, setStock] = useState(item.currentStock ?? 0);
+  const [avgCost, setAvgCost] = useState(item.avgCost ?? 0);
 
   const formattedCostPrice =
     formatCurrencyNumber(
@@ -72,6 +74,22 @@ function TableRows({
       alert(result.message);
     }
   }
+  async function saveValues() {
+    const result = await updateProductStockValues({
+      id: item.id,
+      currentStock: Number(stock),
+      avgCost: Number(avgCost),
+    });
+
+    if (!result.success) {
+      toast.error(result.message);
+      return;
+    }
+
+    toast.success("Stock updated");
+  }
+
+
   return (
     <TableRow className="hover:bg-rose-50/40 transition-all border-b border-gray-100">
       {/* ITEM */}
@@ -135,7 +153,7 @@ function TableRows({
         />
       </TableCell>
 
-    
+
 
       {/* SKU */}
       {/* <TableCell>
@@ -159,33 +177,23 @@ function TableRows({
 
       {/* STOCK */}
       <TableCell>
-        <div className="flex flex-col">
-          <span
-            className={`font-bold text-base ${isLowStock
-              ? "text-rose-600"
-              : "text-gray-800"
-              }`}
-          >
-            {item.currentStock}
-
-            {/* {displayStock(
-              item.currentStock!,
-              item.purchaseUnit,
-              item.consumptionUnit,
-              item.conversionFactor
-            )} */}
-          </span>
-
-          <span className="text-xs text-gray-400">
-            Available
-          </span>
-        </div>
+        <input
+          type="number"
+          value={stock}
+          onChange={(e) => setStock(Number(e.target.value))}
+          onBlur={saveValues}
+          className="w-24 border rounded-md px-2 py-1 text-sm"
+        />
       </TableCell>
-
       <TableCell>
-        <span className="capitalize text-sm font-medium text-gray-700">
-          {item.avgCost?.toFixed(2)} Rs
-        </span>
+        <input
+          type="number"
+          step="0.01"
+          value={avgCost}
+          onChange={(e) => setAvgCost(Number(e.target.value))}
+          onBlur={saveValues}
+          className="w-24 border rounded-md px-2 py-1 text-sm"
+        />
       </TableCell>
       <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
@@ -273,34 +281,37 @@ function TableRows({
     </option> */}
         </select>
       </TableCell>
-        <TableCell>
+      <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.categoryName}
         </span>
       </TableCell>
 
       {/* ACTIONS */}
-                     <td>
-        <Link
-          href={{
-            pathname: "/admin/stock-finished/estimate-by-name",
-            query: {
-              productId: item.id,
-              currentStock: item.currentStock,
-               consumptionUnit: 'kg',//item.consumptionUnit,
-            },
-          }}
-        >
-          <Button
-            size="icon"
-            variant="outline"
-            title="AI Production Estimate"
-            className="border-violet-300 text-violet-700 hover:bg-violet-50"
+      {/* <TableCell className="text-right pr-5">
+        <div className="flex items-center justify-end gap-2">
+         
+          <Link
+            href={`/admin/stock-finished/${item.id}`}
           >
-            <Sparkles size={18} />
+            <Button
+              size="sm"
+              className="h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+            >
+              <CiEdit size={18} />
+            </Button>
+          </Link>
+
+        
+          <Button
+            onClick={handleDelete}
+            size="sm"
+            className="h-9 rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
+          >
+            <MdDeleteForever size={18} />
           </Button>
-        </Link>
-      </td>
+        </div>
+      </TableCell> */}
     </TableRow>
   );
 }

@@ -57,7 +57,7 @@ export async function estimateProduction({
 
           const unitCost = Number(u.unitCost) || 0;
 
-          const totalCost = requiredQty * unitCost;
+          const totalCost = requiredQty * unitCost/u.conversionFactor;
 
           return {
             inventoryItemId: u.inventoryItemId,
