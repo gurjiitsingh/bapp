@@ -3,10 +3,11 @@
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType";
+import { RawInventoryUpdateDptReturnType } from "@/lib/types/inventory/RawInventoryUpdateDptReturnType";
 
-export async function applyTransactionInventory_StoreAndDpt( 
+export async function applyTransactionInventoryRetrunStock( 
   tx: FirebaseFirestore.Transaction,
-  updates: RawInventoryUpdate[],
+  updates: RawInventoryUpdateDptReturnType[],
   referenceId: string,
   type: string,
   direction: "IN" | "OUT" = "OUT"
@@ -17,21 +18,18 @@ export async function applyTransactionInventory_StoreAndDpt(
 
   for (const u of updates) {
 
-  //  console.log("u.purchaseUnitCost----------------------", u.purchaseUnitCost)
+   //console.log("u.purchaseUnitCost----------------------", u)
 
     const quantity = Number(u.sendQty || 0);
     // const unitCost = Number(u.storeAvgCost || 0);
-    const unitCost =
-      direction === "IN"
-        ? Number(u.dptAvgCost || 0)   // ✅ return
-        : Number(u.storeAvgCost || 0); // ✅ issue
-    const stockValue = Number(u.storeStockValue || 0);
+    const  unitCost = Number(u.averageCostDpt || 0);
+    
 
     const movementValue = quantity * unitCost;
 
     totalValue += movementValue;
 
-    const beforeStock = Number(u.storeStock);
+    const beforeStock = Number(u.currentStock);
 
     const afterStock =
       direction === "OUT"
@@ -39,9 +37,9 @@ export async function applyTransactionInventory_StoreAndDpt(
         : beforeStock + quantity;
 
 
-    console.log("========== Inventory Movement ==========");
-    console.log(u);
-    console.log("========================================");
+    // console.log("========== Inventory Movement ==========");
+    // console.log(u);
+    // console.log("========================================");
 
 
     // =====================================

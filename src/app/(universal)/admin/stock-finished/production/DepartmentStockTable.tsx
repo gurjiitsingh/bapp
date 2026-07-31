@@ -33,6 +33,7 @@ export default function DepartmentStockTable({
 
       try {
       const result = await getDepartmentStock(departmentId);
+   //   console.log("dp stock---------------------",result)
 
 if (!mounted) return;
 
@@ -232,7 +233,7 @@ setStock(result);
                   <td className="px-4 py-3 text-right font-medium">
                     <span className="font-medium">
                       {displayStock(
-                        item.quantity ?? 0,
+                        item.currentStock ?? 0,
                         item.purchaseUnit,
                         item.consumptionUnit,
                         item.conversionFactor

@@ -1,4 +1,4 @@
-import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
+import { DepartmentStockReturnUpdateType, DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpdate";
 
  
 
@@ -6,7 +6,7 @@ import { DepartmentStockUpdate } from "@/lib/types/department/DepartmentStockUpd
 
 
 export function validateDepartmentStock(
-  updates: DepartmentStockUpdate[]
+  updates: DepartmentStockReturnUpdateType[]
 ) {
   for (const update of updates) {
     if (!update.exists) {
@@ -16,11 +16,11 @@ export function validateDepartmentStock(
     }
 
     if (
-      update.currentQuantity! < 
+      update.newCurrentStock! < 
       update.quantityChange!
     ) {
       throw new Error(
-        `Insufficient stock for "${update.inventoryItemName}". Available: ${update.currentQuantity}, Requested: ${update.quantityChange!}.`
+        `Insufficient stock for "${update.inventoryItemName}". Available: ${update.newCurrentStock}, Requested: ${update.quantityChange!}.`
       );
     }
   }

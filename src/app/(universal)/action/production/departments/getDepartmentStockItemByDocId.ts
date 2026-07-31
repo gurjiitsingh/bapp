@@ -11,7 +11,7 @@ export type DepartmentStockType = {
   inventoryItemName: string;
 
   quantity: number;
-
+currentStock: number,
   averageCost: number;
 
   purchaseUnit: string;
@@ -48,7 +48,7 @@ export async function getDepartmentStockItemByDocId(
     inventoryItemName: data.inventoryItemName || "",
 
     quantity: Number(data.quantity) || 0,
-
+currentStock: Number(data.currentStock ?? 0),
     averageCost: Number(data.averageCost) || 0,
 
     purchaseUnit: data.purchaseUnit || "",

@@ -146,9 +146,9 @@ export async function autoStockProduction({
       // ✅ 2. VALIDATE
       // =========================
 
-      if (direction === "IN") {
-        validateRawStockProduction(rawInventoryReads);
-      }
+      // if (direction === "IN") {
+      //   validateRawStockProduction(rawInventoryReads);
+      // }
 
       // =========================
       // ✅ 4. CREATE BATCH

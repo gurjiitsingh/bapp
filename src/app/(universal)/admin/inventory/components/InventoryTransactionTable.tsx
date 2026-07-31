@@ -33,7 +33,7 @@ export default function InventoryTransactionTable({
   initialTransactions: initialTransactions = [],
 }: Props) {
 
-  console.log("traaction---------------",initialTransactions)
+  
   const [transactions, setTransactions] = useState<any[]>(
     initialTransactions
   );
@@ -288,7 +288,7 @@ return (
                           )}
     </TableCell>
     <TableCell>
-      {(tx.purchaseQuantity * tx.purchaseUnitCost).toFixed(2)}
+      {tx.transactionAmount} {" "}Rs
     </TableCell>
     <TableCell>{tx.beforeStock}</TableCell>
     <TableCell>{tx.afterStock}</TableCell>

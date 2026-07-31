@@ -160,7 +160,7 @@ const [selectedItem, setSelectedItem] = useState<any>(null);
  
 
      {displayStock(
-                item.quantity!,
+                item.currentStock!,
                 item.purchaseUnit,
                 item.consumptionUnit,
                 item.conversionFactor

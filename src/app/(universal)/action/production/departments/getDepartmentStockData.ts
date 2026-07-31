@@ -41,7 +41,7 @@ export async function getDepartmentStockData(
     const doc = exists ? snap.docs[0] : null;
     const data = doc?.data();
 
-    const currentQuantity = Number(data?.quantity ?? 0);
+    const currentQuantity = Number(data?.currentStock ?? 0);
 
 
 

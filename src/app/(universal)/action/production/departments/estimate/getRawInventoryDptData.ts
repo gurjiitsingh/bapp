@@ -305,11 +305,11 @@ for (const doc of recipeSnapshot.docs) {
   // ==========================================
 
   const availableQty =
-    Number(departmentStock.quantity);
+    Number(departmentStock.currentStock);
 
   if (!Number.isFinite(availableQty)) {
     throw new Error(
-      `Invalid department stock quantity for ${inventoryItemId}: ${departmentStock.quantity}`
+      `Invalid department stock quantity for ${inventoryItemId}: ${departmentStock.currentStock}`
     );
   }
  

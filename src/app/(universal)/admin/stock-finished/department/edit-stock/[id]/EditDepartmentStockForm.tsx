@@ -26,7 +26,7 @@ export default function EditDepartmentStockForm({
     useTransition();
 
   const [quantity, setQuantity] =
-    useState(stock.quantity);
+    useState(stock.currentStock);
 
   const [averageCost, setAverageCost] =
     useState(stock.averageCost);

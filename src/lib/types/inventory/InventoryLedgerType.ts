@@ -41,6 +41,7 @@ export interface InventoryLedgerType {
 quantity?:number;
 consumptionUnit?:string;
  unitCost?: number;
+ transactionAmount?: number;
   // =====================================================
   // TRANSACTION DETAILS
   // RENAMED

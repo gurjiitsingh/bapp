@@ -68,6 +68,8 @@ export async function getInventoryTransactionsSelected({
         unit: data.transactionUnit,
         unitCost: data.transactionUnitCost,
 transactionUnitCost: data.transactionUnitCost,
+transactionAmount: data.transactionAmount,
+
         // PURCHASE
         purchaseQuantity: data.purchaseQuantity,
         purchaseUnit: data.purchaseUnit,

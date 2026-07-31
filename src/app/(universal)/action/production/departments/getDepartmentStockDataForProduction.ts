@@ -35,12 +35,12 @@ export async function getDepartmentStockDataForProduction(
 
     const inventoryData = inventorySnap.data();
 
-// console.log("========== INVENTORY ==========");
-// console.log("Inventory Item:", item.inventoryItemName);
-// console.log("Inventory ID:", item.inventoryItemId);
-// console.log("Inventory Current Stock:", inventoryData?.currentStock);
-// console.log("Inventory Avg Cost:", inventoryData?.avgCost);
-// console.log("================================");
+    // console.log("========== INVENTORY ==========");
+    // console.log("Inventory Item:", item.inventoryItemName);
+    // console.log("Inventory ID:", item.inventoryItemId);
+    // console.log("Inventory Current Stock:", inventoryData?.currentStock);
+    // console.log("Inventory Avg Cost:", inventoryData?.avgCost);
+    // console.log("================================");
 
     if (!inventorySnap.exists) {
       throw new Error(
@@ -61,36 +61,36 @@ export async function getDepartmentStockDataForProduction(
     const doc = exists ? snap.docs[0] : null;
     const data = doc?.data();
 
-// console.log("========== DEPARTMENT STOCK ==========");
-// console.log("Department ID:", departmentId);
-// console.log("Direction:", dirction);
+    // console.log("========== DEPARTMENT STOCK ==========");
+    // console.log("Department ID:", departmentId);
+    // console.log("Direction:", dirction);
 
-// console.log("Department Stock Exists:", exists);
-// console.log("Department Doc ID:", doc?.id);
+    // console.log("Department Stock Exists:", exists);
+    // console.log("Department Doc ID:", doc?.id);
 
-// console.log("Inventory Item:", item.inventoryItemName);
-// console.log("Inventory Item ID:", item.inventoryItemId);
+    // console.log("Inventory Item:", item.inventoryItemName);
+    // console.log("Inventory Item ID:", item.inventoryItemId);
 
-// console.log("Department Quantity:", data?.quantity);
-// console.log("Department Avg Cost:", data?.averageCost);
-// console.log("Department Purchase Unit:", data?.purchaseUnit);
-// console.log("Department Consumption Unit:", data?.consumptionUnit);
+    // console.log("Department Quantity:", data?.quantity);
+    // console.log("Department Avg Cost:", data?.averageCost);
+    // console.log("Department Purchase Unit:", data?.purchaseUnit);
+    // console.log("Department Consumption Unit:", data?.consumptionUnit);
 
-// console.log("======================================");
+    // console.log("======================================");
 
 
-    const currentQuantity = Number(data?.quantity ?? 0);
+    const currentStock = Number(data?.currentStock ?? 0);
     const currentAverageCost = Number(data?.averageCost ?? 0);
 
-// console.log("========== STOCK CHECK ==========");
-// console.log("Required Qty:", item.quantity);
-// console.log("Department Qty:", currentQuantity);
-// console.log("Will Fail:", item.quantity > currentQuantity);
-// console.log("=================================");
+    // console.log("========== STOCK CHECK ==========");
+    // console.log("Required Qty:", item.quantity);
+    // console.log("Department Qty:", currentStock);
+    // console.log("Will Fail:", item.quantity > currentStock);
+    // console.log("=================================");
 
     if (
       dirction === "OUT" &&
-      item.quantity > currentQuantity
+      item.quantity > currentStock
     ) {
       throw new Error(
         `Insufficient department stock for ${item.inventoryItemName}`
@@ -99,20 +99,20 @@ export async function getDepartmentStockDataForProduction(
 
     const newQuantity =
       dirction === "IN"
-        ? currentQuantity + item.quantity
-        : currentQuantity - item.quantity;
+        ? currentStock + item.quantity
+        : currentStock - item.quantity;
 
     let newAverageCost = 0;
     let newStockValue = 0;
 
     if (dirction === "IN") {
       newAverageCost =
-        currentQuantity === 0 || currentAverageCost === 0
+        currentStock === 0 || currentAverageCost === 0
           ? Number(item.averageCost)
           : (
-              currentQuantity * currentAverageCost +
-              item.quantity * item.averageCost
-            ) / newQuantity;
+            currentStock * currentAverageCost +
+            item.quantity * item.averageCost
+          ) / newQuantity;
 
       newAverageCost = Number(
         newAverageCost.toFixed(10)
@@ -128,17 +128,17 @@ export async function getDepartmentStockDataForProduction(
       );
     }
 
-//     console.log("========== UPDATE OBJECT ==========");
-// console.log({
-//   departmentId,
-//   inventoryItemId: item.inventoryItemId,
-//   currentQuantity,
-//   quantityChange: item.quantity,
-//   newQuantity,
-//   newAverageCost,
-//   newStockValue,
-// });
-// console.log("===================================");
+    //     console.log("========== UPDATE OBJECT ==========");
+    // console.log({
+    //   departmentId,
+    //   inventoryItemId: item.inventoryItemId,
+    //   currentStock,
+    //   quantityChange: item.quantity,
+    //   newQuantity,
+    //   newAverageCost,
+    //   newStockValue,
+    // });
+    // console.log("===================================");
 
     updates.push({
       ref: doc?.ref ?? null,
@@ -150,10 +150,11 @@ export async function getDepartmentStockDataForProduction(
       inventoryItemName: item.inventoryItemName,
 
       quantityChange: item.quantity,
-     
-      currentQuantity,
-      newQuantity,
 
+      currentQuantity: currentStock,
+      newQuantity,
+      newCurrentStock: newQuantity,
+      afterStock: newQuantity,
       newAverageCost,
       newStockValue,
 
@@ -161,9 +162,9 @@ export async function getDepartmentStockDataForProduction(
       purchaseUnit:
         data?.purchaseUnit ?? item.purchaseUnit,
 
-  newPurchaseUnitCost:
-    data?.purchaseUnitCost ??
-    item.purchaseUnitCost, 
+      newPurchaseUnitCost:
+        data?.purchaseUnitCost ??
+        item.purchaseUnitCost,
 
       consumptionUnit:
         data?.consumptionUnit ??
@@ -171,7 +172,7 @@ export async function getDepartmentStockDataForProduction(
 
       conversionFactor: Number(
         data?.conversionFactor ??
-          item.conversionFactor
+        item.conversionFactor
       ),
     });
   }

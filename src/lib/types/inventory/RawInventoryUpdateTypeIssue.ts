@@ -1,30 +1,26 @@
 export interface RawInventoryUpdateIssue {
   ref: FirebaseFirestore.DocumentReference;
 
+  // Inventory
   inventoryItemId: string;
   inventoryItemName: string;
 
   // Quantity
-  sendQty: number;
+  quantity: number;
 
   // Units
   purchaseUnit: string;
-  transactionUnit: string;
   consumptionUnit: string;
   conversionFactor: number;
-purchaseUnitCostInv: number;
+
   // Cost
-  storeAvgCost: number;
-  unitCost: number;
-  dptAvgCost: number;
-  storeStockValue: number;
-  purchaseUnitCost: number;
+  averageCost: number;
 
   // Stock
-  storeStock: number;
-  currentStock: number;
   beforeStock: number;
   afterStock: number;
-  prev: number;
-  next: number;
+
+  // Navigation
+  // prev: number;
+  // next: number;
 }

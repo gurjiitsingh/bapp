@@ -5,27 +5,27 @@ import { RawInventoryUpdate } from "@/lib/types/inventory/RawInventoryUpdateType
 import { RawInventoryUpdateIssue } from "@/lib/types/inventory/RawInventoryUpdateTypeIssue";
 import { before } from "node:test";
 
-export async function readRawInventoryData( 
+export async function readRawInventoryData(
   tx: FirebaseFirestore.Transaction,
   direction: "IN" | "OUT",
   items: {
     inventoryItemId: string;
     quantity: number;
-    averageCostInv: number;
-    purchaseUnitInv: string;
-    purchaseUnitCostInv: number;
-    conversionFactorUsed: number;
+    averageCost: number;
+    conversionFactor: number;
+    purchaseUnit: string;
+    consumptionUnit: string;
   }[]
 ) {
   const updates: RawInventoryUpdateIssue[] = [];
 
-  
+  console.log("purcahseunitcost----------------------------", items)
 
   for (const item of items) {
-    const qty = Number(item.quantity) || 0;
-//console.log("purcahseunitcost----------------------------", item.purchaseUnitInv)
-  
-    if (qty <= 0) continue;
+    const sendQty = Number(item.quantity) || 0;
+
+
+    if (sendQty <= 0) continue;
 
     const inventoryRef = adminDb
       .collection("inventoryItems")
@@ -37,71 +37,36 @@ export async function readRawInventoryData(
       throw new Error(
         `Inventory not found: ${item.inventoryItemId}`
       );
-    } 
+    }
 
     const data = snap.data()!;
 
-    // ===== Store Data =====
-    const storeStock = Number(data.currentStock) || 0;
-    const storeAvgCost = Number(data.averageCost) || 0;
-    const storeStockValue = Number(data.stockValue) || 0;
-
-// console.log("send qty --------------------", qty)
-// console.log("befor stock --------------------", data.currentStock)
-
+    // ==================== INVENTORY DATA ========================== =====
+    const currentStock = Number(data.currentStock) || 0;
+   
     // ===== Stock Calculation =====
-    let afterStock = 0;
+    let afterStock = currentStock - sendQty;
 
-    if (direction === "IN") {
-      afterStock = storeStock + qty;
-    } else {
-      // ✅ Prevent negative stock
-      if (qty > storeStock) {
-        throw new Error(
-          `Insufficient stock for ${data.name}`
-        );
-      }
 
-      afterStock = storeStock - qty;
-    }
+    updates.push({
+      ref: inventoryRef,
 
-updates.push({
-  ref: inventoryRef,
+      inventoryItemId: item.inventoryItemId,
+      inventoryItemName: data.name || "",
 
-  inventoryItemId: item.inventoryItemId,
-  inventoryItemName: data.name || "",
+      // ===== Quantity =====
+      quantity: sendQty, // 🔄 was "quantity"
 
-  // ===== Quantity =====
-  sendQty:qty, // 🔄 was "quantity"
-
-  // ===== Units =====
-  purchaseUnitCostInv: item.purchaseUnitCostInv,
-  purchaseUnit: item.purchaseUnitInv, // 🔄 was store purchaseUnit
-transactionUnit: item.purchaseUnitInv,
-  consumptionUnit:
-    data.consumptionUnit || "gm",
-
-  conversionFactor:
-    Number(item.conversionFactorUsed) || 1, // 🔄 was "conversionFactor"
-
-  // ===== Cost =====
-  storeAvgCost, // 🔄 was "unitCost"
-unitCost:storeAvgCost,
-  dptAvgCost:
-    Number(item.averageCostInv) || 0,
-
-  storeStockValue, // 🔄 was "stockValue"
-
-  purchaseUnitCost: data.purchaseUnitCost,
-
-  // ===== Stock =====
-  storeStock, // 🔄 was "prev"
-  currentStock:storeStock,
-  beforeStock: storeStock,  
-  afterStock, // 🔄 now calculated earlier (was later)
-  prev: storeStock, 
-  next: afterStock,
-});
+      // ===== INVENTORY =====
+      averageCost: item.averageCost,
+      conversionFactor: Number(item.conversionFactor) || 1, // 🔄 was "conversionFactor"
+      consumptionUnit: item.consumptionUnit,
+      purchaseUnit:item.purchaseUnit,
+           
+      beforeStock: currentStock,
+      afterStock, // 🔄 now calculated earlier (was later)
+      
+    });
   }
 
   return updates;

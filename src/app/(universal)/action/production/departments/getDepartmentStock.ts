@@ -23,9 +23,9 @@ export async function getDepartmentStock(
         inventoryItemName: data.inventoryItemName ?? "",
 
         quantity: Number(data.quantity ?? 0),
-
+        currentStock: Number(data.currentStock ?? 0),
         averageCost: Number(data.averageCost ?? 0),
-stockValue: Number(data.stockValue),
+          stockValue: Number(data.stockValue),
         purchaseUnit: data.purchaseUnit ?? "",
         consumptionUnit: data.consumptionUnit ?? "",
         conversionFactor: Number(data.conversionFactor ?? 1),

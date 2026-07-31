@@ -34,22 +34,22 @@ export async function updateDepartmentStockTx({
   console.log("update.conversionFactor       :", update.conversionFactor);
 
 
-//console.log("data---------------------------",update.newCurrentStock)
+
   const data = {
-    
+    quantity: update.newCurrentStock,
     averageCost: update.newAverageCost,
     purchaseUnitCost: update.newAverageCost,//update.newPurchaseUnitCost,
-    
     consumptionUnit:update.consumptionUnit,
     currentStock: update.newCurrentStock,
     stockValue: update.newStockValue,
     updatedAt: now,
   };
 
-  console.log("Updating Firestore with:", data);
+  //console.log("Updating Firestore with:", data);
 
-  console.log("update.exists:", update.exists);
-console.log("update.ref:", update.ref?.path);
+
+
+
 
   if (update.exists && update.ref) {
 
@@ -57,11 +57,13 @@ console.log("update.ref:", update.ref?.path);
     return;
   }
 
-  console.log("update.newCurrentStock----------------------------", update.newCurrentStock)
+
+
+
 
   const ref = db.collection("departmentStock").doc();
 
-   tx.set(ref, {
+  tx.set(ref, {
     id: ref.id,
 
     departmentId: update.departmentId,

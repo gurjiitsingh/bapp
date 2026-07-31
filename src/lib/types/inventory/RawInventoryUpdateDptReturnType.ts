@@ -2,27 +2,27 @@ export interface RawInventoryUpdateDptReturnType {
   ref: FirebaseFirestore.DocumentReference;
 
   inventoryItemId: string;
-  inventoryItemName: string;
+  inventoryItemName: string; 
 
-  // Quantity
+  // Value From Form
   sendQty: number;
-  purchaseUnitCostInv: number;
+  averageCostDpt: number;
+   purchaseUnitDpt: string;
+  purchaseUnitCostDpt:number;
+  conversionFactorDpt: number;
   // Units
-  purchaseUnit: string;
+
   transactionUnit: string;
   consumptionUnit: string;
-  conversionFactor: number;
-
-  // Cost
-  storeAvgCost: number;
-  unitCost: number;
-  dptAvgCost: number;
-  storeStockValue: number;
-  purchaseUnitCost: number;
-
-  // Stock
-  storeStock: number;
+ 
+  averageCost: number;
   currentStock: number;
+  currentStockValue: number;
+  purchaseUnit: string;
+  purchaseUnitCost: number;
+  conversionFactor:number;
+
+    
   beforeStock: number;
   afterStock: number;
   prev: number;
