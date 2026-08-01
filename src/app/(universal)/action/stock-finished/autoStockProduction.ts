@@ -281,6 +281,10 @@ export async function autoStockProduction({
         source: "ADMIN",
 
         readResult: finishedData,
+
+// currentStock: finishedData.currentStock,
+// currentStockValue:finishedData.stockValue,
+// currentAvgCost: finishedData.avgCost,
       });
 
 

@@ -377,7 +377,7 @@ export default function ProductionEstimateForm({
           </p>
 
           <p className="text-3xl font-bold text-green-700 mt-2">
-            ₹ {((estimate.totalEstimatedCost)/quantity).toFixed(2)}
+            ₹ {((estimate.totalEstimatedCost)).toFixed(2)}
           </p>
         </div>
 

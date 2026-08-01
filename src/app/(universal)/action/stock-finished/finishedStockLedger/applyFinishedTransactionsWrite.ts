@@ -49,8 +49,8 @@ export async function applyFinishedTransactionsWrite(
 
     quantity,
     transactionUnit,
-    unitPrice =0,
-    
+    unitPrice = 0,
+
     customerId,
     customerName,
 
@@ -71,6 +71,10 @@ export async function applyFinishedTransactionsWrite(
 
     // NEW
     readResult,
+
+    // currentStock,
+    // currentStockValue,
+    // currentAvgCost,
   }: ApplyFinishedMovementType & {
     readResult: Awaited<
       ReturnType<typeof applyFinishedTransactionsRead>
@@ -78,7 +82,7 @@ export async function applyFinishedTransactionsWrite(
   }
 ) {
 
- 
+
   const now =
     admin.firestore.FieldValue.serverTimestamp();
 
@@ -138,10 +142,29 @@ export async function applyFinishedTransactionsWrite(
 
 
   }
- afterCostPrice = unitPrice;
+  afterCostPrice = unitPrice;
+
+
+  const afterStockvalue = stockValue + totalAmount;
+  const afterCurrentStock = currentStock + quantity;
+  const afterAverageCost = afterStockvalue / afterCurrentStock
+
  
 
+console.log("===== STOCK CALCULATION =====");
+console.log("Current Stock      :", currentStock);
+console.log("Incoming Quantity  :", quantity);
+console.log("Previous StockValue:", stockValue);
+console.log("Purchase Amount    :", totalAmount);
 
+console.log("-----------------------------");
+console.log("After Stock Value  :", afterStockvalue);
+console.log("After CurrentStock :", afterCurrentStock);
+console.log("After Average Cost :", afterAverageCost);
+
+console.log("=============================");
+
+  
 
   tx.update(productRef, {
     currentStock: afterStock,
@@ -151,7 +174,7 @@ export async function applyFinishedTransactionsWrite(
     ),
 
     avgCost: Number(
-      unitPrice.toFixed(2)
+      afterAverageCost.toFixed(2)
     ),
 
     costPrice: Number(
