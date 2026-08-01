@@ -43,6 +43,7 @@ function TableRows({
 }: {
   item: InventoryItemType;
 }) {
+  console.log("item-----------------------",item)
   const { settings } = UseSiteContext();
 
 const mapping = getPrimaryPurchaseMapping(item);
@@ -103,10 +104,15 @@ const displayAverageCost =
 
           {/* TEXT */}
           <div className="flex flex-col">
-            <span className="font-semibold text-gray-800">
+            {/* <span className="font-semibold text-gray-800">
               {item.name}
-            </span>
-
+            </span> */}
+<Link
+  href={`/admin/inventory/all-dp-stock/${item.id}`}
+  className="rounded-lg bg-slate-600 px-3 py-1.5 text-white hover:bg-slate-700 text-sm"
+>
+    {item.name}
+</Link>
             {/* <span className="font-semibold text-gray-800">
               {item.categoryName}
             </span> */}
