@@ -11,22 +11,33 @@ import toast from "react-hot-toast";
 
 import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 import { updateDepartmentStockFromClient } from "@/app/(universal)/action/production/departments/updateDepartmentStockFromClient";
+ 
+import EditDepartmentPurchaseUnitDialog from './EditDepartmentPurchaseUnitDialog';
 
+type PurchaseMapping = {
+  purchaseUnit: string;
+  consumptionUnit: string;
+  factor: number;
+};
 
 type Props = {
   stock: DepartmentStockType;
+  purchaseMappings: PurchaseMapping[];
 };
 
 export default function EditDepartmentStockForm({
   stock,
+  purchaseMappings,
 }: Props) {
 
-  console.log("stock-------------------",stock)
+  console.log("stock-------------------",purchaseMappings)
 
   const router = useRouter();
+  
   const [isPending, startTransition] =
     useTransition();
-
+const [openUnitDialog, setOpenUnitDialog] =
+  useState(false);
   const [quantity, setQuantity] =
     useState(stock.currentStock);
 
@@ -108,16 +119,18 @@ const qtyInPurchaseUnit = Number(quantity || 0 ) / stock.conversionFactor;
           </div>
 
           <div>
-            <label className="text-sm text-gray-600">
-              Purchase Unit
-            </label>
+  <label className="text-sm text-gray-600">
+    Purchase Unit
+  </label>
 
-            <input
-              readOnly
-              value={stock.purchaseUnit}
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-gray-100 px-3 py-2"
-            />
-          </div>
+  <button
+    type="button"
+    onClick={() => setOpenUnitDialog(true)}
+    className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-left font-medium text-blue-600 hover:bg-blue-50 hover:underline"
+  >
+    {stock.purchaseUnit}
+  </button>
+</div>
 
           <div>
             <label className="text-sm text-gray-600">
@@ -189,6 +202,16 @@ const qtyInPurchaseUnit = Number(quantity || 0 ) / stock.conversionFactor;
         </button>
 
       </div>
+     <EditDepartmentPurchaseUnitDialog
+  open={openUnitDialog}
+  onOpenChange={setOpenUnitDialog}
+  departmentStockId={stock.id}
+  inventoryItem={{
+    id: stock.inventoryItemId,
+    name: stock.inventoryItemName,
+    purchaseMappings: purchaseMappings,
+  }}
+/>
 
     </div>
   );
