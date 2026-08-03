@@ -9,6 +9,7 @@ import { categoryType } from "@/lib/types/categoryType";
 import { resizeImage } from "@/utils/resizeImage";
 import { addNewProduct } from "@/app/(universal)/action/products/dbOperation";
 import { useRouter, useSearchParams } from "next/navigation";
+import { addVariantProduct } from "@/app/(universal)/action/products/addVariantProduct";
 
 const NewProductVariant = () => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
@@ -114,6 +115,7 @@ const varaint_name = nameBase + " " + data.name
 
 formData.append("name", varaint_name);
 formData.append("parentId", data.parentId || "");
+formData.append("masterCategoryId", "");
 formData.append("hasVariants", "false");
 formData.append("type", "variant");
 formData.append("price", String(data.price ?? 0));
@@ -121,7 +123,7 @@ formData.append("discountPrice", String(data.discountPrice ?? 0));
 formData.append("currentStock", String(data.currentStock ?? -1));
 formData.append("sortOrder", String(data.sortOrder ?? 0));
 
-// ✅ FIXES
+// ✅ FIXES 
 formData.append("categoryId", categoryId); // instead of data.categoryId
 formData.append("searchCode", ""); // or generate SKU if needed
 formData.append("taxType", data.taxType || "");
@@ -145,7 +147,7 @@ formData.append("taxRate", String(data.taxRate ?? 0));
       formData.append("image", "0");
     }
 
-    const result = await addNewProduct(formData);
+    const result = await addVariantProduct(formData);
     setIsSubmitting(false);
 
     if (!result?.errors) {
@@ -169,10 +171,11 @@ formData.append("taxRate", String(data.taxRate ?? 0));
   }
 
 
-  const goToVariant = () => {
+ const goToVariant = () => {
   router.push(
     `/admin/product-variant?nameBase=${nameBase}&categoryBase=${categoryBase}&id=${parentId}&categoryId=${categoryId}&productCat=${productCat}`
-  );}
+  );
+};
 
   return (
     <div className="flex flex-col gap-3">

@@ -64,17 +64,34 @@ export default function ProductionEstimateForm({
           departmentId,
         });
 
+        console.log("resutle of esti-------------", result)
+
         if (!mounted) return;
 
-        if (result.success) {
-          setEstimate({
-            items: result.items,
-            totalEstimatedCost:
-              result.totalEstimatedCost,
-            hasShortage:
-              result.hasShortage,
-          });
-        } else {
+   if (result.success) {
+  const itemsWithCost = result.items.map((item: any) => {
+    const itemCost =
+      (Number(item.requiredQty) /
+        Number(item.conversionFactor)) *
+      Number(item.averageCostDptItem || 0);
+
+    return {
+      ...item,
+      itemCost,
+    };
+  });
+
+  const totalCost = itemsWithCost.reduce(
+    (sum: number, i: any) => sum + i.itemCost,
+    0
+  );
+
+  setEstimate({
+    items: itemsWithCost,
+    totalEstimatedCost: totalCost, // 🔥 override backend if needed
+    hasShortage: result.hasShortage,
+  });
+} else {
           setEstimate(null);
           console.error(
             "Production estimate failed:",
@@ -156,7 +173,7 @@ export default function ProductionEstimateForm({
       {selectedProduct &&
         quantity > 0 &&
         isSubmitting && (
-          <div className="rounded-3xl border border-gray-200 bg-white p-10 text-center shadow-sm">
+          <div className="rounded-3xl border border-gray-200 bg-white px-3 py-10 text-center shadow-sm">
 
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
 
@@ -207,33 +224,58 @@ export default function ProductionEstimateForm({
             </div>
 
             {/* SUMMARY */}
-         {/*   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border-b bg-gray-50">
+           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 border-b bg-gray-50">
 
-               <div className="rounded-2xl bg-cyan-50 border border-cyan-100 p-5">
+               
+               <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
                 <p className="text-sm text-gray-500">
-                  Inventory Items
+                  Cost / Unit
                 </p>
 
-                <p className="text-3xl font-bold text-cyan-700 mt-2">
-                  {estimate.items.length}
+                <p className="text-xl font-bold text-green-700 mt-2">
+                  ₹{" "}
+                  {(estimate.totalEstimatedCost/quantity).toFixed(
+                    2
+                  )}
                 </p>
-              </div> 
+              </div>
+               <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
+                <p className="text-sm text-gray-500">
+                  Production Qty
+                </p>
 
-              <div className="rounded-2xl bg-green-50 border border-green-100 p-5">
+                <p className="text-xl font-bold text-green-700 mt-2">
+                  ₹{" "}
+                  {(quantity).toFixed(
+                    2
+                  )}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
                 <p className="text-sm text-gray-500">
                   Estimated Cost
                 </p>
 
-                <p className="text-3xl font-bold text-green-700 mt-2">
+                <p className="text-xl font-bold text-green-700 mt-2">
                   ₹{" "}
                   {estimate.totalEstimatedCost.toFixed(
                     2
                   )}
                 </p>
               </div>
+              <div className="rounded-2xl bg-cyan-50 border border-cyan-100 px-3 py-1">
+                <p className="text-sm text-gray-500">
+                  Inventory Items
+                </p>
+
+                <p className="text-xl font-bold text-cyan-700 mt-2">
+                  {estimate.items.length}
+                </p>
+              </div> 
 
               <div
-                className={`rounded-2xl border p-5 ${estimate.hasShortage
+                className={`rounded-2xl border px-3 py-1 ${estimate.hasShortage
                     ? "bg-red-50 border-red-100"
                     : "bg-blue-50 border-blue-100"
                   }`}
@@ -255,7 +297,7 @@ export default function ProductionEstimateForm({
               </div>
 
             </div>
-*/}
+
             {/* TABLE */}
             <div className="overflow-x-auto">
 
@@ -280,79 +322,75 @@ export default function ProductionEstimateForm({
                       Shortage
                     </th>
 
-                    {/* <th className="px-6 py-4 text-right font-semibold">
+                    <th className="px-6 py-4 text-right font-semibold">
                       Estimated Cost
-                    </th> */}
+                    </th>
 
                   </tr>
                 </thead>
 
                 <tbody>
 
-                  {estimate.items.map((item) => (
+               {estimate.items.map((item) => {
+  const conversionFactor =
+    Number(item.conversionFactor) || 1;
 
-                    <tr
-                      key={item.inventoryItemId}
-                      className="border-b border-slate-100 hover:bg-cyan-50 transition"
-                    >
+  const itemCost =
+    (Number(item.requiredQty) / conversionFactor) *
+    Number(item.averageCostDptItem || 0);
 
-                      <td className="px-6 ">
+  return (
+    <tr
+      key={item.inventoryItemId}
+      className="border-b border-slate-100 hover:bg-cyan-50 transition"
+    >
+      {/* Item Name */}
+      <td className="px-6">
+        <div className="font-semibold text-gray-800">
+          {item.itemName}
+        </div>
+      </td>
 
-                        <div className="font-semibold text-gray-800">
-                          {item.itemName}
-                        </div>
+      {/* Required */}
+      <td className="px-6 text-right font-medium">
+        {displayStock_1(
+          item.requiredQty,
+          item.purchaseUnit,
+          item.consumptionUnit,
+          item.conversionFactor
+        )}
+      </td>
 
-                        {/* <div className="text-xs text-gray-400 mt-1">
-                          {item.unit}
-                        </div> */}
+      {/* Available */}
+      <td className="px-6 text-right">
+        {displayStock_1(
+          item.availableQty,
+          item.purchaseUnit,
+          item.consumptionUnit,
+          item.conversionFactor
+        )}
+      </td>
 
-                      </td>
+      {/* Shortage */}
+      <td className="px-6 text-right">
+        <span
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+            item.shortageQty > 0
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
+          }`}
+        >
+          {item.shortageQty} {item.unit}
+        </span>
+      </td>
 
-                      <td className="px-6  text-right font-medium">
-                        {displayStock_1(
-                          item.requiredQty,
-                          item.purchaseUnit,
-                          item.consumptionUnit,
-                          item.conversionFactor,
-                        )}
-                        {/* {item.requiredQty}{" "}
-                        {item.unit} */}
-                      </td>
-
-                      <td className="px-6  text-right">
-                       
-                         {displayStock_1(
-                          item.availableQty,
-                          item.purchaseUnit,
-                          item.consumptionUnit,
-                          item.conversionFactor,
-                        )}
-                      </td>
-
-                      <td className="px-6  text-right">
-
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${item.shortageQty > 0
-                              ? "bg-red-100 text-red-700"
-                              : "bg-green-100 text-green-700"
-                            }`}
-                        >
-                          {item.shortageQty}{" "}
-                          {item.unit}
-                        </span>
-
-                      </td>
-
-                      {/* <td className="px-6  text-right font-semibold text-cyan-700">
-                        ₹{" "}
-                        {item.totalCost.toFixed(
-                          2
-                        )}
-                      </td> */}
-
-                    </tr>
-
-                  ))}
+      {/* ✅ Cost Column */}
+      <td className="px-6 text-right font-semibold text-cyan-700">
+        ₹ {itemCost.toFixed(2)}
+      </td>
+    </tr>
+  );
+})}
 
                 </tbody>
 

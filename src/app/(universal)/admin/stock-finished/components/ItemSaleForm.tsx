@@ -65,6 +65,8 @@ export default function ItemPurchaseForm({
   customers
 }: Props) {
 
+  // console.log("products---------------------", products)
+
   const [isSubmitting, setIsSubmitting] =
     useState(false);
   const [search, setSearch] =
@@ -577,35 +579,40 @@ setCustomerSearch("");
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => {
-                            setselectedProduct(item);
+                         onClick={() => {
+  setselectedProduct(item);
 
-                            setValue(
-                              "id",
-                              item.id
-                            );
+  // ✅ Set product ID
+  setValue("id", item.id);
 
-                            // default transaction unit
-                            // setValue(
-                            //   "transactionUnit",
-                            //   item.purchaseUnit
-                            // );
+  // ✅ Auto-fill wholesale price into Price field
+  setValue(
+    "unitPrice",
+    Number(item.wholesalePrice || 0)
+  );
 
-                            setSearch(item.name);
+  // Optional: reset quantity
+  setValue("quantity", 0);
 
-                            setShowDropdown(false);
-                          }}
+  // UI updates
+  setSearch(item.name);
+  setShowDropdown(false);
+}}
                           className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
                         >
                           <div className="font-medium text-gray-800">
                             {item.name}
                           </div>
 
-                          <div className="text-xs text-gray-400">
-                            Current:{" "}
-                            {item.currentStock}{" "}
+                        <div className="text-xs text-gray-400 flex justify-between">
+  <span>
+    Current: {item.currentStock}
+  </span>
 
-                          </div>
+  <span className="text-cyan-600 font-medium">
+    ₹ {item.wholesalePrice || 0}
+  </span>
+</div>
                         </button>
                       ))}
                     </div>

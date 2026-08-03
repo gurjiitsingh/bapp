@@ -18,7 +18,7 @@ export default async function Page() {
    const customers =
       await fetchCustomer();
 
-      console.log("products-------------------", productStock)
+      // console.log("products-------------------", productStock)
  
   return (
     <BulkSaleForm
