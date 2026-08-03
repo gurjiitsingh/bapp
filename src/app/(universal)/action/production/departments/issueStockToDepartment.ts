@@ -132,10 +132,10 @@ console.log("issueStockToDepartment from form--------------------------",input)
           averageCost:
             item.averageCost,
           costPerUnit:
-            item.costPerUnit,
+            item.costPerUnit!,
           totalCost:
             item.quantity *
-            item.costPerUnit,
+            item.costPerUnit!,
           type: "ISSUE_TO_DEPARTMENT",
           direction: "IN",
           referenceType: "ISSUE_TO_DEPARTMENT",

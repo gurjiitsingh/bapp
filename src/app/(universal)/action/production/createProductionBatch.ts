@@ -119,7 +119,7 @@ export async function createProductionBatch(
           conversionFactor: item.conversionFactor,
           consumptionUnit: item.consumptionUnit,
           costPerUnit: item.costPerUnit,
-          totalCost: item.quantity * item.costPerUnit,
+          totalCost: item.quantity * item.costPerUnit!,
           createdAt: now,
         });
 

@@ -130,7 +130,7 @@ for (const item of input.items) {
       consumptionUnit: item.consumptionUnit,
       conversionFactor: item.conversionFactor,
 
-      costPerUnit: item.costPerUnit,
+      costPerUnit: item.costPerUnit!,
 
       updatedAt: now,
     });
@@ -153,7 +153,7 @@ for (const item of input.items) {
       conversionFactor: item.conversionFactor,
 
       costPerUnit: item.costPerUnit,
-      totalCost: item.quantity * item.costPerUnit,
+      totalCost: item.quantity * item.costPerUnit!,
 
       createdAt: now,
     });
@@ -214,10 +214,10 @@ for (const item of input.items) {
     conversionFactor: item.conversionFactor,
 
     averageCost: item.averageCost,
-    costPerUnit: item.costPerUnit,
+    costPerUnit: item.costPerUnit!,
     totalCost:
       Math.abs(qtyDifference) *
-      item.costPerUnit,
+      item.costPerUnit!,
 
     type: "PRODUCTION_BATCH",
 

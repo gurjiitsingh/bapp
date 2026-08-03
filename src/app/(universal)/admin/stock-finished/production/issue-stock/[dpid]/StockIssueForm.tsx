@@ -12,12 +12,11 @@ type Props = {
   departments: {
     id: string;
     name: string;
-    employeeCount: number;
+    employeeCount?: number;
   }[];
   inventoryItems: InventoryItemType[];
   defaultDepartmentId: string;
 };
-
 export default function StockIssueForm({
   departments,
   inventoryItems,

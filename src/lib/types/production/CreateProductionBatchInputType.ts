@@ -1,29 +1,25 @@
 export type CreateProductionBatchInputType = {
   departmentId: string;
   departmentName: string;
-   managerName?: string;
-employeeCount?: number;
+managerName?:string;
+  // add this
+  employeeCount?: number;
+
+  note?: string;
+
   items: {
     inventoryItemId: string;
     inventoryItemName: string;
 
     quantity: number;
-purchaseUnitCost: number;
-// purchaseUnitCostInv: number;
+
     purchaseUnit: string;
     consumptionUnit: string;
 
+    purchaseUnitCost: number;
     conversionFactor: number;
 
     averageCost: number;
     costPerUnit: number;
-
-    purchaseMappings?: {
-      purchaseUnit: string;
-      consumptionUnit: string;
-      factor: number;
-    }[];
   }[];
-
-  note?: string;
 };
