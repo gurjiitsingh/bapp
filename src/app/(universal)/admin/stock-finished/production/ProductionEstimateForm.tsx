@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Package2 } from "lucide-react";
+import {  Package2 } from "lucide-react";
 
 import { InventoryUnit } from "@/lib/types/InventoryItemType";
 import { estimateProduction } from "@/app/(universal)/action/stock-finished/estimateProduction";
 import { ProductStockType } from "@/lib/types/productStockType";
 import { estimateProductionDpt } from "@/app/(universal)/action/production/departments/estimate/estimateProductionDpt";
 import { displayStock_1 } from "@/utils/inventory/displayStock_1";
+import Link from "next/link";
 
 type Props = {
   selectedProduct: ProductStockType | null;
@@ -68,30 +69,30 @@ export default function ProductionEstimateForm({
 
         if (!mounted) return;
 
-   if (result.success) {
-  const itemsWithCost = result.items.map((item: any) => {
-    const itemCost =
-      (Number(item.requiredQty) /
-        Number(item.conversionFactor)) *
-      Number(item.averageCostDptItem || 0);
+        if (result.success) {
+          const itemsWithCost = result.items.map((item: any) => {
+            const itemCost =
+              (Number(item.requiredQty) /
+                Number(item.conversionFactor)) *
+              Number(item.averageCostDptItem || 0);
 
-    return {
-      ...item,
-      itemCost,
-    };
-  });
+            return {
+              ...item,
+              itemCost,
+            };
+          });
 
-  const totalCost = itemsWithCost.reduce(
-    (sum: number, i: any) => sum + i.itemCost,
-    0
-  );
+          const totalCost = itemsWithCost.reduce(
+            (sum: number, i: any) => sum + i.itemCost,
+            0
+          );
 
-  setEstimate({
-    items: itemsWithCost,
-    totalEstimatedCost: totalCost, // 🔥 override backend if needed
-    hasShortage: result.hasShortage,
-  });
-} else {
+          setEstimate({
+            items: itemsWithCost,
+            totalEstimatedCost: totalCost, // 🔥 override backend if needed
+            hasShortage: result.hasShortage,
+          });
+        } else {
           setEstimate(null);
           console.error(
             "Production estimate failed:",
@@ -224,22 +225,22 @@ export default function ProductionEstimateForm({
             </div>
 
             {/* SUMMARY */}
-           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 border-b bg-gray-50">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-6 border-b bg-gray-50">
 
-               
-               <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
+
+              <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
                 <p className="text-sm text-gray-500">
                   Cost / Unit
                 </p>
 
                 <p className="text-xl font-bold text-green-700 mt-2">
                   ₹{" "}
-                  {(estimate.totalEstimatedCost/quantity).toFixed(
+                  {(estimate.totalEstimatedCost / quantity).toFixed(
                     2
                   )}
                 </p>
               </div>
-               <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
+              <div className="rounded-2xl bg-green-50 border border-green-100 px-3 py-1">
                 <p className="text-sm text-gray-500">
                   Production Qty
                 </p>
@@ -264,20 +265,28 @@ export default function ProductionEstimateForm({
                   )}
                 </p>
               </div>
-              <div className="rounded-2xl bg-cyan-50 border border-cyan-100 px-3 py-1">
+              <div className="flex gap-3 items-center rounded-2xl bg-cyan-50 border border-cyan-100 px-3 py-1">
                 <p className="text-sm text-gray-500">
                   Inventory Items
                 </p>
 
                 <p className="text-xl font-bold text-cyan-700 mt-2">
                   {estimate.items.length}
+                
                 </p>
-              </div> 
+                  <Link
+                    href={`/admin/stock-finished/production/add-recipes/edit/${selectedProduct.id}`}
+                    className="inline-flex items-center rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+                  >
+                    Add/Edit
+                  </Link>
+
+              </div>
 
               <div
                 className={`rounded-2xl border px-3 py-1 ${estimate.hasShortage
-                    ? "bg-red-50 border-red-100"
-                    : "bg-blue-50 border-blue-100"
+                  ? "bg-red-50 border-red-100"
+                  : "bg-blue-50 border-blue-100"
                   }`}
               >
                 <p className="text-sm text-gray-500">
@@ -286,8 +295,8 @@ export default function ProductionEstimateForm({
 
                 <p
                   className={`text-xl font-bold mt-2 ${estimate.hasShortage
-                      ? "text-red-700"
-                      : "text-blue-700"
+                    ? "text-red-700"
+                    : "text-blue-700"
                     }`}
                 >
                   {estimate.hasShortage
@@ -331,66 +340,65 @@ export default function ProductionEstimateForm({
 
                 <tbody>
 
-               {estimate.items.map((item) => {
-  const conversionFactor =
-    Number(item.conversionFactor) || 1;
+                  {estimate.items.map((item) => {
+                    const conversionFactor =
+                      Number(item.conversionFactor) || 1;
 
-  const itemCost =
-    (Number(item.requiredQty) / conversionFactor) *
-    Number(item.averageCostDptItem || 0);
+                    const itemCost =
+                      (Number(item.requiredQty) / conversionFactor) *
+                      Number(item.averageCostDptItem || 0);
 
-  return (
-    <tr
-      key={item.inventoryItemId}
-      className="border-b border-slate-100 hover:bg-cyan-50 transition"
-    >
-      {/* Item Name */}
-      <td className="px-6">
-        <div className="font-semibold text-gray-800">
-          {item.itemName}
-        </div>
-      </td>
+                    return (
+                      <tr
+                        key={item.inventoryItemId}
+                        className="border-b border-slate-100 hover:bg-cyan-50 transition"
+                      >
+                        {/* Item Name */}
+                        <td className="px-6">
+                          <div className="font-semibold text-gray-800">
+                            {item.itemName}
+                          </div>
+                        </td>
 
-      {/* Required */}
-      <td className="px-6 text-right font-medium">
-        {displayStock_1(
-          item.requiredQty,
-          item.purchaseUnit,
-          item.consumptionUnit,
-          item.conversionFactor
-        )}
-      </td>
+                        {/* Required */}
+                        <td className="px-6 text-right font-medium">
+                          {displayStock_1(
+                            item.requiredQty,
+                            item.purchaseUnit,
+                            item.consumptionUnit,
+                            item.conversionFactor
+                          )}
+                        </td>
 
-      {/* Available */}
-      <td className="px-6 text-right">
-        {displayStock_1(
-          item.availableQty,
-          item.purchaseUnit,
-          item.consumptionUnit,
-          item.conversionFactor
-        )}
-      </td>
+                        {/* Available */}
+                        <td className="px-6 text-right">
+                          {displayStock_1(
+                            item.availableQty,
+                            item.purchaseUnit,
+                            item.consumptionUnit,
+                            item.conversionFactor
+                          )}
+                        </td>
 
-      {/* Shortage */}
-      <td className="px-6 text-right">
-        <span
-          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-            item.shortageQty > 0
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
-          }`}
-        >
-          {item.shortageQty} {item.unit}
-        </span>
-      </td>
+                        {/* Shortage */}
+                        <td className="px-6 text-right">
+                          <span
+                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${item.shortageQty > 0
+                                ? "bg-red-100 text-red-700"
+                                : "bg-green-100 text-green-700"
+                              }`}
+                          >
+                            {item.shortageQty} {item.unit}
+                          </span>
+                        </td>
 
-      {/* ✅ Cost Column */}
-      <td className="px-6 text-right font-semibold text-cyan-700">
-        ₹ {itemCost.toFixed(2)}
-      </td>
-    </tr>
-  );
-})}
+                        {/* ✅ Cost Column */}
+                        <td className="px-6 text-right font-semibold text-cyan-700">
+                          ₹ {itemCost.toFixed(2)}
+                        </td>
+                      </tr>
+                    );
+                  })}
 
                 </tbody>
 

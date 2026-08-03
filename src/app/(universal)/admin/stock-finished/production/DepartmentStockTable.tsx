@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Pencil, Plus, Search } from "lucide-react";
 import Link from "next/link";
 
 import { displayStock } from "@/utils/inventory/displayStock";
@@ -159,121 +159,131 @@ setStock(result);
 
       {/* TABLE */}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr className="text-left text-gray-600">
-              <th className="px-4 py-3 font-medium">
-                Item
-              </th>
+    <div className="overflow-x-auto">
+  <table className="w-full text-sm">
+    <thead className="bg-gray-50">
+      <tr className="text-left text-gray-600">
 
-              <th className="px-4 py-3 font-medium text-right">
-                Quantity
-              </th>
+        <th className="px-4 py-3 font-medium">
+          Add
+        </th>
 
-              <th className="px-4 py-3 font-medium text-right">
-                Avg Cost
-              </th>
+        <th className="px-4 py-3 font-medium">
+          Item
+        </th>
 
-              <th className="px-4 py-3 font-medium text-right">
-                Stock Value
-              </th>
+        <th className="px-4 py-3 font-medium text-right">
+          Quantity
+        </th>
 
-              <th className="px-4 py-3 font-medium text-right">
-                Action
-              </th>
-            </tr>
-          </thead>
+        <th className="px-4 py-3 font-medium text-right">
+          Avg Cost
+        </th>
 
-          <tbody>
-            {/* LOADING */}
+        <th className="px-4 py-3 font-medium text-right">
+          Stock Value
+        </th>
 
-            {loading && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="p-8 text-center text-gray-500"
-                >
-                  Loading department stock...
-                </td>
-              </tr>
-            )}
+        <th className="px-4 py-3 font-medium text-right">
+          Action
+        </th>
 
-            {/* EMPTY */}
+      </tr>
+    </thead>
 
-            {!loading && filtered.length === 0 && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="p-8 text-center text-gray-500"
-                >
-                  {search
-                    ? "No items found"
-                    : "No stock available"}
-                </td>
-              </tr>
-            )}
+    <tbody>
 
-            {/* DATA */}
+      {/* LOADING */}
+      {loading && (
+        <tr>
+          <td
+            colSpan={6}
+            className="p-8 text-center text-gray-500"
+          >
+            Loading department stock...
+          </td>
+        </tr>
+      )}
 
-            {!loading &&
-              filtered.map((item) => (
-                <tr
-                  key={item.inventoryItemId}
-                  className="border-t border-gray-100 hover:bg-gray-50"
-                >
-                  {/* ITEM */}
+      {/* EMPTY */}
+      {!loading && filtered.length === 0 && (
+        <tr>
+          <td
+            colSpan={6}
+            className="p-8 text-center text-gray-500"
+          >
+            {search
+              ? 'No items found'
+              : 'No stock available'}
+          </td>
+        </tr>
+      )}
 
-                  <td className="px-4 py-3 font-medium text-gray-800">
-                    {item.inventoryItemName}
-                  </td>
+      {/* DATA */}
+      {!loading &&
+        filtered.map((item) => (
+          <tr
+            key={item.inventoryItemId}
+            className="border-t border-gray-100 hover:bg-gray-50"
+          >
 
-                  {/* QUANTITY */}
+            {/* ADD STOCK */}
+            <td className="px-4 py-3">
+             <td className="px-4 py-3">
+  <Link
+    href={`/admin/stock-finished/production/issue-stock/${departmentId}`}
+    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white transition hover:bg-emerald-700"
+    title="Add Stock"
+  >
+    <Plus size={18} />
+  </Link>
+</td>
+            </td>
 
-                  <td className="px-4 py-3 text-right font-medium">
-                    <span className="font-medium">
-                      {displayStock(
-                        item.currentStock ?? 0,
-                        item.purchaseUnit,
-                        item.consumptionUnit,
-                        item.conversionFactor
-                      )}
-                    </span>
-                  </td>
+            {/* ITEM */}
+            <td className="px-4 py-3 font-medium text-gray-800">
+              {item.inventoryItemName}
+            </td>
 
-                  {/* AVG COST */}
+            {/* QUANTITY */}
+            <td className="px-4 py-3 text-right font-medium">
+              {displayStock(
+                item.currentStock ?? 0,
+                item.purchaseUnit,
+                item.consumptionUnit,
+                item.conversionFactor
+              )}
+            </td>
 
-                  <td className="px-4 py-3 text-right">
-                     ₹
-                    {Number(
-                      item.averageCost ?? 0
-                    ).toFixed(2)}
-                  </td>
+            {/* AVG COST */}
+            <td className="px-4 py-3 text-right">
+              ₹{Number(item.averageCost ?? 0).toFixed(2)}
+            </td>
 
-                  {/* STOCK VALUE */}
+            {/* STOCK VALUE */}
+            <td className="px-4 py-3 text-right font-semibold text-green-700">
+              ₹{Number(item.stockValue ?? 0).toFixed(2)}
+            </td>
 
-                  <td className="px-4 py-3 text-right font-semibold text-green-700">
-                     ₹
-                    {Number(
-                      item.stockValue ?? 0
-                    ).toFixed(2)}
-                  </td>
+            {/* ACTION */}
+            <td className="px-4 py-3 text-right">
+            
+  <Link
+    href={`/admin/stock-finished/department/edit-stock/${item.id}`}
+    className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white transition hover:bg-blue-700"
+    title="Edit Stock"
+  >
+    <Pencil size={18} />
+  </Link>
+</td>
+        
 
-                  {/* ACTION */}
+          </tr>
+        ))}
 
-                  <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/stock-finished/department/edit-stock/${item.id}`}
-                      className="rounded-lg bg-blue-600 px-3 py-1.5 text-white hover:bg-blue-700"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+    </tbody>
+  </table>
+</div>
     </div>
   );
 }

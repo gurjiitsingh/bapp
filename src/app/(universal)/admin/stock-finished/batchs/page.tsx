@@ -27,7 +27,7 @@ export default async function Page({
     return <div>Error loading batches</div>;
   }
 
-  console.log("batch data---------------------------", res.data)
+  //console.log("batch data---------------------------", res.data)
 
   return (
     <div className="p-6">
