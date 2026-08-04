@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, Building2, ArrowLeft, Pencil } from 'lucide-react';
 
 import { displayStock } from '@/utils/inventory/displayStock';
+import { updateInventoryAverageCost } from '@/app/(universal)/action/inventory/repair/updateInventoryAverageCost';
 
 type Row = {
   id: string;
@@ -48,9 +49,36 @@ export default function DepartmentItemStockTable({
   mainStore,
 }: Props) {
 
-  console.log("all dp on item stock--------------------------", data)
+  // console.log("all dp on item stock--------------------------", data)
 
   const [search, setSearch] = useState('');
+  const [mainStoreAvgCost, setMainStoreAvgCost] = useState(
+    Number(mainStore?.averageCost || 0)
+  );
+
+
+
+  const [savingPrice, setSavingPrice] = useState(false);
+
+  const saveMainStorePrice = async () => {
+    if (!mainStore) return;
+
+    setSavingPrice(true);
+
+    const res = await updateInventoryAverageCost({
+      id: mainStore.id,
+      averageCost: mainStoreAvgCost,
+    });
+
+    setSavingPrice(false);
+
+    if (!res.success) {
+      alert(res.message);
+      return;
+    }
+
+    // router.refresh();
+  };
 
   const filtered = useMemo(() => {
     return data.filter((item) =>
@@ -171,15 +199,34 @@ export default function DepartmentItemStockTable({
             </p>
           </div>
 
-          <div className="rounded-xl bg-white p-4 shadow-sm">
-            <p className="text-xs text-gray-500">
-              Average Cost
-            </p>
+        <div className="rounded-xl bg-white p-4 shadow-sm">
+  <p className="text-xs text-gray-500">
+    Average Cost
+  </p>
 
-            <p className="mt-1 text-lg font-bold text-gray-800">
-              ₹{Number(mainStore.averageCost).toFixed(2)}
-            </p>
-          </div>
+  <div className="mt-2 flex gap-2">
+    <input
+      type="number"
+      step="0.01"
+      value={mainStoreAvgCost}
+      onChange={(e) =>
+        setMainStoreAvgCost(
+          Number(e.target.value) || 0
+        )
+      }
+      className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-blue-500 outline-none"
+    />
+
+    <button
+      type="button"
+      onClick={saveMainStorePrice}
+      disabled={savingPrice}
+      className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+    >
+      {savingPrice ? 'Saving...' : 'Save'}
+    </button>
+  </div>
+</div>
 
           <div className="rounded-xl bg-white p-4 shadow-sm">
             <p className="text-xs text-gray-500">
@@ -503,15 +550,15 @@ export default function DepartmentItemStockTable({
                       .toLocaleString('en-IN')
                     : '-'}
                 </td>
-               <td className="px-4 py-3 text-right">
-  <Link
-    href={`/admin/stock-finished/department/edit-stock/${item.id}`}
-    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800"
-  >
-    <Pencil size={16} />
-    Edit
-  </Link>
-</td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    href={`/admin/stock-finished/department/edit-stock/${item.id}`}
+                    className="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 shadow-sm transition hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </Link>
+                </td>
 
               </tr>
 
@@ -546,7 +593,7 @@ export default function DepartmentItemStockTable({
               </td>
 
               <td className="px-4 py-3">
-              
+
 
               </td>
             </tr>

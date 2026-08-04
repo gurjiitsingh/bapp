@@ -10,7 +10,7 @@ export default async function Page() {
       locationRef: "MAIN",
     }),
   ]);
-
+console.log("factory stock----------------- --------------",factoryStock)
   return (
     <LoadVehicleFormOperator
       vehicles={vehicles}

@@ -9,6 +9,7 @@ import { updateDepartmentStockTx } from "../production/departments/UpdateDepartm
 import { getDepartmentStockDataForProduction } from "../production/departments/getDepartmentStockDataForProduction";
 import { validateRawStockProduction } from "../inventory/rawInventory/validateRawStockProduction";
 import { departmentStockTransaction } from "../production/departments/departmentStockTransaction";
+import { addStockLocationTx } from "../distribution/addStockLocation";
 
 
 
@@ -47,7 +48,6 @@ export async function autoStockProduction({
   transactionUnit,
   note,
   createdBy,
-
   // DPARTMENT
   departmentId,
   departmentName,
@@ -56,25 +56,25 @@ export async function autoStockProduction({
 }: AdjustStockType) {
 
 
-  console.log("income----------------------", id,
-    //batchId,
-    productName,
-    sellingPrice,
-    wholesalePrice,
-    costPrice,
-    avgCost,
-    direction,
+  // console.log("income----------------------", id,
+  //   //batchId,
+  //   productName,
+  //   sellingPrice,
+  //   wholesalePrice,
+  //   costPrice,
+  //   avgCost,
+  //   direction,
 
-    quantity,
-    transactionUnit,
-    note,
-    createdBy,
+  //   quantity,
+  //   transactionUnit,
+  //   note,
+  //   createdBy,
 
-    // DPARTMENT
-    departmentId,
-    departmentName,
-    managerName,
-    employeeCount,)
+  //   // DPARTMENT
+  //   departmentId,
+  //   departmentName,
+  //   managerName,
+  //   employeeCount,)
   const db = adminDb;
   const now = new Date();
   try {
@@ -292,7 +292,7 @@ export async function autoStockProduction({
       // ==========================================
       // 6. WRITE DEPARTMENT LEDGER
       // ==========================================
-      console.log("rawInventoryReads-----------------------", rawInventoryReads)
+   //  console.log("rawInventoryReads-----------------------", rawInventoryReads)
      for (const item of rawInventoryReads) {
   const update = departmentMap.get(item.inventoryItemId);
 
@@ -338,23 +338,23 @@ export async function autoStockProduction({
       // =========================
       if (direction === "IN") {
 
-        // await addStockLocationTx({
-        //   tx,
-        //   stockLocation: storeLocation,
+        await addStockLocationTx({
+          tx,
+          stockLocation: storeLocation,
 
-        //   productId: id,
-        //   productName,
-        //   sellingPrice,
-        //   wholesalePrice,
-        //   costPrice,
-        //   avgCost,
-        //   productMode: "finished_stock",
+          productId: id,
+          productName,
+          sellingPrice,
+          wholesalePrice,
+          costPrice,
+          avgCost,
+          productMode: "finished_stock",
 
-        //   locationType: "STORE",
-        //   locationRef: "MAIN",
+          locationType: "STORE",
+          locationRef: "MAIN",
 
-        //   quantity,
-        // });
+          quantity,
+        });
       }
 
       // await addStockMovement({

@@ -46,7 +46,7 @@ export async function updateDepartmentStockTx({
     updatedAt: now,
   };
 
-  console.log("Updating Firestore with:", data);
+  //console.log("Updating Firestore with:", data);
 
   console.log("update.exists:", update.exists);
 console.log("update.ref:", update.ref?.path);
@@ -57,7 +57,7 @@ console.log("update.ref:", update.ref?.path);
     return;
   }
 
-  console.log("update.newCurrentStock----------------------------", update.newCurrentStock)
+  //console.log("update.newCurrentStock----------------------------", update.newCurrentStock)
 
   const ref = db.collection("departmentStock").doc();
 
