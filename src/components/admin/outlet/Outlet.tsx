@@ -25,7 +25,7 @@ const Outlet = () => {
       printerWidth: "80",
       isActive: true,
       countryCode: "IN",
-
+ taxMode: "PER_ITEM",
       // ✅ QR
       qrEnabled: false,
       qrText: "",
@@ -56,6 +56,7 @@ const Outlet = () => {
           qrEnabled: data.qrEnabled ?? false,
           qrText: data.qrText ?? "",
           qrTitle: data.qrTitle ?? "",
+          taxMode: data.taxMode ?? "PER_ITEM",
           upiId: data.upiId ?? "",
           upiName: data.upiName ?? "",
           upiTitle: data.upiTitle ?? "",
@@ -127,6 +128,22 @@ const Outlet = () => {
           placeholder="GST / VAT Number"
           className="input-style"
         />
+        <select
+  {...register("taxMode")}
+  className="input-style"
+>
+  <option value="PER_ITEM">
+    Per Item (Use item's tax type)
+  </option>
+
+  <option value="FORCE_INCLUSIVE">
+    Force Inclusive
+  </option>
+
+  <option value="FORCE_EXCLUSIVE">
+    Force Exclusive
+  </option>
+</select>
 
         <input
           {...register("addressLine1")}

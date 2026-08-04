@@ -57,6 +57,12 @@ export const outletSchema = z.object({
   // QR
   qrEnabled: z.boolean().optional(),
 
+  taxMode: z.enum([
+  "FORCE_INCLUSIVE",
+  "FORCE_EXCLUSIVE",
+  "PER_ITEM",
+]).default("PER_ITEM"),
+
   qrText: z
     .string()
     .optional()

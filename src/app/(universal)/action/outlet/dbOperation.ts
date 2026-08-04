@@ -71,7 +71,7 @@ export async function saveOutlet(input: any) {
 
     currencyCode: config.code,
     localeTag: config.locale,
-
+taxMode: data.taxMode,
     updatedAt: FieldValue.serverTimestamp(),
   };
 
