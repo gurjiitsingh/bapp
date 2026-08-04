@@ -12,39 +12,53 @@ export default function POSCartPanel({
 }) {
   return (
     <>
-      {/* Overlay — mobile & tablet only */}
+      {/* Backdrop Overlay — Mobile & Tablet viewports */}
       {isOpen && (
         <div
           onClick={onClose}
-          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          aria-hidden="true"
+          className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-300"
         />
       )}
 
-      {/* Cart Panel */}
+      {/* Modern Slide-Over Cart Panel */}
       <aside
         className={`
           fixed lg:static top-0 right-0 h-full
-          w-[250px] bg-white border-l border-gray-200
-          z-50 transform transition-transform duration-300
+          w-80 sm:w-96 lg:w-[380px]
+          bg-white border-l border-slate-200/80
+          z-50 flex flex-col shadow-2xl lg:shadow-none
+          transform transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "translate-x-full"}
           lg:translate-x-0
+          select-none
         `}
       >
-        {/* Mobile / Tablet Header */}
-        <div className="lg:hidden flex justify-between items-center p-3 border-b">
-          
+        {/* Panel Header */}
+        <div className="flex justify-between items-center px-4 py-3.5 border-b border-slate-100 bg-white">
+          <div className="flex items-center gap-2">
+            <h2 className="font-bold text-slate-900 text-base tracking-tight">
+              Current Order
+            </h2>
+            <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-600">
+              POS
+            </span>
+          </div>
 
+          {/* Close Action Button for Mobile/Tablet overlay */}
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-800 transition"
-            aria-label="Close cart"
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            aria-label="Close cart drawer"
           >
-            <IoClose size={22} />
+            <IoClose size={20} />
           </button>
-          <h2 className="font-semibold">Cart</h2>
         </div>
 
-        <POSCartContent />
+        {/* Cart Content Wrapper */}
+        <div className="flex-1 overflow-hidden flex flex-col bg-slate-50/50">
+          <POSCartContent />
+        </div>
       </aside>
     </>
   );

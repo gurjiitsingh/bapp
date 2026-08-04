@@ -31,7 +31,7 @@ export default function PosSidebarCategories() {
    *  ------------------------------------------ */
   useEffect(() => {
     if (!productCategoryIdG) {
-      setDisplayCategory(settings.display_category?.toString() ?? null);
+      setDisplayCategory(settings?.display_category?.toString() ?? null);
     } else {
       setDisplayCategory(productCategoryIdG);
     }
@@ -41,19 +41,21 @@ export default function PosSidebarCategories() {
    *  Load Categories
    *  ------------------------------------------ */
   useEffect(() => {
+    let isMounted = true;
+
     async function load() {
       try {
         const res = await fetch("/api/categories");
         const categories: CategoryType[] = await res.json();
 
+        if (!isMounted) return;
+
         categories.sort(
           (a, b) => Number(a.sortOrder ?? 0) - Number(b.sortOrder ?? 0)
         );
 
-        // Only featured categories (your logic)
-        const featured = categories.filter(
-          (c) => c.isFeatured !== "no"
-        );
+        // Only featured categories
+        const featured = categories.filter((c) => c.isFeatured !== "no");
         setCategoryData(featured);
 
         // Pickup discount disabled categories
@@ -67,40 +69,181 @@ export default function PosSidebarCategories() {
     }
 
     load();
-  }, []);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [setDisablePickupCatDiscountIds]);
 
   return (
-    <div className="space-y-1">
-    
+    <aside className="w-full h-full bg-slate-900 text-slate-100 flex flex-col select-none">
+      {/* Sidebar Header */}
+      <div className="p-4 border-b border-slate-800">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Categories
+        </h2>
+      </div>
 
-      {categoryData.map((cat) => {
-        const active = displayCategory === cat.id;
+      {/* Category List */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
+        {/* "All Items" Reset Button */}
+        <button
+          onClick={() => setProductCategoryIdG("")}
+          className={`
+            group
+            relative
+            w-full
+            h-14
+            rounded-xl
+            transition-all
+            duration-200
+            flex
+            items-center
+            gap-3
+            px-3
+            cursor-pointer
+            ${
+              !displayCategory
+                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
+            }
+          `}
+        >
+          {/* Active Accent Indicator */}
+          {!displayCategory && (
+            <span className="absolute left-0 top-3 bottom-3 w-1 bg-white rounded-r-full" />
+          )}
 
-        return (
-          <button
-            key={cat.id}
-            onClick={() => setProductCategoryIdG(cat.id)}
-            className={`w-full text-left px-1 py-1 rounded-lg transition flex  flex-col md:flex-row items-center gap-2
-              ${active 
-                ? "bg-green-600 text-white font-semibold shadow-sm"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }
+          <div
+            className={`
+              w-10
+              h-10
+              rounded-lg
+              flex
+              items-center
+              justify-center
+              shrink-0
+              ${!displayCategory ? "bg-white/20" : "bg-slate-800"}
             `}
           >
-            {/* Image (small + clean) */}
-            <div className="w-10 h-10 rounded-md overflow-hidden bg-gray-200 flex-shrink-0">
-              <img
-                src={cat.image || "/com.jpg"}
-                alt={cat.name}
-                className="w-full h-full object-cover"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6a0.75 0.75 0 0 1 0.75-.75h15a0.75 0.75 0 0 1 0 1.5h-15A0.75 0.75 0 0 1 3.75 6Zm0 6a0.75 0.75 0 0 1 0.75-.75h15a0.75 0.75 0 0 1 0 1.5h-15A0.75 0.75 0 0 1 3.75 12Zm0 6a0.75 0.75 0 0 1 0.75-.75h15a0.75 0.75 0 0 1 0 1.5h-15A0.75 0.75 0 0 1 3.75 18Z"
               />
-            </div>
+            </svg>
+          </div>
 
-            {/* Category Name */}
-            <div className="text-xs  text-center md:text-left">{cat.name}</div>
-          </button>
-        );
-      })}
-    </div>
+          <div className="flex-1 text-left">
+            <p className="font-semibold text-sm leading-tight">All Items</p>
+            <p
+              className={`text-[11px] ${
+                !displayCategory ? "text-indigo-200" : "text-slate-400"
+              }`}
+            >
+              Show entire menu
+            </p>
+          </div>
+        </button>
+
+        {/* Dynamic Category List */}
+        {categoryData.map((cat) => {
+          const active = displayCategory === cat.id;
+
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setProductCategoryIdG(cat.id)}
+              className={`
+                group
+                relative
+                w-full
+                h-14
+                rounded-xl
+                transition-all
+                duration-200
+                flex
+                items-center
+                gap-3
+                px-3
+                cursor-pointer
+                ${
+                  active
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                    : "text-slate-300 hover:bg-slate-800/70 hover:text-white"
+                }
+              `}
+            >
+              {/* Active Accent Indicator Bar */}
+              {active && (
+                <span className="absolute left-0 top-3 bottom-3 w-1 bg-white rounded-r-full" />
+              )}
+
+              {/* Category Image Avatar */}
+              <div
+                className={`
+                  w-10
+                  h-10
+                  rounded-lg
+                  overflow-hidden
+                  shrink-0
+                  flex
+                  items-center
+                  justify-center
+                  ${active ? "bg-white/20" : "bg-slate-800"}
+                `}
+              >
+                {cat.image ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5 text-slate-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              {/* Category Text Information */}
+              <div className="flex-1 text-left min-w-0">
+                <p className="font-semibold text-sm leading-tight truncate">
+                  {cat.name}
+                </p>
+                {cat.productDesc && (
+                  <p
+                    className={`text-[11px] truncate ${
+                      active ? "text-indigo-200" : "text-slate-400"
+                    }`}
+                  >
+                    {cat.productDesc}
+                  </p>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </aside>
   );
 }

@@ -1,216 +1,200 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
-import dynamic from "next/dynamic";
 import { ProductType } from "@/lib/types/productType";
 import { addOnType } from "@/lib/types/addOnType";
-//import ProdcutCardHorizontical19 from "../custom/cus-componets/ProductCard-h19"
+import PosProductCard from "@/app/pos/component/PosProductCard";
 
-// export type ProductType = {
-//   id: string;
-//   name: string;
-//   price: number;
-//   image?: string;
-//   categoryId: string;
-//   sortOrder?: number;
-//   [key: string]: any;
-// };
 export default function Products() {
-  const { productCategoryIdG, settings, setAllProduct, productToSearchQuery } =
-    UseSiteContext();
+  const {
+    productCategoryIdG,
+    settings,
+    setAllProduct,
+    productToSearchQuery,
+    setProductToSearchQuery, // Ensure your Context exposes a setter, or use local state
+  } = UseSiteContext();
 
   const [products, setProducts] = useState<ProductType[]>([]);
-  const [variant, setVariant] = useState<ProductType[]>([]);
   const [allProducts, setAllProductsLocal] = useState<ProductType[]>([]);
+  const [variant, setVariant] = useState<ProductType[]>([]);
   const [addOns, setAddOns] = useState<addOnType[]>([]);
   const [categoryId, setCategoryId] = useState("");
+  const [localSearch, setLocalSearch] = useState("");
 
-  const cardType = process.env.NEXT_PUBLIC_PRODUCT_POS_CARD_TYPE;
-  
-
-  //  DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
-
-  const Card = useMemo(() => {
-    switch (cardType) {
-      case "1":
-        return dynamic(() => import("../level-2/ProductCard-h1"));
-      case "11":
-        return dynamic(() => import("../level-2/ProductCard-h1_1"));
-      case "111":
-        return dynamic(() => import("../level-2/ProductCard-h1_1_1"));
-      case "16":
-        return dynamic(() => import("../level-2/ProductCardPOS-h1_6"));
-      case "13":
-        return dynamic(() => import("../level-2/ProductCard-h1_3"));
-
-      case "14":
-        return dynamic(() => import("../level-2/ProductMenuCard-h1_4"));
-      case "15":
-        return dynamic(() => import("../level-2/ProductMenuCard-h1_5"));
-      case "12":
-        return dynamic(
-          () => import("@/custom/cus-components/ProductCard-custom")
-        );
-      case "19":
-        return dynamic(() => import("../level-2/ProductCard-h12"));
-      case "2":
-        return dynamic(() => import("../level-2/ProductCard-v2"));
-      case "3":
-        return dynamic(() => import("../level-2/ProductCard-v3"));
-      case "4":
-        return dynamic(() => import("../level-2/ProductCard-v4"));
-      case "5":
-        return dynamic(() => import("../level-2/ProductCard-v5"));
-      case "6":
-        return dynamic(() => import("../level-2/ProductCard-h6"));
-      case "7":
-        return dynamic(() => import("../level-2/ProductCard-v7"));
-        case "501":
-        return dynamic(() => import("../level-2/ProductCard-hp_501"));
-        default:
-        return dynamic(() => import("../level-2/ProductCard-hp_501"));
-    }
-  }, [cardType]);
-
-  //  Set initial category (runs only when settings OR global id changes)
-
+  // Initial category setup
   useEffect(() => {
     if (!settings?.display_category && !productCategoryIdG) return;
 
-    const fallback = settings.display_category ?? "";
-
-    setCategoryId(String(productCategoryIdG || fallback));
+    setCategoryId(
+      String(productCategoryIdG || settings.display_category || "")
+    );
   }, [settings, productCategoryIdG]);
 
-  //  Fetch ONCE (no remount loop now)
+  // Load Products
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
     async function load() {
       try {
         const res = await fetch("/api/products");
-        //  const data = await res.json();
-        const data: ProductType[] = await res.json(); //  define type here
+        const data: ProductType[] = await res.json();
 
-        const published = data.filter(
-          (p: ProductType) => p.publishStatus === "published"
-        );
+        const published = data
+          .filter((p) => p.publishStatus === "published")
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
-        const sorted = published.sort(
-          (a: ProductType, b: ProductType) =>
-            (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-        );
+        if (!mounted) return;
 
-        if (!isMounted) return;
+        const parents = published.filter((p) => p.type === "parent");
+        const variants = published.filter((p) => p.type === "variant");
 
-        const parents = sorted.filter((p) => p.type === "parent");
-        const variants = sorted.filter((p) => p.type === "variant");
-        setAllProductsLocal(parents);
-        setAllProduct(parents); //  context update (won’t remount now)
         setVariant(variants);
+        setAddOns([]);
+
+        setAllProductsLocal(parents);
+        setAllProduct(parents);
 
         setProducts(
           categoryId
-            ? sorted.filter((p) => p.categoryId === categoryId)
-            : sorted
+            ? parents.filter((p) => p.categoryId === categoryId)
+            : parents
         );
       } catch (err) {
-        console.error("Error loading products:", err);
+        console.error("Failed to fetch products:", err);
       }
     }
 
     load();
 
     return () => {
-      isMounted = false;
+      mounted = false;
     };
-  }, []); //  runs ONCE ONLY
+  }, [setAllProduct]);
 
-  //  Category filter
+  // Category Filter
   useEffect(() => {
     if (!categoryId) {
       setProducts(allProducts);
       return;
     }
+
     setProducts(allProducts.filter((p) => p.categoryId === categoryId));
   }, [categoryId, allProducts]);
 
-  //  Search filter
+  // Search Filter
+  const activeSearch = productToSearchQuery || localSearch;
+
   useEffect(() => {
-    if (!productToSearchQuery) {
-      setProducts(allProducts);
+    if (!activeSearch) {
+      if (!categoryId) {
+        setProducts(allProducts);
+      } else {
+        setProducts(allProducts.filter((p) => p.categoryId === categoryId));
+      }
       return;
     }
 
     setProducts(
       allProducts.filter((p) =>
-        p.name.toLowerCase().includes(productToSearchQuery.toLowerCase())
+        p.name.toLowerCase().includes(activeSearch.toLowerCase())
       )
     );
-  }, [productToSearchQuery]);
-
-  //  Layout logic (unchanged)
-  let containerClass = "";
-  switch (cardType) {
-    case "1":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5 ";
-      break;
-    case "11":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-2 md:gap-2";
-      break;
-    case "12":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
-      break;
-    case "2":
-    case "3":
-      containerClass =
-        "flex flex-col md:flex-row justify-between md:flex-wrap gap-3 md:gap-5 justify-center";
-      break;
-    case "4":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
-      break;
-    case "5":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-3 lg:grid-cols-4 gap-3";
-      break;
-    case "6":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
-      break;
-    case "7":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
-      break;
-    case "16":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-1 md:gap-1";
-      break;
-     case "501":
-      containerClass = "flex flex-col justify-between xl:flex-row xl:flex-wrap gap-1 xl:gap-1";
-      break;
-    default:
-      containerClass = "flex flex-col justify-between xl:flex-row xl:flex-wrap gap-1 xl:gap-1";
-      
-  }
+  }, [activeSearch, categoryId, allProducts]);
 
   return (
-    <div  className="max-full mx-auto my-1">
-      <div className="px-1">
-        <div className={containerClass}>
-          {/* {products.map((product, i) => (
-            <Card
-              key={product.id ?? `${product.name}-${i}`}
-              product={product}
-              variants={variant} //  PASS ALL VARIANTS
-              allAddOns={addOns}
-            />
-          ))} */}
+    <div className="flex flex-col h-full bg-slate-100/70 select-none">
+      {/* Top Search Bar Header */}
+      <div className="bg-white border-b border-slate-200/80 px-4 py-3 shadow-2xs">
+        <div className="relative flex items-center max-w-md">
+          {/* Search Lens Icon */}
+          <div className="absolute left-3.5 pointer-events-none text-slate-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+              />
+            </svg>
+          </div>
+
+          <input
+            type="text"
+            value={activeSearch}
+            onChange={(e) => {
+              setLocalSearch(e.target.value);
+              if (setProductToSearchQuery) {
+                setProductToSearchQuery(e.target.value);
+              }
+            }}
+            placeholder="Search items by name or code..."
+            className="w-full h-10 pl-10 pr-9 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition duration-150"
+          />
+
+          {/* Clear Search Input Button */}
+          {activeSearch && (
+            <button
+              onClick={() => {
+                setLocalSearch("");
+                if (setProductToSearchQuery) setProductToSearchQuery("");
+              }}
+              className="absolute right-3 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2.5}
+                stroke="currentColor"
+                className="w-3.5 h-3.5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
+      </div>
+
+      {/* Main Grid Canvas */}
+      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
+            {products.map((product) => (
+              <PosProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          /* Empty Search or Filter State */
+          <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 space-y-2">
+            <div className="p-3 bg-slate-200/50 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6 text-slate-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+                />
+              </svg>
+            </div>
+            <p className="font-semibold text-slate-700 text-sm">No items found</p>
+            <p className="text-xs text-slate-400">
+              Try adjusting your category filter or search terms.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -246,7 +246,7 @@ export default function ProductionEstimateForm({
                 </p>
 
                 <p className="text-xl font-bold text-green-700 mt-2">
-                  ₹{" "}
+                 
                   {(quantity).toFixed(
                     2
                   )}

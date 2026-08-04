@@ -12,43 +12,110 @@ export default function POSPage() {
   const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
-    document.body.style.background = "#f6f6f6";
+    document.body.style.background = "#F8FAFC";
   }, []);
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      {/* MAIN POS LAYOUT */}
-      <main className="w-full flex flex-1 overflow-hidden">
-        {/* TOP BAR – Table & Facility */}
+    <div className="h-screen bg-slate-50 flex flex-col">
 
-        {/* LEFT SIDEBAR (Categories) */}
-        <aside className="w-[110px] md:w-[250px] bg-white border-r p-1 overflow-y-auto">
+      {/* ================= TOP BAR ================= */}
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-5 shadow-sm">
+
+        <div className="flex items-center gap-4">
+
+          <h1 className="text-xl font-bold text-slate-800">
+            Restaurant POS
+          </h1>
+
+          <POSOrderInfo />
+
+        </div>
+
+        <div className="flex items-center gap-3">
+
+          <input
+            placeholder="Search products..."
+            className="
+              w-80
+              h-10
+              rounded-lg
+              border
+              border-slate-300
+              px-3
+              outline-none
+              focus:ring-2
+              focus:ring-orange-400
+            "
+          />
+
+        </div>
+
+      </header>
+
+      {/* ================= MAIN ================= */}
+
+      <main className="flex flex-1 overflow-hidden">
+
+        {/* LEFT MENU */}
+
+        <aside className="
+            w-[250px]
+            bg-slate-800
+            text-white
+            border-r
+            border-slate-700
+            overflow-y-auto
+        ">
           <PosSidebarCategories />
         </aside>
 
-        {/* PRODUCTS SECTION */}
-        <section className="flex-1 overflow-y-auto p-1">
-          <div className="bg-white  p-2 flex items-center gap-3">
-            <POSOrderInfo /> {/* Table No + Facility selector */}
-          </div>
+        {/* PRODUCTS */}
+
+        <section className="flex-1 overflow-y-auto p-4">
+
           <Products />
+
         </section>
 
-        {/* DESKTOP CART (≥1025px) */}
-        <aside className="hidden lg:block w-[250px] bg-white border-l border-gray-200 p-1 overflow-y-auto">
-          <POSCartPanel isOpen={true} onClose={() => {}} />
+        {/* CART */}
+
+        <aside className="
+            hidden
+            xl:flex
+            w-[360px]
+            bg-white
+            border-l
+            border-slate-200
+        ">
+
+          <POSCartPanel
+            isOpen={true}
+            onClose={() => {}}
+          />
+
         </aside>
 
-        {/* MOBILE CART DRAWER (<1025px) */}
-        <div className="lg:hidden">
-          <POSCartPanel isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+        {/* Mobile Cart */}
+
+        <div className="xl:hidden">
+          <POSCartPanel
+            isOpen={cartOpen}
+            onClose={() => setCartOpen(false)}
+          />
         </div>
+
       </main>
 
-      {/* FLOATING CART BUTTON (<1025px only) */}
-      <div className="lg:hidden">
-        <FloatingCartButton onClick={() => setCartOpen(true)} />
+      {/* Floating Button */}
+
+      <div className="xl:hidden">
+
+        <FloatingCartButton
+          onClick={() => setCartOpen(true)}
+        />
+
       </div>
+
     </div>
   );
 }
