@@ -80,6 +80,7 @@ export async function getDepartmentStockDataForProduction(
 
 
     const currentStock = Number(data?.currentStock ?? 0);
+    const conversionFactor = Number(data?.conversionFactor ?? 0);
     const currentAverageCost = Number(data?.averageCost ?? 0);
 
     // console.log("========== STOCK CHECK ==========");
@@ -97,36 +98,15 @@ export async function getDepartmentStockDataForProduction(
       );
     }
 
-    const newQuantity =
-      dirction === "IN"
-        ? currentStock + item.quantity
-        : currentStock - item.quantity;
-
     let newAverageCost = 0;
     let newStockValue = 0;
+    const newQuantity = currentStock - item.quantity;
 
-    if (dirction === "IN") {
-      newAverageCost =
-        currentStock === 0 || currentAverageCost === 0
-          ? Number(item.averageCost)
-          : (
-            currentStock * currentAverageCost +
-            item.quantity * item.averageCost
-          ) / newQuantity;
 
-      newAverageCost = Number(
-        newAverageCost.toFixed(10)
-      );
 
-      newStockValue = Number(
-        (newQuantity * newAverageCost).toFixed(2)
-      );
-    } else {
-      newAverageCost = currentAverageCost;
-      newStockValue = Number(
-        (newQuantity * currentAverageCost).toFixed(2)
-      );
-    }
+    newAverageCost = Number(currentAverageCost.toFixed(2));
+    newStockValue = Number((newQuantity / conversionFactor * currentAverageCost).toFixed(2));
+
 
     //     console.log("========== UPDATE OBJECT ==========");
     // console.log({

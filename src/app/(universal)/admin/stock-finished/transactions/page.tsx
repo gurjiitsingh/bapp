@@ -2,7 +2,7 @@
 
 
 import { getfinishedStockTransactions } from "@/app/(universal)/action/stock-finished/finishedStockTransactions";
-import InventoryTransactionTable from "../components/InventoryTransactionTable";
+import InventoryTransactionTable from "./InventoryTransactionTable";
 
 type Props = {
   searchParams: Promise<{

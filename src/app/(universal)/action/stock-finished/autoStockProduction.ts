@@ -10,6 +10,7 @@ import { getDepartmentStockDataForProduction } from "../production/departments/g
 import { validateRawStockProduction } from "../inventory/rawInventory/validateRawStockProduction";
 import { departmentStockTransaction } from "../production/departments/departmentStockTransaction";
 import { addStockLocationTx } from "../distribution/addStockLocation";
+import { updateDepartmentStockAutoProduction } from "../production/departments/production/updateDepartmentStockAutoProduction";
 
 
 
@@ -248,7 +249,7 @@ export async function autoStockProduction({
 
 
 
-        await updateDepartmentStockTx({
+        await updateDepartmentStockAutoProduction({
           transaction: tx,
           update,
 
