@@ -47,6 +47,7 @@ console.log("formData------------------------",formData)
 
     // ===== Store Data =====
     const currentStock = Number(data.currentStock) || 0;
+    
     const averageCost = Number(data.averageCost) || 0;
     const currentStockValue = Number(data.stockValue) || 0;
 
@@ -56,15 +57,16 @@ console.log("formData------------------------",formData)
     // ===== Stock Calculation =====
     let afterStock = 0;
 
-
+ if(direction == "OUT"){
       // ✅ Prevent negative stock
       if (qty > currentStock) {
         throw new Error(
-          `Insufficient stock for ${data.name}`
+          `Insufficient stock for1 ${data.name}`
         );
-      
-    
+          
     }
+  }
+    
   afterStock = currentStock + quantity;
 
     updates.push({

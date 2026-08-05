@@ -30,7 +30,7 @@ export default function EditDepartmentStockForm({
   purchaseMappings,
 }: Props) {
 
-  console.log("stock-------------------",purchaseMappings)
+ // console.log("stock-------------------",purchaseMappings)
 
   const router = useRouter();
   

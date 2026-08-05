@@ -2,7 +2,7 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
-
+//  averageCost: purchaseUnitCost,
 export async function syncAverageCostFromPurchaseUnitCost() {
   try {
     const snapshot = await adminDb

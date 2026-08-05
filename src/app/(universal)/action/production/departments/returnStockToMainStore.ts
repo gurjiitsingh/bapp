@@ -17,7 +17,7 @@ import { getDepartmentStockDataReturnStock } from "./getDepartmentStockDataRetur
 import { updateDepartmentStockReturnTx } from "./UpdateDepartmentStockReturnTx";
 import { writeInventoryDataReturnStock } from "../../inventory/rawInventory/writeInventoryDataReturnStock";
 
-export async function returnStockToMainStore(
+export async function returnStockToMainStore( 
     input: CreateProductionBatchInputType
 ) {
     const db = adminDb;

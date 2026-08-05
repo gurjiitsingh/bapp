@@ -87,8 +87,8 @@ console.log("issueStockToDepartment from form--------------------------",input)
       // ==========================================
       // 4. VALIDATE RAW STOCK
       // ==========================================
-
-      validateRawStock(rawUpdates);
+// IMPLIMENTED AT EARLY STAGE
+      //validateRawStock(rawUpdates);
 
       // ==========================================
       // 5. WRITE DEPARTMENT STOCK

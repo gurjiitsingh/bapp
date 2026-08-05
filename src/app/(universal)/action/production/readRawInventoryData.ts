@@ -17,11 +17,15 @@ export async function readRawInventoryData(
     consumptionUnit: string;
   }[]
 ) {
+
+
   const updates: RawInventoryUpdateIssue[] = [];
 
-  console.log("purcahseunitcost----------------------------", items)
+  // console.log("purcahseunitcost----------------------------", items)
 
   for (const item of items) {
+
+
     const sendQty = Number(item.quantity) || 0;
 
 
@@ -47,7 +51,12 @@ export async function readRawInventoryData(
     // ===== Stock Calculation =====
     let afterStock = currentStock - sendQty;
 
-
+    // 🔥 EARLY STOP HERE (SAVES FUTURE READS)
+    if (direction === "OUT" && currentStock < sendQty) {
+      throw new Error(
+        `${data.name}: Available ${currentStock} ${item.consumptionUnit}, Required ${sendQty} ${item.consumptionUnit}`
+      );
+    }
     updates.push({
       ref: inventoryRef,
 

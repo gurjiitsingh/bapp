@@ -38,7 +38,7 @@ export async function updateInventoryAverageCost({
 
     const stockValue =
       qtyInPurchaseUnit * Number(averageCost || 0);
-      console.log("stock value++++++++++++++----------------------",stockValue)
+     // console.log("stock value++++++++++++++----------------------",stockValue)
 
     await ref.update({
       averageCost: Number(averageCost || 0),

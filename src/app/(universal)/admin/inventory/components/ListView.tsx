@@ -27,6 +27,7 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import TableRows from "./TableRows";
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
+import RepairInventoryStockValueButton from "../repair/all-inv-item-stockvalue/RepairInventoryStovkValueButton";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -37,7 +38,7 @@ export default function ListView({
   inventoryItems,
   categories
 }: Props) {
-
+console.log("inventory------------------------",inventoryItems)
 
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
@@ -100,12 +101,12 @@ export default function ListView({
     ).length;
   }, [inventoryItems]);
 
-const totalStockValue = useMemo(() => {
-  return inventoryItems.reduce(
-    (sum, item) => sum + (Number(item.stockValue) || 0),
-    0
-  );
-}, [inventoryItems]);
+  const totalStockValue = useMemo(() => {
+    return inventoryItems.reduce(
+      (sum, item) => sum + (Number(item.stockValue) || 0),
+      0
+    );
+  }, [inventoryItems]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -177,27 +178,38 @@ const totalStockValue = useMemo(() => {
           </div>
         </div>
 
- {/*  STOCK value*/}
+     
+
+   {/* STOCK VALUE */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">
-                Stock Value
-              </p>
-
-             <h3 className="text-3xl font-bold text-green-600 mt-2">
-  {formatCurrencyNumber(totalStockValue)}
-</h3>
+              <div className="flex gap-3 items-center">
+                <p className="text-sm text-gray-500">
+                  Stock Value
+                </p>
+                <RepairInventoryStockValueButton />
+              </div>
+              <h3 className="text-3xl font-bold text-green-600 mt-2">
+                {formatCurrencyNumber(
+                  totalStockValue
+                )}
+              </h3>
             </div>
 
-            <div className="h-12 w-12 rounded-2xl bg-rose-100 flex items-center justify-center">
-              <AlertTriangle
-                className="text-rose-600"
+            <div className="h-12 w-12 rounded-2xl bg-green-100 flex items-center justify-center">
+              <Boxes
+                className="text-green-600"
                 size={24}
               />
             </div>
           </div>
         </div>
+
+
+
+
+        
 
 
       </div>

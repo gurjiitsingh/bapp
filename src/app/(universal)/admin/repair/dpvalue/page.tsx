@@ -4,16 +4,15 @@ import { useTransition } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Wrench } from 'lucide-react';
-import { recalculateAllDepartmentStockValues } from '@/app/(universal)/action/inventory/repair/recalculateAllDepartmentStockValues';
+import { repairAllDepartmentStockValues } from '@/app/(universal)/action/production/departments/repair/repairAllDepartmentStockValues';
 
- 
 export default function RepairDepartmentStockPage() {
 const [isPending, startTransition] = useTransition();
 
 function handleRepair() {
 startTransition(async () => {
 const result =
-await recalculateAllDepartmentStockValues();
+await repairAllDepartmentStockValues();
 
  
   if (result.success) {

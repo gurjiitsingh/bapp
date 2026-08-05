@@ -26,6 +26,7 @@ import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 import TableRows from "./TableRows";
+import RepairInventoryStockValueButton from "./all-inv-item-stockvalue/RepairInventoryStovkValueButton";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -207,10 +208,12 @@ export default function ListView({
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">
-                Stock Value
-              </p>
-
+              <div className="flex gap-3 items-center">
+                <p className="text-sm text-gray-500">
+                  Stock Value
+                </p>
+                <RepairInventoryStockValueButton />
+              </div>
               <h3 className="text-3xl font-bold text-green-600 mt-2">
                 {formatCurrencyNumber(
                   totalStockValue
@@ -298,8 +301,8 @@ export default function ListView({
                 <TableHead>
                   Conversion
                 </TableHead>
-                
-                 <TableHead className="text-right">
+
+                <TableHead className="text-right">
                   Units
                 </TableHead>
                 <TableHead>
@@ -308,7 +311,7 @@ export default function ListView({
                 <TableHead>
                   Avg Cost
                 </TableHead>
-               
+
                 <TableHead>
                   Stock Value
                 </TableHead>
