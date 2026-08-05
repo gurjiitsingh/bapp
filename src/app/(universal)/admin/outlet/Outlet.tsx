@@ -8,6 +8,7 @@ import { outletSchema, ToutletSchema } from "@/lib/types/outletType";
 import { Button } from "@/components/ui/button";
 import { saveOutlet } from "@/app/(universal)/action/outlet/dbOperation";
 import OutletLogoUpload from "./OutletLogoUpload";
+import toast from "react-hot-toast";
 
 const Outlet = () => {
   const [loading, setLoading] = useState(false);
@@ -21,16 +22,17 @@ const Outlet = () => {
   } = useForm<ToutletSchema>({
     resolver: zodResolver(outletSchema),
 
-    defaultValues: {
-      printerWidth: "80",
-      isActive: true,
-      countryCode: "IN",
- taxMode: "PER_ITEM",
-      // ✅ QR
-      qrEnabled: false,
-      qrText: "",
-      qrTitle: "",
-    },
+defaultValues: {
+  printerWidth: "80",
+  isActive: true,
+  countryCode: "IN",
+
+  taxMode: "FORCE_EXCLUSIVE", // fixed
+
+  qrEnabled: false,
+  qrText: "",
+  qrTitle: "",
+},
   });
 
   // 🔁 Load existing outlet (edit mode)
@@ -56,7 +58,6 @@ const Outlet = () => {
           qrEnabled: data.qrEnabled ?? false,
           qrText: data.qrText ?? "",
           qrTitle: data.qrTitle ?? "",
-          taxMode: data.taxMode ?? "PER_ITEM",
           upiId: data.upiId ?? "",
           upiName: data.upiName ?? "",
           upiTitle: data.upiTitle ?? "",
@@ -84,7 +85,11 @@ const Outlet = () => {
     }
 
     if (result.success) {
-      alert(outletId ? "Outlet updated" : "Outlet created");
+   toast.success(
+  outletId
+    ? 'Outlet updated successfully'
+    : 'Outlet created successfully'
+);
 
       setOutletId(result.outletId!);
     } else {
@@ -96,13 +101,38 @@ const Outlet = () => {
 
   return (
     <>
-    <div className="max-w-4xl mx-auto p-5 space-y-5">
+    <div className="max-w-4xl   p-5 space-y-5">
       {outletId && <OutletLogoUpload outletId={outletId} />}
 </div>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="max-w-4xl mx-auto p-5 space-y-5"
-      >
+  <form
+  onSubmit={handleSubmit(
+    onSubmit,
+    (formErrors) => {
+      console.log("FORM ERRORS", formErrors);
+
+      // Build readable error list
+      const messages = Object.entries(formErrors).map(
+        ([field, error]) => {
+          const msg =
+            typeof error?.message === 'string'
+              ? error.message
+              : 'Invalid value';
+
+          return `${field}: ${msg}`;
+        }
+      );
+
+      // Show toast with all errors
+      toast.error(
+        messages.join('\n'),
+        {
+          duration: 6000,
+        }
+      );
+    }
+  )}
+  className="max-w-4xl  p-5 space-y-5"
+>
         <h1 className="text-2xl font-semibold">
           {outletId ? "Edit Outlet" : "Create Outlet"}
         </h1>
@@ -122,28 +152,36 @@ const Outlet = () => {
           placeholder="Type : GST, VAT"
           className="input-style"
         />
+        <div className="space-y-1">
+  <label className="text-sm font-medium">Tax Mode</label>
+
+  <select
+    {...register("taxMode")}
+    className="input-style"
+  >
+    <option value="FORCE_EXCLUSIVE">
+      Tax Exclusive
+    </option>
+
+    <option value="FORCE_INCLUSIVE">
+      Tax Inclusive
+    </option>
+
+    <option value="PER_ITEM">
+      Per Item
+    </option>
+  </select>
+
+  <p className="text-xs text-red-500">
+    {errors.taxMode?.message}
+  </p>
+</div>
 
         <input
           {...register("gstVatNumber")}
           placeholder="GST / VAT Number"
           className="input-style"
         />
-        <select
-  {...register("taxMode")}
-  className="input-style"
->
-  <option value="PER_ITEM">
-    Per Item (Use item's tax type)
-  </option>
-
-  <option value="FORCE_INCLUSIVE">
-    Force Inclusive
-  </option>
-
-  <option value="FORCE_EXCLUSIVE">
-    Force Exclusive
-  </option>
-</select>
 
         <input
           {...register("addressLine1")}

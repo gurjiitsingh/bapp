@@ -10,46 +10,53 @@ import { cache } from "react";
 
 
 // =====================================================// SAVE OUTLET// =====================================================
-
 export async function saveOutlet(input: any) {
-
+  console.log("in----------------", input)
+  
   const parsed = outletSchema.safeParse(input);
 
+  // Validation failed
   if (!parsed.success) {
+    console.log(
+      'ZOD VALIDATION FAILED',
+      parsed.error.flatten()
+    );
 
-    const errors: Record<string, string> = {};
+    const fieldErrors =
+      parsed.error.flatten().fieldErrors;
 
-    parsed.error.issues.forEach((i) => {
-      errors[i.path[0] as string] = i.message;
-    });
-
-    return { errors };
+    return {
+      success: false,
+      errors: fieldErrors,
+      message: 'Please fill all required fields.',
+    };
   }
 
   const data = parsed.data;
 
-  // =================================================
-  // COUNTRY CONFIG
-  // =================================================
+  console.log(
+    'PARSED DATA ----------------',
+    JSON.stringify(data, null, 2)
+  );
 
-  const config = countryConfig[data.countryCode];
+  // Country config
+  const config =
+    countryConfig[data.countryCode];
 
   if (!config) {
     return {
+      success: false,
       errors: {
-        countryCode: "Invalid country",
+        countryCode: ['Invalid country selected'],
       },
+      message: 'Invalid country selected.',
     };
   }
 
+  // Update mode?
   const outletId = data.outletId;
 
-  console.log("SAVE OUTLET", data);
-
-  // =================================================
-  // BASE PAYLOAD
-  // =================================================
-
+  // Base payload
   const payload: any = {
     outletName: data.outletName,
 
@@ -60,131 +67,133 @@ export async function saveOutlet(input: any) {
 
     isActive: data.isActive,
 
-    // ✅ QR SETTINGS
+    // QR
     qrEnabled: data.qrEnabled,
     qrText: data.qrText,
     qrTitle: data.qrTitle,
 
-    // ✅ COUNTRY CONFIG
+    // Country
     countryCode: data.countryCode,
     countryName: config.name,
-
     currencyCode: config.code,
     localeTag: config.locale,
-taxMode: data.taxMode,
+
+    // Tax
+    taxMode: data.taxMode,
+
     updatedAt: FieldValue.serverTimestamp(),
   };
 
-  // =================================================
-  // HELPER
-  // =================================================
+  console.log(
+    'PAYLOAD BEFORE OPTIONALS ----',
+    payload
+  );
 
-  function setOrDelete(key: string, value: any) {
-
+  // Helper
+  function setOrDelete(
+    key: string,
+    value: any
+  ) {
     const isEmpty =
-      value === "" ||
+      value === '' ||
       value === undefined ||
       value === null;
 
-    // UPDATE MODE
-    if (outletId) {
+    console.log(
+      'setOrDelete',
+      key,
+      value,
+      'isEmpty=',
+      isEmpty
+    );
 
+    if (outletId) {
       payload[key] = isEmpty
         ? FieldValue.delete()
         : value;
-
       return;
     }
 
-    // CREATE MODE
     if (!isEmpty) {
       payload[key] = value;
     }
   }
 
-  // =================================================
-  // OPTIONAL FIELDS
-  // =================================================
+  // Optional fields
+  setOrDelete('ownerId', data.ownerId);
 
-  setOrDelete("ownerId", data.ownerId);
+  setOrDelete('addressLine2', data.addressLine2);
+  setOrDelete('addressLine3', data.addressLine3);
 
-  // ADDRESS
-  setOrDelete("addressLine2", data.addressLine2);
-  setOrDelete("addressLine3", data.addressLine3);
+  setOrDelete('state', data.state);
+  setOrDelete('zipcode', data.zipcode);
 
-  setOrDelete("state", data.state);
-  setOrDelete("zipcode", data.zipcode);
+  setOrDelete('phone', data.phone);
+  setOrDelete('phone2', data.phone2);
 
-  // CONTACT
-  setOrDelete("phone", data.phone);
-  setOrDelete("phone2", data.phone2);
+  setOrDelete('email', data.email);
+  setOrDelete('web', data.web);
 
-  setOrDelete("email", data.email);
-  setOrDelete("web", data.web);
+  setOrDelete('taxType', data.taxType);
+  setOrDelete('gstVatNumber', data.gstVatNumber);
 
-  // TAX
-  setOrDelete("taxType", data.taxType);
-  setOrDelete("gstVatNumber", data.gstVatNumber);
+  setOrDelete('footerNote', data.footerNote);
 
-  // POS
-  setOrDelete("footerNote", data.footerNote);
+  setOrDelete('upiId', data.upiId);
+  setOrDelete('upiName', data.upiName);
+  setOrDelete('upiTitle', data.upiTitle);
 
-  // QR
-  setOrDelete("qrText", data.qrText);
-  setOrDelete("qrTitle", data.qrTitle);
-
-  // UPI
-  setOrDelete("upiId", data.upiId);
-  setOrDelete("upiName", data.upiName);
-  setOrDelete("upiTitle", data.upiTitle);
+  console.log(
+    'FINAL PAYLOAD ---------------',
+    payload
+  );
 
   try {
-
-    // =================================================
     // UPDATE
-    // =================================================
-
     if (outletId) {
-
-      console.log("UPDATING", outletId, payload);
-
       await adminDb
-        .collection("outlets")
+        .collection('outlets')
         .doc(outletId)
         .update(payload);
 
       return {
         success: true,
         outletId,
+        message: 'Outlet updated successfully.',
       };
     }
 
-    // =================================================
     // CREATE
-    // =================================================
-
-    console.log("CREATING", payload);
-
     const docRef = await adminDb
-      .collection("outlets")
+      .collection('outlets')
       .add({
         ...payload,
-        createdAt: FieldValue.serverTimestamp(),
+        createdAt:
+          FieldValue.serverTimestamp(),
       });
 
     return {
       success: true,
       outletId: docRef.id,
+      message: 'Outlet created successfully.',
     };
-
-  } catch (error) {
-
-    console.error("Outlet save failed:", error);
+  } catch (error: any) {
+    console.error(
+      'FIRESTORE ERROR ------------',
+      error
+    );
 
     return {
+      success: false,
       errors: {
-        general: "Firestore error",
+        general: [
+          error.message ||
+            'Firestore error',
+        ],
       },
+      message:
+        error.message ||
+        'Failed to save outlet.',
     };
   }
 }
