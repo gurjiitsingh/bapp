@@ -105,36 +105,52 @@ export default function ListView() {
 
   return (
     <div className="mt-2">
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
-        <div className="w-full md:w-1/2">
-          <label className="block text-sm font-medium mb-1">Category</label>
-          <select
-            value={urlCategory}
-            onChange={(e) => updateURL("category", e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          >
-            <option value="">All Categories</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
+<div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:gap-6">
+  {/* Title */}
+  <div className="w-full md:w-auto">
+    <h3 className="text-2xl font-semibold">Products</h3>
+  </div>
 
-        <div className="w-full md:w-1/2">
-          <label className="block text-sm font-medium mb-1">Search</label>
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search by name..."
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-        </div>
-      </div>
+  {/* Category */}
+  <div className="w-full md:w-64">
+    <label className="mb-1 block text-sm font-medium">
+      Category
+    </label>
 
-      <h3 className="text-2xl mb-4 font-semibold">Products</h3>
+    <select
+      value={urlCategory}
+      onChange={(e) =>
+        updateURL("category", e.target.value)
+      }
+      className="w-full rounded border border-gray-300 px-3 py-2"
+    >
+      <option value="">All Categories</option>
+
+      {categories.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.name}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* Search */}
+  <div className="w-full md:w-80">
+    <label className="mb-1 block text-sm font-medium">
+      Search
+    </label>
+
+    <input
+      type="text"
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)}
+      placeholder="Search by name..."
+      className="w-full rounded border border-gray-300 p-2"
+    />
+  </div>
+</div>
+
+   
 
       <div className="bg-slate-50 rounded-lg p-1 overflow-x-auto">
         {filtered.length === 0 ? (
@@ -151,8 +167,8 @@ export default function ListView() {
                 <th>Product Name</th>
                 <th>Category</th>
                 
-                <th>Discount</th>
-                <th>Qty</th>
+                <th>Discount Price</th>
+                {/* <th>Qty</th> */}
                 <th>Tax</th>
               
               </TableRow>

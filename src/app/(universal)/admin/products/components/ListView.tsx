@@ -101,79 +101,97 @@ export default function ListView() {
   return (
     <div className="mt-2">
       {/* Filters */}
-      <div className="mb-5">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white rounded-2xl p-4 shadow-sm">
+<div className="flex flex-col gap-3 rounded-2xl bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
 
-          {/* Left Side */}
-          <div className="flex flex-col sm:flex-row gap-3">
+  {/* Left Side */}
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+    <h3 className="text-2xl font-semibold whitespace-nowrap">
+      Products
+    </h3>
 
-            {/* Category */}
-            <select
-              value={urlCategory}
-              onChange={(e) => updateURL("category", e.target.value)}
-              className="
-          h-10
-          min-w-[180px]
-          rounded-xl
-          border border-gray-200
-          bg-white
-          px-3
-          text-sm
-          focus:outline-none
-          focus:ring-2
-          focus:ring-[#00897b]/20
-        "
-            >
-              <option value="">All Categories</option>
+    {/* Category */}
+    <select
+      value={urlCategory}
+      onChange={(e) => updateURL("category", e.target.value)}
+      className="
+        h-10
+        min-w-[180px]
+        rounded-xl
+        border border-gray-200
+        bg-white
+        px-3
+        text-sm
+        focus:outline-none
+        focus:ring-2
+        focus:ring-[#00897b]/20
+      "
+    >
+      <option value="">All Categories</option>
 
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+      {categories.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.name}
+        </option>
+      ))}
+    </select>
 
-            {/* Search */}
-            <input
-              type="text"
-              value={urlSearch}
-              onChange={(e) => updateURL("search", e.target.value)}
-              placeholder="Search products..."
-              className="
-          h-10
-          w-full
-          sm:w-72
-          rounded-xl
-          border border-gray-200
-          px-4
-          text-sm
-          focus:outline-none
-          focus:ring-2
-          focus:ring-[#00897b]/20
-        "
-            />
-          </div>
+    {/* Search */}
+    <input
+      type="text"
+      value={urlSearch}
+      onChange={(e) => updateURL("search", e.target.value)}
+      placeholder="Search products..."
+      className="
+        h-10
+        w-full
+        sm:w-72
+        rounded-xl
+        border border-gray-200
+        px-4
+        text-sm
+        focus:outline-none
+        focus:ring-2
+        focus:ring-[#00897b]/20
+      "
+    />
+  </div>
 
-          {/* Right Side */}
-          <Link href="/admin/products/add">
-            <Button
-              className="
+  {/* Right Side Buttons */}
+  <div className="flex flex-col gap-2 sm:flex-row md:justify-end">
+    <Link href="/admin/products/bulk">
+      <Button
+        className="
           h-10
           rounded-xl
           bg-slate-400
-          hover:bg-[#00796b]
           text-white
           shadow-none
+          hover:bg-[#00796b]
         "
-            >
-              + Add Product
-            </Button>
-          </Link>
+      >
+        Quick Edit
+      </Button>
+    </Link>
 
-        </div>
-      </div>
+    <Link href="/admin/products/add">
+      <Button
+        className="
+          h-10
+          rounded-xl
+          bg-[#00897b]
+          text-white
+          shadow-none
+          hover:bg-[#00796b]
+        "
+      >
+        + Add Product
+      </Button>
+    </Link>
+  </div>
 
-      <h3 className="text-2xl mb-4 font-semibold">Products</h3>
+</div>
+
+
 
       <div className="overflow-x-auto rounded-2xl bg-white shadow-sm">
         <Table>

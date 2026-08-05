@@ -128,7 +128,7 @@ export default function TableRows({
         />
       </TableCell>
 
-      <TableCell>
+      {/* <TableCell>
         <input
           type="number"
           className="border rounded-md px-2 py-1 w-16 text-sm"
@@ -137,7 +137,7 @@ export default function TableRows({
             setEditData({ ...editData, currentStock: Number(e.target.value) })
           }
         />
-      </TableCell>
+      </TableCell> */}
 
       <TableCell>
         <input
