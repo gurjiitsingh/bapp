@@ -26,7 +26,7 @@ export default async function Page({
       <div className="report">
 
         <div className="header w-full">
-          <div className='flex justify-between'>
+          <div className='w-full flex justify-between'>
 
             <div>
               <h1>Vehicle Load Report</h1>

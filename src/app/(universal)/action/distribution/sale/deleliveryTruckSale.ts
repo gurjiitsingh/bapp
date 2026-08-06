@@ -4,9 +4,7 @@
 //RED CUSOTMER DATA    readCustomerAccountData
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { getStockLocation } from "../getStockLocationTx";
 import { updateStockLocation } from "../updateStockLocation";
-import { addStockLocation } from "../addStockLocationTx";
 import { addStockMovement } from "../addStockMovement";
 
 import { readStockLocationsForItems } from "../redDataForSale/readStockLocationsForItems";
@@ -14,6 +12,8 @@ import { readCustomerAccountData } from "../redDataForSale/readCustomerAccountDa
 import { addItemSaleTruck } from "../addItemSaleTruck";
 import { readFinishedProductData } from "../redDataForSale/readFinishedProductData";
 import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
+import { addTruckSaleItem } from "./addTruckSaleItem";
+import { createTruckSaleMaster } from "./createTruckSaleMaster";
 
 
 
@@ -134,23 +134,26 @@ export async function deiveryTruckSale({
       };
     }
 
+    const saleId = `SALE-${new Date()
+      .toISOString()
+      .replace(/[-:TZ.]/g, '')
+      .slice(0, 14)}`;
+
     await adminDb.runTransaction(async (tx) => {
 
-      let stocks = [];
+
 
       // =========================
       // READ
       // =========================
 
-      stocks = await readStockLocationsForItems({
+      const stocks = await readStockLocationsForItems({
         tx,
         items,
-
-        fromLocationType: "TRUCK",
+        fromLocationType: 'TRUCK',
         fromLocationRef: vehicleId,
-
-        toLocationType: "FACTORY",
-        toLocationRef: "MAIN",
+        toLocationType: 'FACTORY',
+        toLocationRef: 'MAIN',
       });
 
 
@@ -162,6 +165,14 @@ export async function deiveryTruckSale({
         tx,
         wholeSaleCutomerId,
       });
+
+
+
+
+      // =========================
+      // CREATE SALE HEADER
+      // =========================
+
 
 
       // =========================
@@ -178,6 +189,16 @@ export async function deiveryTruckSale({
 
 
 
+
+      const totalQuantity = items.reduce(
+        (sum, item) => sum + Number(item.quantity || 0),
+        0
+      );
+
+
+
+  
+
       console.log("TOTAL SALE", totalAmount);
 
       const finishedProducts = new Map();
@@ -190,7 +211,37 @@ export async function deiveryTruckSale({
 
         finishedProducts.set(row.vehicle.productId, product);
       }
-      console.log("data------------", 1)
+    
+      
+          // =========================
+      // CREATE SALE HEADER
+      // =========================
+
+      await createTruckSaleMaster(tx, {
+        saleId,
+
+        vehicleId,
+        vehicleName,
+        locationCode,
+        responsiblePerson,
+
+        wholeSaleCutomerId,
+        wholeSaleCutomerName,
+
+        totalAmount,
+
+        totalItems: items.length,
+        totalQuantity,
+
+        paidAmount,
+        dueAmount,
+
+        paymentStatus,
+        paymentMethod,
+
+        remarks,
+        createdBy,
+      });
 
       let runningBalance = currentBalance;
       let runningCreditBalance = currentCreditBalance;
@@ -200,7 +251,7 @@ export async function deiveryTruckSale({
       // =========================
 
       for (const row of stocks) {
-        console.log('Item-----------', row.item)
+
 
         const wholesalePrice = row.item.wholesalePrice;
         await updateStockLocation({
@@ -214,7 +265,7 @@ export async function deiveryTruckSale({
         // Movement history
         await addStockMovement({
           tx,
-          batchId: "ABC",
+          batchId: saleId,
           movementType: "SALE",
 
           productId: row.vehicle.productId,
@@ -241,7 +292,7 @@ export async function deiveryTruckSale({
         // NOW PROCESS SALE
         const finishedProduct =
           finishedProducts.get(row.vehicle.productId);
-        console.log("data------------", 3)
+
         let result = await addItemSaleTruck({
           tx,
           finishedProduct,
@@ -275,15 +326,60 @@ export async function deiveryTruckSale({
 
           referenceType: "SALE",
         });
+
+        // =========================
+        // SAVE SALE ITEM
+        // =========================
+        const lineValue =
+          Number(row.item.quantity || 0) *
+          Number(row.item.wholesalePrice || 0);
+        await addTruckSaleItem(tx, {
+          saleId,
+          productId: row.vehicle.productId,
+          productName: row.vehicle.productName,
+          quantity: row.item.quantity,
+          unitPrice: row.item.wholesalePrice,
+          lineValue,
+        });
+
+
+
+
+        // const itemRef = saleRef
+        //   .collection('items')
+        //   .doc();
+
+        // tx.set(itemRef, {
+        //   productId: row.vehicle.productId,
+        //   productName: row.vehicle.productName,
+
+        //   quantity: Number(row.item.quantity || 0),
+
+        //   unitPrice: Number(row.item.wholesalePrice || 0),
+
+        //   lineValue,
+
+        //   createdAt: new Date(),
+        // });
+
+
         runningBalance = result.currentBalance!;
         runningCreditBalance = result.currentCreditBalance!;
+
+
+
 
       }
     });
     console.log("data------------", 4)
+    // return {
+    //   success: true,
+    //   message: "Truck delivery sale recorded successfully.",
+    // };
     return {
       success: true,
-      message: "Truck delivery sale recorded successfully.",
+      saleId,
+      message: 'Truck delivery sale recorded successfully.',
     };
   } catch (error: any) {
     console.error(error);

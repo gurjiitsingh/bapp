@@ -34,14 +34,14 @@ import {
 } from "lucide-react";
 
 const tabs = [
-  { name: "Dashboard", href: "/admin/stock-finished/" },
-  { name: "Items", href: "/admin/stock-finished/" },
-  { name: "New Item", href: "/admin/stock-finished/new" },
+  { name: "Dashboard", href: "/admin/distribution/loads/vehicle-loads" },
+  { name: "Items", href: "/admin/distribution/loads/vehicle-loads" },
+  { name: "New Item", href: "/admin/distribution/loads/vehicle-loadsnew" },
   { name: "Sale", href: "/admin/distribution/truckdelivery-sale" },
-  { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
+  { name: "Adjust", href: "/admin/distribution/loads/vehicle-loadsadjust-stock" },
   { name: "Transactions", href: "/admin/distribution/stock-movements" },
-  { name: "Categories", href: "/admin/stock-finished/categories" },
-  { name: "wholesaleCustomer", href: "/admin/stock-finished/customer/all" },
+  { name: "Categories", href: "/admin/distribution/loads/vehicle-loadscategories" },
+  { name: "wholesaleCustomer", href: "/admin/distribution/loads/vehicle-loadscustomer/all" },
 ];
 
 export default function InventoryTabs() {
@@ -56,11 +56,11 @@ export default function InventoryTabs() {
   );
 
   const isCustomer = pathname.startsWith(
-    "/admin/stock-finished/customer/all"
+    "/admin/distribution/loads/vehicle-loadscustomer/all"
   );
 
   const isProducts =
-    pathname === "/admin/stock-finished/" ||
+    pathname === "/admin/distribution/loads/vehicle-loads" ||
     pathname === "/admin/stock-finished";
 
   const isTransactions = pathname.startsWith(
@@ -68,11 +68,11 @@ export default function InventoryTabs() {
   );
 
   const isAdjustStock = pathname.startsWith(
-    "/admin/stock-finished/adjust-stock"
+    "/admin/distribution/loads/vehicle-loadsadjust-stock"
   );
 
   const isCustomerReturn = pathname.startsWith(
-    "/admin/stock-finished/customer/return"
+    "/admin/distribution/loads/vehicle-loadscustomer/return"
   );
 
   const isEstimate =
@@ -177,8 +177,8 @@ export default function InventoryTabs() {
         
 
 
-          {/* <Link
-            href="/admin/stock-finished/"
+          <Link
+            href="/admin/distribution/loads/vehicle-loads"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isProducts
                 ? "bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
@@ -206,7 +206,7 @@ export default function InventoryTabs() {
                   : "text-gray-800"
                 }`}
             >
-              Finished Products
+              Reports
             </h3>
 
             <p
@@ -217,7 +217,7 @@ export default function InventoryTabs() {
             >
               View all products
             </p>
-          </Link> */}
+          </Link>
 
 
 
@@ -267,7 +267,7 @@ export default function InventoryTabs() {
    
    
           {/* <Link
-            href="/admin/stock-finished/adjust-stock"
+            href="/admin/distribution/loads/vehicle-loadsadjust-stock"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isAdjustStock
                 ? "bg-blue-500/10 border-blue-500/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-blue-500/30 hover:shadow-md"

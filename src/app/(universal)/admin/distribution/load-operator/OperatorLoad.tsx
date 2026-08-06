@@ -493,10 +493,10 @@ const totalQuantity = selectedItems.reduce(
 
 
 
-                <Button className="bg-slate-400" type="submit" size="lg">
+                {/* <Button className="bg-slate-400" type="submit" size="lg">
                   <Truck className="mr-2 h-5 w-5 " />
                   Load Vehicle
-                </Button>
+                </Button> */}
 
               </div>
 
