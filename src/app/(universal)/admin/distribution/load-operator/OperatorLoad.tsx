@@ -383,7 +383,7 @@ const totalQuantity = selectedItems.reduce(
 
 
                       <th className="  p-3">
-                        Van Stock
+                        Truck Stock
                       </th>
 
                       <th className="  p-3">

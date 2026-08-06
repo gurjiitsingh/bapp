@@ -271,20 +271,30 @@ export async function getInventoryItemById(
     }
 
     const data = docRef.data();
-
+console.log("data-------------------------")
     return {
       id: docRef.id,
 
       ...data,
 
-      createdAt: data?.createdAt
-        ? data.createdAt.toMillis()
-        : null,
+createdAt:
+  data?.createdAt &&
+  typeof data.createdAt.toMillis === "function"
+    ? data.createdAt.toMillis()
+    : typeof data?.createdAt === "number"
+    ? data.createdAt
+    : null,
 
-      updatedAt: data?.updatedAt
-        ? data.updatedAt.toMillis()
-        : null,
+updatedAt:
+  data?.updatedAt &&
+  typeof data.updatedAt.toMillis === "function"
+    ? data.updatedAt.toMillis()
+    : typeof data?.updatedAt === "number"
+    ? data.updatedAt
+    : null,
     } as any;
+
+    
   } catch (error) {
     console.error(
       "❌ Error fetching inventory item:",

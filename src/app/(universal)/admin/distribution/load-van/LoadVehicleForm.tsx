@@ -217,7 +217,7 @@ export default function LoadVehicleForm({
                       </th>
 
                       <th className="text-center p-3">
-                        Van Stock
+                        Truck Stock
                       </th>
 
                       <th className="text-center p-3">
