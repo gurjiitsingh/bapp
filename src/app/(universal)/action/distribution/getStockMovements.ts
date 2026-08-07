@@ -24,6 +24,11 @@ export async function getStockMovements() {
         productName:
           data.productName || '',
 
+        // required fields
+        productMode:
+          data.productMode ||
+          'finished_stock',
+
         customerName:
           data.customerName || '',
         customerId:
@@ -45,19 +50,27 @@ export async function getStockMovements() {
         fromLocationRef:
           data.fromLocationRef || '',
 
+        // required field
+        fromLocationName:
+          data.fromLocationName || '',
+
         toLocationType:
           data.toLocationType || '',
         toLocationRef:
           data.toLocationRef || '',
 
+        // required field
+        toLocationName:
+          data.toLocationName || '',
+
         remarks: data.remarks || '',
+
         createdBy:
           data.createdBy || '',
 
         movementDate:
           data.movementDate || '',
 
-        // Convert Firestore Timestamp to plain string
         createdAt: data.createdAt?.toDate
           ? data.createdAt
               .toDate()

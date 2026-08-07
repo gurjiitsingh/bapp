@@ -23,7 +23,7 @@ export type AddStockMovementProps = {
   locationCode: string;
   responsiblePerson: string;
   quantity: number;
-  wholesalePrice: number,
+  wholesalePrice?: number,
   name: string;
 
   fromLocationType: string;
