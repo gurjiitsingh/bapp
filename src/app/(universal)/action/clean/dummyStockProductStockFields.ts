@@ -8,7 +8,7 @@ import { fetchProductsStock } from "../products/fetchProductsStock";
 export async function addDummyStockLocations() {
 
   try {
-
+console.log("adding stock--------------------------------")
     const products = await fetchProductsStock();
 
 
@@ -40,7 +40,7 @@ export async function addDummyStockLocations() {
 
       const stockLocationDoc =
         adminDb
-          .collection("stockLocations")
+          .collection("stockLocation")
           .doc(stockLocationId);
 
 

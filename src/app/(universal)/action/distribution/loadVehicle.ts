@@ -203,6 +203,7 @@ export async function loadVehicle({
           name: vehicleName,
           locationCode,
           responsiblePerson,
+          wholesalePrice: row.factory.wholesalePrice,
           quantity: row.item.quantity,
           fromLocationType: 'STOCK',
           fromLocationRef: 'MAIN',

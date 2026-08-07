@@ -263,30 +263,34 @@ console.log("wholeSaleCutomerId---------------------", wholeSaleCutomerId)
         console.log("data------------", 2)
 
         // Movement history
-        await addStockMovement({
-          tx,
-          batchId: saleId,
-          movementType: "SALE",
+     await addStockMovement({
+  tx,
+  batchId: saleId,
+  movementType: 'SALE',
 
-          productId: row.vehicle.productId,
-          productName: row.vehicle.productName,
-          //productMode: row.van.productMode,
-          name: vehicleName,
-          locationCode,
-          responsiblePerson: responsiblePerson,
-          quantity: row.item.quantity,
+  productId: row.vehicle.productId,
+  productName: row.vehicle.productName,
 
-          fromLocationType: "TRUCK",
-          fromLocationRef: vehicleId,
+  // add this line
+  wholesalePrice: row.item.wholesalePrice,
 
-          toLocationType: "CUSTOMER",
-          toLocationRef: wholeSaleCutomerId,
-          customerName: wholeSaleCutomerName,
-          customerId: wholeSaleCutomerId,
- 
-          remarks,
-          createdBy,
-        });
+  name: vehicleName,
+  locationCode,
+  responsiblePerson,
+  quantity: row.item.quantity,
+
+  fromLocationType: 'TRUCK',
+  fromLocationRef: vehicleId,
+
+  toLocationType: 'CUSTOMER',
+  toLocationRef: wholeSaleCutomerId,
+
+  customerName: wholeSaleCutomerName,
+  customerId: wholeSaleCutomerId,
+
+  remarks,
+  createdBy,
+});
 
 
 

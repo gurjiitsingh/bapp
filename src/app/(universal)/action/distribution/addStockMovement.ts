@@ -23,6 +23,7 @@ export type AddStockMovementProps = {
   locationCode: string;
   responsiblePerson: string;
   quantity: number;
+  wholesalePrice: number,
   name: string;
 
   fromLocationType: string;
@@ -50,6 +51,7 @@ export async function addStockMovement({
   responsiblePerson,
   quantity,
   name,
+  wholesalePrice,
 
   fromLocationType,
   fromLocationRef,
@@ -95,6 +97,7 @@ const movementDate = new Intl.DateTimeFormat(
     locationCode,
     responsiblePerson,
     quantity,
+    wholesalePrice,
     name,
 
     fromLocationType,

@@ -10,7 +10,7 @@ import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getS
 
 import { VehicleType } from "@/lib/types/distribution/VehicleType";
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
-
+import { Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -175,14 +175,14 @@ export default function TruckDeliverySale({
 
     setVanStock(result);
 
-   form.setValue(
-  "items",
-  result.map((item) => ({
-    productId: item.productId,
-    quantity: 0,
-    wholesalePrice: item.wholesalePrice,
-  }))
-);
+    form.setValue(
+      "items",
+      result.map((item) => ({
+        productId: item.productId,
+        quantity: 0,
+        wholesalePrice: item.wholesalePrice,
+      }))
+    );
   };
 
 
@@ -227,176 +227,255 @@ export default function TruckDeliverySale({
       x.quantity,
     ])
   );
-
+  const [submitting, setSubmitting] = useState(false);
   const rows = vanStock.map((item) => ({
     ...item,
     factoryQuantity:
       factoryMap.get(item.productId) ?? 0,
   }));
 
-  const onSubmit = async (
-    data: TruckDeliverySaleType
-  ) => {
-    const items = data.items.filter(
-      (x) => x.quantity > 0
-    );
+  const onSubmit = async (data: TruckDeliverySaleType) => {
+    try {
+      setSubmitting(true);
 
-
-    if (!data.vehicleId) {
-      toast.error("Please select a vehicle.");
-      return;
-    }
-
-    if (!selectedVehicle?.name) {
-      toast.error("Selected vehicle not found.");
-      return;
-    }
-
-    if (
-      !data.wholeSaleCutomerId ||
-      !data.wholeSaleCutomerName
-    ) {
-      toast.error("Please select a wholesale customer.");
-      return;
-    }
-
-    if (!items.length) {
-      toast.error(
-        "Please enter at least one quantity."
-      );
-      return;
-    }
-
-    if (data.paidAmount > data.totalAmount) {
-
-      toast.error(
-        "Paid amount cannot be greater than total amount."
+      const items = data.items.filter(
+        (x) => x.quantity > 0
       );
 
-      return;
+      if (!data.vehicleId) {
+        toast.error('Please select a vehicle.');
+        return;
+      }
 
-    }
+      if (!selectedVehicle?.name) {
+        toast.error('Selected vehicle not found.');
+        return;
+      }
 
-    const result = await deiveryTruckSale({
-
-      vehicleId: data.vehicleId,
-
-      vehicleName: selectedVehicle!.name,
-
-      locationCode: selectedVehicle!.locationCode,
-
-      responsiblePerson:
-        selectedVehicle!.responsiblePersonName,
-
-
-      wholeSaleCutomerId:
-        data.wholeSaleCutomerId!,
-
-
-      wholeSaleCutomerName:
-        data.wholeSaleCutomerName!,
-
-
-      totalAmount: Number(data.totalAmount),
-
-      paidAmount: Number(data.paidAmount),
-
-      dueAmount: Number(data.dueAmount),
-
-      paymentStatus: data.paymentStatus,
-
-
-
-      remarks: data.remarks,
-
-
-      items,
-
-    });
-
-
-
-    if (!result.success) {
-      toast.error(result.message);
-      return;
-    }
-
-    // ==========================
-    // Update Factory Stock
-    // ==========================
-
-    setFactoryData((prev) =>
-      prev.map((stock) => {
-        const unloaded = items.find(
-          (i) => i.productId === stock.productId
+      if (
+        !data.wholeSaleCutomerId ||
+        !data.wholeSaleCutomerName
+      ) {
+        toast.error(
+          'Please select a wholesale customer.'
         );
+        return;
+      }
 
-        if (!unloaded) return stock;
+      if (!items.length) {
+        toast.error(
+          'Please enter at least one quantity.'
+        );
+        return;
+      }
 
-        return {
-          ...stock,
-          quantity:
-            stock.quantity + unloaded.quantity,
-        };
-      })
-    );
+      if (data.paidAmount > data.totalAmount) {
+        toast.error(
+          'Paid amount cannot be greater than total amount.'
+        );
+        return;
+      }
 
-    // ==========================
-    // Update Vehicle Stock
-    // ==========================
+      const result = await deiveryTruckSale({
+        vehicleId: data.vehicleId,
+        vehicleName: selectedVehicle.name,
+        locationCode: selectedVehicle.locationCode,
+        responsiblePerson:
+          selectedVehicle.responsiblePersonName,
 
-    setVanStock((prev) =>
-      prev
-        .map((stock) => {
-          const unloaded = items.find(
-            (i) => i.productId === stock.productId
-          );
+        wholeSaleCutomerId:
+          data.wholeSaleCutomerId,
+        wholeSaleCutomerName:
+          data.wholeSaleCutomerName,
 
-          if (!unloaded) return stock;
+        totalAmount: Number(data.totalAmount),
+        paidAmount: Number(data.paidAmount),
+        dueAmount: Number(data.dueAmount),
 
-          return {
-            ...stock,
-            quantity:
-              stock.quantity - unloaded.quantity,
-          };
-        })
-        .filter((x) => x.quantity > 0)
-    );
+        paymentStatus: data.paymentStatus,
+        remarks: data.remarks,
+        items,
+      });
 
-    toast.success(result.message);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
 
-    await fetchVanStock(data.vehicleId);
+      // your existing success logic...
+      toast.success(result.message);
 
+      await fetchVanStock(data.vehicleId);
 
-
-    form.reset({
-
-      vehicleId: data.vehicleId,
-
-      wholeSaleCutomerId: "",
-
-      wholeSaleCutomerName: "",
-
-      remarks: "",
-
-      paymentStatus: "PAID",
-
-      totalAmount: 0,
-
-      paidAmount: 0,
-
-      dueAmount: 0,
-
-
-   items: vanStock.map((item) => ({
-  productId: item.productId,
-  quantity: 0,
-  wholesalePrice: item.wholesalePrice,
-}))
-    });
-
-    setCustomerSearch("");
+      // your existing form.reset(...)
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  //   const onSubmit = async (
+  //     data: TruckDeliverySaleType
+  //   ) => {
+  //     const items = data.items.filter(
+  //       (x) => x.quantity > 0
+  //     );
+
+
+  //     if (!data.vehicleId) {
+  //       toast.error("Please select a vehicle.");
+  //       return;
+  //     }
+
+  //     if (!selectedVehicle?.name) {
+  //       toast.error("Selected vehicle not found.");
+  //       return;
+  //     }
+
+  //     if (
+  //       !data.wholeSaleCutomerId ||
+  //       !data.wholeSaleCutomerName
+  //     ) {
+  //       toast.error("Please select a wholesale customer.");
+  //       return;
+  //     }
+
+  //     if (!items.length) {
+  //       toast.error(
+  //         "Please enter at least one quantity."
+  //       );
+  //       return;
+  //     }
+
+  //     if (data.paidAmount > data.totalAmount) {
+
+  //       toast.error(
+  //         "Paid amount cannot be greater than total amount."
+  //       );
+
+  //       return;
+
+  //     }
+
+  //     const result = await deiveryTruckSale({
+
+  //       vehicleId: data.vehicleId,
+
+  //       vehicleName: selectedVehicle!.name,
+
+  //       locationCode: selectedVehicle!.locationCode,
+
+  //       responsiblePerson:
+  //         selectedVehicle!.responsiblePersonName,
+
+
+  //       wholeSaleCutomerId:
+  //         data.wholeSaleCutomerId!,
+
+
+  //       wholeSaleCutomerName:
+  //         data.wholeSaleCutomerName!,
+
+
+  //       totalAmount: Number(data.totalAmount),
+
+  //       paidAmount: Number(data.paidAmount),
+
+  //       dueAmount: Number(data.dueAmount),
+
+  //       paymentStatus: data.paymentStatus,
+
+
+
+  //       remarks: data.remarks,
+
+
+  //       items,
+
+  //     });
+
+
+
+  //     if (!result.success) {
+  //       toast.error(result.message);
+  //       return;
+  //     }
+
+  //     // ==========================
+  //     // Update Factory Stock
+  //     // ==========================
+
+  //     setFactoryData((prev) =>
+  //       prev.map((stock) => {
+  //         const unloaded = items.find(
+  //           (i) => i.productId === stock.productId
+  //         );
+
+  //         if (!unloaded) return stock;
+
+  //         return {
+  //           ...stock,
+  //           quantity:
+  //             stock.quantity + unloaded.quantity,
+  //         };
+  //       })
+  //     );
+
+  //     // ==========================
+  //     // Update Vehicle Stock
+  //     // ==========================
+
+  //     setVanStock((prev) =>
+  //       prev
+  //         .map((stock) => {
+  //           const unloaded = items.find(
+  //             (i) => i.productId === stock.productId
+  //           );
+
+  //           if (!unloaded) return stock;
+
+  //           return {
+  //             ...stock,
+  //             quantity:
+  //               stock.quantity - unloaded.quantity,
+  //           };
+  //         })
+  //         .filter((x) => x.quantity > 0)
+  //     );
+
+  //     toast.success(result.message);
+
+  //     await fetchVanStock(data.vehicleId);
+
+
+
+  //     form.reset({
+
+  //       vehicleId: data.vehicleId,
+
+  //       wholeSaleCutomerId: "",
+
+  //       wholeSaleCutomerName: "",
+
+  //       remarks: "",
+
+  //       paymentStatus: "PAID",
+
+  //       totalAmount: 0,
+
+  //       paidAmount: 0,
+
+  //       dueAmount: 0,
+
+
+  //    items: vanStock.map((item) => ({
+  //   productId: item.productId,
+  //   quantity: 0,
+  //   wholesalePrice: item.wholesalePrice,
+  // }))
+  //     });
+
+  //     setCustomerSearch("");
+  //   };
 
 
   return (
@@ -417,12 +496,7 @@ export default function TruckDeliverySale({
           {/* ================= Vehicle Info ================= */}
 
           <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="w-5 h-5" />
-                Truck Delivery Sale
-              </CardTitle>
-            </CardHeader>
+          
 
             <CardContent className="p-6 space-y-6">
 
@@ -729,12 +803,28 @@ export default function TruckDeliverySale({
 
           <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
 
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle>
-                Products in Vehicle
-              </CardTitle>
-            </CardHeader>
+           <div className='flex flex-row items-center p-2 justify-between border-b border-gray-100'>
+              <h2>Products in Vehicle</h2>
 
+              <Button
+                type='submit'
+                size='lg'
+                className='bg-red-600 hover:bg-red-700 w-[300px] text-slate-100'
+                disabled={submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className='mr-2 h-5 w-5 animate-spin' />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Truck className='mr-2 h-5 w-5' />
+                    Save
+                  </>
+                )}
+              </Button>
+            </div>
             <CardContent className="p-6">
 
               <div className="rounded-2xl overflow-hidden  ">
@@ -792,7 +882,7 @@ export default function TruckDeliverySale({
                             {item.productName}
                           </td>
                           <td className="text-center p-3 font-medium">
-                           {item.wholesalePrice}
+                            {item.wholesalePrice}
                           </td>
 
                           <td className="text-center">
@@ -886,10 +976,7 @@ export default function TruckDeliverySale({
 
                 </div>
 
-                <Button type="submit" size="lg">
-                  <Truck className="mr-2 h-5 w-5" />
-                  Truck Delivery Sale
-                </Button>
+
 
               </div>
 
