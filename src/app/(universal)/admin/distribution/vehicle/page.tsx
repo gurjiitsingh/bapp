@@ -63,8 +63,8 @@ export default async function Page() {
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <div className="rounded-2xl overflow-hidden border border-gray-200">
+        <CardContent className="">
+          <div className=" overflow-hidden ">
 
             <table className="w-full">
 

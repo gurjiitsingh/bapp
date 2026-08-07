@@ -47,7 +47,7 @@ export default async function Page() {
     createdAt: i.createdAt || null,
     updatedAt: i.updatedAt || null,
   })); 
- console.log("inv stock------------------",departments)
+ //console.log("inv stock------------------",departments)
   return (
     <StockIssueForm
       departments={departments}

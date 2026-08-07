@@ -249,7 +249,7 @@ export async function deiveryTruckSale({
       // =========================
       // WRITE
       // =========================
-
+console.log("wholeSaleCutomerId---------------------", wholeSaleCutomerId)
       for (const row of stocks) {
 
 
@@ -282,6 +282,8 @@ export async function deiveryTruckSale({
           toLocationType: "CUSTOMER",
           toLocationRef: wholeSaleCutomerId,
           customerName: wholeSaleCutomerName,
+          customerId: wholeSaleCutomerId,
+ 
           remarks,
           createdBy,
         });
