@@ -14,6 +14,8 @@ import { resetInventoryItemFields } from "../../action/clean/resetInventoryItemF
 import { resetSupplierAccounts } from "../../action/clean/resetSupplierAccounts";
 import { resetCustomerAccounts } from "../../action/clean/resetCustomerAccounts";
 import { addDummyStockLocations } from "../../action/clean/dummyStockProductStockFields";
+import { clearVehicleLoads } from "../../action/clean/clearVehicleLoads";
+import { deleteStockLocations } from "../../action/clean/deleteStockProductStockFields";
  
 
 
@@ -79,8 +81,34 @@ export default function ClearERPDataPage() {
 
         <div className="space-y-4">
 
+  <div className="flex items-center justify-between border rounded-xl p-4">
+            <div>
+              <h2 className="font-semibold">
+                Add dummy stock
+              </h2>
 
+              <p className="text-sm text-gray-500">
+               add.
+              </p>
+            </div>
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Reset Product Stock",
+                  addDummyStockLocations
+                )
+              }
+            >
+              {loading === "Reset Product Stock"
+                ? "Resetting..."
+                : "Reset"}
+            </Button>
+          </div>
           <div className="flex items-center justify-between border rounded-xl p-4">
+
 
             <div>
               <h2 className="font-semibold">
@@ -109,6 +137,65 @@ export default function ClearERPDataPage() {
             </Button>
 
           </div>
+
+             <div className="flex items-center justify-between border rounded-xl p-4">
+
+
+            <div>
+              <h2 className="font-semibold">
+                deleteStockLocations
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Clears sdeleteStockLocations
+              </p>
+            </div>
+
+
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Stock Movements",
+                  deleteStockLocations
+                )
+              }
+            >
+              {loading === "Stock Movements"
+                ? "Clearing..."
+                : "Clear"}
+            </Button>
+
+          </div>
+
+
+          <div className='flex items-center justify-between border rounded-xl p-4'>
+  <div>
+    <h2 className='font-semibold'>
+      Vehicle Loads
+    </h2>
+
+    <p className='text-sm text-gray-500'>
+      Clears all vehicle loading records
+    </p>
+  </div>
+
+  <Button
+    variant='destructive'
+    disabled={loading !== null}
+    onClick={() =>
+      handleClear(
+        'Vehicle Loads',
+        clearVehicleLoads
+      )
+    }
+  >
+    {loading === 'Vehicle Loads'
+      ? 'Clearing...'
+      : 'Clear'}
+  </Button>
+</div>
 
 
 
@@ -299,32 +386,7 @@ export default function ClearERPDataPage() {
             </Button>
           </div>
 
-            <div className="flex items-center justify-between border rounded-xl p-4">
-            <div>
-              <h2 className="font-semibold">
-                Add dummy stock
-              </h2>
-
-              <p className="text-sm text-gray-500">
-               add.
-              </p>
-            </div>
-
-            <Button
-              variant="destructive"
-              disabled={loading !== null}
-              onClick={() =>
-                handleClear(
-                  "Reset Product Stock",
-                  addDummyStockLocations
-                )
-              }
-            >
-              {loading === "Reset Product Stock"
-                ? "Resetting..."
-                : "Reset"}
-            </Button>
-          </div>
+          
 
           <div className="flex items-center justify-between border rounded-xl p-4">
             <div>

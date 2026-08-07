@@ -56,9 +56,8 @@ console.log("adding stock--------------------------------")
         // ADD STOCK
         batch.update(stockLocationDoc, {
 
-          quantity:
-            admin.firestore.FieldValue.increment(addQuantity),
-
+          quantity: addQuantity,
+          wholesalePrice: 230,
           updatedAt: Date.now(),
 
         });
@@ -96,8 +95,7 @@ console.log("adding stock--------------------------------")
             product.sellingPrice ?? 0,
 
 
-          wholesalePrice:
-            product.wholesalePrice ?? 0,
+          wholesalePrice: 230,
 
 
           costPrice:
