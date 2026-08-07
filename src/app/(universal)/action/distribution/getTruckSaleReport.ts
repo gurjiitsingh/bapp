@@ -14,6 +14,8 @@ export async function getTruckSaleReport({
   from,
   to,
 }: Props = {}) {
+
+  console.log("locationCode------------------",locationCode)
   try {
     const today = new Intl.DateTimeFormat(
       'en-CA',
@@ -32,7 +34,7 @@ export async function getTruckSaleReport({
       'stockMovements'
     );
 
-    // Filter by vehicle/location
+    //Filter by vehicle/location
     if (locationCode) {
       query = query.where(
         'locationCode',
@@ -71,7 +73,7 @@ export async function getTruckSaleReport({
 
         vehicleName: data.name || '',
         locationCode: data.locationCode || '',
-
+vehicleId: data.vehicleId || '',
         createdBy: data.createdBy || '',
 
         createdAt: data.createdAt?.toDate

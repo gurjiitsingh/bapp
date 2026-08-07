@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card,  CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -30,7 +30,7 @@ type LoadVehicleFormType = {
   items: {
     productId: string;
     quantity: number;
-    wholesalePrice:number;
+    wholesalePrice: number;
   }[];
 };
 
@@ -51,11 +51,11 @@ export default function LoadVehicleFormOeprator({
     defaultValues: {
       vehicleId: "",
       remarks: "",
-   items: factoryStock.map((item)=>({
-  productId:item.productId,
-  quantity:0,
-  wholesalePrice:item.wholesalePrice,
-}))
+      items: factoryStock.map((item) => ({
+        productId: item.productId,
+        quantity: 0,
+        wholesalePrice: item.wholesalePrice,
+      }))
     },
   });
 
@@ -204,56 +204,43 @@ export default function LoadVehicleFormOeprator({
     form.reset({
       vehicleId: data.vehicleId,
       remarks: "",
-   items: factoryData.map((item)=>({
-  productId:item.productId,
-  quantity:0,
-  wholesalePrice:item.wholesalePrice,
-}))
+      items: factoryData.map((item) => ({
+        productId: item.productId,
+        quantity: 0,
+        wholesalePrice: item.wholesalePrice,
+      }))
     });
   };
 
-const selectedItems = form.watch("items");
+  const selectedItems = form.watch("items");
 
-const totalProducts = selectedItems.filter(
-  (item) => item.quantity > 0
-).length;
+  const totalProducts = selectedItems.filter(
+    (item) => item.quantity > 0
+  ).length;
 
-const totalQuantity = selectedItems.reduce(
-  (sum, item) =>
-    sum + (item.quantity || 0),
-  0
-);
+  const totalQuantity = selectedItems.reduce(
+    (sum, item) =>
+      sum + (item.quantity || 0),
+    0
+  );
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6 w-full">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Load Vehicle
-          </h1>
+      <div className="min-h-screen  w-full">
 
-          <p className="text-sm text-gray-500 mt-1">
-            Transfer finished products to vehicle
-          </p>
-        </div>
         <div className="w-full space-y-6">
 
-          <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="flex items-center gap-2">
-                <Truck className="w-5 h-5" />
-                Load Vehicle
-              </CardTitle>
-            </CardHeader>
+          <div className="rounded-xl border border-gray-100 shadow-sm bg-white">
 
-            <CardContent className="p-6 space-y-6">
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+
+        
+
+              <div className="flex items-center gap-4 px-2 py-1">
 
                 {/* Vehicle */}
-
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 whitespace-nowrap">
                     Vehicle
                   </label>
 
@@ -265,16 +252,13 @@ const totalQuantity = selectedItems.reduce(
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full bg-white text-black border border-gray-300">
-                          <SelectValue placeholder="Select Vehicle" />
+                        <SelectTrigger className="h-10 w-48 bg-white border border-gray-300 text-sm">
+                          <SelectValue placeholder="Select" />
                         </SelectTrigger>
 
-                        <SelectContent className="bg-white border border-gray-300">
+                        <SelectContent>
                           {vehicles.map((v) => (
-                            <SelectItem
-                              key={v.id}
-                              value={v.id}
-                            >
+                            <SelectItem key={v.id} value={v.id}>
                               {v.name} ({v.locationCode})
                             </SelectItem>
                           ))}
@@ -285,9 +269,8 @@ const totalQuantity = selectedItems.reduce(
                 </div>
 
                 {/* Driver */}
-
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 whitespace-nowrap">
                     Driver
                   </label>
 
@@ -295,75 +278,44 @@ const totalQuantity = selectedItems.reduce(
                     value={selectedVehicle?.responsiblePersonName || ""}
                     placeholder="Auto Selected"
                     disabled
-                    className="input-style-4 bg-gray-100"
+                    className="h-10 w-48 bg-gray-100 text-sm"
                   />
                 </div>
 
-                {/* Loading Date */}
-
-                {/* <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Loading Date
-                  </label>
-
-                  <Input
-                    type="date"
-                    className="input-style-4"
-                  />
-                </div> */}
-
                 {/* Reference */}
-
-                <div className="flex flex-col gap-2">
-                  <label className="label-style-4">
-                    Reference
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600 whitespace-nowrap">
+                    Ref
                   </label>
 
                   <Input
                     placeholder="Optional"
-                    className="input-style-4"
+                    className="h-10 w-40 text-sm"
                   />
                 </div>
 
+                {/* Button */}
+                <Button className="h-10 bg-blue-600 hover:bg-blue-700 text-white px-4">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add
+                </Button>
+
               </div>
 
-              {/* Remarks */}
 
-              {/* <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Remarks
-                </label>
 
-                <Textarea
-                  placeholder="Remarks..."
-                  className="input-style-4 min-h-[110px] resize-none"
-                />
-              </div> */}
-
-            </CardContent>
-          </Card>
+        
+          </div>
 
           {/* Products */}
 
-          <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
+          <Card className="rounded-xl border border-gray-100 shadow-sm bg-white">
 
-            <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100">
 
-              <CardTitle className="flex items-center gap-2 text-xl">Products</CardTitle>
 
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-10">
+            <div className="">
 
-                <Plus className="mr-2 h-4 w-4" />
-
-                Add Product
-
-              </Button>
-
-            </CardHeader>
-
-            <CardContent className="p-6 space-y-6">
-
-              <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white">
+              <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
 
                 <table className="w-full">
 
@@ -412,7 +364,7 @@ const totalQuantity = selectedItems.reduce(
                           {item.productName}
                         </td>
                         <td className="text-center p-3 font-medium  ">
-                         {item.wholesalePrice}
+                          {item.wholesalePrice}
                         </td>
                         <td className="text-center font-semibold">
                           {item.quantity}
@@ -465,7 +417,7 @@ const totalQuantity = selectedItems.reduce(
 
               </div>
 
-            </CardContent>
+            </div>
 
           </Card>
 
@@ -473,23 +425,23 @@ const totalQuantity = selectedItems.reduce(
 
           <Card className="rounded-3xl border border-gray-100 shadow-sm bg-white">
 
-            <CardContent className="p-6">
+            <div className="p-6">
 
               <div className="flex justify-between items-center">
 
-          <div className="space-y-1">
+                <div className="space-y-1">
 
-  <p>
-    Total Products :
-    <strong> {totalProducts}</strong>
-  </p>
+                  <p>
+                    Total Products :
+                    <strong> {totalProducts}</strong>
+                  </p>
 
-  <p>
-    Total Quantity :
-    <strong> {totalQuantity} Kg</strong>
-  </p>
+                  <p>
+                    Total Quantity :
+                    <strong> {totalQuantity} Kg</strong>
+                  </p>
 
-</div>
+                </div>
 
 
 
@@ -500,7 +452,7 @@ const totalQuantity = selectedItems.reduce(
 
               </div>
 
-            </CardContent>
+            </div>
 
           </Card>
 

@@ -19,7 +19,7 @@ export type AddStockMovementProps = {
 
   customerId?: string;
   customerName?: string;
-
+vehicleId?:string;
   locationCode: string;
   responsiblePerson: string;
   quantity: number;
@@ -46,7 +46,7 @@ export async function addStockMovement({
 
   customerName,
   customerId,
-
+vehicleId,
   locationCode,
   responsiblePerson,
   quantity,
@@ -66,7 +66,7 @@ export async function addStockMovement({
     .collection('stockMovements')
     .doc();
 
- 
+ console.log("add--------------------------------",vehicleId)
 
   // YYYY-MM-DD (India timezone optional)
 const now = new Date();
@@ -93,7 +93,7 @@ const movementDate = new Intl.DateTimeFormat(
 
     customerName: customerName || '',
     customerId: customerId || '',
-
+vehicleId,
     locationCode,
     responsiblePerson,
     quantity,

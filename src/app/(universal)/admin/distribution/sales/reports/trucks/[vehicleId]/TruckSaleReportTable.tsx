@@ -39,6 +39,8 @@ vehicleId,
 vehicleName,
 initialRows = [],
 }: Props) {
+
+  console.log("veh-------------------------", initialRows)
 const today = new Date()
 .toISOString()
 .split('T')[0];

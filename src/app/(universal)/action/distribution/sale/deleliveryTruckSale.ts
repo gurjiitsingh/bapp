@@ -66,7 +66,7 @@ export async function deiveryTruckSale({
 
 }: deliveryTruckSaleProps) {
 
-  console.log("data------------",
+  console.log("data neeeeeeee------------",
     vehicleId,
     vehicleName,
     locationCode,
@@ -275,6 +275,7 @@ console.log("wholeSaleCutomerId---------------------", wholeSaleCutomerId)
   wholesalePrice: row.item.wholesalePrice,
 
   name: vehicleName,
+  vehicleId,
   locationCode,
   responsiblePerson,
   quantity: row.item.quantity,

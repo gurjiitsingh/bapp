@@ -209,6 +209,7 @@ export async function loadVehicle({
           fromLocationRef: 'MAIN',
           toLocationType: 'TRUCK',
           toLocationRef: vehicleId,
+          vehicleId,
           remarks,
           createdBy,
         });

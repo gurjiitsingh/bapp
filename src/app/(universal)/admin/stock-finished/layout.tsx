@@ -15,7 +15,7 @@ export default function InventoryLayout({
   <InventoryTabs />
 
   {/* CONTENT */}
-  <div className="p-2 md:p-4">
+  <div className="">
     {children}
   </div>
 </div>

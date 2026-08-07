@@ -45,7 +45,7 @@ export default async function Page() {
                 className='border-t'
               >
                 <td className='px-4 py-3 font-medium'>
-                  {vehicle.locationCode}
+                  {vehicle.locationCode}-{vehicle.id}
                 </td>
 
                 <td className='px-4 py-3'>
