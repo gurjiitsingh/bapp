@@ -38,7 +38,7 @@ const tabs = [
   { name: "Items", href: "/admin/distribution/loads/vehicle-loads" },
   { name: "New Item", href: "/admin/distribution/loads/vehicle-loadsnew" },
   { name: "Sale", href: "/admin/distribution/truckdelivery-sale" },
-  { name: "Adjust", href: "/admin/distribution/sales" },
+  { name: "Adjust", href: "/admin/distribution/truck-sales" },
   { name: "Transactions", href: "/admin/distribution/stock-movements" },
   { name: "Categories", href: "/admin/distribution/loads/vehicle-loadscategories" },
   { name: "wholesaleCustomer", href: "/admin/distribution/loads/vehicle-loadscustomer/all" },
@@ -68,7 +68,7 @@ export default function InventoryTabs() {
   );
 
   const isAdjustStock = pathname.startsWith(
-    "/admin/distribution/sales"
+    "/admin/distribution/truck-sales"
   );
 
   const isCustomerReturn = pathname.startsWith(
@@ -267,7 +267,7 @@ export default function InventoryTabs() {
             </p>
           </Link>
           <Link
-            href="/admin/distribution/sales"
+            href="/admin/distribution/truck-sales"
             className={`group rounded-3xl border shadow-sm p-5 transition ${isAdjustStock
                 ? "bg-blue-500/10 border-blue-500/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-blue-500/30 hover:shadow-md"

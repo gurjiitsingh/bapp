@@ -11,7 +11,7 @@ import { addStockMovement } from "../../addStockMovement";
 
 import { readStockLocationsForItems } from "../../redDataForSale/readStockLocationsForItems";
 import { readCustomerAccountData } from "../../redDataForSale/readCustomerAccountData";
-import { addItemSaleTruck } from "../../addItemSaleTruck";
+import { addItemSaleTruck } from "../../recordTruckSaleLedger";
 import { readFinishedProductData } from "../../redDataForSale/readFinishedProductData";
 import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 import { applyFinishedTransactions } from "../applyFinishedTransactions";

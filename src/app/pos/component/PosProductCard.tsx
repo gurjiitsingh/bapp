@@ -16,7 +16,7 @@ export default function PosProductCard({ product, onClick }: Props) {
         relative
         w-full
         h-[110px]
-        rounded-2xl
+    
         border
         border-slate-200/80
         bg-white

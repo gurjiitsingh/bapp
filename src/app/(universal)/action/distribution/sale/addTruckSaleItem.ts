@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { adminDb } from '@/lib/firebaseAdmin';
-import admin from 'firebase-admin';
+import { adminDb } from "@/lib/firebaseAdmin";
+import admin from "firebase-admin";
 
 type Props = {
   saleId: string;
@@ -10,8 +10,15 @@ type Props = {
   productName: string;
 
   quantity: number;
+
+  // Selling price
   unitPrice: number;
   lineValue: number;
+
+  // Cost / profit snapshot
+  costPerUnit: number;
+  costValue: number;
+  grossProfit: number;
 };
 
 export async function addTruckSaleItem(
@@ -19,13 +26,32 @@ export async function addTruckSaleItem(
   data: Props
 ) {
   const ref = adminDb
-    .collection('truckSales')
+    .collection("truckSales")
     .doc(data.saleId)
-    .collection('items')
+    .collection("items")
     .doc();
 
   tx.set(ref, {
-    ...data,
+    id: ref.id,
+
+    saleId: data.saleId,
+
+    productId: data.productId,
+    productName: data.productName,
+
+    quantity: data.quantity,
+
+    // Selling
+    unitPrice: data.unitPrice,
+    lineValue: data.lineValue,
+
+    // Cost
+    costPerUnit: data.costPerUnit,
+    costValue: data.costValue,
+
+    // Profit
+    grossProfit: data.grossProfit,
+
     createdAt: new Date(),
   });
 }

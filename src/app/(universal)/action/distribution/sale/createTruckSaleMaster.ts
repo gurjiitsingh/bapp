@@ -6,6 +6,7 @@ import { PaymentMethodType } from '@/lib/types/distribution/PaymentMethodType';
 
 type Props = {
   saleId: string;
+  tripId: string;
 
   vehicleId: string;
   vehicleName: string;
@@ -40,10 +41,13 @@ export async function createTruckSaleMaster(
 
   tx.set(ref, {
     ...data,
+
     paymentMethod: data.paymentMethod || null,
     remarks: data.remarks || '',
     createdBy: data.createdBy || '',
+
     status: 'COMPLETED',
+
     createdAt: new Date(),
   });
 }

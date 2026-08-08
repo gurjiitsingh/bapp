@@ -1,10 +1,16 @@
 'use server';
 
 import { adminDb } from '@/lib/firebaseAdmin';
+import { VehicleLoadStatus } from '@/lib/types/distribution/VehicleLoadStatus';
+
 import admin from 'firebase-admin';
 
 type CreateVehicleLoadMasterInput = {
   loadId: string;
+  loadNo: string;
+  tripId: string;
+  routeId: string;
+  routeName: string;
   vehicleId: string;
   vehicleName: string;
   locationCode?: string;
@@ -14,6 +20,7 @@ type CreateVehicleLoadMasterInput = {
   totalItems: number;
   totalQuantity: number;
   totalValue: number;
+  status: VehicleLoadStatus
 };
 
 export async function createVehicleLoadMaster(
@@ -26,6 +33,7 @@ export async function createVehicleLoadMaster(
 
   tx.set(ref, {
     loadId: input.loadId,
+    loadNo:input.loadNo,
     vehicleId: input.vehicleId,
     vehicleName: input.vehicleName,
     locationCode: input.locationCode || '',
