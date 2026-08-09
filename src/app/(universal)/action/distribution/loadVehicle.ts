@@ -12,6 +12,7 @@ import { addVehicleLoadItem } from "../production/distribution/vehicleLoad/addVe
 import { createVehicleLoadMaster } from "../production/distribution/vehicleLoad/createVehicleLoadMaster";
 
 import { getActiveVehicleTrip } from "./getActiveVehicleTrip";
+import { createDriverSettlement } from "./saleman/createDriverSettlement";
 
 
 // =====================================================
@@ -131,7 +132,7 @@ export async function loadVehicle({
     // =================================================
     // TRANSACTION
     // =================================================
-
+    let createdTripId = "";
     await db.runTransaction(async (tx) => {
 
       const now = new Date();
@@ -175,7 +176,7 @@ export async function loadVehicle({
         isNewTrip = true;
       }
 
-
+      createdTripId = tripId;
       // =================================================
       // 3. READ FACTORY + VEHICLE STOCK
       // =================================================
@@ -365,7 +366,7 @@ export async function loadVehicle({
 
           toLocationRef: vehicleId,
 
-          
+
 
           remarks,
 
@@ -503,6 +504,7 @@ export async function loadVehicle({
           totalReturnAmount: 0,
 
           totalCashCollected: 0,
+          totalPreviousCreditCollected: 0,
 
           totalCreditAmount: 0,
 
@@ -532,6 +534,24 @@ export async function loadVehicle({
 
         });
 
+        // CREATE DRIVER MONEY ACCOUNT
+        await createDriverSettlement({
+          tx,
+
+          tripId,
+
+          vehicleId,
+          vehicleName,
+
+          driverId,
+
+          driverName:
+            driverName ||
+            responsiblePerson,
+
+          openingCash: 0,
+        });
+
       } else {
 
         // =================================================
@@ -558,6 +578,10 @@ export async function loadVehicle({
           // If a new load happens, vehicle is definitely loaded
           status: "LOADED",
         });
+
+
+
+
       }
 
 
@@ -654,17 +678,11 @@ export async function loadVehicle({
     // =================================================
 
     return {
-
       success: true,
-
-      tripId: undefined, // see note below
-
+      tripId: createdTripId,
       loadId,
-
       loadNo,
-
-      message:
-        "Vehicle loaded successfully.",
+      message: "Vehicle loaded successfully.",
     };
 
 

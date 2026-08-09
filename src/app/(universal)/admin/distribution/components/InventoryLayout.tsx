@@ -224,6 +224,48 @@ export default function InventoryTabs() {
               View all stock movements.
             </p>
           </Link>
+
+                <Link
+            href="/admin/distribution/trips"
+            className={`group rounded-3xl border shadow-sm p-5 transition ${isTransactions
+                ? "bg-amber-500/10 border-amber-500/40 shadow-md"
+                : "bg-white border-gray-100 hover:border-amber-500/30 hover:shadow-md"
+              }`}
+          >
+            <div
+              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isTransactions
+                  ? "bg-amber-500"
+                  : "bg-amber-100"
+                }`}
+            >
+              <BookOpen
+                size={22}
+                className={
+                  isTransactions
+                    ? "text-white"
+                    : "text-amber-600"
+                }
+              />
+            </div>
+
+            <h3
+              className={`font-semibold mt-4 ${isTransactions
+                  ? "text-amber-600"
+                  : "text-gray-800"
+                }`}
+            >
+              Trip
+            </h3>
+
+            {/* <p
+              className={`text-sm mt-1 ${isTransactions
+                  ? "text-amber-600/80"
+                  : "text-gray-500"
+                }`}
+            >
+              View all stock movements.
+            </p> */}
+          </Link>
    
        <Link
             href="/admin/distribution/loads/vehicle-loads"

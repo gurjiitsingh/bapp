@@ -16,7 +16,8 @@ import { resetCustomerAccounts } from "../../action/clean/resetCustomerAccounts"
 import { addDummyStockLocations } from "../../action/clean/dummyStockProductStockFields";
 import { clearVehicleLoads } from "../../action/clean/clearVehicleLoads";
 import { deleteStockLocations } from "../../action/clean/deleteStockProductStockFields";
- 
+import { clearDistributionTestData } from "../../action/clean/clearDistributionTestData";
+
 
 
 
@@ -81,14 +82,14 @@ export default function ClearERPDataPage() {
 
         <div className="space-y-4">
 
-  <div className="flex items-center justify-between border rounded-xl p-4">
+          <div className="flex items-center justify-between border rounded-xl p-4">
             <div>
               <h2 className="font-semibold">
                 Add dummy stock
               </h2>
 
               <p className="text-sm text-gray-500">
-               add.
+                add.
               </p>
             </div>
 
@@ -138,7 +139,7 @@ export default function ClearERPDataPage() {
 
           </div>
 
-             <div className="flex items-center justify-between border rounded-xl p-4">
+          <div className="flex items-center justify-between border rounded-xl p-4">
 
 
             <div>
@@ -171,31 +172,31 @@ export default function ClearERPDataPage() {
 
 
           <div className='flex items-center justify-between border rounded-xl p-4'>
-  <div>
-    <h2 className='font-semibold'>
-      Vehicle Loads
-    </h2>
+            <div>
+              <h2 className='font-semibold'>
+                Vehicle Loads
+              </h2>
 
-    <p className='text-sm text-gray-500'>
-      Clears all vehicle loading records
-    </p>
-  </div>
+              <p className='text-sm text-gray-500'>
+                Clears all vehicle loading records
+              </p>
+            </div>
 
-  <Button
-    variant='destructive'
-    disabled={loading !== null}
-    onClick={() =>
-      handleClear(
-        'Vehicle Loads',
-        clearVehicleLoads
-      )
-    }
-  >
-    {loading === 'Vehicle Loads'
-      ? 'Clearing...'
-      : 'Clear'}
-  </Button>
-</div>
+            <Button
+              variant='destructive'
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  'Vehicle Loads',
+                  clearVehicleLoads
+                )
+              }
+            >
+              {loading === 'Vehicle Loads'
+                ? 'Clearing...'
+                : 'Clear'}
+            </Button>
+          </div>
 
 
 
@@ -386,7 +387,7 @@ export default function ClearERPDataPage() {
             </Button>
           </div>
 
-          
+
 
           <div className="flex items-center justify-between border rounded-xl p-4">
             <div>
@@ -417,61 +418,100 @@ export default function ClearERPDataPage() {
 
 
           <div className="flex items-center justify-between border rounded-xl p-4">
-  <div>
-    <h2 className="font-semibold">
-      Reset Supplier Accounts
-    </h2>
+            <div>
+              <h2 className="font-semibold">
+                Reset Supplier Accounts
+              </h2>
 
-    <p className="text-sm text-gray-500">
-      Resets supplier account balances and payment totals to zero.
-    </p>
-  </div>
+              <p className="text-sm text-gray-500">
+                Resets supplier account balances and payment totals to zero.
+              </p>
+            </div>
 
-  <Button
-    variant="destructive"
-    disabled={loading !== null}
-    onClick={() =>
-      handleClear(
-        "Reset Supplier Accounts",
-        resetSupplierAccounts
-      )
-    }
-  >
-    {loading === "Reset Supplier Accounts"
-      ? "Resetting..."
-      : "Reset"}
-  </Button>
-</div>
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Reset Supplier Accounts",
+                  resetSupplierAccounts
+                )
+              }
+            >
+              {loading === "Reset Supplier Accounts"
+                ? "Resetting..."
+                : "Reset"}
+            </Button>
+          </div>
 
 
-<div className="flex items-center justify-between border rounded-xl p-4">
-  <div>
-    <h2 className="font-semibold">
-      Reset Customer Accounts
-    </h2>
+          <div className="flex items-center justify-between border rounded-xl p-4">
+            <div>
+              <h2 className="font-semibold">
+                Reset Customer Accounts
+              </h2>
 
-    <p className="text-sm text-gray-500">
-      Resets customer balances and payment/sales totals to zero.
-    </p>
-  </div>
+              <p className="text-sm text-gray-500">
+                Resets customer balances and payment/sales totals to zero.
+              </p>
+            </div>
 
-  <Button
-    variant="destructive"
-    disabled={loading !== null}
-    onClick={() =>
-      handleClear(
-        "Reset Customer Accounts",
-        resetCustomerAccounts
-      )
-    }
-  >
-    {loading === "Reset Customer Accounts"
-      ? "Resetting..."
-      : "Reset"}
-  </Button>
-</div>
+            <Button
+              variant="destructive"
+              disabled={loading !== null}
+              onClick={() =>
+                handleClear(
+                  "Reset Customer Accounts",
+                  resetCustomerAccounts
+                )
+              }
+            >
+              {loading === "Reset Customer Accounts"
+                ? "Resetting..."
+                : "Reset"}
+            </Button>
+          </div>
 
         </div>
+
+
+        {/* ================================================= */}
+{/* DISTRIBUTION TEST DATA */}
+{/* ================================================= */}
+
+<div className="border-t-2 border-dashed border-red-300 pt-6 mt-8">
+
+  <div className="flex items-center justify-between">
+
+    <div>
+      <h2 className="text-sm font-semibold text-red-700">
+        Distribution Testing
+      </h2>
+
+      <p className="text-xs text-gray-500">
+        Test-only cleanup for vehicle loads, trips and truck sales.
+      </p>
+    </div>
+
+    <Button
+      size="sm"
+      variant="destructive"
+      disabled={loading !== null}
+      onClick={() =>
+        handleClear(
+          "Distribution Test Data",
+          clearDistributionTestData
+        )
+      }
+    >
+      {loading === "Distribution Test Data"
+        ? "Clearing..."
+        : "Clear Test Data"}
+    </Button>
+
+  </div>
+
+</div>
 
       </div>
 

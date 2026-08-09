@@ -68,7 +68,7 @@ export default function LoadVehicleFormOeprator({
 
   const [vanStock, setVanStock] =
     useState<StockLocationType[]>([]);
-
+const [isSubmitting, setIsSubmitting] = useState(false);
   const fetchVanStock = async (vanId: string) => {
     console.log("vehicleId =", vehicleId);
     if (!vanId) {
@@ -102,27 +102,139 @@ export default function LoadVehicleFormOeprator({
     vanQuantity: vanMap.get(item.productId) ?? 0,
   }));
 
-  const onSubmit = async (data: LoadVehicleFormType) => {
+  // const onSubmit = async (data: LoadVehicleFormType) => {
 
-    const items = data.items.filter((x) => x.quantity > 0);
+  //   const items = data.items.filter((x) => x.quantity > 0);
 
 
 
-    if (!data.vehicleId) {
-      toast.error("Please select a vehicle.");
-      return;
-    }
+  //   if (!data.vehicleId) {
+  //     toast.error("Please select a vehicle.");
+  //     return;
+  //   }
 
-    if (!selectedVehicle?.name) {
-      toast.error("Selected vehicle not found.");
-      return;
-    }
+  //   if (!selectedVehicle?.name) {
+  //     toast.error("Selected vehicle not found.");
+  //     return;
+  //   }
 
-    if (items.length === 0) {
-      toast.error("Please enter at least one quantity.");
-      return;
-    }
+  //   if (items.length === 0) {
+  //     toast.error("Please enter at least one quantity.");
+  //     return;
+  //   }
 
+  //   const result = await loadVehicle({
+  //     vehicleId: data.vehicleId,
+  //     vehicleName: selectedVehicle.name,
+  //     locationCode: selectedVehicle.locationCode,
+  //     responsiblePerson: selectedVehicle.responsiblePersonName,
+  //     remarks: data.remarks,
+  //     items,
+  //   });
+
+  //   console.log(result);
+
+  //   if (!result.success) {
+  //     toast.error(result.message);
+  //     return;
+  //   }
+
+  //   // ==========================
+  //   // Update Factory Stock
+  //   // ==========================
+
+  //   setFactoryData((prev) =>
+  //     prev.map((stock) => {
+  //       const loaded = items.find(
+  //         (i) => i.productId === stock.productId
+  //       );
+
+  //       if (!loaded) return stock;
+
+  //       return {
+  //         ...stock,
+  //         quantity: stock.quantity - loaded.quantity,
+  //       };
+  //     })
+  //   );
+
+  //   // ==========================
+  //   // Update Van Stock
+  //   // ==========================
+
+  //   setVanStock((prev) => {
+  //     const updated = [...prev];
+
+  //     for (const loaded of items) {
+  //       const index = updated.findIndex(
+  //         (x) => x.productId === loaded.productId
+  //       );
+
+  //       if (index >= 0) {
+  //         updated[index] = {
+  //           ...updated[index],
+  //           quantity:
+  //             updated[index].quantity + loaded.quantity,
+  //         };
+  //       } else {
+  //         const product = factoryData.find(
+  //           (x) => x.productId === loaded.productId
+  //         );
+
+  //         if (product) {
+  //           updated.push({
+  //             ...product,
+  //             id: `${product.productId}_VAN_${data.vehicleId}`,
+  //             locationType: "TRUCK",
+  //             locationRef: data.vehicleId,
+  //             quantity: loaded.quantity,
+  //             wholesalePrice: loaded.wholesalePrice,
+  //           });
+  //         }
+  //       }
+  //     }
+
+  //     return updated;
+  //   });
+
+  //   toast.success(result.message);
+
+  //   await fetchVanStock(data.vehicleId);
+
+  //   form.reset({
+  //     vehicleId: data.vehicleId,
+  //     remarks: "",
+  //     items: factoryData.map((item) => ({
+  //       productId: item.productId,
+  //       quantity: 0,
+  //       wholesalePrice: item.wholesalePrice,
+  //     }))
+  //   });
+  // };
+
+const onSubmit = async (data: LoadVehicleFormType) => {
+  if (isSubmitting) return;
+
+  const items = data.items.filter((x) => x.quantity > 0);
+
+  if (!data.vehicleId) {
+    toast.error("Please select a vehicle.");
+    return;
+  }
+
+  if (!selectedVehicle?.name) {
+    toast.error("Selected vehicle not found.");
+    return;
+  }
+
+  if (items.length === 0) {
+    toast.error("Please enter at least one quantity.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
     const result = await loadVehicle({
       vehicleId: data.vehicleId,
       vehicleName: selectedVehicle.name,
@@ -208,9 +320,15 @@ export default function LoadVehicleFormOeprator({
         productId: item.productId,
         quantity: 0,
         wholesalePrice: item.wholesalePrice,
-      }))
+      })),
     });
-  };
+  } catch (error) {
+    console.error("Load vehicle error:", error);
+    toast.error("Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const selectedItems = form.watch("items");
 
@@ -295,10 +413,23 @@ export default function LoadVehicleFormOeprator({
                 </div>
 
                 {/* Button */}
-                <Button className="h-10 bg-blue-600 hover:bg-blue-700 text-white px-4">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add
-                </Button>
+               <Button
+  type="submit"
+  disabled={isSubmitting}
+  className="h-10 bg-blue-600 hover:bg-blue-700 text-white px-4 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {isSubmitting ? (
+    <>
+      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+      Loading...
+    </>
+  ) : (
+    <>
+      <Plus className="mr-2 h-4 w-4" />
+      Add
+    </>
+  )}
+</Button>
 
               </div>
 

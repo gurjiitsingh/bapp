@@ -648,6 +648,41 @@ export async function deiveryTruckSale({
         }
       );
 
+
+      const settlementRef = adminDb
+  .collection("driverSettlements")
+  .doc(tripId);
+
+tx.update(settlementRef, {
+
+  totalSalesAmount:
+    admin.firestore.FieldValue.increment(
+      totalAmount
+    ),
+
+  newSaleCashCollected:
+    admin.firestore.FieldValue.increment(
+      paidAmount
+    ),
+
+  newSaleCreditAmount:
+    admin.firestore.FieldValue.increment(
+      dueAmount
+    ),
+
+  totalCashCollected:
+    admin.firestore.FieldValue.increment(
+      paidAmount
+    ),
+
+  amountPayableToManager:
+    admin.firestore.FieldValue.increment(
+      paidAmount
+    ),
+
+  updatedAt: new Date(),
+});
+
     });
 
 
