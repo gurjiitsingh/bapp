@@ -168,64 +168,27 @@ export default function DistributionTripDetailPage() {
         {/* BACK */}
         {/* ===================================== */}
 
- <div className="flex items-center justify-between">
+        <Link
+          href="/admin/distribution/trips"
+          className="
+            inline-flex
+            text-sm
+            text-blue-600
+            hover:underline
+          "
+        >
+          ← Back to Trips
+        </Link>
 
-  {/* Back */}
-  <Link
-    href="/admin/distribution/trips"
-    className="
-      inline-flex
-      items-center
-      gap-2
-      rounded-lg
-      border
-      border-slate-200
-      bg-white
-      px-4
-      py-2
-      text-sm
-      font-medium
-      text-slate-600
-      shadow-sm
-      transition
-      hover:bg-slate-50
-      hover:text-slate-900
-    "
-  >
-    ←
-    <span>Back to Trips</span>
-  </Link>
-
-
-  {/* Settlement */}
-  <Link
-    href={`/admin/distribution/trips/${encodeURIComponent(
-      tripId
-    )}/settle`}
-  >
-    <Button
-      className="
-      bg-red-600
-        inline-flex
-        items-center
-        gap-2
-        rounded-lg
-        px-5
-        py-2.5
-        font-semibold
-        shadow-sm
-      "
-    >
-      <span>💰</span>
-      <span>
-        {trip.status === "SETTLED"
-          ? "View Settlement"
-          : "Settle Trip"}
-      </span>
-    </Button>
-  </Link>
-
-</div>
+<Link
+  href={`/admin/distribution/trips/${encodeURIComponent(
+    tripId
+  )}/settle`}
+>
+  <Button>
+    Settle Trip
+  </Button>
+</Link>
         {/* ===================================== */}
         {/* HEADER */}
         {/* ===================================== */}
@@ -256,8 +219,8 @@ export default function DistributionTripDetailPage() {
                 text-sm
                 font-medium
                 ${statusClass(
-                trip.status
-              )}
+                  trip.status
+                )}
               `}
             >
               {trip.status}
@@ -330,56 +293,44 @@ export default function DistributionTripDetailPage() {
         {/* SUMMARY */}
         {/* ===================================== */}
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 
           <SummaryCard
             title="Loaded"
             value={`${trip.totalLoadedQuantity || 0} kg`}
             subValue={formatMoney(
-              trip.totalLoadedValue || 0
+              trip.totalLoadedValue
             )}
           />
+
 
           <SummaryCard
             title="Sales"
             value={formatMoney(
-              trip.totalSalesAmount || 0
+              trip.totalSalesAmount
+            )}
+            subValue={`${trip.totalReturnAmount || 0} return`}
+          />
+
+
+          <SummaryCard
+            title="Cash Collected"
+            value={formatMoney(
+              trip.totalCashCollected
             )}
             subValue={`Credit ${formatMoney(
-              trip.totalCreditAmount || 0
+              trip.totalCreditAmount
             )}`}
           />
 
-          <SummaryCard
-            title="New Sale Cash"
-            value={formatMoney(
-              (trip.totalSalesAmount || 0) -
-              (trip.totalCreditAmount || 0)
-            )}
-          />
-
-          <SummaryCard
-            title="Old Credit Collected"
-            value={formatMoney(
-              trip.totalPreviousCreditCollected || 0
-            )}
-          />
-
-          <SummaryCard
-            title="Total Cash Collected"
-            value={formatMoney(
-              trip.totalCashCollected || 0
-            )}
-            subValue="New sale cash + old credit"
-          />
 
           <SummaryCard
             title="Settlement"
             value={formatMoney(
-              trip.totalAmountHandedOver || 0
+              trip.totalAmountHandedOver
             )}
             subValue={`Difference ${formatMoney(
-              trip.settlementDifference || 0
+              trip.settlementDifference
             )}`}
           />
 

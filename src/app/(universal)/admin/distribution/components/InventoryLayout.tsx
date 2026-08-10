@@ -86,7 +86,7 @@ export default function InventoryTabs() {
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-2 xl:grid-cols-8 gap-3">
+        <div className="grid grid-cols-3 xl:grid-cols-9 gap-3">
 
           <Link
             href="/admin/distribution/load-operator"

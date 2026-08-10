@@ -570,7 +570,7 @@ export default function VehicleLoadDetail({
       {/* FUTURE TRIP RECONCILIATION */}
       {/* ================================================= */}
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      {/* <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
 
         <div className="border-b border-slate-200 px-6 py-4">
 
@@ -609,7 +609,7 @@ export default function VehicleLoadDetail({
 
         </div>
 
-      </div>
+      </div> */}
 
     </div>
   );
