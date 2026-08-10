@@ -56,8 +56,10 @@ export default function VehicleSaleReportTable() {
     try {
       const result = await getTruckSaleReports({
         paymentStatus,
-        limit: 100,
+        limit: 50,
       });
+
+      console.log("result=====================", result)
 
       if (!result.success) {
         console.error(result.message);
@@ -65,7 +67,7 @@ export default function VehicleSaleReportTable() {
         setSales([]);
         return;
       }
-
+ console.log("re---------------",result.data)
       setSales(result.data as TruckSaleReportType[]);
     } catch (error) {
       console.error(
@@ -472,7 +474,7 @@ export default function VehicleSaleReportTable() {
                           hover:underline
                         "
                       >
-                        {sale.saleId}
+                        {sale.saleNo}
                       </Link>
 
                     </td>
@@ -493,7 +495,7 @@ export default function VehicleSaleReportTable() {
                             hover:underline
                           "
                         >
-                          {sale.tripId}
+                          {sale.tripNo}
                         </Link>
                       ) : (
                         "-"
@@ -524,15 +526,14 @@ export default function VehicleSaleReportTable() {
                     <td className="p-3">
 
                       <div className="font-medium">
-                        {sale.wholeSaleCutomerName ||
-                          "-"}
+                        {sale.customerName ||  "-"}
                       </div>
 
-                      {sale.wholeSaleCutomerId && (
+                      {/* {sale.customerName && (
                         <div className="text-xs text-gray-500">
                           {sale.wholeSaleCutomerId}
                         </div>
-                      )}
+                      )} */}
 
                     </td>
 

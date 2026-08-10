@@ -1,13 +1,15 @@
-'use server';
+"use server";
 
-import { adminDb } from '@/lib/firebaseAdmin';
-import admin from 'firebase-admin';
-import { PaymentMethodType } from '@/lib/types/distribution/PaymentMethodType';
+import { adminDb } from "@/lib/firebaseAdmin";
+import admin from "firebase-admin";
+import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
 
 type Props = {
   saleId: string;
-  tripId: string;
+  saleNo: string;
 
+  tripId: string;
+tripNo: string;
   vehicleId: string;
   vehicleName: string;
   locationCode: string;
@@ -18,7 +20,7 @@ type Props = {
 
   totalAmount: number;
 
-  paymentStatus: 'PAID' | 'PARTIAL' | 'CREDIT';
+  paymentStatus: "PAID" | "PARTIAL" | "CREDIT";
   paymentMethod?: PaymentMethodType;
 
   paidAmount: number;
@@ -36,18 +38,80 @@ export async function createTruckSaleMaster(
   data: Props
 ) {
   const ref = adminDb
-    .collection('truckSales')
+    .collection("truckSales")
     .doc(data.saleId);
 
   tx.set(ref, {
-    ...data,
+    // =========================================
+    // IDENTIFICATION
+    // =========================================
 
-    paymentMethod: data.paymentMethod || null,
-    remarks: data.remarks || '',
-    createdBy: data.createdBy || '',
+    saleId: data.saleId,
+    saleNo: data.saleNo,
 
-    status: 'COMPLETED',
+    tripId: data.tripId,
+tripNo:data.tripNo,
+    // =========================================
+    // VEHICLE
+    // =========================================
 
-    createdAt: new Date(),
+    vehicleId: data.vehicleId,
+    vehicleName: data.vehicleName,
+
+    locationCode: data.locationCode,
+    responsiblePerson: data.responsiblePerson,
+
+    // =========================================
+    // CUSTOMER
+    // =========================================
+
+    wholeSaleCutomerId:
+      data.wholeSaleCutomerId,
+
+    wholeSaleCutomerName:
+      data.wholeSaleCutomerName,
+
+    // =========================================
+    // TOTALS
+    // =========================================
+
+    totalAmount: data.totalAmount,
+
+    totalItems: data.totalItems,
+
+    totalQuantity: data.totalQuantity,
+
+    // =========================================
+    // PAYMENT
+    // =========================================
+
+    paymentStatus:
+      data.paymentStatus,
+
+    paymentMethod:
+      data.paymentMethod || null,
+
+    paidAmount:
+      data.paidAmount,
+
+    dueAmount:
+      data.dueAmount,
+
+    // =========================================
+    // META
+    // =========================================
+
+    remarks:
+      data.remarks || "",
+
+    createdBy:
+      data.createdBy || "",
+
+    status: "COMPLETED",
+
+    createdAt:
+      admin.firestore.FieldValue.serverTimestamp(),
   });
+
+  return ref;
 }

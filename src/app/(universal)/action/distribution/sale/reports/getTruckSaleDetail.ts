@@ -32,6 +32,7 @@ export async function getTruckSaleDetail(
 
     const saleData = saleSnap.data()!;
 
+      console.log("saleData----------------------",saleData)
     // =====================================================
     // SALE ITEMS
     // =====================================================
@@ -42,6 +43,7 @@ export async function getTruckSaleDetail(
 
     const items = itemsSnap.docs.map((doc) => {
       const d = doc.data();
+
 
       return {
         id: doc.id,

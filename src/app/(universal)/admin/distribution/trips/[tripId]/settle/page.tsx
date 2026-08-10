@@ -11,7 +11,7 @@ import { settleDriverTrip } from "@/app/(universal)/action/distribution/saleman/
 type SettlementData = {
     settlementId: string;
     tripId: string;
-
+ tripNo: string;
     vehicleId: string;
     vehicleName: string;
 
@@ -389,10 +389,10 @@ export default function SettleTripPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
-                        <Info
-                            label="Trip ID"
-                            value={settlement.tripId}
-                        />
+                    <Info
+    label="Trip No"
+    value={settlement.tripNo || "-"}
+/>
 
                         <Info
                             label="Vehicle"

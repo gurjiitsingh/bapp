@@ -20,9 +20,9 @@ export type TruckSaleReport = {
   dueAmount: number;
 
   paymentStatus:
-    | "PAID"
-    | "PARTIAL"
-    | "CREDIT";
+  | "PAID"
+  | "PARTIAL"
+  | "CREDIT";
 
   paymentMethod?: string;
 
@@ -168,16 +168,20 @@ export async function getTruckSaleReports({
           const d =
             doc.data();
 
-
+ 
           return {
 
             saleId:
               doc.id,
 
+            saleNo:
+              d.saleNo,
+
             tripId:
               d.tripId || "",
 
-
+            tripNo:
+              d.tripNo || "",
             vehicleId:
               d.vehicleId || "",
 
@@ -247,8 +251,8 @@ export async function getTruckSaleReports({
                 ? d.createdAt.toDate()
                 : d.createdAt
                   ? new Date(
-                      d.createdAt
-                    )
+                    d.createdAt
+                  )
                   : undefined,
           };
         }

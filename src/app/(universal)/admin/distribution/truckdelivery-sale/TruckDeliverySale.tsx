@@ -28,7 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WholeCustomerType } from "@/lib/types/WholeSaleCustomerType";
-import { deiveryTruckSale } from "@/app/(universal)/action/distribution/sale/deleliveryTruckSale";
+import { saveDeiveryTruckSale } from "@/app/(universal)/action/distribution/sale/saveDeiveryTruckSale";
+ 
 
 type TruckDeliverySaleType = {
   vehicleId: string;
@@ -306,7 +307,7 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         return;
       }
 
-      const result = await deiveryTruckSale({
+      const result = await saveDeiveryTruckSale({
         vehicleId: data.vehicleId,
         vehicleName: selectedVehicle.name,
         locationCode: selectedVehicle.locationCode,

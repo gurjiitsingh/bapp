@@ -99,6 +99,7 @@ export async function getDistributionTripDetail(
 
       return {
         saleId: doc.id,
+        saleNo: d.saleNo,
 
         tripId:
           d.tripId || tripId,

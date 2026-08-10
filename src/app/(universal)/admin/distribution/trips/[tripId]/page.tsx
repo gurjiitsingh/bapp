@@ -241,9 +241,9 @@ export default function DistributionTripDetailPage() {
                   trip.id}
               </h1>
 
-              <p className="mt-1 text-sm text-gray-500">
+              {/* <p className="mt-1 text-sm text-gray-500">
                 Trip ID: {trip.id}
-              </p>
+              </p> */}
 
             </div>
 
@@ -287,11 +287,11 @@ export default function DistributionTripDetailPage() {
 
             <div>
               <p className="text-xs text-gray-500">
-                Driver
+                Saleman
               </p>
 
               <p className="font-medium">
-                {trip.driverName ||
+                {trip.saleman ||
                   trip.responsiblePerson ||
                   "-"}
               </p>
@@ -651,7 +651,7 @@ export default function DistributionTripDetailPage() {
                             hover:underline
                           "
                         >
-                          {sale.saleId}
+                          {sale.saleNo}
                         </Link>
 
                       </td>

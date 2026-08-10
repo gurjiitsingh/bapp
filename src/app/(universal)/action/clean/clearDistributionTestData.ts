@@ -287,7 +287,7 @@ export async function clearDistributionTestData() {
 
     const stockLocationsQuery =
       adminDb
-        .collection("stockLocations")
+        .collection("stockLocation")
         .where(
           "locationType",
           "!=",

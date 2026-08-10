@@ -16,6 +16,9 @@ export type ActiveVehicleTrip = {
 
   status: string;
 
+  // Sale sequence for human-readable sale numbers
+  saleSequence?: number;
+
   totalLoadedQuantity: number;
   totalLoadedValue: number;
 
@@ -54,47 +57,52 @@ export async function getActiveVehicleTrip(
   const doc = snapshot.docs[0];
   const data = doc.data();
 
-return {
-  tripId: doc.id,
+  return {
+    tripId: doc.id,
 
-  tripNo: data.tripNo || "",
+    tripNo: data.tripNo || "",
 
-  vehicleId: data.vehicleId || "",
-  vehicleName: data.vehicleName || "",
+    vehicleId: data.vehicleId || "",
+    vehicleName: data.vehicleName || "",
 
-  driverId: data.driverId || "",
-  driverName: data.driverName || "",
+    driverId: data.driverId || "",
+    driverName: data.driverName || "",
 
-  routeId: data.routeId || "",
-  routeName: data.routeName || "",
+    routeId: data.routeId || "",
+    routeName: data.routeName || "",
 
-  status: data.status || "LOADED",
+    status: data.status || "LOADED",
 
-  totalLoadedQuantity:
-    Number(data.totalLoadedQuantity || 0),
+    // If old trip does not have this field,
+    // start its sale sequence from 0.
+    saleSequence:
+      Number(data.saleSequence || 0),
 
-  totalLoadedValue:
-    Number(data.totalLoadedValue || 0),
+    totalLoadedQuantity:
+      Number(data.totalLoadedQuantity || 0),
 
-  totalSalesAmount:
-    Number(data.totalSalesAmount || 0),
+    totalLoadedValue:
+      Number(data.totalLoadedValue || 0),
 
-  totalReturnAmount:
-    Number(data.totalReturnAmount || 0),
+    totalSalesAmount:
+      Number(data.totalSalesAmount || 0),
 
-  totalCashCollected:
-    Number(data.totalCashCollected || 0),
+    totalReturnAmount:
+      Number(data.totalReturnAmount || 0),
 
-  totalCreditAmount:
-    Number(data.totalCreditAmount || 0),
+    totalCashCollected:
+      Number(data.totalCashCollected || 0),
 
-  totalExpenses:
-    Number(data.totalExpenses || 0),
+    totalCreditAmount:
+      Number(data.totalCreditAmount || 0),
 
-  totalAmountHandedOver:
-    Number(data.totalAmountHandedOver || 0),
+    totalExpenses:
+      Number(data.totalExpenses || 0),
 
-  settlementDifference:
-    Number(data.settlementDifference || 0),
-};
+    totalAmountHandedOver:
+      Number(data.totalAmountHandedOver || 0),
+
+    settlementDifference:
+      Number(data.settlementDifference || 0),
+  };
 }

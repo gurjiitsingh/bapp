@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { WholeCustomerType } from "@/lib/types/WholeSaleCustomerType";
-import { deiveryTruckSale } from "@/app/(universal)/action/distribution/sale/deleliveryTruckSale";
+ 
 import { bulkSale } from "@/app/(universal)/action/distribution/sale/bulkSale/bulkSale";
 import { ProductStock, ProductStockType } from "@/lib/types/productStockType";
 

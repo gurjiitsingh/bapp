@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card,  CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,8 +22,24 @@ import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getS
 import toast from "react-hot-toast";
 
 
+type RouteType = {
+  id: string;
+  routeCode: string;
+  routeName: string;
+
+  vehicleId?: string;
+  vehicleName?: string;
+  locationCode?: string;
+
+  salesmanId?: string;
+  salesmanName?: string;
+};
+
 type LoadVehicleFormType = {
+  routeId: string;
   vehicleId: string;
+  salesmanId: string;
+
   remarks?: string;
   name: string;
 
@@ -35,6 +51,7 @@ type LoadVehicleFormType = {
 };
 
 type Props = {
+  routes: RouteType[];
   vehicles: VehicleType[];
   factoryStock: StockLocationType[];
 };
@@ -42,6 +59,7 @@ type Props = {
 export default function LoadVehicleFormOeprator({
   factoryStock,
   vehicles,
+  routes,
 }: Props) {
 
 
@@ -49,26 +67,38 @@ export default function LoadVehicleFormOeprator({
 
   const form = useForm<LoadVehicleFormType>({
     defaultValues: {
+      routeId: "",
       vehicleId: "",
+      salesmanId: "",
       remarks: "",
+
       items: factoryStock.map((item) => ({
         productId: item.productId,
         quantity: 0,
         wholesalePrice: item.wholesalePrice,
-      }))
+      })),
     },
   });
 
 
-
+  const routeId = form.watch("routeId");
   const vehicleId = form.watch("vehicleId");
-  console.log("vehicleId:", vehicleId);
+  const salesmanId = form.watch("salesmanId");
+
+  const selectedRoute = routes.find(
+    (r) => r.id === routeId
+  );
+
+  const selectedVehicle = vehicles.find(
+    (v) => v.id === vehicleId
+  );
+
   const [factoryData, setFactoryData] =
     useState<StockLocationType[]>(factoryStock);
 
   const [vanStock, setVanStock] =
     useState<StockLocationType[]>([]);
-const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fetchVanStock = async (vanId: string) => {
     console.log("vehicleId =", vehicleId);
     if (!vanId) {
@@ -88,10 +118,30 @@ const [isSubmitting, setIsSubmitting] = useState(false);
     fetchVanStock(vehicleId);
   }, [vehicleId]);
 
-  const selectedVehicle = vehicles.find(
-    (v) => v.id === vehicleId
-  );
-  console.log("selectedVehicle:", selectedVehicle);
+  useEffect(() => {
+    if (!selectedRoute) {
+      form.setValue("vehicleId", "");
+      form.setValue("salesmanId", "");
+      return;
+    }
+
+    // Automatically select route's assigned vehicle
+    if (selectedRoute.vehicleId) {
+      form.setValue(
+        "vehicleId",
+        selectedRoute.vehicleId
+      );
+    }
+
+    // Automatically select route's salesman
+    if (selectedRoute.salesmanId) {
+      form.setValue(
+        "salesmanId",
+        selectedRoute.salesmanId
+      );
+    }
+  }, [selectedRoute, form]);
+
 
   const vanMap = new Map(
     vanStock.map((x) => [x.productId, x.quantity])
@@ -102,233 +152,189 @@ const [isSubmitting, setIsSubmitting] = useState(false);
     vanQuantity: vanMap.get(item.productId) ?? 0,
   }));
 
-  // const onSubmit = async (data: LoadVehicleFormType) => {
 
-  //   const items = data.items.filter((x) => x.quantity > 0);
+  const onSubmit = async (data: LoadVehicleFormType) => {
+    if (isSubmitting) return;
 
+    const items = data.items.filter((x) => x.quantity > 0);
 
-
-  //   if (!data.vehicleId) {
-  //     toast.error("Please select a vehicle.");
-  //     return;
-  //   }
-
-  //   if (!selectedVehicle?.name) {
-  //     toast.error("Selected vehicle not found.");
-  //     return;
-  //   }
-
-  //   if (items.length === 0) {
-  //     toast.error("Please enter at least one quantity.");
-  //     return;
-  //   }
-
-  //   const result = await loadVehicle({
-  //     vehicleId: data.vehicleId,
-  //     vehicleName: selectedVehicle.name,
-  //     locationCode: selectedVehicle.locationCode,
-  //     responsiblePerson: selectedVehicle.responsiblePersonName,
-  //     remarks: data.remarks,
-  //     items,
-  //   });
-
-  //   console.log(result);
-
-  //   if (!result.success) {
-  //     toast.error(result.message);
-  //     return;
-  //   }
-
-  //   // ==========================
-  //   // Update Factory Stock
-  //   // ==========================
-
-  //   setFactoryData((prev) =>
-  //     prev.map((stock) => {
-  //       const loaded = items.find(
-  //         (i) => i.productId === stock.productId
-  //       );
-
-  //       if (!loaded) return stock;
-
-  //       return {
-  //         ...stock,
-  //         quantity: stock.quantity - loaded.quantity,
-  //       };
-  //     })
-  //   );
-
-  //   // ==========================
-  //   // Update Van Stock
-  //   // ==========================
-
-  //   setVanStock((prev) => {
-  //     const updated = [...prev];
-
-  //     for (const loaded of items) {
-  //       const index = updated.findIndex(
-  //         (x) => x.productId === loaded.productId
-  //       );
-
-  //       if (index >= 0) {
-  //         updated[index] = {
-  //           ...updated[index],
-  //           quantity:
-  //             updated[index].quantity + loaded.quantity,
-  //         };
-  //       } else {
-  //         const product = factoryData.find(
-  //           (x) => x.productId === loaded.productId
-  //         );
-
-  //         if (product) {
-  //           updated.push({
-  //             ...product,
-  //             id: `${product.productId}_VAN_${data.vehicleId}`,
-  //             locationType: "TRUCK",
-  //             locationRef: data.vehicleId,
-  //             quantity: loaded.quantity,
-  //             wholesalePrice: loaded.wholesalePrice,
-  //           });
-  //         }
-  //       }
-  //     }
-
-  //     return updated;
-  //   });
-
-  //   toast.success(result.message);
-
-  //   await fetchVanStock(data.vehicleId);
-
-  //   form.reset({
-  //     vehicleId: data.vehicleId,
-  //     remarks: "",
-  //     items: factoryData.map((item) => ({
-  //       productId: item.productId,
-  //       quantity: 0,
-  //       wholesalePrice: item.wholesalePrice,
-  //     }))
-  //   });
-  // };
-
-const onSubmit = async (data: LoadVehicleFormType) => {
-  if (isSubmitting) return;
-
-  const items = data.items.filter((x) => x.quantity > 0);
-
-  if (!data.vehicleId) {
-    toast.error("Please select a vehicle.");
-    return;
-  }
-
-  if (!selectedVehicle?.name) {
-    toast.error("Selected vehicle not found.");
-    return;
-  }
-
-  if (items.length === 0) {
-    toast.error("Please enter at least one quantity.");
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    const result = await loadVehicle({
-      vehicleId: data.vehicleId,
-      vehicleName: selectedVehicle.name,
-      locationCode: selectedVehicle.locationCode,
-      responsiblePerson: selectedVehicle.responsiblePersonName,
-      remarks: data.remarks,
-      items,
-    });
-
-    console.log(result);
-
-    if (!result.success) {
-      toast.error(result.message);
+    if (!data.routeId) {
+      toast.error("Please select a route.");
       return;
     }
 
-    // ==========================
-    // Update Factory Stock
-    // ==========================
+    if (!selectedRoute) {
+      toast.error("Selected route not found.");
+      return;
+    }
 
-    setFactoryData((prev) =>
-      prev.map((stock) => {
-        const loaded = items.find(
-          (i) => i.productId === stock.productId
-        );
+    if (!data.vehicleId) {
+      toast.error("Please select a vehicle.");
+      return;
+    }
 
-        if (!loaded) return stock;
+    if (!selectedVehicle?.name) {
+      toast.error("Selected vehicle not found.");
+      return;
+    }
 
-        return {
-          ...stock,
-          quantity: stock.quantity - loaded.quantity,
-        };
-      })
-    );
+    if (items.length === 0) {
+      toast.error("Please enter at least one quantity.");
+      return;
+    }
 
-    // ==========================
-    // Update Van Stock
-    // ==========================
+    setIsSubmitting(true);
 
-    setVanStock((prev) => {
-      const updated = [...prev];
+    try {
+      const result = await loadVehicle({
+        // ==========================
+        // ROUTE
+        // ==========================
 
-      for (const loaded of items) {
-        const index = updated.findIndex(
-          (x) => x.productId === loaded.productId
-        );
+        routeId: data.routeId,
 
-        if (index >= 0) {
-          updated[index] = {
-            ...updated[index],
-            quantity:
-              updated[index].quantity + loaded.quantity,
+        routeName:
+          selectedRoute?.routeName || "",
+
+        // ==========================
+        // VEHICLE
+        // ==========================
+
+        vehicleId: data.vehicleId,
+
+        vehicleName:
+          selectedVehicle.name,
+
+        locationCode:
+          selectedVehicle.locationCode,
+
+// ==========================
+// SALESMAN
+// ==========================
+
+salesmanId:
+  selectedRoute.salesmanId || "",
+
+salesmanName:
+  selectedRoute.salesmanName || "",
+
+// ==========================
+// LEGACY DRIVER FIELDS
+// ==========================
+
+driverId:
+  selectedRoute.salesmanId || "",
+
+driverName:
+  selectedRoute.salesmanName || "",
+
+responsiblePerson:
+  selectedRoute.salesmanName || "",
+
+        // ==========================
+        // OTHER
+        // ==========================
+
+        remarks:
+          data.remarks,
+
+        items,
+      });
+
+      console.log(result);
+
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      // ==========================
+      // Update Factory Stock
+      // ==========================
+
+      setFactoryData((prev) =>
+        prev.map((stock) => {
+          const loaded = items.find(
+            (i) => i.productId === stock.productId
+          );
+
+          if (!loaded) return stock;
+
+          return {
+            ...stock,
+            quantity: stock.quantity - loaded.quantity,
           };
-        } else {
-          const product = factoryData.find(
+        })
+      );
+
+      // ==========================
+      // Update Van Stock
+      // ==========================
+
+      setVanStock((prev) => {
+        const updated = [...prev];
+
+        for (const loaded of items) {
+          const index = updated.findIndex(
             (x) => x.productId === loaded.productId
           );
 
-          if (product) {
-            updated.push({
-              ...product,
-              id: `${product.productId}_VAN_${data.vehicleId}`,
-              locationType: "TRUCK",
-              locationRef: data.vehicleId,
-              quantity: loaded.quantity,
-              wholesalePrice: loaded.wholesalePrice,
-            });
+          if (index >= 0) {
+            updated[index] = {
+              ...updated[index],
+              quantity:
+                updated[index].quantity + loaded.quantity,
+            };
+          } else {
+            const product = factoryData.find(
+              (x) => x.productId === loaded.productId
+            );
+
+            if (product) {
+              updated.push({
+                ...product,
+                id: `${product.productId}_VAN_${data.vehicleId}`,
+                locationType: "TRUCK",
+                locationRef: data.vehicleId,
+                quantity: loaded.quantity,
+                wholesalePrice: loaded.wholesalePrice,
+              });
+            }
           }
         }
-      }
 
-      return updated;
-    });
+        return updated;
+      });
 
-    toast.success(result.message);
+      toast.success(result.message);
 
-    await fetchVanStock(data.vehicleId);
+      await fetchVanStock(data.vehicleId);
 
-    form.reset({
-      vehicleId: data.vehicleId,
-      remarks: "",
-      items: factoryData.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-        wholesalePrice: item.wholesalePrice,
-      })),
-    });
-  } catch (error) {
-    console.error("Load vehicle error:", error);
-    toast.error("Something went wrong. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    
+form.reset({
+  routeId: data.routeId,
+
+  vehicleId: data.vehicleId,
+
+  salesmanId:
+    selectedRoute?.salesmanId || "",
+
+  remarks: "",
+
+  items: factoryData.map((item) => ({
+    productId: item.productId,
+    quantity: 0,
+    wholesalePrice: item.wholesalePrice,
+  })),
+});
+
+    } catch (error) {
+      console.error("Load vehicle error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const selectedItems = form.watch("items");
 
@@ -351,12 +357,141 @@ const onSubmit = async (data: LoadVehicleFormType) => {
           <div className="rounded-xl border border-gray-100 shadow-sm bg-white">
 
 
+            <div className="flex items-center gap-4 px-2 py-1">
 
-        
+              {/* Route */}
+              <div className="flex items-center gap-2">
 
-              <div className="flex items-center gap-4 px-2 py-1">
+                <label className="text-sm text-gray-600 whitespace-nowrap">
+                  Route
+                </label>
 
-                {/* Vehicle */}
+                <Controller
+                  control={form.control}
+                  name="routeId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-10 w-48 bg-white border border-gray-300 text-sm">
+                        <SelectValue placeholder="Select route" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+
+                        {routes.map((route) => (
+                          <SelectItem
+                            key={route.id}
+                            value={route.id}
+                          >
+                            {route.routeName}
+                          </SelectItem>
+                        ))}
+
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+
+              </div>
+
+
+              {/* Vehicle */}
+              <div className="flex items-center gap-2">
+
+                <label className="text-sm text-gray-600 whitespace-nowrap">
+                  Vehicle
+                </label>
+
+                <Controller
+                  control={form.control}
+                  name="vehicleId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-10 w-48 bg-white border border-gray-300 text-sm">
+                        <SelectValue placeholder="Select vehicle" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+
+                        {vehicles.map((vehicle) => (
+                          <SelectItem
+                            key={vehicle.id}
+                            value={vehicle.id}
+                          >
+                            {vehicle.name} ({vehicle.locationCode})
+                          </SelectItem>
+                        ))}
+
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+
+              </div>
+
+
+              {/* Salesman */}
+              <div className="flex items-center gap-2">
+
+                <label className="text-sm text-gray-600 whitespace-nowrap">
+                  Salesman
+                </label>
+
+            <Input
+  value={selectedRoute?.salesmanName || ""}
+  placeholder="Auto Selected"
+  disabled
+  className="h-10 w-48 bg-gray-100 text-sm"
+/>
+
+              </div>
+
+
+              {/* Reference */}
+              <div className="flex items-center gap-2">
+
+                <label className="text-sm text-gray-600 whitespace-nowrap">
+                  Ref
+                </label>
+
+                <Input
+                  placeholder="Optional"
+                  className="h-10 w-40 text-sm"
+                />
+
+              </div>
+
+
+              {/* Button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-10 bg-blue-600 hover:bg-blue-700 text-white px-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add
+                  </>
+                )}
+              </Button>
+
+            </div>
+
+
+            {/* <div className="flex items-center gap-4 px-2 py-1">
+
+               
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-gray-600 whitespace-nowrap">
                     Vehicle
@@ -386,7 +521,7 @@ const onSubmit = async (data: LoadVehicleFormType) => {
                   />
                 </div>
 
-                {/* Driver */}
+            
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-gray-600 whitespace-nowrap">
                     Driver
@@ -400,7 +535,7 @@ const onSubmit = async (data: LoadVehicleFormType) => {
                   />
                 </div>
 
-                {/* Reference */}
+     
                 <div className="flex items-center gap-2">
                   <label className="text-sm text-gray-600 whitespace-nowrap">
                     Ref
@@ -412,7 +547,7 @@ const onSubmit = async (data: LoadVehicleFormType) => {
                   />
                 </div>
 
-                {/* Button */}
+               
                <Button
   type="submit"
   disabled={isSubmitting}
@@ -431,11 +566,11 @@ const onSubmit = async (data: LoadVehicleFormType) => {
   )}
 </Button>
 
-              </div>
+              </div> */}
 
 
 
-        
+
           </div>
 
           {/* Products */}

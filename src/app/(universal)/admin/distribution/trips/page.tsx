@@ -276,24 +276,24 @@ export default function DistributionTripsPage() {
                           trip.tripId}
                       </Link>
 
-                      <div className="text-xs text-gray-400">
+                      {/* <div className="text-xs text-gray-400">
                         {trip.tripId}
-                      </div>
+                      </div> */}
 
                     </td>
 
 
                     {/* VEHICLE */}
 
-                    <td className="p-3">
+                    <td className="p-3 flex gap2 ">
 
                       <div className="font-medium">
                         {trip.vehicleName || "-"}
                       </div>
 
                       {trip.locationCode && (
-                        <div className="text-xs text-gray-500">
-                          {trip.locationCode}
+                        <div className="text-[9px] text-gray-500">
+                         ( {trip.locationCode})
                         </div>
                       )}
 

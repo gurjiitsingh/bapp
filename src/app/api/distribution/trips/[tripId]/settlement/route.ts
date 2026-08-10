@@ -35,6 +35,17 @@ export async function GET(
 
     const data = snap.data()!;
 
+    const tripIdFromSettlement = data.tripId || tripId;
+
+const tripSnap = await adminDb
+  .collection("distributionTrips")
+  .doc(tripIdFromSettlement)
+  .get();
+
+const trip = tripSnap.exists
+  ? tripSnap.data()
+  : null;
+
     return NextResponse.json({
       success: true,
 
@@ -44,7 +55,7 @@ export async function GET(
         ...data,
 
         openingCash: Number(data.openingCash || 0),
-
+tripNo: trip?.tripNo || "",
         totalSalesAmount:
           Number(data.totalSalesAmount || 0),
 

@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowDownFromLine, ChartColumn, PackageMinus, Undo2 } from "lucide-react";
+import { ArrowDownFromLine, ChartColumn, PackageMinus, RouteIcon, Undo2 } from "lucide-react";
 import {
   AlertTriangle,
   Boxes,
@@ -86,7 +86,7 @@ export default function InventoryTabs() {
         {/* QUICK ACTIONS */}
         {/* ===================================================== */}
 
-        <div className="grid grid-cols-3 xl:grid-cols-9 gap-3">
+        <div className="grid grid-cols-3 xl:grid-cols-10 gap-3">
 
           <Link
             href="/admin/distribution/load-operator"
@@ -393,9 +393,49 @@ export default function InventoryTabs() {
             </p>
           </Link>
 
+    <Link  href="/admin/distribution/sale-route"
+            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
+                ? "bg-yellow-50 border-yellow-300 shadow-md"
+                : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
+              }`}
+          >
+            <div
+              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomer
+                  ? "bg-yellow-500"
+                  : "bg-yellow-100"
+                }`}
+            >
+                  
+              <RouteIcon
+                size={22}
+                className={
+                  isCustomer
+                    ? "text-white"
+                    : "text-yellow-600"
+                }
+              />
+            </div>
 
+            <h3
+              className={`font-semibold mt-4 ${isCustomer
+                  ? "text-yellow-700"
+                  : "text-gray-800"
+                }`}
+            >
+          Route
+            </h3>
+
+            <p
+              className={`text-sm mt-1 ${isCustomer
+                  ? "text-yellow-600"
+                  : "text-gray-500"
+                }`}
+            >
+              
+            </p>
+          </Link>
           <Link
-            href=" "
+            href=""
             className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomerReturn
                 ? "bg-red-500/10 border-red-500/40 shadow-md"
                 : "bg-white border-gray-100 hover:border-red-500/30 hover:shadow-md"

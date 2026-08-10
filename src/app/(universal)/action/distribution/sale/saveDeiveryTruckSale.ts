@@ -42,9 +42,9 @@ type DeliveryTruckSaleProps = {
   totalAmount: number;
 
   paymentStatus:
-    | "PAID"
-    | "PARTIAL"
-    | "CREDIT";
+  | "PAID"
+  | "PARTIAL"
+  | "CREDIT";
 
   paymentMethod?: PaymentMethodType;
 
@@ -66,7 +66,7 @@ type DeliveryTruckSaleProps = {
 // SALE
 // =====================================================
 
-export async function deiveryTruckSale({
+export async function saveDeiveryTruckSale({
   vehicleId,
   vehicleName,
 
@@ -155,10 +155,9 @@ export async function deiveryTruckSale({
     // CREATE SALE ID
     // ===================================================
 
-    const saleId =
-      `SALE-${Date.now()}-${crypto.randomUUID()}`;
+    const saleId = crypto.randomUUID();
 
-
+    let saleNo = "";
     // ===================================================
     // FIRESTORE TRANSACTION
     // ===================================================
@@ -183,6 +182,40 @@ export async function deiveryTruckSale({
 
       const tripId =
         activeTrip.tripId;
+
+      const tripNo =
+        activeTrip.tripNo;
+      // =================================================
+      // CREATE HUMAN-READABLE SALE NUMBER
+      // =================================================
+
+      const nextSaleSequence =
+        Number(activeTrip.saleSequence || 0) + 1;
+
+      const vehicleCode =
+        locationCode
+          .replace(/\s+/g, "")
+          .toUpperCase();
+
+      const now = new Date();
+
+      const year =
+        now.getFullYear();
+
+      const month =
+        String(
+          now.getMonth() + 1
+        ).padStart(2, "0");
+
+      const day =
+        String(
+          now.getDate()
+        ).padStart(2, "0");
+
+      saleNo =
+        `SALE-${year}${month}${day}-${vehicleName}-${String(
+          nextSaleSequence
+        ).padStart(3, "0")}`;
 
 
       // =================================================
@@ -301,9 +334,9 @@ export async function deiveryTruckSale({
         tx,
         {
           saleId,
-
+          saleNo,
           tripId,
-
+          tripNo,
           vehicleId,
           vehicleName,
 
@@ -379,7 +412,7 @@ export async function deiveryTruckSale({
             saleId,
 
           tripId,
-
+          tripNo,
           movementType:
             "SALE",
 
@@ -642,6 +675,8 @@ export async function deiveryTruckSale({
             admin.firestore.FieldValue.increment(
               dueAmount
             ),
+          saleSequence:
+            admin.firestore.FieldValue.increment(1),
 
           updatedAt:
             new Date(),
@@ -650,38 +685,38 @@ export async function deiveryTruckSale({
 
 
       const settlementRef = adminDb
-  .collection("driverSettlements")
-  .doc(tripId);
+        .collection("driverSettlements")
+        .doc(tripId);
 
-tx.update(settlementRef, {
+      tx.update(settlementRef, {
 
-  totalSalesAmount:
-    admin.firestore.FieldValue.increment(
-      totalAmount
-    ),
+        totalSalesAmount:
+          admin.firestore.FieldValue.increment(
+            totalAmount
+          ),
 
-  newSaleCashCollected:
-    admin.firestore.FieldValue.increment(
-      paidAmount
-    ),
+        newSaleCashCollected:
+          admin.firestore.FieldValue.increment(
+            paidAmount
+          ),
 
-  newSaleCreditAmount:
-    admin.firestore.FieldValue.increment(
-      dueAmount
-    ),
+        newSaleCreditAmount:
+          admin.firestore.FieldValue.increment(
+            dueAmount
+          ),
 
-  totalCashCollected:
-    admin.firestore.FieldValue.increment(
-      paidAmount
-    ),
+        totalCashCollected:
+          admin.firestore.FieldValue.increment(
+            paidAmount
+          ),
 
-  amountPayableToManager:
-    admin.firestore.FieldValue.increment(
-      paidAmount
-    ),
+        amountPayableToManager:
+          admin.firestore.FieldValue.increment(
+            paidAmount
+          ),
 
-  updatedAt: new Date(),
-});
+        updatedAt: new Date(),
+      });
 
     });
 
@@ -692,9 +727,8 @@ tx.update(settlementRef, {
 
     return {
       success: true,
-
       saleId,
-
+      saleNo,
       message:
         "Truck delivery sale recorded successfully.",
     };

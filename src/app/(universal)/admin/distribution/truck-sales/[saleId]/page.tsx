@@ -66,6 +66,8 @@ export default async function TruckSaleDetailPage({
     items,
   } = result.data;
 
+  console.log("sale---------------",sale)
+
   const totalCost = items.reduce(
     (sum, item) =>
       sum + Number(item.costValue || 0),
@@ -228,13 +230,13 @@ export default async function TruckSaleDetailPage({
             <div className="mt-4 space-y-3">
 
               <InfoRow
-                label="Sale ID"
-                value={sale.saleId}
+                label="Sale No"
+                value={sale.saleNo}
               />
 
               <InfoRow
-                label="Trip ID"
-                value={sale.tripId || "-"}
+                label="Trip "
+                value={sale.tripNo || "-"}
               />
 
               <InfoRow
@@ -267,13 +269,10 @@ export default async function TruckSaleDetailPage({
                 value={sale.vehicleName || "-"}
               />
 
-              <InfoRow
-                label="Vehicle ID"
-                value={sale.vehicleId || "-"}
-              />
+          
 
               <InfoRow
-                label="Location"
+                label="Code"
                 value={sale.locationCode || "-"}
               />
 
@@ -307,13 +306,13 @@ export default async function TruckSaleDetailPage({
                 }
               />
 
-              <InfoRow
+              {/* <InfoRow
                 label="Customer ID"
                 value={
                   sale.wholeSaleCutomerId ||
                   "-"
                 }
-              />
+              /> */}
 
               <InfoRow
                 label="Payment"

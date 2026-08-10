@@ -14,7 +14,6 @@ import { createVehicleLoadMaster } from "../production/distribution/vehicleLoad/
 import { getActiveVehicleTrip } from "./getActiveVehicleTrip";
 import { createDriverSettlement } from "./saleman/createDriverSettlement";
 
-
 // =====================================================
 // TYPES
 // =====================================================
@@ -25,19 +24,43 @@ type LoadVehicleItem = {
 };
 
 type LoadVehicleProps = {
+  // ===================================================
+  // ROUTE
+  // ===================================================
+
+  routeId: string;
+  routeName: string;
+
+  // ===================================================
+  // VEHICLE
+  // ===================================================
+
   vehicleId: string;
   vehicleName: string;
-
   locationCode: string;
-  responsiblePerson: string;
 
-  // Optional route information
-  routeId?: string;
-  routeName?: string;
+  // ===================================================
+  // SALESMAN
+  // ===================================================
 
-  // Optional driver information
+  salesmanId: string;
+  salesmanName: string;
+
+  // ===================================================
+  // LEGACY DRIVER / RESPONSIBLE PERSON
+  // ===================================================
+  //
+  // Keep these optional for compatibility with older
+  // code/data. New records should use salesman fields.
+  //
+
   driverId?: string;
   driverName?: string;
+  responsiblePerson?: string;
+
+  // ===================================================
+  // OTHER
+  // ===================================================
 
   remarks?: string;
   createdBy?: string;
@@ -45,24 +68,30 @@ type LoadVehicleProps = {
   items: LoadVehicleItem[];
 };
 
-
 // =====================================================
 // LOAD VEHICLE
 // =====================================================
 
 export async function loadVehicle({
+  // Route
+  routeId,
+  routeName,
+
+  // Vehicle
   vehicleId,
   vehicleName,
-
   locationCode,
-  responsiblePerson,
 
-  routeId = "",
-  routeName = "",
+  // Salesman
+  salesmanId,
+  salesmanName,
 
+  // Legacy
   driverId = "",
   driverName = "",
+  responsiblePerson = "",
 
+  // Other
   remarks,
   createdBy,
 
@@ -77,17 +106,52 @@ export async function loadVehicle({
     // BASIC VALIDATION
     // =================================================
 
+    if (!routeId) {
+      return {
+        success: false,
+        message: "Route is required.",
+      };
+    }
+
+    if (!routeName?.trim()) {
+      return {
+        success: false,
+        message: "Route name is required.",
+      };
+    }
+
     if (!vehicleId) {
       return {
         success: false,
-        message: "Vehicle is required",
+        message: "Vehicle is required.",
+      };
+    }
+
+    if (!vehicleName?.trim()) {
+      return {
+        success: false,
+        message: "Vehicle name is required.",
+      };
+    }
+
+    if (!salesmanId) {
+      return {
+        success: false,
+        message: "Salesman is required.",
+      };
+    }
+
+    if (!salesmanName?.trim()) {
+      return {
+        success: false,
+        message: "Salesman name is required.",
       };
     }
 
     if (!items || items.length === 0) {
       return {
         success: false,
-        message: "No products selected",
+        message: "No products selected.",
       };
     }
 
@@ -101,23 +165,12 @@ export async function loadVehicle({
     if (validItems.length === 0) {
       return {
         success: false,
-        message: "No valid products selected",
+        message: "No valid products selected.",
       };
     }
 
-
     // =================================================
     // CREATE UNIQUE LOAD ID
-    // =================================================
-    //
-    // loadId = database identity of THIS loading operation
-    //
-    // Example:
-    //
-    // tripId = abc123
-    //
-    // loadId = xyz789
-    //
     // =================================================
 
     const loadRef = db
@@ -128,21 +181,24 @@ export async function loadVehicle({
 
     const loadNo = generateLoadNumber();
 
-
     // =================================================
     // TRANSACTION
     // =================================================
+  const now = new Date();
+       const day = String(now.getDate()).padStart(2, "0");
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const year = now.getFullYear();
     let createdTripId = "";
+    let tripNo = `TRIP-${year}${month}-${day}-${vehicleName}`;
     await db.runTransaction(async (tx) => {
 
-      const now = new Date();
+    
 
       let totalQuantity = 0;
       let totalValue = 0;
 
-
       // =================================================
-      // 1. READ ACTIVE TRIP
+      // 1. READ ACTIVE VEHICLE TRIP
       // =================================================
 
       const activeTrip =
@@ -151,32 +207,40 @@ export async function loadVehicle({
           vehicleId
         );
 
-
       // =================================================
       // 2. DETERMINE TRIP
       // =================================================
 
       let tripId: string;
+     
       let isNewTrip = false;
 
       if (activeTrip) {
 
-        // Existing journey
+        // -----------------------------------------------
+        // EXISTING JOURNEY
+        // -----------------------------------------------
+
         tripId = activeTrip.tripId;
+        tripNo = activeTrip.tripNo;
 
       } else {
 
-        // New journey
+        // -----------------------------------------------
+        // NEW JOURNEY
+        // -----------------------------------------------
+
         const tripRef = db
           .collection("distributionTrips")
           .doc();
 
         tripId = tripRef.id;
-
+      
         isNewTrip = true;
       }
-
+      console.log("tripId------------------", tripId)
       createdTripId = tripId;
+
       // =================================================
       // 3. READ FACTORY + VEHICLE STOCK
       // =================================================
@@ -186,7 +250,6 @@ export async function loadVehicle({
         factory: any;
         van: any;
       }> = [];
-
 
       for (const item of validItems) {
 
@@ -198,20 +261,21 @@ export async function loadVehicle({
           await getStockLocation({
             tx,
 
-            productId: item.productId,
+            productId:
+              item.productId,
 
-            locationType: "STORE",
+            locationType:
+              "STORE",
 
-            locationRef: "MAIN",
+            locationRef:
+              "MAIN",
           });
-
 
         if (!factory) {
           throw new Error(
             `Factory stock not found for product ${item.productId}`
           );
         }
-
 
         // ---------------------------------------------
         // VEHICLE STOCK
@@ -221,13 +285,15 @@ export async function loadVehicle({
           await getStockLocation({
             tx,
 
-            productId: item.productId,
+            productId:
+              item.productId,
 
-            locationType: "TRUCK",
+            locationType:
+              "TRUCK",
 
-            locationRef: vehicleId,
+            locationRef:
+              vehicleId,
           });
-
 
         factoryStocks.push({
           item,
@@ -236,7 +302,6 @@ export async function loadVehicle({
         });
       }
 
-
       // =================================================
       // 4. VALIDATE FACTORY STOCK
       // =================================================
@@ -244,18 +309,20 @@ export async function loadVehicle({
       for (const row of factoryStocks) {
 
         const requestedQty =
-          Number(row.item.quantity || 0);
+          Number(
+            row.item.quantity || 0
+          );
 
         const availableQty =
-          Number(row.factory.quantity || 0);
-
+          Number(
+            row.factory.quantity || 0
+          );
 
         if (requestedQty <= 0) {
           throw new Error(
             `${row.factory.productName} has invalid quantity.`
           );
         }
-
 
         if (availableQty < requestedQty) {
           throw new Error(
@@ -264,7 +331,6 @@ export async function loadVehicle({
           );
         }
       }
-
 
       // =================================================
       // 5. MOVE STOCK MAIN → VEHICLE
@@ -275,7 +341,6 @@ export async function loadVehicle({
         const quantity =
           Number(row.item.quantity);
 
-
         // ---------------------------------------------
         // REMOVE FROM MAIN STOCK
         // ---------------------------------------------
@@ -283,11 +348,12 @@ export async function loadVehicle({
         await updateStockLocation({
           tx,
 
-          snap: row.factory,
+          snap:
+            row.factory,
 
-          quantity: -quantity,
+          quantity:
+            -quantity,
         });
-
 
         // ---------------------------------------------
         // ADD TO VEHICLE STOCK
@@ -296,7 +362,8 @@ export async function loadVehicle({
         await addStockLocation({
           tx,
 
-          existing: row.van,
+          existing:
+            row.van,
 
           productId:
             row.factory.productId,
@@ -316,13 +383,14 @@ export async function loadVehicle({
           avgCost:
             row.factory.avgCost,
 
-          locationType: "TRUCK",
+          locationType:
+            "TRUCK",
 
-          locationRef: vehicleId,
+          locationRef:
+            vehicleId,
 
           quantity,
         });
-
 
         // =================================================
         // STOCK MOVEMENT
@@ -332,12 +400,15 @@ export async function loadVehicle({
           tx,
 
           // Loading operation
-          batchId: loadId,
+          batchId:
+            loadId,
 
           // Entire journey
           tripId,
+          tripNo,
 
-          movementType: "TRANSFER",
+          movementType:
+            "TRANSFER",
 
           productId:
             row.factory.productId,
@@ -345,50 +416,58 @@ export async function loadVehicle({
           productName:
             row.factory.productName,
 
-          name: vehicleName,
+          // Vehicle
+          name:
+            vehicleName,
 
           vehicleId,
 
           locationCode,
 
-          responsiblePerson,
+          // New responsible person
+          responsiblePerson:
+            salesmanName,
 
           wholesalePrice:
             row.factory.wholesalePrice,
 
           quantity,
 
-          fromLocationType: "STOCK",
+          fromLocationType:
+            "STOCK",
 
-          fromLocationRef: "MAIN",
+          fromLocationRef:
+            "MAIN",
 
-          toLocationType: "TRUCK",
+          toLocationType:
+            "TRUCK",
 
-          toLocationRef: vehicleId,
-
-
+          toLocationRef:
+            vehicleId,
 
           remarks,
 
           createdBy,
         });
 
-
         // =================================================
         // LOAD REPORT VALUES
         // =================================================
 
         const costPerUnit =
-          Number(row.factory.avgCost || 0);
+          Number(
+            row.factory.avgCost || 0
+          );
 
         const lineValue =
-          quantity * costPerUnit;
+          quantity *
+          costPerUnit;
 
+        totalQuantity +=
+          quantity;
 
-        totalQuantity += quantity;
-
-        totalValue += lineValue;
-
+        totalValue +=
+          lineValue;
 
         // =================================================
         // LOAD ITEM
@@ -420,74 +499,92 @@ export async function loadVehicle({
         });
       }
 
-
       // =================================================
       // 6. CREATE NEW TRIP
       // =================================================
 
       if (isNewTrip) {
 
-        const tripRef = db
-          .collection("distributionTrips")
-          .doc(tripId);
+        const tripRef =
+          db
+            .collection(
+              "distributionTrips"
+            )
+            .doc(tripId);
 
 
-        const tripNo =
-          `TRIP-${now
-            .toISOString()
-            .slice(0, 10)
-            .replace(/-/g, "")}-${Date.now()}`;
+        
+
+
+        
+
 
 
         tx.set(tripRef, {
 
-          id: tripId,
+          id:
+            tripId,
 
           tripNo,
 
-          // -------------------------------------------
-          // VEHICLE
-          // -------------------------------------------
-
-          vehicleId,
-
-          vehicleName,
-
-          // -------------------------------------------
-          // DRIVER
-          // -------------------------------------------
-
-          driverId,
-
-          driverName:
-            driverName ||
-            responsiblePerson,
-
-          responsiblePerson,
-
-          // -------------------------------------------
+          // =============================================
           // ROUTE
-          // -------------------------------------------
+          // =============================================
 
           routeId,
 
           routeName,
 
-          // -------------------------------------------
-          // LOCATION
-          // -------------------------------------------
+          // =============================================
+          // VEHICLE
+          // =============================================
+
+          vehicleId,
+
+          vehicleName,
 
           locationCode,
 
-          // -------------------------------------------
+          // =============================================
+          // SALESMAN
+          // =============================================
+
+          salesmanId,
+
+          salesmanName,
+
+          saleSequence: 0,
+          // =============================================
+          // LEGACY DRIVER FIELDS
+          // =============================================
+          //
+          // Keep these so old reports/code don't break.
+          // New system treats salesman as the responsible
+          // person.
+          //
+
+          driverId:
+            driverId ||
+            salesmanId,
+
+          driverName:
+            driverName ||
+            salesmanName,
+
+          responsiblePerson:
+            responsiblePerson ||
+            salesmanName,
+
+          // =============================================
           // STATUS
-          // -------------------------------------------
+          // =============================================
 
-          status: "LOADED",
+          status:
+            "LOADED",
 
-          // -------------------------------------------
+          // =============================================
           // LOAD TOTALS
-          // -------------------------------------------
+          // =============================================
 
           totalLoadedQuantity:
             totalQuantity,
@@ -495,32 +592,41 @@ export async function loadVehicle({
           totalLoadedValue:
             totalValue,
 
-          // -------------------------------------------
+          // =============================================
           // SALES / RETURNS
-          // -------------------------------------------
+          // =============================================
 
-          totalSalesAmount: 0,
+          totalSalesAmount:
+            0,
 
-          totalReturnAmount: 0,
+          totalReturnAmount:
+            0,
 
-          totalCashCollected: 0,
-          totalPreviousCreditCollected: 0,
+          totalCashCollected:
+            0,
 
-          totalCreditAmount: 0,
+          totalPreviousCreditCollected:
+            0,
 
-          // -------------------------------------------
+          totalCreditAmount:
+            0,
+
+          // =============================================
           // SETTLEMENT
-          // -------------------------------------------
+          // =============================================
 
-          totalExpenses: 0,
+          totalExpenses:
+            0,
 
-          totalAmountHandedOver: 0,
+          totalAmountHandedOver:
+            0,
 
-          settlementDifference: 0,
+          settlementDifference:
+            0,
 
-          // -------------------------------------------
+          // =============================================
           // META
-          // -------------------------------------------
+          // =============================================
 
           remarks:
             remarks || "",
@@ -528,28 +634,40 @@ export async function loadVehicle({
           createdBy:
             createdBy || "ADMIN",
 
-          createdAt: now,
+          createdAt:
+            now,
 
-          updatedAt: now,
-
+          updatedAt:
+            now,
         });
 
-        // CREATE DRIVER MONEY ACCOUNT
+        // =================================================
+        // CREATE SALESMAN MONEY ACCOUNT
+        // =================================================
+        //
+        // Existing helper is still named
+        // createDriverSettlement for legacy reasons.
+        //
+
         await createDriverSettlement({
           tx,
 
           tripId,
 
           vehicleId,
+
           vehicleName,
 
-          driverId,
+          driverId:
+            driverId ||
+            salesmanId,
 
           driverName:
             driverName ||
-            responsiblePerson,
+            salesmanName,
 
-          openingCash: 0,
+          openingCash:
+            0,
         });
 
       } else {
@@ -558,133 +676,157 @@ export async function loadVehicle({
         // 7. EXISTING TRIP → ADD NEW LOAD TOTALS
         // =================================================
 
-        const tripRef = db
-          .collection("distributionTrips")
-          .doc(tripId);
+        const tripRef =
+          db
+            .collection(
+              "distributionTrips"
+            )
+            .doc(tripId);
 
+        tx.update(
+          tripRef,
+          {
 
-        tx.update(tripRef, {
+            totalLoadedQuantity:
+              (
+                activeTrip
+                  ?.totalLoadedQuantity ||
+                0
+              ) +
+              totalQuantity,
 
-          totalLoadedQuantity:
-            (activeTrip?.totalLoadedQuantity || 0) +
-            totalQuantity,
+            totalLoadedValue:
+              (
+                activeTrip
+                  ?.totalLoadedValue ||
+                0
+              ) +
+              totalValue,
 
-          totalLoadedValue:
-            (activeTrip?.totalLoadedValue || 0) +
-            totalValue,
+            updatedAt:
+              now,
 
-          updatedAt: now,
-
-          // If a new load happens, vehicle is definitely loaded
-          status: "LOADED",
-        });
-
-
-
-
+            // New load means vehicle has stock
+            status:
+              "LOADED",
+          }
+        );
       }
-
 
       // =================================================
       // 8. CREATE LOAD MASTER
       // =================================================
 
-      await createVehicleLoadMaster(tx, {
+      await createVehicleLoadMaster(
+        tx,
+        {
 
-        // -------------------------------------------
-        // LOAD
-        // -------------------------------------------
+          // =============================================
+          // LOAD
+          // =============================================
 
-        loadId,
+          loadId,
 
-        loadNo,
+          loadNo,
 
-        // -------------------------------------------
-        // TRIP
-        // -------------------------------------------
+          // =============================================
+          // TRIP
+          // =============================================
 
-        tripId,
+          tripId,
 
-        // -------------------------------------------
-        // ROUTE
-        // -------------------------------------------
+          // =============================================
+          // ROUTE
+          // =============================================
 
-        routeId,
+          routeId,
 
-        routeName,
+          routeName,
 
-        // -------------------------------------------
-        // VEHICLE
-        // -------------------------------------------
+          // =============================================
+          // VEHICLE
+          // =============================================
 
-        vehicleId,
+          vehicleId,
 
-        vehicleName,
+          vehicleName,
 
-        // -------------------------------------------
-        // DRIVER
-        // -------------------------------------------
+          locationCode,
 
-        driverId,
+          // =============================================
+          // SALESMAN
+          // =============================================
 
-        driverName:
-          driverName ||
-          responsiblePerson,
+          driverId:
+            driverId ||
+            salesmanId,
 
-        // -------------------------------------------
-        // LOCATION
-        // -------------------------------------------
+          driverName:
+            driverName ||
+            salesmanName,
 
-        locationCode,
+          // =============================================
+          // LEGACY RESPONSIBLE PERSON
+          // =============================================
 
-        responsiblePerson,
+          responsiblePerson:
+            responsiblePerson ||
+            salesmanName,
 
-        // -------------------------------------------
-        // META
-        // -------------------------------------------
+          // =============================================
+          // META
+          // =============================================
 
-        remarks,
+          remarks,
 
-        createdBy,
+          createdBy,
 
-        businessDate:
-          now
-            .toISOString()
-            .slice(0, 10),
+          businessDate:
+            now
+              .toISOString()
+              .slice(0, 10),
 
-        // -------------------------------------------
-        // TOTALS
-        // -------------------------------------------
+          // =============================================
+          // TOTALS
+          // =============================================
 
-        totalItems:
-          validItems.length,
+          totalItems:
+            validItems.length,
 
-        totalQuantity,
+          totalQuantity,
 
-        totalValue,
+          totalValue,
 
-        // -------------------------------------------
-        // STATUS
-        // -------------------------------------------
+          // =============================================
+          // STATUS
+          // =============================================
 
-        status: "LOADED",
-      });
+          status:
+            "LOADED",
+        }
+      );
 
     });
-
 
     // =================================================
     // SUCCESS
     // =================================================
 
     return {
-      success: true,
-      tripId: createdTripId,
-      loadId,
-      loadNo,
-      message: "Vehicle loaded successfully.",
-    };
 
+      success:
+        true,
+
+      tripId:
+        createdTripId,
+
+      loadId,
+
+      loadNo,
+
+      message:
+        "Vehicle loaded successfully.",
+    };
 
   } catch (error: any) {
 
@@ -693,10 +835,10 @@ export async function loadVehicle({
       error
     );
 
-
     return {
 
-      success: false,
+      success:
+        false,
 
       message:
         error?.message ||
