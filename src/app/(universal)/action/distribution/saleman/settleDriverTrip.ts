@@ -43,7 +43,7 @@ export async function settleDriverTrip({
       // =====================================================
 
       const settlementRef = adminDb
-        .collection("driverSettlements")
+        .collection("salemanSettlements")
         .doc(tripId);
 
       const tripRef = adminDb

@@ -11,7 +11,7 @@ import { settleDriverTrip } from "@/app/(universal)/action/distribution/saleman/
 type SettlementData = {
     settlementId: string;
     tripId: string;
- tripNo: string;
+    tripNo: string;
     vehicleId: string;
     vehicleName: string;
 
@@ -293,7 +293,7 @@ export default function SettleTripPage() {
     if (loading) {
         return (
             <div className="p-6">
-                <div className="rounded-xl border bg-white p-10 text-center">
+                <div className="rounded-xl border  border-slate-300  bg-white p-10 text-center">
                     Loading settlement...
                 </div>
             </div>
@@ -309,7 +309,7 @@ export default function SettleTripPage() {
         return (
             <div className="p-6">
 
-                <div className="rounded-xl border bg-white p-10 text-center">
+                <div className="rounded-xl border  border-slate-300  bg-white p-10 text-center">
 
                     <h2 className="text-lg font-semibold">
                         Settlement not found
@@ -332,7 +332,7 @@ export default function SettleTripPage() {
     // =====================================================
 
     return (
-        <div className="min-h-screen bg-gray-100 p-6">
+        <div className="min-h-screen   p-6">
 
             <div className="mx-auto max-w-5xl space-y-6">
 
@@ -354,9 +354,23 @@ export default function SettleTripPage() {
                         </p>
 
                     </div>
+                      <div className="flex justify-end gap-3">
 
+                                <Button 
+                                    onClick={
+                                        handleSettlement
+                                    }
+                                    disabled={
+                                        settling
+                                    }
+                                    className="bg-red-600 hover:bg-red-700 w-[300px] text-slate-100"
+                                >
+                                    {settling
+                                        ? "Settling..."
+                                        : "Settle Trip"}
+                                </Button>
 
-                    <div
+                                         <div
                         className={`
               rounded-full
               px-4
@@ -373,6 +387,13 @@ export default function SettleTripPage() {
                         {settlement.status}
                     </div>
 
+                            </div>
+
+
+           
+
+
+
                 </div>
 
 
@@ -380,7 +401,7 @@ export default function SettleTripPage() {
                 {/* TRIP INFORMATION */}
                 {/* ========================================= */}
 
-                <div className="rounded-xl border bg-white p-6">
+                <div className="rounded-xl border  border-slate-300  bg-white p-6">
 
                     <h2 className="mb-4 text-lg font-semibold">
                         Trip Information
@@ -389,10 +410,10 @@ export default function SettleTripPage() {
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
 
-                    <Info
-    label="Trip No"
-    value={settlement.tripNo || "-"}
-/>
+                        <Info
+                            label="Trip No"
+                            value={settlement.tripNo || "-"}
+                        />
 
                         <Info
                             label="Vehicle"
@@ -414,147 +435,11 @@ export default function SettleTripPage() {
 
                 </div>
 
-
-                {/* ========================================= */}
-                {/* SALES SUMMARY */}
-                {/* ========================================= */}
-
-                <div className="rounded-xl border bg-white p-6">
-
-                    <h2 className="mb-4 text-lg font-semibold">
-                        Sales & Cash Summary
-                    </h2>
-
-
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-
-
-                        <MoneyCard
-                            label="Total Sales"
-                            value={
-                                settlement.totalSalesAmount
-                            }
-                        />
-
-
-                        <MoneyCard
-                            label="New Sale — Cash"
-                            value={
-                                settlement.newSaleCashCollected
-                            }
-                        />
-
-
-                        <MoneyCard
-                            label="New Sale — Credit"
-                            value={
-                                settlement.newSaleCreditAmount
-                            }
-                        />
-
-
-                        <MoneyCard
-                            label="Old Credit Collected"
-                            value={
-                                settlement.oldCreditCollected
-                            }
-                        />
-
-
-                        <MoneyCard
-                            label="Total Cash Collected"
-                            value={
-                                settlement.totalCashCollected
-                            }
-                        />
-
-                        <MoneyCard
-                            label="Expenses"
-                            value={settlement.totalExpenses}
-                        />
-
-                        {/* <MoneyCard
-              label="Expenses"
-              value={
-                settlement.totalExpenses}
-              /> */}
-
-                    </div>
-
-                </div>
-
-
-                {/* ========================================= */}
-                {/* MONEY CALCULATION */}
-                {/* ========================================= */}
-
-                <div className="rounded-xl border bg-white p-6">
-
-                    <h2 className="mb-4 text-lg font-semibold">
-                        Amount Payable
-                    </h2>
-
-
-                    <div className="rounded-xl bg-gray-50 p-5">
-
-                        <div className="flex items-center justify-between">
-
-                            <span className="text-gray-600">
-                                Cash collected
-                            </span>
-
-                            <span className="font-medium">
-                                {formatMoney(
-                                    settlement.totalCashCollected
-                                )}
-                            </span>
-
-                        </div>
-
-
-                        <div className="mt-3 flex items-center justify-between">
-
-                            <span className="text-gray-600">
-                                Expenses
-                            </span>
-
-                            <span className="font-medium">
-                                -{" "}
-                                {formatMoney(
-                                    settlement.totalExpenses
-                                )}
-                            </span>
-
-                        </div>
-
-
-                        <div className="my-4 border-t" />
-
-
-                        <div className="flex items-center justify-between">
-
-                            <span className="text-lg font-semibold">
-                                Amount Payable to Manager
-                            </span>
-
-                            <span className="text-2xl font-bold">
-                                {formatMoney(
-                                    payable
-                                )}
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {/* ========================================= */}
+        {/* ========================================= */}
                 {/* HANDOVER */}
                 {/* ========================================= */}
 
-                <div className="rounded-xl border bg-white p-6">
+                <div className="rounded-xl border  border-slate-300  bg-white p-6">
 
                     <h2 className="mb-4 text-lg font-semibold">
                         Manager Handover
@@ -725,29 +610,149 @@ export default function SettleTripPage() {
 
                             {/* BUTTON */}
 
-                            <div className="flex justify-end">
 
-                                <Button
-                                    onClick={
-                                        handleSettlement
-                                    }
-                                    disabled={
-                                        settling
-                                    }
-                                    className="px-8"
-                                >
-                                    {settling
-                                        ? "Settling..."
-                                        : "Settle Trip"}
-                                </Button>
-
-                            </div>
 
                         </div>
 
                     )}
 
                 </div>
+                {/* ========================================= */}
+                {/* SALES SUMMARY */}
+                {/* ========================================= */}
+
+                <div className="rounded-xl border  border-slate-300  bg-white p-6">
+
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Sales & Cash Summary
+                    </h2>
+
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+
+                        <MoneyCard
+                            label="Total Sales"
+                            value={
+                                settlement.totalSalesAmount
+                            }
+                        />
+
+
+                        <MoneyCard
+                            label="New Sale — Cash"
+                            value={
+                                settlement.newSaleCashCollected
+                            }
+                        />
+
+
+                        <MoneyCard
+                            label="New Sale — Credit"
+                            value={
+                                settlement.newSaleCreditAmount
+                            }
+                        />
+
+
+                        <MoneyCard
+                            label="Old Credit Collected"
+                            value={
+                                settlement.oldCreditCollected
+                            }
+                        />
+
+
+                        <MoneyCard
+                            label="Total Cash Collected"
+                            value={
+                                settlement.totalCashCollected
+                            }
+                        />
+
+                        <MoneyCard
+                            label="Expenses"
+                            value={settlement.totalExpenses}
+                        />
+
+                        {/* <MoneyCard
+              label="Expenses"
+              value={
+                settlement.totalExpenses}
+              /> */}
+
+                    </div>
+
+                </div>
+
+
+                {/* ========================================= */}
+                {/* MONEY CALCULATION */}
+                {/* ========================================= */}
+
+                <div className="rounded-xl border  border-slate-300  bg-white p-6">
+
+                    <h2 className="mb-4 text-lg font-semibold">
+                        Amount Payable
+                    </h2>
+
+
+                    <div className="rounded-xl bg-gray-50 p-5">
+
+                        <div className="flex items-center justify-between">
+
+                            <span className="text-gray-600">
+                                Cash collected
+                            </span>
+
+                            <span className="font-medium">
+                                {formatMoney(
+                                    settlement.totalCashCollected
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div className="mt-3 flex items-center justify-between">
+
+                            <span className="text-gray-600">
+                                Expenses
+                            </span>
+
+                            <span className="font-medium">
+                                -{" "}
+                                {formatMoney(
+                                    settlement.totalExpenses
+                                )}
+                            </span>
+
+                        </div>
+
+
+                        <div className="my-4 border-t" />
+
+
+                        <div className="flex items-center justify-between">
+
+                            <span className="text-lg font-semibold">
+                                Amount Payable to Manager
+                            </span>
+
+                            <span className="text-2xl font-bold">
+                                {formatMoney(
+                                    payable
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+        
 
             </div>
 
@@ -802,7 +807,7 @@ function MoneyCard({
         ).format(value || 0);
 
     return (
-        <div className="rounded-xl border bg-gray-50 p-4">
+        <div className="rounded-xl border  border-slate-300  bg-gray-50 p-4">
 
             <p className="text-sm text-gray-500">
                 {label}

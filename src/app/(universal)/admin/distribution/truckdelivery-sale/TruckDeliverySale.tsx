@@ -29,7 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { WholeCustomerType } from "@/lib/types/WholeSaleCustomerType";
 import { saveDeiveryTruckSale } from "@/app/(universal)/action/distribution/sale/saveDeiveryTruckSale";
- 
+
 
 type TruckDeliverySaleType = {
   vehicleId: string;
@@ -73,38 +73,38 @@ export default function TruckDeliverySale({
   // console.log("fact  ------------------", customers)
 
   const [highlightIndex, setHighlightIndex] = useState(0);
-const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  if (!showDropdown) return;
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown) return;
 
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    setHighlightIndex((prev) =>
-      prev < filteredCustomers.length - 1 ? prev + 1 : prev
-    );
-  }
-
-  if (e.key === "ArrowUp") {
-    e.preventDefault();
-    setHighlightIndex((prev) => (prev > 0 ? prev - 1 : 0));
-  }
-
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const selected = filteredCustomers[highlightIndex];
-    if (selected) {
-      form.setValue("wholeSaleCutomerId", selected.id);
-      form.setValue("wholeSaleCutomerName", selected.companyName);
-      setCustomerSearch(selected.companyName);
-      setShowDropdown(false);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev < filteredCustomers.length - 1 ? prev + 1 : prev
+      );
     }
-  }
-};
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const selected = filteredCustomers[highlightIndex];
+      if (selected) {
+        form.setValue("wholeSaleCutomerId", selected.id);
+        form.setValue("wholeSaleCutomerName", selected.companyName);
+        setCustomerSearch(selected.companyName);
+        setShowDropdown(false);
+      }
+    }
+  };
 
   const [customerSearch, setCustomerSearch] = useState("");
 
- 
+
 
   const form = useForm<TruckDeliverySaleType>({
     defaultValues: {
@@ -300,12 +300,12 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         return;
       }
 
-      if (data.paidAmount > data.totalAmount) {
-        toast.error(
-          'Paid amount cannot be greater than total amount.'
-        );
-        return;
-      }
+      // if (data.paidAmount > data.totalAmount) {
+      //   toast.error(
+      //     'Paid amount cannot be greater than total amount.'
+      //   );
+      //   return;
+      // }
 
       const result = await saveDeiveryTruckSale({
         vehicleId: data.vehicleId,
@@ -529,161 +529,160 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
           <div className="rounded-xl px-1 border border-gray-100 shadow-sm ">
 
 
-         
 
-              <div className="flex items-end gap-4 flex-wrap   pb-3">
 
-                {/* Vehicle */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Vehicle</label>
+            <div className="flex items-end gap-4 flex-wrap   pb-3">
 
-                  <Controller
-                    control={form.control}
-                    name="vehicleId"
-                    render={({ field }) => (
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <SelectTrigger className="h-9 w-44 text-sm">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
+              {/* Vehicle */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Vehicle</label>
 
-                        <SelectContent>
-                          {vehicles.map((v) => (
-                            <SelectItem key={v.id} value={v.id}>
-                              {v.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                <Controller
+                  control={form.control}
+                  name="vehicleId"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-9 w-44 text-sm">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {vehicles.map((v) => (
+                          <SelectItem key={v.id} value={v.id}>
+                            {v.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              {/* Driver */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Driver</label>
+
+                <Input
+                  value={selectedVehicle?.responsiblePersonName ?? ""}
+                  disabled
+                  className="h-9 w-40 text-sm bg-gray-100"
+                />
+              </div>
+
+              {/* Customer */}
+              <div className="relative w-56">
+
+                {/* INPUT */}
+                <div className="relative">
+                  <Search
+                    size={14}
+                    className="absolute right-2 top-2.5 text-gray-400"
+                  />
+
+                  <input
+                    type="text"
+                    value={customerSearch}
+                    onChange={(e) => {
+                      setCustomerSearch(e.target.value);
+                      setShowDropdown(true);
+                      setHighlightIndex(0);
+                    }}
+                    onFocus={() => setShowDropdown(true)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Search"
+                    className="h-9 w-full border border-gray-300 rounded px-2 pr-6 text-sm"
+                  />
+                </div>
+
+                {/* DROPDOWN */}
+                {showDropdown && (
+                  <div className="absolute top-full mt-1 w-full max-h-44 overflow-y-auto border bg-white shadow-sm z-50 rounded">
+
+                    {filteredCustomers.length > 0 ? (
+                      filteredCustomers.map((customer, index) => (
+                        <button
+                          key={customer.id}
+                          type="button"
+                          onClick={() => {
+                            form.setValue("wholeSaleCutomerId", customer.id);
+                            form.setValue("wholeSaleCutomerName", customer.companyName);
+                            setCustomerSearch(customer.companyName);
+                            setShowDropdown(false);
+                          }}
+                          className={`w-full text-left px-2 py-2 text-sm ${index === highlightIndex
+                              ? "bg-blue-100"
+                              : "hover:bg-gray-100"
+                            }`}
+                        >
+                          <div className="font-medium truncate">
+                            {customer.companyName}
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="p-2 text-xs text-gray-400 text-center">
+                        No customer
+                      </div>
                     )}
-                  />
-                </div>
 
-                {/* Driver */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Driver</label>
+                  </div>
+                )}
+              </div>
 
-                  <Input
-                    value={selectedVehicle?.responsiblePersonName ?? ""}
-                    disabled
-                    className="h-9 w-40 text-sm bg-gray-100"
-                  />
-                </div>
+              {/* Total */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Total</label>
 
-                {/* Customer */}
-          <div className="relative w-56">
+                <Input
+                  value={totalAmount.toFixed(2)}
+                  readOnly
+                  className="h-9 w-28 text-sm bg-gray-100"
+                />
+              </div>
 
-  {/* INPUT */}
-  <div className="relative">
-    <Search
-      size={14}
-      className="absolute right-2 top-2.5 text-gray-400"
-    />
+              {/* Payment Status */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Payment</label>
 
-    <input
-      type="text"
-      value={customerSearch}
-      onChange={(e) => {
-        setCustomerSearch(e.target.value);
-        setShowDropdown(true);
-        setHighlightIndex(0);
-      }}
-      onFocus={() => setShowDropdown(true)}
-      onKeyDown={handleKeyDown}
-      placeholder="Search"
-      className="h-9 w-full border border-gray-300 rounded px-2 pr-6 text-sm"
-    />
-  </div>
+                <select
+                  {...form.register("paymentStatus")}
+                  className="h-9 w-36 border border-gray-300 rounded text-sm px-2"
+                >
+                  <option value="PAID">Paid</option>
+                  <option value="PARTIAL">Partial</option>
+                </select>
+              </div>
 
-  {/* DROPDOWN */}
-{showDropdown && (
-  <div className="absolute top-full mt-1 w-full max-h-44 overflow-y-auto border bg-white shadow-sm z-50 rounded">
+              {/* Paid Amount */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Paid</label>
 
-    {filteredCustomers.length > 0 ? (
-      filteredCustomers.map((customer, index) => (
-        <button
-          key={customer.id}
-          type="button"
-          onClick={() => {
-            form.setValue("wholeSaleCutomerId", customer.id);
-            form.setValue("wholeSaleCutomerName", customer.companyName);
-            setCustomerSearch(customer.companyName);
-            setShowDropdown(false);
-          }}
-          className={`w-full text-left px-2 py-2 text-sm ${
-            index === highlightIndex
-              ? "bg-blue-100"
-              : "hover:bg-gray-100"
-          }`}
-        >
-          <div className="font-medium truncate">
-            {customer.companyName}
-          </div>
-        </button>
-      ))
-    ) : (
-      <div className="p-2 text-xs text-gray-400 text-center">
-        No customer
-      </div>
-    )}
+                <Input
+                  type="number"
+                  step="0.01"
+                  disabled={paymentStatus === "PAID"}
+                  {...form.register("paidAmount", {
+                    valueAsNumber: true,
+                  })}
+                  className="h-9 w-28 text-sm"
+                />
+              </div>
 
-  </div>
-)}
-</div>
+              {/* Due */}
+              <div className="flex flex-col">
+                <label className="text-xs text-gray-500">Due</label>
 
-                {/* Total */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Total</label>
+                <Input
+                  value={dueAmount.toFixed(2)}
+                  readOnly
+                  className="h-9 w-28 text-sm bg-gray-100"
+                />
+              </div>
 
-                  <Input
-                    value={totalAmount.toFixed(2)}
-                    readOnly
-                    className="h-9 w-28 text-sm bg-gray-100"
-                  />
-                </div>
-
-                {/* Payment Status */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Payment</label>
-
-                  <select
-                    {...form.register("paymentStatus")}
-                    className="h-9 w-36 border border-gray-300 rounded text-sm px-2"
-                  >
-                    <option value="PAID">Paid</option>
-                    <option value="PARTIAL">Partial</option>
-                  </select>
-                </div>
-
-                {/* Paid Amount */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Paid</label>
-
-                  <Input
-                    type="number"
-                    step="0.01"
-                    disabled={paymentStatus === "PAID"}
-                    {...form.register("paidAmount", {
-                      valueAsNumber: true,
-                    })}
-                    className="h-9 w-28 text-sm"
-                  />
-                </div>
-
-                {/* Due */}
-                <div className="flex flex-col">
-                  <label className="text-xs text-gray-500">Due</label>
-
-                  <Input
-                    value={dueAmount.toFixed(2)}
-                    readOnly
-                    className="h-9 w-28 text-sm bg-gray-100"
-                  />
-                </div>
-
-     <Button
+              <Button
                 type='submit'
                 size='lg'
                 className='bg-red-600 hover:bg-red-700 w-[300px] text-slate-100'
@@ -701,16 +700,16 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
                   </>
                 )}
               </Button>
-              </div>
+            </div>
 
-           
+
           </div>
 
           {/* ================= Products ================= */}
 
           <div className="rounded-xl border border-gray-100 shadow-sm bg-white">
 
-          
+
             <div className="">
 
               <div className="rounded-xl overflow-hidden  ">

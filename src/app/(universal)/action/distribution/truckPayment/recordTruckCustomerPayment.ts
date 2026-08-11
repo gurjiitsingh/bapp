@@ -86,7 +86,7 @@ export async function recordTruckCustomerPayment({
 
       const {
         currentBalance,
-        currentCreditBalance,
+        
       } =
         await readCustomerAccountData({
           tx,
@@ -123,7 +123,7 @@ export async function recordTruckCustomerPayment({
 
         creditAmount: 0,
 
-        currentCreditBalance,
+        
 
         currentBalance,
 
@@ -225,7 +225,7 @@ export async function recordTruckCustomerPayment({
 
       const settlementRef =
         adminDb
-          .collection("driverSettlements")
+          .collection("salemanSettlements")
           .doc(tripId);
 
       tx.update(settlementRef, {

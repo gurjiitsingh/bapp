@@ -136,7 +136,7 @@ export default function DistributionTripDetailPage() {
     return (
       <div className="p-6">
 
-        <div className="rounded-xl border bg-white p-6 text-red-600">
+        <div className="rounded-xl border  border-slate-100  bg-white p-6 text-red-600">
           {error}
         </div>
 
@@ -230,7 +230,7 @@ export default function DistributionTripDetailPage() {
         {/* HEADER */}
         {/* ===================================== */}
 
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border  border-slate-100  bg-white p-6 shadow-sm">
 
           <div className="flex items-start justify-between">
 
@@ -351,19 +351,19 @@ export default function DistributionTripDetailPage() {
           />
 
           <SummaryCard
-            title="New Sale Cash"
+            title="Cash Sale"
             value={formatMoney(
               (trip.totalSalesAmount || 0) -
               (trip.totalCreditAmount || 0)
             )}
           />
 
-          <SummaryCard
-            title="Old Credit Collected"
+          {/* <SummaryCard
+            title="Credit Sale"
             value={formatMoney(
               trip.totalPreviousCreditCollected || 0
             )}
-          />
+          /> */}
 
           <SummaryCard
             title="Total Cash Collected"
@@ -390,9 +390,9 @@ export default function DistributionTripDetailPage() {
         {/* LOADS */}
         {/* ===================================== */}
 
-        <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="rounded-2xl border  border-slate-100  bg-white shadow-sm">
 
-          <div className="border-b p-5">
+          <div className="border-b  border-slate-300   p-5">
 
             <h2 className="text-lg font-semibold">
               Vehicle Loads
@@ -465,7 +465,7 @@ export default function DistributionTripDetailPage() {
 
                     <tr
                       key={load.loadId}
-                      className="border-t hover:bg-blue-50"
+                      className="border-t  border-slate-300   hover:bg-blue-50"
                     >
 
                       <td className="p-3">
@@ -546,9 +546,9 @@ export default function DistributionTripDetailPage() {
         {/* SALES */}
         {/* ===================================== */}
 
-        <div className="rounded-2xl border bg-white shadow-sm">
+        <div className="rounded-2xl border  border-slate-100  bg-white shadow-sm">
 
-          <div className="border-b p-5">
+          <div className="border-b  border-slate-300   p-5">
 
             <h2 className="text-lg font-semibold">
               Truck Sales
@@ -629,7 +629,7 @@ export default function DistributionTripDetailPage() {
 
                     <tr
                       key={sale.saleId}
-                      className="border-t hover:bg-blue-50"
+                      className="border-t  border-slate-300   hover:bg-blue-50"
                     >
 
                       <td className="p-3">
@@ -726,7 +726,7 @@ export default function DistributionTripDetailPage() {
 
         {trip.remarks && (
 
-          <div className="rounded-xl border bg-white p-5">
+          <div className="rounded-xl border  border-slate-100  bg-white p-5">
 
             <h2 className="font-semibold">
               Remarks
@@ -763,7 +763,7 @@ function SummaryCard({
 
   return (
 
-    <div className="rounded-2xl border bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border  border-slate-100  border-slate-100 bg-white p-5 shadow-sm">
 
       <p className="text-sm text-gray-500">
         {title}

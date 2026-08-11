@@ -119,7 +119,7 @@ export default function DistributionTripsPage() {
             onChange={(e) =>
               setStatus(e.target.value)
             }
-            className="h-10 rounded-md border bg-white px-3 text-sm"
+            className="h-10 rounded-md border  border-slate-100 bg-white px-3 text-sm"
           >
             <option value="ALL">
               All Status
@@ -153,7 +153,7 @@ export default function DistributionTripsPage() {
         {/* TABLE */}
         {/* ===================================== */}
 
-        <div className="overflow-hidden rounded-xl border bg-white">
+        <div className="overflow-hidden rounded-xl border  border-slate-100 bg-white">
 
           <table className="w-full text-sm">
 

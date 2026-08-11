@@ -11,23 +11,23 @@ type CreateDriverSettlementInput = {
   vehicleId: string;
   vehicleName: string;
 
-  driverId?: string;
-  driverName?: string;
+  salemanId?: string;
+  salemanName?: string;
 
   openingCash?: number;
 };
 
-export async function createDriverSettlement({
+export async function createSalesmanSettlement({
   tx,
   tripId,
   vehicleId,
   vehicleName,
-  driverId = "",
-  driverName = "",
+  salemanId = "",
+  salemanName = "",
   openingCash = 0,
 }: CreateDriverSettlementInput) {
   const ref = adminDb
-    .collection("driverSettlements")
+    .collection("salemanSettlements")
     .doc(tripId);
 
   const now = new Date();
@@ -40,8 +40,8 @@ export async function createDriverSettlement({
     vehicleId,
     vehicleName,
 
-    driverId,
-    driverName,
+    salemanId,
+    salemanName,
 
     openingCash: Number(openingCash || 0),
 

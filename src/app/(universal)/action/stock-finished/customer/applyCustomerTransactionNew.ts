@@ -20,7 +20,7 @@ type ApplyCustomerTransactionParams = {
   dueAmount: number;
 
   creditAmount?: number;
-
+newBalance: number;
   currentCreditBalance?: number;
 
   currentBalance: number;
@@ -63,7 +63,7 @@ export async function applyCustomerTransactionNew(
     currentCreditBalance = 0,
 
     currentBalance,
-
+newBalance ,
     paymentMethod,
 
     referenceType = "MANUAL",
@@ -259,8 +259,8 @@ export async function applyCustomerTransactionNew(
     paidAmount:
       paid,
 
-    dueAmount:
-      due,
+    // dueAmount:
+    //   due,
 
     creditAmount:
       creditBalance,
@@ -272,7 +272,7 @@ export async function applyCustomerTransactionNew(
 
     balanceChange,
 
-    balance,
+    balance:newBalance,
 
     currentCreditBalance:
       existingCredit,
@@ -313,3 +313,157 @@ export async function applyCustomerTransactionNew(
 
   };
 }
+
+
+
+
+
+// import admin from "firebase-admin";
+// import { adminDb } from "@/lib/firebaseAdmin";
+// import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
+
+// type ApplyCustomerTransactionParams = {
+//   customerId?: string;
+//   customerName?: string;
+
+//   type: "SALE" | "CUSTOMER_RETURN" | "PAYMENT";
+
+//   totalAmount: number;
+//   paidAmount: number;
+
+//   currentBalance: number;
+
+//   paymentMethod?: PaymentMethodType;
+
+//   referenceType?: string;
+//   referenceId?: string;
+
+//   note?: string;
+//   createdBy?: string;
+
+//   source?: "SYSTEM" | "ADMIN" | "POS";
+// };
+
+// export async function applyCustomerTransactionNew(
+//   tx: FirebaseFirestore.Transaction,
+//   {
+//     customerId,
+//     customerName,
+
+//     type,
+
+//     totalAmount,
+//     paidAmount,
+
+//     currentBalance,
+
+//     paymentMethod,
+
+//     referenceType = "MANUAL",
+//     referenceId = "",
+
+//     note = "",
+//     createdBy = "system",
+//     source = "SYSTEM",
+//   }: ApplyCustomerTransactionParams
+// ) {
+//   if (!customerId) return;
+
+//   // ===============================
+//   // NORMALIZE
+//   // ===============================
+//   const total = Number(totalAmount || 0);
+//   const paid = Number(paidAmount || 0);
+
+//   let balance = Number(currentBalance || 0);
+//   let balanceChange = 0;
+
+//   // ===============================
+//   // SALE
+//   // ===============================
+//   if (type === "SALE") {
+//     /*
+//       Sale increases receivable,
+//       payment reduces it.
+//     */
+//     balanceChange = total - paid;
+//     balance = balance + balanceChange;
+//   }
+
+//   // ===============================
+//   // PAYMENT
+//   // ===============================
+//   else if (type === "PAYMENT") {
+//     /*
+//       Payment reduces receivable.
+//       Can go negative (advance).
+//     */
+//     balanceChange = -paid;
+//     balance = balance + balanceChange;
+//   }
+
+//   // ===============================
+//   // CUSTOMER RETURN
+//   // ===============================
+//   else if (type === "CUSTOMER_RETURN") {
+//     /*
+//       Return reduces receivable.
+//       Can go negative (advance).
+//     */
+//     balanceChange = -total;
+//     balance = balance + balanceChange;
+//   }
+
+//   // rounding safety
+//   balance = Math.round(balance * 100) / 100;
+
+//   // ===============================
+//   // LEDGER ENTRY
+//   // ===============================
+//   const ledgerRef = adminDb
+//     .collection("customerLedger")
+//     .doc();
+
+//   tx.set(ledgerRef, {
+//     transactionId: ledgerRef.id,
+
+//     customerId,
+//     customerName: customerName || "",
+
+//     type,
+
+//     totalAmount: total,
+//     paidAmount: paid,
+
+//     // ✅ ONLY TRUTH
+//     previousBalance: currentBalance,
+//     balanceChange,
+//     balance,
+
+//     paymentMethod: paymentMethod || null,
+
+//     referenceType,
+//     referenceId,
+
+//     note,
+//     createdBy,
+//     source,
+
+//     status: "ACTIVE",
+
+//     createdAt:
+//       admin.firestore.FieldValue.serverTimestamp(),
+//   });
+
+//   return {
+//     transactionId: ledgerRef.id,
+//     balance,
+//   };
+// }
+
+
+
+
+
+
+

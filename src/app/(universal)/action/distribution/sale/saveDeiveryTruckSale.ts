@@ -135,20 +135,20 @@ export async function saveDeiveryTruckSale({
     // Verify payment split
     // -------------------------------------------------
 
-    if (
-      Math.round(
-        (paidAmount + dueAmount) * 100
-      ) !==
-      Math.round(
-        totalAmount * 100
-      )
-    ) {
-      return {
-        success: false,
-        message:
-          "Paid amount and due amount do not match total amount.",
-      };
-    }
+    // if (
+    //   Math.round(
+    //     (paidAmount + dueAmount) * 100
+    //   ) !==
+    //   Math.round(
+    //     totalAmount * 100
+    //   )
+    // ) {
+    //   return {
+    //     success: false,
+    //     message:
+    //       "Paid amount and due amount do not match total amount.",
+    //   };
+    // }
 
 
     // ===================================================
@@ -248,7 +248,7 @@ export async function saveDeiveryTruckSale({
 
       const {
         currentBalance,
-        currentCreditBalance,
+       
       } =
         await readCustomerAccountData({
           tx,
@@ -256,7 +256,38 @@ export async function saveDeiveryTruckSale({
           wholeSaleCutomerId,
         });
 
+      // =================================================
+      // PAYMENT SPLIT LOGIC (NEW)
+      // =================================================
 
+      const salePaid = Math.min(paidAmount, totalAmount);
+      const saleDue = totalAmount - salePaid;
+
+      let remainingAmount = paidAmount - salePaid;
+
+      // Old customer balance (positive = due, negative = advance)
+      let updatedBalance = currentBalance;
+
+      let newBalance = currentBalance - remainingAmount + saleDue;
+ 
+      // Apply remaining to old due
+      let appliedToOldDue = 0;
+
+      if (remainingAmount > 0 && updatedBalance > 0) {
+        appliedToOldDue = Math.min(remainingAmount, updatedBalance);
+
+        remainingAmount -= appliedToOldDue;
+        updatedBalance -= appliedToOldDue;
+      }
+
+      // Remaining becomes advance (negative balance)
+      if (remainingAmount > 0) {
+        updatedBalance -= remainingAmount;
+      }
+
+
+
+ 
       // =================================================
       // 4. VALIDATE VEHICLE STOCK
       // =================================================
@@ -353,8 +384,9 @@ export async function saveDeiveryTruckSale({
 
           totalQuantity,
 
-          paidAmount,
-          dueAmount,
+
+          paidAmount: salePaid,
+          dueAmount: saleDue,
 
           paymentStatus,
           paymentMethod,
@@ -565,29 +597,56 @@ export async function saveDeiveryTruckSale({
       // ONE CUSTOMER TRANSACTION PER SALE
       // =================================================
 
-      await updateCustomerAccount(
-        tx,
-        {
-          wholeSaleCutomerId,
+      await updateCustomerAccount(tx, {
+        wholeSaleCutomerId,
+        wholeSaleCutomerName,
 
-          wholeSaleCutomerName,
+        type: "SALE",
 
-          type:
-            "SALE",
+        totalAmount,
+        paidAmount,//: salePaid,
+      
+        currentBalance,
+        
 
-          totalAmount,
+        paymentMethod,
+      });
 
-          paidAmount,
+          // =================================================
+      // 10A .EXTRA PAYMENT (OLD DUE / ADVANCE)
+      // =================================================
 
-          dueAmount,
+      const extraPayment = paidAmount - salePaid;
 
-          currentCreditBalance,
+      if (extraPayment > 0) {
+        await applyCustomerTransactionNew(tx, {
+          customerId: wholeSaleCutomerId,
+          customerName: wholeSaleCutomerName,
 
-          currentBalance,
+          type: "PAYMENT",
+
+          totalAmount: 0,
+          returnProductAmount: 0,
+
+          paidAmount: extraPayment,
+          dueAmount: 0,
+
+          currentBalance: updatedBalance,
+newBalance,
+          creditAmount: 0,
+        
 
           paymentMethod,
-        }
-      );
+
+          referenceId: saleId,
+          referenceType: "EXTRA_PAYMENT",
+
+          note: "Auto-adjusted extra payment",
+
+          createdBy: createdBy || "admin",
+          source: "ADMIN",
+        });
+      }
 
 
       // =================================================
@@ -611,16 +670,15 @@ export async function saveDeiveryTruckSale({
           returnProductAmount:
             0,
 
-          paidAmount,
-
-          dueAmount,
+          paidAmount: salePaid,
+          dueAmount: saleDue,
 
           currentBalance,
-
+          newBalance,
           creditAmount:
             0,
 
-          currentCreditBalance,
+       //   currentCreditBalance,
 
           paymentMethod,
 
@@ -643,6 +701,7 @@ export async function saveDeiveryTruckSale({
       );
 
 
+  
       // =================================================
       // 11. UPDATE TRIP SUMMARY
       //
@@ -685,7 +744,7 @@ export async function saveDeiveryTruckSale({
 
 
       const settlementRef = adminDb
-        .collection("driverSettlements")
+        .collection("salemanSettlements")
         .doc(tripId);
 
       tx.update(settlementRef, {

@@ -22,13 +22,14 @@ export async function readCustomerAccountData({
     const data = accountSnap.data() || {};
 
     currentBalance = Number(data.balance || 0);
-    currentCreditBalance = Number(
-      data.creditBalance || 0
-    );
+   // dueAmount = Number(data.dueAmount || 0);
+    // currentCreditBalance = Number(
+    //   data.creditBalance || 0
+    // );
   }
 
   return {
     currentBalance,
-    currentCreditBalance,
+    
   };
 }

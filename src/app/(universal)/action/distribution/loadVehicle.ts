@@ -12,7 +12,7 @@ import { addVehicleLoadItem } from "../production/distribution/vehicleLoad/addVe
 import { createVehicleLoadMaster } from "../production/distribution/vehicleLoad/createVehicleLoadMaster";
 
 import { getActiveVehicleTrip } from "./getActiveVehicleTrip";
-import { createDriverSettlement } from "./saleman/createDriverSettlement";
+import { createDriverSettlement, createSalesmanSettlement } from "./saleman/createDriverSettlement";
 
 // =====================================================
 // TYPES
@@ -456,7 +456,7 @@ export async function loadVehicle({
 
         const costPerUnit =
           Number(
-            row.factory.avgCost || 0
+            row.factory.wholesalePrice || 0
           );
 
         const lineValue =
@@ -649,7 +649,7 @@ export async function loadVehicle({
         // createDriverSettlement for legacy reasons.
         //
 
-        await createDriverSettlement({
+        await createSalesmanSettlement({
           tx,
 
           tripId,
@@ -658,13 +658,13 @@ export async function loadVehicle({
 
           vehicleName,
 
-          driverId:
-            driverId ||
-            salesmanId,
+          salemanId: salesmanId ||
+            driverId,
+           
 
-          driverName:
-            driverName ||
-            salesmanName,
+          salemanName:  salesmanName ||
+            driverName,
+         
 
           openingCash:
             0,

@@ -158,8 +158,8 @@ export default function CustomerAccountView({
 
 
   return (
-    <div className=" space-y-4">
-      <div className="flex justify-between">
+    <div className=" space-y-4 px-1">
+      <div className="flex justify-between mt-[20px]">
         <h2 className="text-lg font-semibold">
           {account.wholeSaleCutomerName || "Customer Account"}
         </h2>
@@ -214,36 +214,30 @@ export default function CustomerAccountView({
 
         {/* <Card title="Total Return" value={account.totalReturn} />
         <Card title="Total Paid" value={account.totalPaid} /> */}
-        <Card title="Credit" value={account.creditBalance} />
-        <div className="p-3 flex justify-between  col-span-2 bg-gray-200 rounded-xl">
-          <div className="flex flex-col">
-            <p className="text-sm font-medium text-zinc-500">
-              Balance (Due)
-            </p>
+        {/* <Card title="Credit" value={account.creditBalance} /> */}
+        <div className="col-span-4 flex items-center px-3 justify-between gap-3 border border-slate-200 rounded-xl">
+        <p className="text-2xl font-bold text-zinc-500">
+          {balance < 0 ? "Advance" : "Balance (Due)"}
+        </p>
 
-            <p
-              className={`text-3xl font-bold tracking-tight ${balance > 0
-                ? "text-rose-600"      // Customer owes money
-                : balance < 0
-                  ? "text-emerald-600"   // Customer has credit
-                  : "text-zinc-700"      // Zero balance
-                }`}
-            >
-              ₹ {balance.toLocaleString()}
-            </p>
-          </div>
-          {/* {balance > 0 && ( */}
-            <button
-              onClick={() => setOpenPayment(true)}
-              className="  w-fit h-10 px-2 rounded-lg bg-slate-500 text-white text-sm font-medium hover:bg-zinc-600 transition flex items-center justify-center gap-2"
-            >
-              <Wallet className="h-4 w-4" />
-              Receive Payment
-            </button>
-          {/* )} */}
+        <p className={`text-3xl font-bold tracking-tight ${balance > 0
+          ? "text-rose-600"
+          : balance < 0
+            ? "text-emerald-600"
+            : "text-zinc-700"
+          }`}>
+          ₹ {Math.abs(balance).toLocaleString()}
+        </p>
+        <button
+          onClick={() => setOpenPayment(true)}
+          className="  w-fit h-10 px-2 rounded-lg bg-slate-500 text-white text-sm font-medium hover:bg-zinc-600 transition flex items-center justify-center gap-2"
+        >
+          <Wallet className="h-4 w-4" />
+          Receive Payment
+        </button>
         </div>
 
-        <div className="col-span-3">
+        <div className="col-span-4">
 
           {/* ================= DATE FILTER ================= */}
 
@@ -404,16 +398,16 @@ export default function CustomerAccountView({
                     Paid
                   </th>
 
-                  <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+                  {/* <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
                     Due
-                  </th>
+                  </th> */}
                   <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
                     Return
                   </th>
 
-                  <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
+                  {/* <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
                     Credit
-                  </th>
+                  </th> */}
 
                   <th className="px-4 py-3 text-right font-semibold whitespace-nowrap">
                     Balance
@@ -532,11 +526,11 @@ ${t.paymentMethod === "CASH"
 
                       {/* DUE */}
 
-                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {/* <td className="px-4 py-3 text-right whitespace-nowrap">
                         <span className="font-semibold text-amber-700">
                           ₹ {t.dueAmount || 0}
                         </span>
-                      </td>
+                      </td> */}
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <span className="font-semibold text-rose-700">
                           ₹ {t.returnAmount || 0}
@@ -545,7 +539,7 @@ ${t.paymentMethod === "CASH"
 
                       {/* CREDIT */}
 
-                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {/* <td className="px-4 py-3 text-right whitespace-nowrap">
                         {t.creditUsed > 0 && (
                           <div className="text-xs text-indigo-500">
                             Used: ₹ {t.creditUsed}
@@ -555,11 +549,11 @@ ${t.paymentMethod === "CASH"
                         <div className="font-semibold text-indigo-700">
                           ₹ {t.creditAmount || 0}
                         </div>
-                      </td>
+                      </td> */}
 
                       {/* BALANCE */}
 
-                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                      {/* <td className="px-4 py-3 text-right whitespace-nowrap">
                         <span
                           className={`font-bold ${t.balance > 0
                             ? "text-amber-700"
@@ -570,6 +564,17 @@ ${t.paymentMethod === "CASH"
                         >
                           ₹ {t.balance || 0}
                         </span>
+                      </td> */}
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
+                        {t.balance < 0 ? (
+                          <span className="text-emerald-600 font-semibold">
+                            Advance ₹ {Math.abs(t.balance)}
+                          </span>
+                        ) : (
+                          <span className="text-rose-600 font-semibold">
+                            ₹ {t.balance}
+                          </span>
+                        )}
                       </td>
 
                     </tr>

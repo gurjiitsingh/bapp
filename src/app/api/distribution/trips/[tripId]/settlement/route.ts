@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const snap = await adminDb
-      .collection("driverSettlements")
+      .collection("salemanSettlements")
       .doc(tripId)
       .get();
 
