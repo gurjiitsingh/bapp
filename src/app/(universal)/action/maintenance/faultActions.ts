@@ -1,293 +1,133 @@
+// app/(universal)/action/maintenance/faultActions.ts
+
 "use server";
 
-import { CreateFaultInput } from "@/lib/maintenance/faultTypes";
 import { Timestamp } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
- 
-
 
 import { adminDb } from "@/lib/firebaseAdmin";
+import { deleteImage, upload } from "@/lib/cloudinary";
+
+import type {
+ 
+  FaultPriority,
+  FaultStatus,
+  MaintenanceFault,
+} from "@/lib/maintenance/faultTypes";
 
 
-/**
- * =========================================================
- * ADD FAULT / CREATE MAINTENANCE TICKET
- * =========================================================
- */
 
-export async function addFault(
-  input: CreateFaultInput
+
+
+/* =========================================================
+   DELETE FAULT PHOTO
+========================================================= */
+
+export async function deleteFaultPhoto(
+  faultId: string,
+  imageUrl: string
 ): Promise<{
   success: boolean;
   message: string;
-  faultId?: string;
-  ticketNumber?: string;
 }> {
   try {
-    /**
-     * =======================================================
-     * VALIDATION
-     * =======================================================
-     */
-
-    if (!input.machineId?.trim()) {
+    if (!faultId?.trim()) {
       return {
         success: false,
-        message: "Machine is required.",
+        message: "Fault ID is required.",
       };
     }
 
-    if (!input.machineName?.trim()) {
+    if (!imageUrl?.trim()) {
       return {
         success: false,
-        message: "Machine name is required.",
+        message: "Image URL is required.",
       };
     }
-
-    if (!input.faultTitle?.trim()) {
-      return {
-        success: false,
-        message: "Fault title is required.",
-      };
-    }
-
-    if (!input.faultDescription?.trim()) {
-      return {
-        success: false,
-        message: "Fault description is required.",
-      };
-    }
-
-    if (!input.reportedBy?.trim()) {
-      return {
-        success: false,
-        message: "Reporter is required.",
-      };
-    }
-
-    /**
-     * =======================================================
-     * VERIFY MACHINE EXISTS
-     * =======================================================
-     */
-
-    const machineSnapshot = await adminDb
-      .collection("machines")
-      .doc(input.machineId.trim())
-      .get();
-
-    if (!machineSnapshot.exists) {
-      return {
-        success: false,
-        message: "Selected machine was not found.",
-      };
-    }
-
-    /**
-     * =======================================================
-     * GENERATE TICKET NUMBER
-     * =======================================================
-     *
-     * Example:
-     *
-     * MNT-2026-00001
-     *
-     */
-
-    const counterRef = adminDb
-      .collection("counters")
-      .doc("maintenanceFaults");
-
-    const now = Timestamp.now();
-
-    const ticketNumber =
-      await adminDb.runTransaction(
-        async (transaction) => {
-          const counterSnapshot =
-            await transaction.get(
-              counterRef
-            );
-
-          let nextNumber = 1;
-
-          if (counterSnapshot.exists) {
-            const counterData =
-              counterSnapshot.data();
-
-            nextNumber =
-              Number(
-                counterData?.value || 0
-              ) + 1;
-          }
-
-          transaction.set(
-            counterRef,
-            {
-              value: nextNumber,
-              updatedAt: now,
-            },
-            {
-              merge: true,
-            }
-          );
-
-          const year =
-            new Date().getFullYear();
-
-          return `MNT-${year}-${String(
-            nextNumber
-          ).padStart(5, "0")}`;
-        }
-      );
-
-    /**
-     * =======================================================
-     * CREATE FAULT DOCUMENT
-     * =======================================================
-     */
 
     const faultRef = adminDb
       .collection("maintenanceFaults")
-      .doc();
+      .doc(faultId);
 
-    await faultRef.set({
-      ticketNumber,
+    const snapshot =
+      await faultRef.get();
 
-      machineId:
-        input.machineId.trim(),
+    if (!snapshot.exists) {
+      return {
+        success: false,
+        message: "Fault ticket not found.",
+      };
+    }
 
-      machineName:
-        input.machineName.trim(),
+    const data =
+      snapshot.data();
 
-      machineCode:
-        input.machineCode?.trim() || "",
+    const photos =
+      Array.isArray(data?.photos)
+        ? data.photos
+        : [];
 
-      departmentId:
-        input.departmentId?.trim() || "",
+    const updatedPhotos =
+      photos.filter(
+        (photo: unknown) => {
+          if (
+            typeof photo === "string"
+          ) {
+            return photo !== imageUrl;
+          }
 
-      departmentName:
-        input.departmentName?.trim() || "",
+          if (
+            photo &&
+            typeof photo === "object"
+          ) {
+            return (
+              (photo as {
+                url?: string;
+              }).url !== imageUrl
+            );
+          }
 
-      location:
-        input.location?.trim() || "",
+          return true;
+        }
+      );
 
-      faultTitle:
-        input.faultTitle.trim(),
+    await deleteImage(imageUrl);
 
-      faultDescription:
-        input.faultDescription.trim(),
-
-      priority:
-        input.priority || "MEDIUM",
-
-      status: "OPEN",
-
-      reportedBy:
-        input.reportedBy.trim(),
-
-      reportedByName:
-        input.reportedByName?.trim() || "",
-
-      reportedAt: now,
-
-      assignedTo:
-        input.assignedTo?.trim() || null,
-
-      assignedToName:
-        input.assignedToName?.trim() || null,
-
-      assignedAt: null,
-
-      startedAt: null,
-
-      resolvedAt: null,
-
-      closedAt: null,
-
-      diagnosis: "",
-
-      repairDescription: "",
-
-      downtimeMinutes: 0,
-
-      remarks: "",
-
-      /**
-       * Photos will be added later
-       * through Firebase Storage.
-       */
-
-      photos: [],
-
-      createdAt: now,
-
-      updatedAt: now,
+    await faultRef.update({
+      photos: updatedPhotos,
+      updatedAt: Timestamp.now(),
     });
-
-    /**
-     * =======================================================
-     * UPDATE MACHINE STATUS
-     * =======================================================
-     *
-     * A reported breakdown puts the machine into
-     * BREAKDOWN status.
-     *
-     */
-
-    await adminDb
-      .collection("machines")
-      .doc(input.machineId.trim())
-      .update({
-        status: "BREAKDOWN",
-        updatedAt: now,
-      });
-
-    /**
-     * =======================================================
-     * REVALIDATE
-     * =======================================================
-     */
 
     revalidatePath(
       "/admin/maintenance/faults"
     );
 
     revalidatePath(
-      "/admin/maintenance/machines"
+      `/admin/maintenance/faults/${faultId}`
     );
-
-    /**
-     * =======================================================
-     * SUCCESS
-     * =======================================================
-     */
 
     return {
       success: true,
       message:
-        "Machine fault reported successfully.",
-      faultId: faultRef.id,
-      ticketNumber,
+        "Fault photo deleted successfully.",
     };
   } catch (error) {
     console.error(
-      "addFault error:",
+      "deleteFaultPhoto error:",
       error
     );
 
     return {
       success: false,
       message:
-        "Failed to report machine fault.",
+        "Failed to delete fault photo.",
     };
   }
 }
 
-/**
- * =========================================================
- * GET FAULT BY ID
- * =========================================================
- */
+/* =========================================================
+   GET FAULT BY ID
+========================================================= */
 
 export async function getFaultById(
   faultId: string
@@ -343,12 +183,10 @@ export async function getFaultById(
         data.faultDescription || "",
 
       priority:
-        (data.priority ||
-          "MEDIUM") as FaultPriority,
+        data.priority || "MEDIUM",
 
       status:
-        (data.status ||
-          "OPEN") as FaultStatus,
+        data.status || "OPEN",
 
       reportedBy:
         data.reportedBy || "",
@@ -357,7 +195,7 @@ export async function getFaultById(
         data.reportedByName || "",
 
       reportedAt:
-        data.reportedAt
+        data.reportedAt?.toDate
           ? data.reportedAt
               .toDate()
               .toISOString()
@@ -370,28 +208,28 @@ export async function getFaultById(
         data.assignedToName || null,
 
       assignedAt:
-        data.assignedAt
+        data.assignedAt?.toDate
           ? data.assignedAt
               .toDate()
               .toISOString()
           : null,
 
       startedAt:
-        data.startedAt
+        data.startedAt?.toDate
           ? data.startedAt
               .toDate()
               .toISOString()
           : null,
 
       resolvedAt:
-        data.resolvedAt
+        data.resolvedAt?.toDate
           ? data.resolvedAt
               .toDate()
               .toISOString()
           : null,
 
       closedAt:
-        data.closedAt
+        data.closedAt?.toDate
           ? data.closedAt
               .toDate()
               .toISOString()
@@ -411,20 +249,51 @@ export async function getFaultById(
       remarks:
         data.remarks || "",
 
-      photos:
-        Array.isArray(data.photos)
-          ? data.photos
-          : [],
+     photos: Array.isArray(data.photos)
+  ? data.photos.map((photo: any, index: number) => ({
+      id:
+        typeof photo?.id === "string"
+          ? photo.id
+          : `${snapshot.id}-photo-${index}`,
+
+      url:
+        typeof photo?.url === "string"
+          ? photo.url
+          : "",
+
+      fileName:
+        typeof photo?.fileName === "string"
+          ? photo.fileName
+          : "",
+
+      storagePath:
+        typeof photo?.storagePath === "string"
+          ? photo.storagePath
+          : "",
+
+      uploadedBy:
+        typeof photo?.uploadedBy === "string"
+          ? photo.uploadedBy
+          : "",
+
+      uploadedAt:
+        photo?.uploadedAt?.toDate
+          ? photo.uploadedAt.toDate().toISOString()
+          : typeof photo?.uploadedAt === "string"
+            ? photo.uploadedAt
+            : null,
+    }))
+  : [],
 
       createdAt:
-        data.createdAt
+        data.createdAt?.toDate
           ? data.createdAt
               .toDate()
               .toISOString()
           : null,
 
       updatedAt:
-        data.updatedAt
+        data.updatedAt?.toDate
           ? data.updatedAt
               .toDate()
               .toISOString()
@@ -440,11 +309,9 @@ export async function getFaultById(
   }
 }
 
-/**
- * =========================================================
- * GET ALL FAULTS
- * =========================================================
- */
+/* =========================================================
+   GET ALL FAULTS
+========================================================= */
 
 export async function getFaults(): Promise<
   MaintenanceFault[]
@@ -459,128 +326,11 @@ export async function getFaults(): Promise<
       .get();
 
     return snapshot.docs.map(
-      (doc) => {
-        const data = doc.data();
-
-        return {
-          id: doc.id,
-
-          ticketNumber:
-            data.ticketNumber || "",
-
-          machineId:
-            data.machineId || "",
-
-          machineName:
-            data.machineName || "",
-
-          machineCode:
-            data.machineCode || "",
-
-          departmentId:
-            data.departmentId || "",
-
-          departmentName:
-            data.departmentName || "",
-
-          location:
-            data.location || "",
-
-          faultTitle:
-            data.faultTitle || "",
-
-          faultDescription:
-            data.faultDescription || "",
-
-          priority:
-            (data.priority ||
-              "MEDIUM") as FaultPriority,
-
-          status:
-            (data.status ||
-              "OPEN") as FaultStatus,
-
-          reportedBy:
-            data.reportedBy || "",
-
-          reportedByName:
-            data.reportedByName || "",
-
-          reportedAt:
-            data.reportedAt
-              ? data.reportedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          assignedTo:
-            data.assignedTo || null,
-
-          assignedToName:
-            data.assignedToName || null,
-
-          assignedAt:
-            data.assignedAt
-              ? data.assignedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          startedAt:
-            data.startedAt
-              ? data.startedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          resolvedAt:
-            data.resolvedAt
-              ? data.resolvedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          closedAt:
-            data.closedAt
-              ? data.closedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          diagnosis:
-            data.diagnosis || "",
-
-          repairDescription:
-            data.repairDescription || "",
-
-          downtimeMinutes:
-            Number(
-              data.downtimeMinutes || 0
-            ),
-
-          remarks:
-            data.remarks || "",
-
-          photos:
-            Array.isArray(data.photos)
-              ? data.photos
-              : [],
-
-          createdAt:
-            data.createdAt
-              ? data.createdAt
-                  .toDate()
-                  .toISOString()
-              : null,
-
-          updatedAt:
-            data.updatedAt
-              ? data.updatedAt
-                  .toDate()
-                  .toISOString()
-              : null,
-        };
-      }
+      (doc) =>
+        mapFault(
+          doc.id,
+          doc.data()
+        )
     );
   } catch (error) {
     console.error(
@@ -592,11 +342,9 @@ export async function getFaults(): Promise<
   }
 }
 
-/**
- * =========================================================
- * UPDATE FAULT STATUS
- * =========================================================
- */
+/* =========================================================
+   UPDATE FAULT STATUS
+========================================================= */
 
 export async function updateFaultStatus(
   faultId: string,
@@ -637,12 +385,6 @@ export async function updateFaultStatus(
       updatedAt: now,
     };
 
-    /**
-     * =======================================================
-     * STATUS TIMESTAMPS
-     * =======================================================
-     */
-
     if (status === "IN_PROGRESS") {
       updateData.startedAt = now;
     }
@@ -658,12 +400,6 @@ export async function updateFaultStatus(
     await faultRef.update(
       updateData
     );
-
-    /**
-     * =======================================================
-     * IF CLOSED / RESOLVED, CHECK MACHINE
-     * =======================================================
-     */
 
     if (
       status === "RESOLVED" ||
@@ -713,11 +449,9 @@ export async function updateFaultStatus(
   }
 }
 
-/**
- * =========================================================
- * ASSIGN FAULT TO TECHNICIAN
- * =========================================================
- */
+/* =========================================================
+   ASSIGN FAULT
+========================================================= */
 
 export async function assignFault(
   faultId: string,
@@ -738,8 +472,7 @@ export async function assignFault(
     if (!assignedTo?.trim()) {
       return {
         success: false,
-        message:
-          "Technician is required.",
+        message: "Technician is required.",
       };
     }
 
@@ -796,11 +529,9 @@ export async function assignFault(
   }
 }
 
-/**
- * =========================================================
- * UPDATE REPAIR INFORMATION
- * =========================================================
- */
+/* =========================================================
+   UPDATE REPAIR INFORMATION
+========================================================= */
 
 export async function updateFaultRepair(
   faultId: string,
@@ -841,8 +572,7 @@ export async function updateFaultRepair(
         input.diagnosis?.trim() || "",
 
       repairDescription:
-        input.repairDescription?.trim() ||
-        "",
+        input.repairDescription?.trim() || "",
 
       downtimeMinutes:
         Number(
@@ -879,11 +609,9 @@ export async function updateFaultRepair(
   }
 }
 
-/**
- * =========================================================
- * DELETE FAULT
- * =========================================================
- */
+/* =========================================================
+   DELETE FAULT
+========================================================= */
 
 export async function deleteFault(
   faultId: string
@@ -913,6 +641,34 @@ export async function deleteFault(
       };
     }
 
+    const data =
+      snapshot.data();
+
+    const photos =
+      Array.isArray(data?.photos)
+        ? data.photos
+        : [];
+
+    for (const photo of photos) {
+      const imageUrl =
+        typeof photo === "string"
+          ? photo
+          : photo?.url;
+
+      if (imageUrl) {
+        try {
+          await deleteImage(
+            imageUrl
+          );
+        } catch (error) {
+          console.error(
+            "Failed to delete fault image:",
+            error
+          );
+        }
+      }
+    }
+
     await faultRef.delete();
 
     revalidatePath(
@@ -936,4 +692,167 @@ export async function deleteFault(
         "Failed to delete fault ticket.",
     };
   }
+}
+
+/* =========================================================
+   MAP FIRESTORE FAULT
+========================================================= */
+
+function mapFault(
+  id: string,
+  data: FirebaseFirestore.DocumentData
+): MaintenanceFault {
+  return {
+    id,
+
+    ticketNumber:
+      data.ticketNumber || "",
+
+    machineId:
+      data.machineId || "",
+
+    machineName:
+      data.machineName || "",
+
+    machineCode:
+      data.machineCode || "",
+
+    departmentId:
+      data.departmentId || "",
+
+    departmentName:
+      data.departmentName || "",
+
+    location:
+      data.location || "",
+
+    faultTitle:
+      data.faultTitle || "",
+
+    faultDescription:
+      data.faultDescription || "",
+
+    priority:
+      (data.priority ||
+        "MEDIUM") as FaultPriority,
+
+    status:
+      (data.status ||
+        "OPEN") as FaultStatus,
+
+    reportedBy:
+      data.reportedBy || "",
+
+    reportedByName:
+      data.reportedByName || "",
+
+    reportedAt:
+      toISOString(
+        data.reportedAt
+      ),
+
+    assignedTo:
+      data.assignedTo || null,
+
+    assignedToName:
+      data.assignedToName || null,
+
+    assignedAt:
+      toISOString(
+        data.assignedAt
+      ),
+
+    startedAt:
+      toISOString(
+        data.startedAt
+      ),
+
+    resolvedAt:
+      toISOString(
+        data.resolvedAt
+      ),
+
+    closedAt:
+      toISOString(
+        data.closedAt
+      ),
+
+    diagnosis:
+      data.diagnosis || "",
+
+    repairDescription:
+      data.repairDescription || "",
+
+    downtimeMinutes:
+      Number(
+        data.downtimeMinutes || 0
+      ),
+
+    remarks:
+      data.remarks || "",
+
+    photos:
+      Array.isArray(data.photos)
+        ? data.photos
+        : [],
+
+    createdAt:
+      toISOString(
+        data.createdAt
+      ),
+
+    updatedAt:
+      toISOString(
+        data.updatedAt
+      ),
+  };
+}
+
+/* =========================================================
+   TIMESTAMP → ISO
+========================================================= */
+
+function toISOString(
+  value: unknown
+): string | null {
+  if (!value) {
+    return null;
+  }
+
+  if (
+    value instanceof Timestamp
+  ) {
+    return value
+      .toDate()
+      .toISOString();
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "toDate" in value &&
+    typeof (
+      value as {
+        toDate?: unknown;
+      }
+    ).toDate === "function"
+  ) {
+    return (
+      value as {
+        toDate: () => Date;
+      }
+    )
+      .toDate()
+      .toISOString();
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return null;
 }

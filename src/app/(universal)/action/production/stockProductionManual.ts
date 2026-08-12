@@ -209,7 +209,8 @@ export async function stockProductionManual({
         locationCode: "NA",
         responsiblePerson: "ADMIN",
         //productMode: row.factory.productMode,
-
+tripId:"dummy",
+  tripNo:"dummy",
         quantity,
 
         fromLocationType: "FACTORY",

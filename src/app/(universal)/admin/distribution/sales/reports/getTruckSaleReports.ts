@@ -5,7 +5,8 @@ import { adminDb } from "@/lib/firebaseAdmin";
 export type TruckSaleReport = {
     saleId: string;
     tripId: string;
-
+    tripNo: string;
+    saleNo: string;
     vehicleId: string;
     vehicleName: string;
 
@@ -174,8 +175,14 @@ export async function getTruckSaleReports({
                         saleId:
                             doc.id,
 
+                        saleNo:
+                            d.saleNo || "",
+
                         tripId:
                             d.tripId || "",
+
+                        tripNo:
+                            d.tripNo || "",
 
 
                         vehicleId:

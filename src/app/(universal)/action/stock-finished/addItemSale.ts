@@ -196,8 +196,8 @@ wholeSaleCutomerName,
 
             totalAmount,
             paidAmount,
-            dueAmount,
-            currentCreditBalance,
+             
+            
           currentBalance,
             paymentMethod,
           });

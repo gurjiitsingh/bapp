@@ -1,7 +1,16 @@
-import { EmployeeStatus } from "./EmployeeTypes";
-import { EmploymentType } from "./PayrollTypes";
+export type EmployeeStatus =
+  | "ACTIVE"
+  | "ON_LEAVE"
+  | "RESIGNED"
+  | "TERMINATED";
 
-interface Employee {
+export type EmploymentType =
+  | "FULL_TIME"
+  | "PART_TIME"
+  | "CONTRACT"
+  | "TEMPORARY";
+
+export interface Employee {
   id: string;
 
   employeeCode: string;
@@ -23,6 +32,10 @@ interface Employee {
 
   status: EmployeeStatus;
 
+  /**
+   * Optional connection to the application's
+   * authentication user.
+   */
   userId?: string;
 
   createdAt: string;

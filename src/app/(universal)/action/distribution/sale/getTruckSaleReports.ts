@@ -4,7 +4,10 @@ import { adminDb } from "@/lib/firebaseAdmin";
 
 export type TruckSaleReport = {
   saleId: string;
+  saleNo?: string;
+
   tripId: string;
+  tripNo?: string;
 
   vehicleId: string;
   vehicleName: string;
@@ -20,9 +23,9 @@ export type TruckSaleReport = {
   dueAmount: number;
 
   paymentStatus:
-  | "PAID"
-  | "PARTIAL"
-  | "CREDIT";
+    | "PAID"
+    | "PARTIAL"
+    | "CREDIT";
 
   paymentMethod?: string;
 

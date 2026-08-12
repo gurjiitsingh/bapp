@@ -12,7 +12,7 @@ import { addVehicleLoadItem } from "../production/distribution/vehicleLoad/addVe
 import { createVehicleLoadMaster } from "../production/distribution/vehicleLoad/createVehicleLoadMaster";
 
 import { getActiveVehicleTrip } from "./getActiveVehicleTrip";
-import { createDriverSettlement, createSalesmanSettlement } from "./saleman/createDriverSettlement";
+import {   createSalesmanSettlement } from "./saleman/createDriverSettlement";
 
 // =====================================================
 // TYPES

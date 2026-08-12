@@ -3,38 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getTruckSaleReports } from "@/app/(universal)/action/distribution/sale/getTruckSaleReports";
+import { TruckSaleReport } from "../sales/reports/getTruckSaleReports";
 
  
 
-type TruckSaleReport = {
-  saleId: string;
-  tripId: string;
-
-  vehicleId: string;
-  vehicleName: string;
-
-  locationCode?: string;
-  responsiblePerson?: string;
-
-  wholeSaleCutomerId: string;
-  wholeSaleCutomerName: string;
-
-  totalAmount: number;
-  totalItems: number;
-  totalQuantity: number;
-
-  paidAmount: number;
-  dueAmount: number;
-
-  paymentStatus: "PAID" | "PARTIAL" | "CREDIT";
-  paymentMethod?: string;
-
-  remarks?: string;
-  createdBy?: string;
-
-  status?: string;
-  createdAt?: Date;
-};
+ 
 
 export default function VehicleSaleReportTable() {
   const [sales, setSales] = useState<TruckSaleReport[]>([]);
@@ -68,7 +41,7 @@ export default function VehicleSaleReportTable() {
         return;
       }
  console.log("re---------------",result.data)
-      setSales(result.data as TruckSaleReportType[]);
+      setSales(result.data as TruckSaleReport[]);
     } catch (error) {
       console.error(
         "❌ Failed to load truck sales:",
@@ -161,11 +134,11 @@ export default function VehicleSaleReportTable() {
         ?.toLowerCase()
         .includes(value) ||
 
-      sale.locationCode
+      sale.vehicleId
         ?.toLowerCase()
         .includes(value) ||
 
-      sale.wholeSaleCutomerName
+      sale.customerName
         ?.toLowerCase()
         .includes(value)
     );
@@ -512,9 +485,9 @@ export default function VehicleSaleReportTable() {
                         {sale.vehicleName || "-"}
                       </div>
 
-                      {sale.locationCode && (
+                      {sale.vehicleName && (
                         <div className="text-xs text-gray-500">
-                          {sale.locationCode}
+                          {sale.vehicleName}
                         </div>
                       )}
 

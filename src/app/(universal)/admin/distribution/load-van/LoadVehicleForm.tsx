@@ -26,7 +26,7 @@ type Props = {
 type LoadVehicleFormType = {
   vehicleId: string;
   vehicleName?: string,
-
+salesmanId?: string;
   remarks?: string;
 
   items: {
@@ -62,15 +62,50 @@ export default function LoadVehicleForm({
   const onSubmit = async (data: LoadVehicleFormType) => {
     const items = data.items.filter((x) => x.quantity > 0);
   
-    const result = await loadVehicle({
-      vehicleId: data.vehicleId,
-      vehicleName: selectedVehicle?.name ?? "",
-       locationCode: selectedVehicle?.locationCode ?? "",
-  responsiblePerson: selectedVehicle?.responsiblePersonName ?? "",
-      remarks: data.remarks,
-      items,
-    });
+const result = await loadVehicle({
+  // =========================================
+  // ROUTE
+  // =========================================
 
+  routeId: "data.routeId",
+  routeName: "data.routeName",
+
+  // =========================================
+  // VEHICLE
+  // =========================================
+
+  vehicleId: data.vehicleId,
+  vehicleName:
+    selectedVehicle?.name ?? "",
+  locationCode:
+    selectedVehicle?.locationCode ?? "",
+
+  // =========================================
+// SALESMAN
+// =========================================
+
+salesmanId:
+  data.salesmanId ?? "",
+
+salesmanName:
+  selectedVehicle?.responsiblePersonName ?? "",
+
+  // =========================================
+  // LEGACY
+  // =========================================
+
+  responsiblePerson:
+    selectedVehicle?.responsiblePersonName ?? "",
+
+  // =========================================
+  // OTHER
+  // =========================================
+
+  remarks:
+    data.remarks,
+
+  items,
+});
     console.log(result);
 
     if (!result.success) {

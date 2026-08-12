@@ -18,48 +18,43 @@ export default async function TruckSaleDetailPage({
   const result =
     await getTruckSaleDetail(saleId);
 
-  if (!result.success || !result.data) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
+ if (!result.success) {
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-xl border bg-white p-10 text-center">
 
-        <div className="mx-auto max-w-5xl">
+          <h1 className="text-xl font-semibold text-red-600">
+            Sale Not Found
+          </h1>
 
-          <div className="rounded-xl border bg-white p-10 text-center">
+          <p className="mt-2 text-sm text-gray-500">
+            {result.message}
+          </p>
 
-            <h1 className="text-xl font-semibold text-red-600">
-              Sale Not Found
-            </h1>
-
-            <p className="mt-2 text-sm text-gray-500">
-              {result.message ||
-                "Unable to load this truck sale."}
-            </p>
-
-            <Link
-              href="/admin/distribution/truck-sales"
-              className="
-                mt-6
-                inline-flex
-                rounded-md
-                bg-blue-600
-                px-4
-                py-2
-                text-sm
-                font-medium
-                text-white
-                hover:bg-blue-700
-              "
-            >
-              Back to Truck Sales
-            </Link>
-
-          </div>
+          <Link
+            href="/admin/distribution/truck-sales"
+            className="
+              mt-6
+              inline-flex
+              rounded-md
+              bg-blue-600
+              px-4
+              py-2
+              text-sm
+              font-medium
+              text-white
+              hover:bg-blue-700
+            "
+          >
+            Back to Truck Sales
+          </Link>
 
         </div>
-
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   const {
     sale,
@@ -231,7 +226,7 @@ export default async function TruckSaleDetailPage({
 
               <InfoRow
                 label="Sale No"
-                value={sale.saleNo}
+                value={sale.saleNo!}
               />
 
               <InfoRow
@@ -336,7 +331,7 @@ export default async function TruckSaleDetailPage({
                     text-xs
                     font-medium
                     ${getPaymentStatusClass(
-                      sale.paymentStatus
+                      sale.paymentStatus!
                     )}
                   `}
                 >

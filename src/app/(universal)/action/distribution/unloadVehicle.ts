@@ -157,6 +157,13 @@ export async function unloadVehicle({
 
           productId: row.van.productId,
           productName: row.van.productName,
+
+           // =========================================
+  // TRIP
+  // =========================================
+
+  tripId:"dummy",
+  tripNo:"dummy",
           //productMode: row.van.productMode,
           name: vehicleName,
           locationCode,

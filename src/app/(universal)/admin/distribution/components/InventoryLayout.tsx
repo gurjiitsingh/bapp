@@ -1,107 +1,198 @@
 // components/inventory/InventoryTabs.tsx
 "use client";
 
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowDownFromLine, ChartColumn, PackageMinus, RouteIcon, Undo2 } from "lucide-react";
-import {
-  AlertTriangle,
-  Boxes,
-  IndianRupee,
-  TrendingDown,
-  Clock3,
-  Tags,
-  Truck,
-
-} from "lucide-react";
 
 import {
-  ShoppingCart,
-  Receipt,
-  BadgeDollarSign,
-  HandCoins,
-  Store,
-  CreditCard,
-  PackageCheck,
-  CircleDollarSign,
-} from "lucide-react";
-import {
-  Plus,
-  ClipboardList,
-  PackagePlus,
+  ArrowDownFromLine,
   BookOpen,
+  ClipboardList,
+  PackageMinus,
+  PackagePlus,
+  RouteIcon,
+  Truck,
+  Undo2,
 } from "lucide-react";
 
-const tabs = [
-  { name: "Dashboard", href: "/admin/distribution/loads/vehicle-loads" },
-  { name: "Items", href: "/admin/distribution/loads/vehicle-loads" },
-  { name: "New Item", href: "/admin/distribution/loads/vehicle-loadsnew" },
-  { name: "Sale", href: "/admin/distribution/truckdelivery-sale" },
-  { name: "Adjust", href: "/admin/distribution/truck-sales" },
-  { name: "Transactions", href: "/admin/distribution/stock-movements" },
-  { name: "Categories", href: "/admin/distribution/loads/vehicle-loadscategories" },
-  { name: "wholesaleCustomer", href: "/admin/distribution/loads/vehicle-loadscustomer/all" },
-];
+const ActionCard = ({
+  href,
+  active,
+  activeBg,
+  inactiveHover,
+  iconBg,
+  activeIconBg,
+  icon,
+  title,
+  description,
+  titleColor,
+  activeTitleColor,
+}: {
+  href: string;
+  active: boolean;
+  activeBg: string;
+  inactiveHover: string;
+  iconBg: string;
+  activeIconBg: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  titleColor: string;
+  activeTitleColor: string;
+}) => (
+  <Link
+    href={href}
+    className={`group relative rounded-2xl border shadow-sm p-1 transition-all duration-300 ${
+      active
+        ? activeBg
+        : `bg-white border-gray-100 ${inactiveHover}`
+    }`}
+  >
+    <div className="flex items-center gap-1">
+      <div
+        className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
+          active ? activeIconBg : iconBg
+        }`}
+      >
+        {icon}
+      </div>
+
+      <h5
+        className={`font-normal text-sm ${
+          active ? activeTitleColor : titleColor
+        }`}
+      >
+        {title}
+      </h5>
+    </div>
+
+    {/* Floating Tooltip */}
+    {!active && (
+      <div
+        className="
+          pointer-events-none
+          absolute
+          left-1/2
+          top-full
+          z-50
+          mt-3
+          -translate-x-1/2
+          rounded-xl
+          bg-gray-900
+          px-3
+          py-1
+          text-xs
+          text-white
+          whitespace-nowrap
+          opacity-0
+          shadow-xl
+          transition-all
+          duration-200
+          group-hover:opacity-100
+          group-hover:translate-y-1
+        "
+      >
+        {description}
+
+        {/* Arrow */}
+        <div
+          className="
+            absolute
+            -top-1.5
+            left-1/2
+            h-3
+            w-3
+            -translate-x-1/2
+            rotate-45
+            bg-gray-900
+          "
+        />
+      </div>
+    )}
+  </Link>
+);
 
 export default function InventoryTabs() {
   const pathname = usePathname();
 
+  // =====================================================
+  // ACTIVE STATES
+  // =====================================================
+
   const isProduction =
+    pathname === "/admin/distribution/load-operator";
+
+  const isSale =
+    pathname.startsWith(
+      "/admin/distribution/truckdelivery-sale"
+    );
+
+  const isTransactions =
+    pathname.startsWith(
+      "/admin/distribution/stock-movements"
+    );
+
+  const isTrip =
+    pathname.startsWith(
+      "/admin/distribution/trips"
+    );
+
+  const isSaleman =
+    pathname.startsWith(
+      "/admin/distribution/saleman-settlements"
+    );
+
+  const isReports =
+    pathname.startsWith(
+      "/admin/distribution/reports"
+    );
+
+  const isVehicle =
+    pathname.startsWith(
+      "/admin/distribution/vehicle"
+    );
+
+  const isRoute =
+    pathname.startsWith(
+      "/admin/distribution/sale-route"
+    );
+
+  const isCustomerReturn =
+    pathname.startsWith(
+      "/admin/distribution/truckdelivery-return"
+    );
+
+  const isUnload =
     pathname ===
-    "/admin/distribution/load-operator";
+    "/admin/distribution/unload-operator";
 
-  const isSale = pathname.startsWith(
-    "/admin/distribution/truckdelivery-sale"
-  );
-
-  const isCustomer = pathname.startsWith(
-    "/admin/distribution/loads/vehicle-loadscustomer/all"
-  );
-
-  const isProducts =
-    pathname === "/admin/distribution/loads/vehicle-loads" ||
-    pathname === "/admin/stock-finished";
-
-  const isTransactions = pathname.startsWith(
-    "/admin/distribution/stock-movements"
-  );
-
-  const isAdjustStock = pathname.startsWith(
-    "/admin/distribution/truck-sales"
-  );
-
-  const isCustomerReturn = pathname.startsWith(
-    "/admin/distribution/loads/vehicle-loadscustomer/return"
-  );
-
-  const isEstimate =
-    pathname === "/admin/distribution/unload-operator";
+  // =====================================================
+  // RENDER
+  // =====================================================
 
   return (
-    <div className="  p-2 pt-5 md:px-6">
+    <div className="p-2 pt-5 md:px-6">
       <div className="w-full mx-auto flex flex-col gap-6">
 
-        {/* ===================================================== */}
-        {/* QUICK ACTIONS */}
-        {/* ===================================================== */}
+        {/* =====================================================
+            QUICK ACTIONS
+        ===================================================== */}
 
-        <div className="grid grid-cols-3 xl:grid-cols-10 gap-3">
+        <div className="grid grid-cols-3 gap-3 xl:grid-cols-10">
 
-          <Link
+          {/* =====================================================
+              LOAD VEHICLE
+          ===================================================== */}
+
+          <ActionCard
             href="/admin/distribution/load-operator"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isProduction
-              ? "bg-purple-50 border-purple-300 shadow-md"
-              : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isProduction
-                ? "bg-purple-600"
-                : "bg-purple-100"
-                }`}
-            > <PackagePlus
-
+            active={isProduction}
+            activeBg="bg-purple-50 border-purple-300 shadow-md"
+            inactiveHover="hover:border-purple-300 hover:shadow-md"
+            iconBg="bg-purple-100"
+            activeIconBg="bg-purple-600"
+            icon={
+              <PackagePlus
                 size={22}
                 className={
                   isProduction
@@ -109,42 +200,25 @@ export default function InventoryTabs() {
                     : "text-purple-600"
                 }
               />
-            </div>
+            }
+            title="Load Vehicle"
+            description="Transfer Products to Vehicle"
+            titleColor="text-gray-800"
+            activeTitleColor="text-purple-700"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isProduction
-                ? "text-purple-700"
-                : "text-gray-800"
-                }`}
-            >
-              Load Vehicle
-            </h3>
+          {/* =====================================================
+              TRUCK SALE
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isProduction
-                ? "text-purple-500"
-                : "text-gray-500"
-                }`}
-            >
-              Transfer Products to Vehicle
-            </p>
-          </Link>
-
-
-
-          <Link
+          <ActionCard
             href="/admin/distribution/truckdelivery-sale"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isSale
-              ? "bg-orange-50 border-orange-300 shadow-md"
-              : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isSale
-                ? "bg-orange-500"
-                : "bg-orange-100"
-                }`}
-            >
+            active={isSale}
+            activeBg="bg-orange-50 border-orange-300 shadow-md"
+            inactiveHover="hover:border-orange-300 hover:shadow-md"
+            iconBg="bg-orange-100"
+            activeIconBg="bg-orange-500"
+            icon={
               <PackageMinus
                 size={22}
                 className={
@@ -153,49 +227,25 @@ export default function InventoryTabs() {
                     : "text-orange-600"
                 }
               />
-            </div>
+            }
+            title="Truck Sale"
+            description="Delivery Truck Sale"
+            titleColor="text-gray-800"
+            activeTitleColor="text-orange-700"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isSale
-                ? "text-orange-700"
-                : "text-gray-800"
-                }`}
-            >
-              Truck Sale
-            </h3>
+          {/* =====================================================
+              STOCK MOVEMENTS
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isSale
-                ? "text-orange-600"
-                : "text-gray-500"
-                }`}
-            >
-              Delivery Truck Sale
-            </p>
-          </Link>
-
-
-
-
-
-
-
-
-
-
-          <Link
+          <ActionCard
             href="/admin/distribution/stock-movements"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isTransactions
-              ? "bg-amber-500/10 border-amber-500/40 shadow-md"
-              : "bg-white border-gray-100 hover:border-amber-500/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isTransactions
-                ? "bg-amber-500"
-                : "bg-amber-100"
-                }`}
-            >
+            active={isTransactions}
+            activeBg="bg-amber-500/10 border-amber-500/40 shadow-md"
+            inactiveHover="hover:border-amber-500/30 hover:shadow-md"
+            iconBg="bg-amber-100"
+            activeIconBg="bg-amber-500"
+            icon={
               <BookOpen
                 size={22}
                 className={
@@ -204,249 +254,160 @@ export default function InventoryTabs() {
                     : "text-amber-600"
                 }
               />
-            </div>
+            }
+            title="Movements"
+            description="View all stock movements"
+            titleColor="text-gray-800"
+            activeTitleColor="text-amber-600"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isTransactions
-                ? "text-amber-600"
-                : "text-gray-800"
-                }`}
-            >
-              Stock Movements
-            </h3>
+          {/* =====================================================
+              TRIPS
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isTransactions
-                ? "text-amber-600/80"
-                : "text-gray-500"
-                }`}
-            >
-              View all stock movements.
-            </p>
-          </Link>
-
-          <Link
+          <ActionCard
             href="/admin/distribution/trips"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isTransactions
-              ? "bg-amber-500/10 border-amber-500/40 shadow-md"
-              : "bg-white border-gray-100 hover:border-amber-500/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isTransactions
-                ? "bg-amber-500"
-                : "bg-amber-100"
-                }`}
-            >
-              <BookOpen
+            active={isTrip}
+            activeBg="bg-sky-500/10 border-sky-500/40 shadow-md"
+            inactiveHover="hover:border-sky-500/30 hover:shadow-md"
+            iconBg="bg-sky-100"
+            activeIconBg="bg-sky-500"
+            icon={
+              <Truck
                 size={22}
                 className={
-                  isTransactions
+                  isTrip
                     ? "text-white"
-                    : "text-amber-600"
+                    : "text-sky-600"
                 }
               />
-            </div>
+            }
+            title="Trip"
+            description="View distribution trips"
+            titleColor="text-gray-800"
+            activeTitleColor="text-sky-600"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isTransactions
-                ? "text-amber-600"
-                : "text-gray-800"
-                }`}
-            >
-              Trip
-            </h3>
+          {/* =====================================================
+              SALESMAN
+          ===================================================== */}
 
-            {/* <p
-              className={`text-sm mt-1 ${isTransactions
-                  ? "text-amber-600/80"
-                  : "text-gray-500"
-                }`}
-            >
-              View all stock movements.
-            </p> */}
-          </Link>
-
-          <Link
+          <ActionCard
             href="/admin/distribution/saleman-settlements"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isProducts
-              ? "bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
-              : "bg-white border-gray-100 hover:border-[#00897b]/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isProducts
-                ? "bg-[#00897b]"
-                : "bg-[#00897b]/10"
-                }`}
-            >
+            active={isSaleman}
+            activeBg="bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
+            inactiveHover="hover:border-[#00897b]/30 hover:shadow-md"
+            iconBg="bg-[#00897b]/10"
+            activeIconBg="bg-[#00897b]"
+            icon={
               <ClipboardList
                 size={22}
                 className={
-                  isProducts
+                  isSaleman
                     ? "text-white"
                     : "text-[#00897b]"
                 }
               />
-            </div>
+            }
+            title="Saleman"
+            description="View salesman settlements"
+            titleColor="text-gray-800"
+            activeTitleColor="text-[#00897b]"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isProducts
-                ? "text-[#00897b]"
-                : "text-gray-800"
-                }`}
-            >
-             Saleman
-            </h3>
+          {/* =====================================================
+              REPORTS
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isProducts
-                ? "text-[#00897b]/80"
-                : "text-gray-500"
-                }`}
-            >
-              
-            </p>
-          </Link>
-          <Link
-            href="/admin/distribution/truck-sales"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isAdjustStock
-              ? "bg-blue-500/10 border-blue-500/40 shadow-md"
-              : "bg-white border-gray-100 hover:border-blue-500/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isAdjustStock
-                ? "bg-blue-500"
-                : "bg-blue-100"
-                }`}
-            >
+          <ActionCard
+            href="/admin/distribution/reports"
+            active={isReports}
+            activeBg="bg-blue-500/10 border-blue-500/40 shadow-md"
+            inactiveHover="hover:border-blue-500/30 hover:shadow-md"
+            iconBg="bg-blue-100"
+            activeIconBg="bg-blue-500"
+            icon={
               <BookOpen
                 size={22}
                 className={
-                  isAdjustStock
+                  isReports
                     ? "text-white"
                     : "text-blue-600"
                 }
               />
-            </div>
+            }
+            title="Reports"
+            description="View distribution reports"
+            titleColor="text-gray-800"
+            activeTitleColor="text-blue-600"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isAdjustStock
-                ? "text-blue-600"
-                : "text-gray-800"
-                }`}
-            >
-              Reports
-            </h3>
+          {/* =====================================================
+              VEHICLE
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isAdjustStock
-                ? "text-blue-600/80"
-                : "text-gray-500"
-                }`}
-            >
-             
-            </p>
-          </Link>
-
-
-
-          <Link href="/admin/distribution/vehicle"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
-              ? "bg-yellow-50 border-yellow-300 shadow-md"
-              : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomer
-                ? "bg-yellow-500"
-                : "bg-yellow-100"
-                }`}
-            >
+          <ActionCard
+            href="/admin/distribution/vehicle"
+            active={isVehicle}
+            activeBg="bg-yellow-50 border-yellow-300 shadow-md"
+            inactiveHover="hover:border-yellow-400/30 hover:shadow-md"
+            iconBg="bg-yellow-100"
+            activeIconBg="bg-yellow-500"
+            icon={
               <Truck
                 size={22}
                 className={
-                  isCustomer
+                  isVehicle
                     ? "text-white"
                     : "text-yellow-600"
                 }
               />
-            </div>
+            }
+            title="Vehicle"
+            description="View / Add new Vehicles"
+            titleColor="text-gray-800"
+            activeTitleColor="text-yellow-700"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isCustomer
-                ? "text-yellow-700"
-                : "text-gray-800"
-                }`}
-            >
-              Vehicle
-            </h3>
+          {/* =====================================================
+              ROUTE
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isCustomer
-                ? "text-yellow-600"
-                : "text-gray-500"
-                }`}
-            >
-              View /Add new Vehicles
-            </p>
-          </Link>
-
-          <Link href="/admin/distribution/sale-route"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomer
-              ? "bg-yellow-50 border-yellow-300 shadow-md"
-              : "bg-white border-gray-100 hover:border-yellow-400/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomer
-                ? "bg-yellow-500"
-                : "bg-yellow-100"
-                }`}
-            >
-
+          <ActionCard
+            href="/admin/distribution/sale-route"
+            active={isRoute}
+            activeBg="bg-indigo-50 border-indigo-300 shadow-md"
+            inactiveHover="hover:border-indigo-400/30 hover:shadow-md"
+            iconBg="bg-indigo-100"
+            activeIconBg="bg-indigo-500"
+            icon={
               <RouteIcon
                 size={22}
                 className={
-                  isCustomer
+                  isRoute
                     ? "text-white"
-                    : "text-yellow-600"
+                    : "text-indigo-600"
                 }
               />
-            </div>
+            }
+            title="Route"
+            description="Manage delivery routes"
+            titleColor="text-gray-800"
+            activeTitleColor="text-indigo-700"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isCustomer
-                ? "text-yellow-700"
-                : "text-gray-800"
-                }`}
-            >
-              Route
-            </h3>
+          {/* =====================================================
+              RETURN
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isCustomer
-                ? "text-yellow-600"
-                : "text-gray-500"
-                }`}
-            >
-
-            </p>
-          </Link>
-          <Link
+          <ActionCard
             href="/admin/distribution/truckdelivery-return/add"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isCustomerReturn
-              ? "bg-red-500/10 border-red-500/40 shadow-md"
-              : "bg-white border-gray-100 hover:border-red-500/30 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isCustomerReturn
-                ? "bg-red-500"
-                : "bg-red-100"
-                }`}
-            >
+            active={isCustomerReturn}
+            activeBg="bg-red-500/10 border-red-500/40 shadow-md"
+            inactiveHover="hover:border-red-500/30 hover:shadow-md"
+            iconBg="bg-red-100"
+            activeIconBg="bg-red-500"
+            icon={
               <Undo2
                 size={22}
                 className={
@@ -455,72 +416,41 @@ export default function InventoryTabs() {
                     : "text-red-600"
                 }
               />
-            </div>
+            }
+            title="Return"
+            description="Return products from customer"
+            titleColor="text-gray-800"
+            activeTitleColor="text-red-600"
+          />
 
-            <h3
-              className={`font-semibold mt-4 ${isCustomerReturn
-                ? "text-red-600"
-                : "text-gray-800"
-                }`}
-            >
-              Return
-            </h3>
+          {/* =====================================================
+              UNLOAD VEHICLE
+          ===================================================== */}
 
-            <p
-              className={`text-sm mt-1 ${isCustomerReturn
-                ? "text-red-600/80"
-                : "text-gray-500"
-                }`}
-            >
-
-            </p>
-          </Link>
-
-
-
-          <Link
+          <ActionCard
             href="/admin/distribution/unload-operator"
-            className={`group rounded-3xl border shadow-sm p-5 transition ${isEstimate
-                ? "bg-cyan-50 border-cyan-300 shadow-md"
-                : "bg-white border-gray-100 hover:border-cyan-300 hover:shadow-md"
-              }`}
-          >
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center ${isEstimate ? "bg-cyan-600" : "bg-cyan-100"
-                }`}
-            >
+            active={isUnload}
+            activeBg="bg-cyan-50 border-cyan-300 shadow-md"
+            inactiveHover="hover:border-cyan-300 hover:shadow-md"
+            iconBg="bg-cyan-100"
+            activeIconBg="bg-cyan-600"
+            icon={
               <ArrowDownFromLine
                 size={22}
                 className={
-                  isEstimate
+                  isUnload
                     ? "text-white"
                     : "text-cyan-600"
                 }
               />
-            </div>
-
-            <h3
-              className={`font-semibold mt-4 ${isEstimate
-                  ? "text-cyan-700"
-                  : "text-gray-800"
-                }`}
-            >
-              Unload Vehicle
-            </h3>
-
-            <p
-              className={`text-sm mt-1 ${isEstimate
-                  ? "text-cyan-600"
-                  : "text-gray-500"
-                }`}
-            >
-              Transfer Product to Store
-            </p>
-          </Link>
-
+            }
+            title="Unload Vehicle"
+            description="Transfer Product to Store"
+            titleColor="text-gray-800"
+            activeTitleColor="text-cyan-700"
+          />
 
         </div>
-
       </div>
     </div>
   );

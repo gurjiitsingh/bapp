@@ -295,7 +295,8 @@ const ActionCard = ({
   description,
   titleColor,
   activeTitleColor,
-}: {
+}:
+ {
   href: string;
   active: boolean;
   activeBg: string;
@@ -310,13 +311,13 @@ const ActionCard = ({
 }) => (
  <Link
   href={href}
-  className={`group relative rounded-3xl border shadow-sm p-5 transition-all duration-300 ${
+  className={`group relative rounded-2xl border shadow-sm p-1 transition-all duration-300 ${
     active
       ? activeBg
       : `bg-white border-gray-100 ${inactiveHover}`
   }`}
 >
-  <div className="flex items-center gap-2">
+  <div className="flex items-center gap-1">
   <div
     className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
       active ? activeIconBg : iconBg
@@ -326,7 +327,7 @@ const ActionCard = ({
   </div>
 
   <h5
-    className={`font-normal text-sm mt-4 ${
+    className={`font-normal text-sm  ${
       active ? activeTitleColor : titleColor
     }`}
   >
@@ -347,7 +348,7 @@ const ActionCard = ({
         rounded-xl
         bg-gray-900
         px-3
-        py-2
+        py-0
         text-xs
         text-white
         whitespace-nowrap

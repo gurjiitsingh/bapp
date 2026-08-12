@@ -6,7 +6,13 @@ import Link from "next/link";
 import { VehicleLoadReport } from "@/lib/types/distribution/VehicleLoadReportType";
 import { getVehicleLoadReports } from "@/app/(universal)/action/distribution/reports/load/getVehicleLoadReports";
 
-export default function VehicleLoadReportTable() {
+type Props = {
+  data: VehicleLoadReport[];
+};
+
+export default function VehicleLoadReportTable({
+  data,
+}: Props) {
   const [loads, setLoads] = useState<VehicleLoadReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("ALL");

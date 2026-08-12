@@ -4,19 +4,14 @@
 //RED CUSOTMER DATA    readCustomerAccountData
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { getStockLocation } from "../../getStockLocationTx";
-import { updateStockLocation } from "../../updateStockLocation";
-import { addStockLocation } from "../../addStockLocationTx";
-import { addStockMovement } from "../../addStockMovement";
-
-import { readStockLocationsForItems } from "../../redDataForSale/readStockLocationsForItems";
+ 
 import { readCustomerAccountData } from "../../redDataForSale/readCustomerAccountData";
-import { addItemSaleTruck } from "../../recordTruckSaleLedger";
+ 
 import { readFinishedProductData } from "../../redDataForSale/readFinishedProductData";
 import { PaymentMethodType } from "@/lib/types/distribution/PaymentMethodType";
-import { applyFinishedTransactions } from "../applyFinishedTransactions";
+ 
 import { writeProductStockBulkTransactions } from "./writeProductStockBulkTransactions";
-import { updateCustomerAccount } from "../../../stock-finished/inventorySupplier/updateCustomerAccount";
+ 
 import { applyCustomerTransaction } from "../../../stock-finished/customer/applyCustomerTransaction";
 import { updateCustomerAccountBulkSale } from "./updateCustomerAccountBulkSale";
 
@@ -184,7 +179,7 @@ export async function bulkSale({
 
       const {
         currentBalance,
-        currentCreditBalance,
+         
       } = await readCustomerAccountData({
         tx,
         wholeSaleCutomerId,
@@ -193,7 +188,7 @@ export async function bulkSale({
 
 
       let runningBalance = currentBalance;
-      let runningCreditBalance = currentCreditBalance;
+      let runningCreditBalance = 0;
 
       // =========================
       // WRITE
@@ -265,7 +260,7 @@ await applyCustomerTransaction(tx, {
 
   currentBalance,
   creditAmount: 0,
-  currentCreditBalance,
+  
 
   paymentMethod,
 

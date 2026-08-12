@@ -12,112 +12,115 @@ import {
   ClipboardList,
   PackagePlus,
   BookOpen,
+  Wrench,
+  Cog,
+  TriangleAlert,
 } from "lucide-react";
 
 export default function InventoryTabs() {
   const pathname = usePathname();
 
   const isReturn = pathname.startsWith(
-  "/admin/inventory/supplier/stock-return"
+  "/admin/maintenance/faults/new"
 );
   const isPurchase = pathname.startsWith(
-    "/admin/inventory/purchase"
+    "/admin/maintenance/faults/new"
   );
 
-  const isSuppliers = pathname.startsWith(
-    "/admin/inventory/supplier"
+  const isFault = pathname.startsWith(
+    "/admin/maintenance/faults"
   );
 
   const isInventory =
-    pathname === "/admin/inventory" ||
-    pathname === "/admin/inventory/";
+    pathname === "/admin/maintenance/machines" ||
+    pathname === "/admin/maintenance/machines/";
 
   const isTransactions = pathname.startsWith(
-    "/admin/inventory/transactions"
+    "/admin/maintenance/machines/transactions"
   );
 
   const isCategories = pathname.startsWith(
-    "/admin/inventory/categories"
+    "/admin/maintenance/machines/categories"
   );
 
   const isRecipes = pathname.startsWith(
-    "/admin/inventory/product-recipes"
+    "/admin/maintenance/machines/product-recipes"
   );
 
   const isAdjustment = pathname.startsWith(
-    "/admin/inventory/adjust-stock"
+    "/admin/maintenance/machines/adjust-stock"
   );
 
   const isStockReturn = pathname.startsWith(
-    "/admin/inventory/supplier/stock-return"
+    "/admin/maintenance/faults/new"
   );
 
   const isMore = pathname.startsWith(
-    "/admin/inventory/init"
+    "/admin/maintenance/machines/init"
   );
 
  return (
  <div className="grid grid-cols-3 md:grid-cols-5 xl:grid-cols-9 gap-3 mt-3 mx-2">
 
-  <ActionCard
-    href="/admin/inventory/purchase/add"
-    active={isPurchase}
-    activeBg="bg-orange-50 border-orange-300 shadow-md"
-    inactiveHover="hover:border-orange-300 hover:shadow-md"
-    iconBg="bg-orange-100"
-    activeIconBg="bg-orange-500"
-    icon={
-      <Plus
-        size={22}
-        className={isPurchase ? "text-white" : "text-orange-600"}
-      />
-    }
-    title="Purchase"
-    description="Add Raw Stock"
-    titleColor="text-gray-800"
-    activeTitleColor="text-orange-700"
-  />
+<ActionCard
+  href="/admin/maintenance/faults/new"
+  active={isPurchase}
+  activeBg="bg-orange-50 border-orange-300 shadow-md"
+  inactiveHover="hover:border-orange-300 hover:shadow-md"
+  iconBg="bg-orange-100"
+  activeIconBg="bg-orange-500"
+  icon={
+    <TriangleAlert
+      size={22}
+      className={isPurchase ? "text-white" : "text-orange-600"}
+    />
+  }
+  title="New Fault"
+  description="Report a new fault"
+  titleColor="text-gray-800"
+  activeTitleColor="text-orange-700"
+/>
 
-  <ActionCard
-    href="/admin/inventory/supplier"
-    active={isSuppliers}
-    activeBg="bg-violet-50 border-violet-300 shadow-md"
-    inactiveHover="hover:border-violet-300 hover:shadow-md"
-    iconBg="bg-violet-100"
-    activeIconBg="bg-violet-600"
-    icon={
-      <Truck
-        size={22}
-        className={isSuppliers ? "text-white" : "text-violet-600"}
-      />
-    }
-    title="Suppliers"
-    description="View Suppliers"
-    titleColor="text-gray-800"
-    activeTitleColor="text-violet-700"
-  />
+<ActionCard
+  href="/admin/maintenance/faults"
+  active={isFault}
+  activeBg="bg-violet-50 border-violet-300 shadow-md"
+  inactiveHover="hover:border-violet-300 hover:shadow-md"
+  iconBg="bg-violet-100"
+  activeIconBg="bg-violet-600"
+  icon={
+    <Wrench
+      size={22}
+      className={isFault ? "text-white" : "text-violet-600"}
+    />
+  }
+  title="Faults"
+  description="View Faults"
+  titleColor="text-gray-800"
+  activeTitleColor="text-violet-700"
+/>
 
-  <ActionCard
-    href="/admin/inventory"
-    active={isInventory}
-    activeBg="bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
-    inactiveHover="hover:border-[#00897b]/30 hover:shadow-md"
-    iconBg="bg-[#00897b]/10"
-    activeIconBg="bg-[#00897b]"
-    icon={
-      <PackagePlus
-        size={22}
-        className={isInventory ? "text-white" : "text-[#00897b]"}
-      />
-    }
-    title="Raw Stock"
-    description="View all inventory"
-    titleColor="text-gray-800"
-    activeTitleColor="text-[#00897b]"
-  />
+<ActionCard
+  href="/admin/maintenance/machines"
+  active={isInventory}
+  activeBg="bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
+  inactiveHover="hover:border-[#00897b]/30 hover:shadow-md"
+  iconBg="bg-[#00897b]/10"
+  activeIconBg="bg-[#00897b]"
+  icon={
+    <Cog
+      size={22}
+      className={isInventory ? "text-white" : "text-[#00897b]"}
+    />
+  }
+  title="Machines"
+  description="View all machines"
+  titleColor="text-gray-800"
+  activeTitleColor="text-[#00897b]"
+/>
 
-  <ActionCard
-    href="/admin/inventory/transactions"
+  {/* <ActionCard
+    href="/admin/maintenance/machines/transactions"
     active={isTransactions}
     activeBg="bg-purple-50 border-purple-300 shadow-md"
     inactiveHover="hover:border-purple-300 hover:shadow-md"
@@ -133,10 +136,10 @@ export default function InventoryTabs() {
     description="View Stock History"
     titleColor="text-gray-800"
     activeTitleColor="text-purple-700"
-  />
+  /> */}
 
-  <ActionCard
-    href="/admin/inventory/categories"
+  {/* <ActionCard
+    href="/admin/maintenance/machines/categories"
     active={isCategories}
     activeBg="bg-pink-50 border-pink-300 shadow-md"
     inactiveHover="hover:border-pink-300 hover:shadow-md"
@@ -152,10 +155,10 @@ export default function InventoryTabs() {
     description="Stock Categories"
     titleColor="text-gray-800"
     activeTitleColor="text-pink-700"
-  />
+  /> */}
 
-  <ActionCard
-    href="/admin/inventory/product-recipes/recipes"
+  {/* <ActionCard
+    href="/admin/maintenance/machines/product-recipes/recipes"
     active={isRecipes}
     activeBg="bg-indigo-50 border-indigo-300 shadow-md"
     inactiveHover="hover:border-indigo-300 hover:shadow-md"
@@ -171,10 +174,10 @@ export default function InventoryTabs() {
     description="View Recipes"
     titleColor="text-gray-800"
     activeTitleColor="text-indigo-700"
-  />
+  /> */}
 
-  <ActionCard
-    href="/admin/inventory/adjust-stock"
+  {/* <ActionCard
+    href="/admin/maintenance/machines/adjust-stock"
     active={isAdjustment}
     activeBg="bg-amber-50 border-amber-300 shadow-md"
     inactiveHover="hover:border-amber-300 hover:shadow-md"
@@ -190,10 +193,10 @@ export default function InventoryTabs() {
     description="Add or Remove Stock"
     titleColor="text-gray-800"
     activeTitleColor="text-amber-700"
-  />
+  /> */}
 
-  <ActionCard
-    href="/admin/inventory/supplier/stock-return"
+  {/* <ActionCard
+    href="/admin/maintenance/faults/new"
     active={isReturn}
     activeBg="bg-blue-50 border-blue-300 shadow-md"
     inactiveHover="hover:border-blue-300 hover:shadow-md"
@@ -209,10 +212,10 @@ export default function InventoryTabs() {
     description="Return to Supplier"
     titleColor="text-gray-800"
     activeTitleColor="text-blue-700"
-  />
+  /> */}
 
   {/* MORE */}
-  <div className="relative group">
+  {/* <div className="relative group">
     <div className="rounded-3xl border border-gray-100 bg-white p-5 shadow-sm transition hover:border-gray-300 hover:shadow-md">
       <div className="flex items-center gap-2">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100">
@@ -227,7 +230,7 @@ export default function InventoryTabs() {
         </h5>
       </div>
 
-      {/* Tooltip */}
+      
       <div
         className="
           pointer-events-none
@@ -269,16 +272,16 @@ export default function InventoryTabs() {
       </div>
     </div>
 
-    {/* Dropdown */}
+    
     <div className="absolute right-0 top-full z-50 mt-14 hidden w-56 rounded-xl border bg-white shadow-xl group-hover:block">
       <Link
-        href="/admin/inventory/init"
+        href="/admin/maintenance/machines/init"
         className="block rounded-xl px-4 py-3 text-sm hover:bg-gray-100"
       >
         Product Stock Setup
       </Link>
     </div>
-  </div>
+  </div> */}
 
 </div>
   );
@@ -299,7 +302,8 @@ const ActionCard = ({
   description,
   titleColor,
   activeTitleColor,
-}: {
+}:
+ {
   href: string;
   active: boolean;
   activeBg: string;
@@ -314,13 +318,13 @@ const ActionCard = ({
 }) => (
  <Link
   href={href}
-  className={`group relative rounded-3xl border shadow-sm p-5 transition-all duration-300 ${
+  className={`group relative rounded-2xl border shadow-sm p-1 transition-all duration-300 ${
     active
       ? activeBg
       : `bg-white border-gray-100 ${inactiveHover}`
   }`}
 >
-  <div className="flex items-center gap-2">
+  <div className="flex items-center gap-1">
   <div
     className={`h-12 w-12 rounded-2xl flex items-center justify-center ${
       active ? activeIconBg : iconBg
@@ -330,7 +334,7 @@ const ActionCard = ({
   </div>
 
   <h5
-    className={`font-normal text-sm mt-4 ${
+    className={`font-normal text-sm  ${
       active ? activeTitleColor : titleColor
     }`}
   >
@@ -351,7 +355,7 @@ const ActionCard = ({
         rounded-xl
         bg-gray-900
         px-3
-        py-2
+        py-0
         text-xs
         text-white
         whitespace-nowrap

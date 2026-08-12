@@ -19,6 +19,7 @@ import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 
 type LoadVehicleFormType = {
   vehicleId: string;
+  salemanId: string;
   remarks?: string;
   items: {
     productId: string;
@@ -98,14 +99,49 @@ export default function LoadVehicleFormOeprator({
     if (!data.vehicleId) return toast.error("Select vehicle");
     if (!items.length) return toast.error("Enter quantity");
 
-    const result = await loadVehicle({
-      vehicleId: data.vehicleId,
-      vehicleName: selectedVehicle?.name || "",
-      locationCode: selectedVehicle?.locationCode || "",
-      responsiblePerson:
-        selectedVehicle?.responsiblePersonName || "",
-      items,
-    });
+const result = await loadVehicle({
+  // =========================================
+  // ROUTE
+  // =========================================
+
+  routeId: "",
+  routeName: "",
+
+  // =========================================
+  // VEHICLE
+  // =========================================
+
+  vehicleId: data.vehicleId,
+
+  vehicleName:
+    selectedVehicle?.name || "",
+
+  locationCode:
+    selectedVehicle?.locationCode || "",
+
+  // =========================================
+  // SALESMAN
+  // =========================================
+
+ salesmanId:
+  data.salemanId || "",
+
+  salesmanName:
+    selectedVehicle?.responsiblePersonName || "",
+
+  // =========================================
+  // LEGACY / RESPONSIBLE PERSON
+  // =========================================
+
+  responsiblePerson:
+    selectedVehicle?.responsiblePersonName || "",
+
+  // =========================================
+  // ITEMS
+  // =========================================
+
+  items,
+});
 
     if (!result.success) return toast.error(result.message);
 

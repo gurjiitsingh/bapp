@@ -140,9 +140,8 @@ returnProductAmount,
 
           totalAmount: 0, // not used for return
           paidAmount: 0,
-          dueAmount: 0,
-          creditAmount,
-          currentCreditBalance,
+        
+       
           currentBalance, // ✅ FIXED
 
           paymentMethod,

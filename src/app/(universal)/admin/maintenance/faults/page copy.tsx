@@ -182,103 +182,100 @@ export default async function FaultsPage() {
 
               <tbody>
 
-            {faults.map(
-  (fault) => (
-    <Link
-      key={fault.id}
-      href={`/admin/maintenance/faults/${fault.id}`}
-      className="contents"
-    >
-      <tr
-        className="cursor-pointer border-b last:border-b-0 hover:bg-gray-50"
-      >
+                {faults.map(
+                  (fault) => (
 
-        {/* TICKET */}
+                    <tr
+                      key={fault.id}
+                      className="border-b last:border-b-0 hover:bg-gray-50"
+                    >
 
-        <td className="px-5 py-4">
+                      {/* TICKET */}
 
-          <div className="text-sm font-semibold text-blue-600 hover:underline">
-            {fault.ticketNumber}
-          </div>
+                      <td className="px-5 py-4">
 
-        </td>
+                        <div className="text-sm font-semibold">
+                          {fault.ticketNumber}
+                        </div>
 
-        {/* MACHINE */}
+                      </td>
 
-        <td className="px-5 py-4">
+                      {/* MACHINE */}
 
-          <div className="text-sm font-medium">
-            {fault.machineName}
-          </div>
+                      <td className="px-5 py-4">
 
-          <div className="text-xs text-gray-500">
-            {fault.machineCode || "-"}
-          </div>
+                        <div className="text-sm font-medium">
+                          {fault.machineName}
+                        </div>
 
-        </td>
+                        <div className="text-xs text-gray-500">
+                          {fault.machineCode || "-"}
+                        </div>
 
-        {/* FAULT */}
+                      </td>
 
-        <td className="max-w-[280px] px-5 py-4">
+                      {/* FAULT */}
 
-          <div className="truncate text-sm font-medium">
-            {fault.faultTitle}
-          </div>
+                      <td className="max-w-[280px] px-5 py-4">
 
-          <div className="truncate text-xs text-gray-500">
-            {fault.faultDescription}
-          </div>
+                        <div className="truncate text-sm font-medium">
+                          {fault.faultTitle}
+                        </div>
 
-        </td>
+                        <div className="truncate text-xs text-gray-500">
+                          {fault.faultDescription}
+                        </div>
 
-        {/* PRIORITY */}
+                      </td>
 
-        <td className="px-5 py-4">
+                      {/* PRIORITY */}
 
-          <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getPriorityClass(
-              fault.priority
-            )}`}
-          >
-            {fault.priority}
-          </span>
+                      <td className="px-5 py-4">
 
-        </td>
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getPriorityClass(
+                            fault.priority
+                          )}`}
+                        >
+                          {fault.priority}
+                        </span>
 
-        {/* REPORTED BY */}
+                      </td>
 
-        <td className="px-5 py-4 text-sm">
-          {fault.reportedByName ||
-            fault.reportedBy ||
-            "-"}
-        </td>
+                      {/* REPORTED BY */}
 
-        {/* DATE */}
+                      <td className="px-5 py-4 text-sm">
+                        {fault.reportedByName ||
+                          fault.reportedBy ||
+                          "-"}
+                      </td>
 
-        <td className="px-5 py-4 text-sm text-gray-600">
-          {formatDate(
-            fault.reportedAt
-          )}
-        </td>
+                      {/* DATE */}
 
-        {/* STATUS */}
+                      <td className="px-5 py-4 text-sm text-gray-600">
+                        {formatDate(
+                          fault.reportedAt
+                        )}
+                      </td>
 
-        <td className="px-5 py-4">
+                      {/* STATUS */}
 
-          <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(
-              fault.status
-            )}`}
-          >
-            {fault.status}
-          </span>
+                      <td className="px-5 py-4">
 
-        </td>
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${getStatusClass(
+                            fault.status
+                          )}`}
+                        >
+                          {fault.status}
+                        </span>
 
-      </tr>
-    </Link>
-  )
-)}
+                      </td>
+
+                    </tr>
+
+                  )
+                )}
 
               </tbody>
 
