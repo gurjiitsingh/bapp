@@ -144,7 +144,7 @@ export default function InventoryTabs() {
 
   const isReports =
     pathname.startsWith(
-      "/admin/distribution/reports"
+      "/admin/distribution/sales"
     );
 
   const isVehicle =
@@ -320,7 +320,7 @@ export default function InventoryTabs() {
           ===================================================== */}
 
           <ActionCard
-            href="/admin/distribution/reports"
+            href="/admin/distribution/sales"
             active={isReports}
             activeBg="bg-blue-500/10 border-blue-500/40 shadow-md"
             inactiveHover="hover:border-blue-500/30 hover:shadow-md"

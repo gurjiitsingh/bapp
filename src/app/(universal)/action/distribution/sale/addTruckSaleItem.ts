@@ -25,6 +25,7 @@ export async function addTruckSaleItem(
   tx: admin.firestore.Transaction,
   data: Props
 ) {
+  
   const ref = adminDb
     .collection("truckSales")
     .doc(data.saleId)

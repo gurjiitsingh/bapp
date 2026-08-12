@@ -248,7 +248,7 @@ export async function saveDeiveryTruckSale({
 
       const {
         currentBalance,
-       
+
       } =
         await readCustomerAccountData({
           tx,
@@ -269,7 +269,7 @@ export async function saveDeiveryTruckSale({
       let updatedBalance = currentBalance;
 
       let newBalance = currentBalance - remainingAmount + saleDue;
- 
+
       // Apply remaining to old due
       let appliedToOldDue = 0;
 
@@ -287,7 +287,7 @@ export async function saveDeiveryTruckSale({
 
 
 
- 
+
       // =================================================
       // 4. VALIDATE VEHICLE STOCK
       // =================================================
@@ -328,6 +328,7 @@ export async function saveDeiveryTruckSale({
             ),
           0
         );
+
 
 
       // =================================================
@@ -492,54 +493,7 @@ export async function saveDeiveryTruckSale({
         });
 
 
-        // ===============================================
-        // FINISHED PRODUCT LEDGER
-        //
-        // ITEM LEVEL ONLY
-        //
-        // No customer accounting here.
-        // No payment here.
-        // ===============================================
-
-        const finishedProduct =
-          finishedProducts.get(
-            row.vehicle.productId
-          );
-
-
-        await recordTruckSaleLedger({
-          tx,
-
-          finishedProduct,
-
-          id:
-            row.vehicle.productId,
-
-          type:
-            "SALE",
-
-          direction:
-            "OUT",
-
-          quantity,
-
-          transactionUnit:
-            "kg",
-
-          unitPrice,
-
-          note:
-            remarks,
-
-          createdBy,
-
-          referenceId:
-            saleId,
-
-          referenceType:
-            "SALE",
-        });
-
+        
 
         // ===============================================
         // COST / PROFIT SNAPSHOT
@@ -605,14 +559,14 @@ export async function saveDeiveryTruckSale({
 
         totalAmount,
         paidAmount,//: salePaid,
-      
+
         currentBalance,
-        
+
 
         paymentMethod,
       });
 
-          // =================================================
+      // =================================================
       // 10A .EXTRA PAYMENT (OLD DUE / ADVANCE)
       // =================================================
 
@@ -632,9 +586,9 @@ export async function saveDeiveryTruckSale({
           dueAmount: 0,
 
           currentBalance: updatedBalance,
-newBalance,
+          newBalance,
           creditAmount: 0,
-        
+
 
           paymentMethod,
 
@@ -678,7 +632,7 @@ newBalance,
           creditAmount:
             0,
 
-       //   currentCreditBalance,
+          //   currentCreditBalance,
 
           paymentMethod,
 
@@ -700,8 +654,8 @@ newBalance,
         }
       );
 
+       
 
-  
       // =================================================
       // 11. UPDATE TRIP SUMMARY
       //

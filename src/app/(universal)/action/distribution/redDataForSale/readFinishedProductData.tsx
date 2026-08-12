@@ -13,7 +13,7 @@ export async function readFinishedProductData({
   productId: string;
 }) {
 
-  console.log("productId--------------", productId)
+  
   const productRef = adminDb
     .collection("productStock")
     .doc(productId);

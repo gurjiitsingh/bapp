@@ -96,44 +96,44 @@ export async function recordTruckSaleLedger({
     // Customer accounting does NOT belong here.
     // ==========================================
 
-    await applyFinishedTransactions(tx, {
-      productId: id,
+    // await applyFinishedTransactions(tx, {
+    //   productId: id,
 
-      finishedProduct,
+    //   finishedProduct,
 
-      type: "SALE",
+    //   type: "SALE",
 
-      direction: "OUT",
+    //   direction: "OUT",
 
-      quantity,
+    //   quantity,
 
-      transactionUnit,
+    //   transactionUnit,
 
-      unitPrice,
+    //   unitPrice,
 
-      totalAmount,
+    //   totalAmount,
 
-      // Sale payment is handled by SALE MASTER
-      paidAmount: 0,
+    //   // Sale payment is handled by SALE MASTER
+    //   paidAmount: 0,
 
-      dueAmount: totalAmount,
+    //   dueAmount: totalAmount,
 
-      paymentStatus: "CREDIT" as PaymentStatus,
+    //   paymentStatus: "CREDIT" as PaymentStatus,
 
-      paymentMethod: undefined,
+    //   paymentMethod: undefined,
 
-      referenceId,
+    //   referenceId,
 
-      referenceType,
+    //   referenceType,
 
-      note,
+    //   note,
 
-      createdBy:
-        createdBy || "admin",
+    //   createdBy:
+    //     createdBy || "admin",
 
-      source:
-        createdBy || "ADMIN",
-    });
+    //   source:
+    //     createdBy || "ADMIN",
+    // });
 
 
     return {
