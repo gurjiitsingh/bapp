@@ -142,6 +142,9 @@ export const fetchProducts = unstable_cache(
           isFeatured:
             data.isFeatured ?? false,
 
+            favorite:
+            data.favorite ?? false,
+
           purchaseSession:
             data.purchaseSession ??
             null,
@@ -756,6 +759,7 @@ export async function fetchProductById(
       sortOrder: data?.sortOrder ?? 0,
       image: data?.image ?? "",
       isFeatured: data?.isFeatured ?? false,
+      favorite: data?.favorite ?? false,
       purchaseSession: data?.purchaseSession ?? null,
       flavors: data?.flavors ?? false,
       publishStatus: data?.publishStatus ?? "draft",
@@ -789,41 +793,50 @@ export async function fetchProductByCategoryId(
     }
 
     const products: ProductType[] = querySnapshot.docs.map((doc) => {
-      const data = doc.data();
+  const data = doc.data();
 
-      return {
-        id: doc.id,
-        name: data.name ?? "",
-        price: data.price ?? 0,
-        currentStock: data.currentStock ?? 0,
-        discountPrice: data.discountPrice,
-        categoryId: data.categoryId ?? "",
-        masterCategoryId: data.masterCategoryId ?? "",
-        masterCategoryName: data.masterCategoryName ?? "",
-        productCat: data.productCat,
-        baseProductId: data.baseProductId ?? "",
-        productDesc: data.productDesc ?? "",
-        quantity: 0,
-        sortOrder: data.sortOrder ?? 0,
-        image: data.image ?? "",
-        isFeatured: data.isFeatured ?? false,
-        flavors: data.flavors ?? false,
-        publishStatus: data.publishStatus ?? "draft",
-        stockStatus: data.stockStatus ?? "out_of_stock",
-        searchCode: data.searchCode ?? "",
-        taxRate: data.taxRate,
-        taxType: data.taxType,
-        purchaseSession: data.purchaseSession ?? null,
+  return {
+    id: doc.id,
+    name: data.name ?? "",
+    price: data.price ?? 0,
+    currentStock: data.currentStock ?? 0,
+    discountPrice: data.discountPrice,
 
-        sku: data.sku,
-        barcode: data.barcode,
-        minStock: data.minStock,
-        productMode: data.productMode,
-        inventoryItemId: data.inventoryItemId,
-        trackInventory: data.trackInventory,
-        allowNegativeStock: data.allowNegativeStock,
-      };
-    });
+    categoryId: data.categoryId ?? "",
+    masterCategoryId: data.masterCategoryId ?? "",
+    masterCategoryName: data.masterCategoryName ?? "",
+
+    productCat: data.productCat,
+    baseProductId: data.baseProductId ?? "",
+    productDesc: data.productDesc ?? "",
+
+    quantity: 0,
+
+    // ⭐ REQUIRED BY ProductType
+    favorite: data.favorite ?? false,
+
+    sortOrder: data.sortOrder ?? 0,
+    image: data.image ?? "",
+    isFeatured: data.isFeatured ?? false,
+    flavors: data.flavors ?? false,
+    publishStatus: data.publishStatus ?? "draft",
+    stockStatus: data.stockStatus ?? "out_of_stock",
+    searchCode: data.searchCode ?? "",
+
+    taxRate: data.taxRate,
+    taxType: data.taxType,
+
+    purchaseSession: data.purchaseSession ?? null,
+
+    sku: data.sku,
+    barcode: data.barcode,
+    minStock: data.minStock,
+    productMode: data.productMode,
+    inventoryItemId: data.inventoryItemId,
+    trackInventory: data.trackInventory,
+    allowNegativeStock: data.allowNegativeStock,
+  };
+});
 
     return products;
   } catch (error) {
@@ -931,6 +944,7 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : 0,
     image: data.image ?? "",
     isFeatured: String(data.isFeatured).toLowerCase() === "true" ? true : false,
+     favorite: data.favorite ?? false,
     purchaseSession: data.purchaseSession ?? null,
     quantity:
       data.quantity !== undefined && data.quantity !== null
@@ -1130,7 +1144,7 @@ export const fetchLatestProducts = unstable_cache(
           image: data.image ?? "",
 
           isFeatured: data.isFeatured ?? false,
-
+ favorite: data.favorite ?? false,
           purchaseSession: data.purchaseSession ?? null,
 
           quantity: data.currentStock ?? null,

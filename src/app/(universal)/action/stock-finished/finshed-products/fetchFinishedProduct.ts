@@ -118,7 +118,7 @@ export const fetchFinishedProducts = unstable_cache(
 
           isFeatured:
             data.isFeatured ?? false,
-
+ favorite: data.favorite ?? false,
           purchaseSession:
             data.purchaseSession ??
             null,
