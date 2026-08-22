@@ -15,8 +15,8 @@ export type ProductType = {
   sortOrder: number;
   image: string;
   isFeatured: boolean;
-
-  flavors: boolean;
+favorite:boolean;
+  flavors?: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
 

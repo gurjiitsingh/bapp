@@ -874,6 +874,40 @@ export async function toggleFeatured(productId: string, isFeatured: boolean) {
   }
 }
 
+export async function toggleFavorite(
+  productId: string,
+  favorite: boolean
+) {
+  try {
+    const productRef = adminDb
+      .collection("products")
+      .doc(productId);
+
+    await productRef.update({
+      favorite,
+    });
+
+    revalidateTag("products", "max");
+
+    return {
+      success: true,
+      message: `Product ${
+        favorite ? "added to favorites" : "removed from favorites"
+      } successfully.`,
+    };
+  } catch (error) {
+    console.error(
+      "Error toggling favorite status:",
+      error
+    );
+
+    return {
+      success: false,
+      error: (error as Error).message,
+    };
+  }
+}
+
 /**
  * Upload a product to Firestore from CSV data
  */

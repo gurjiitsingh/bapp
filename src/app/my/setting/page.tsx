@@ -41,6 +41,7 @@ export default function ClientListPage() {
     loadClients();
   };
 
+  console.log("list------------", )
   return (
     <div className="p-5">
       <h1 className="text-xl font-semibold mb-4">Clients</h1>
@@ -76,7 +77,19 @@ export default function ClientListPage() {
             ) : (
               clients.map((c) => (
                 <TableRow key={c.clientId}>
-                  <TableCell>{c.clientId}</TableCell>
+
+
+
+                  <TableCell>{c.clientId}
+
+                   <a
+  href={`/my/webapi/add/${c.clientId}`}
+  className="text-blue-600 text-sm"
+>
+  Add wepApi
+</a>
+
+                  </TableCell>
                   <TableCell>{c.projectId}</TableCell>
 
                   {/* STATUS */}
