@@ -98,6 +98,8 @@ snapshot.docs.forEach((doc) => {
         a.month < b.month ? 1 : -1
       );
 
+      console.log("sale------------------", sorted)
+
       setMonthlySales(sorted);
     } catch (error) {
       console.error('Error fetching monthly sales:', error);

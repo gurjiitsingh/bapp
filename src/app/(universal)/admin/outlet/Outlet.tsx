@@ -52,7 +52,7 @@ defaultValues: {
 
           printerWidth: String(data.printerWidth),
 
-          countryCode: data.countryCode ?? "DE",
+          countryCode: data.countryCode ?? "IN",
 
           // ✅ SAFE QR RESET
           qrEnabled: data.qrEnabled ?? false,
@@ -222,13 +222,15 @@ defaultValues: {
             className="input-style"
           />
 
-         <select {...register("countryCode")} className="input-style">
+ <select {...register("countryCode")} className="input-style">
   <option value="DE">Germany</option>
+   <option value="ES">Spain</option>
+  <option value="AT">Austria</option>
   <option value="IN">India</option>
   <option value="US">USA</option>
   <option value="CA">Canada</option>
 
-  <option value="ES">Spain</option>
+ 
   <option value="AU">Australia</option>
   <option value="GB">United Kingdom</option>
   <option value="FR">France</option>

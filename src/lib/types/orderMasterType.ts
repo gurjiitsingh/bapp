@@ -14,7 +14,7 @@ export type orderMasterDataT = {
   // =====================================================
 
   id: string;
- srno: number; // Per-outlet running number
+ srno: string; // Per-outlet running number
 
   // =====================================================
   //  CUSTOMER (REFERENCE + SNAPSHOT)
