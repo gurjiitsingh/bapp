@@ -3,6 +3,8 @@ import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getS
 import LoadVehicleForm from "./LoadVehicleForm";
 import { getVehicles } from "@/app/(universal)/action/distribution/getVehicles";
 
+export const dynamic = "force-dynamic";
+
 export default async function Page() {
   const stock = await getStockLocationsAll({
     locationType: "FACTORY",
