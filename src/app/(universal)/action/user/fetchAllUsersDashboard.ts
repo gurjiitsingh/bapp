@@ -26,7 +26,8 @@ export async function fetchAllUsers(): Promise<userDashboardType[]> {
 
       email: docData.email || "",
       mobile: docData.mobile || "",
-
+ userType:
+      docData.userType || "",
       hashedPassword:
         docData.hashedPassword || "",
 

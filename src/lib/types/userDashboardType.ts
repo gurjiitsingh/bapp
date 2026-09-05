@@ -6,7 +6,7 @@ export type userDashboardType = {
   username: string;
   email: string;
   mobile: string;
-
+ userType:string,
   // Authentication
   hashedPassword: string;
   role: string;

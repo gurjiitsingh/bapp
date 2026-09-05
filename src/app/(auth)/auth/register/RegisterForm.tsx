@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signUpSchema, TsignUpSchema } from "@/lib/types/userType";
@@ -8,6 +8,8 @@ import { addUserDirect } from "@/app/(universal)/action/user/dbOperation";
 import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
+  const [message, setMessage] = useState("");
+const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   const {
@@ -18,22 +20,37 @@ export default function RegisterForm() {
     resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmitUserRegister = async (data: TsignUpSchema) => {
+ const onSubmitUserRegister = async (data: TsignUpSchema) => {
+  setMessage("");
+  setIsSubmitting(true);
+
+  try {
     const formData = new FormData();
+
     formData.append("username", data.username);
     formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
 
     const result = await addUserDirect(formData);
-    if (result) {
-      router.push("/user");
-    }
-  };
+
+ 
+  } catch (error) {
+    console.error(error);
+    setMessage("Something went wrong. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="max-w-md mx-auto px-4 py-8">
       <h2 className="text-2xl font-semibold mb-6 text-center">Create Account</h2>
+      {message && (
+  <div className="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    {message}
+  </div>
+)}
       <form onSubmit={handleSubmit(onSubmitUserRegister)} className="space-y-5">
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
@@ -87,12 +104,13 @@ export default function RegisterForm() {
           )}
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
-        >
-          Register
-        </button>
+       <button
+  type="submit"
+  disabled={isSubmitting}
+  className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition disabled:opacity-50"
+>
+  {isSubmitting ? "Creating account..." : "Register"}
+</button>
       </form>
 
       <p className="text-sm text-center mt-6">

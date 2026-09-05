@@ -1,0 +1,103 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import TableRows from "./TableRows";
+import { fetchAllUsers } from "@/app/(universal)/action/user/fetchAllUsersDashboard";
+import { userDashboardType } from "@/lib/types/userDashboardType";
+
+type productTableProps = {
+  limit?: number;
+  title?: string;
+};
+
+const ListView = ({ title }: productTableProps) => {
+  const [userData, setUserData] = useState<userDashboardType[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const result = await fetchAllUsers();
+console.log("restult-------------------",result)
+        // Only show POS users
+        const posUsers = result.filter(
+          (user) => user.userType === "pos"
+        );
+
+        setUserData(posUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  return (
+    <div className="mt-5 p-2">
+      <h3 className="text-2xl mb-4 font-semibold">
+        {title || "POS Users"}
+      </h3>
+
+      <div className="bg-white dark:border-zinc-200 rounded-lg p-1">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-100 dark:border-zinc-200">
+
+              <TableHead className="hidden md:table-cell">
+                Full Name
+              </TableHead>
+
+              <TableHead className="hidden md:table-cell">
+                Username
+              </TableHead>
+
+              <TableHead className="hidden md:table-cell">
+                Email
+              </TableHead>
+
+              <TableHead className="hidden md:table-cell">
+                Phone
+              </TableHead>
+
+              <TableHead>
+                Role
+              </TableHead>
+
+              <TableHead>
+                Department
+              </TableHead>
+
+              <TableHead>
+                Time
+              </TableHead>
+
+              <TableHead className="hidden md:table-cell text-right">
+                Actions
+              </TableHead>
+
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {userData.map((user, i) => (
+              <TableRows
+                key={user.id ?? i}
+                user={user}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+export default ListView;

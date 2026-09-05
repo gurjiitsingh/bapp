@@ -14,40 +14,38 @@ import admin from 'firebase-admin';
 export async function addUserDirect(
   formData: FormData
 ): Promise<string | undefined> {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const firstName = formData.get("firstName") as string;
-  const lastName = formData.get("lastName") as string;
-   const role = formData.get("role") as string;
-  let username = (formData.get("username") || undefined) as
-    | string
-    | undefined;
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const role = String(formData.get("role") ?? "").trim();
 
-  // Already exists in Firebase Auth?
-  try {
-    const existingAuthUser =
-      await admin.auth().getUserByEmail(email);
+  let username = String(formData.get("username") ?? "").trim();
 
-    return existingAuthUser.uid;
-  } catch {
-    // User doesn't exist -> continue
-  }
-
-  username ??= `${firstName} ${lastName}`;
+  username ||= `${firstName} ${lastName}`.trim();
 
   try {
-    // Create Firebase Auth user
-    const authUser = await admin.auth().createUser({
-      email,
-      password,
-      displayName: username,
-      emailVerified: true,
-    });
+    // Check if email already exists in Firestore
+    const existingUser = await adminDb
+      .collection("users")
+      .where("email", "==", email)
+      .limit(1)
+      .get();
 
+    if (!existingUser.empty) {
+      return existingUser.docs[0].id;
+    }
+
+    // Generate a Firestore document ID
+    const userRef = adminDb.collection("users").doc();
+
+    const uid = userRef.id;
+
+    // Hash password
     const hashedPassword = await hashPassword(password);
 
     const newUser = {
-      uid: authUser.uid,
+      uid,
       username,
       firstName,
       lastName,
@@ -59,18 +57,16 @@ export async function addUserDirect(
       createdAt: FieldValue.serverTimestamp(),
     };
 
-    // Store in Firestore using UID as document id
-    await adminDb
-      .collection("users")
-      .doc(authUser.uid)
-      .set(newUser);
+    // Store user directly in Firestore
+    await userRef.set(newUser);
 
-    return authUser.uid;
+    return uid;
   } catch (e) {
     console.error("Error adding user:", e);
     return undefined;
   }
 }
+
 
 
 export async function addUserDirectPrimaryMOB(
