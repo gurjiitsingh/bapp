@@ -28,6 +28,8 @@ function TableRows({
   product: ProductType;
   index: number;
 }) {
+
+  console.log("product---------------",product.name,product)
   const { settings } = UseSiteContext();
   const { TEXT } = useLanguage();
   const [isFeatured, setIsFeatured] = useState(product.isFeatured);

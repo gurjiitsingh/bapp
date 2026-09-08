@@ -3,15 +3,16 @@ import PayrollClient from "./PayrollClient";
 
 export default async function Page() {
   const snapshot = await adminDb
-    .collection("employeePayroll")
+    .collection("payrollRuns")
     .orderBy("createdAt", "desc")
     .get();
 
   const payrolls = snapshot.docs.map((doc) => ({
+    ...(doc.data() as any),
     id: doc.id,
-    ...doc.data(),
   }));
-  
-  return <div></div>
-  // return <PayrollClient initialData={payrolls} />;
+
+  return (
+    <PayrollClient initialData={payrolls} />
+  );
 }
