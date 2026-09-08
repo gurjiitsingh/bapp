@@ -25,7 +25,7 @@ const ListView = ({ title }: productTableProps) => {
     async function fetchUsers() {
       try {
         const result = await fetchAllUsers();
-console.log("restult-------------------",result)
+ 
         // Only show POS users
         const posUsers = result.filter(
           (user) => user.userType === "pos"
@@ -59,9 +59,9 @@ console.log("restult-------------------",result)
                 Username
               </TableHead>
 
-              <TableHead className="hidden md:table-cell">
+              {/* <TableHead className="hidden md:table-cell">
                 Email
-              </TableHead>
+              </TableHead> */}
 
               <TableHead className="hidden md:table-cell">
                 Phone
@@ -71,9 +71,9 @@ console.log("restult-------------------",result)
                 Role
               </TableHead>
 
-              <TableHead>
+              {/* <TableHead>
                 Department
-              </TableHead>
+              </TableHead> */}
 
               <TableHead>
                 Time

@@ -129,7 +129,7 @@ export async function addPosUser(formData: FormData) {
   allowPosLogin: true,
 
   // POS PIN
-  pin,
+   loginPin:pin,
 
   // POS role
   role,

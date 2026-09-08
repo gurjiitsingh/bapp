@@ -30,10 +30,10 @@ function TableRows({ user }: { user: userDashboardType }) {
     <TableRow className="whitespace-nowrap hover:bg-green-50 dark:hover:bg-zinc-100 transition rounded-xl">
       <TableCell>{user.fullName}</TableCell>
        <TableCell>{user.username}</TableCell>
-      <TableCell>{user.email}</TableCell>
+      {/* <TableCell>{user.email}</TableCell> */}
        <TableCell>{user.mobile}</TableCell>  
       <TableCell>{user.role}</TableCell>
-         <TableCell>{user.department}</TableCell>
+         {/* <TableCell>{user.department}</TableCell> */}
          <TableCell>{user.createdAt}</TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end gap-2">
