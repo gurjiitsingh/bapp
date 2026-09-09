@@ -89,8 +89,8 @@ export async function inventoryPurchase(
 
     console.log('inventory.conversionFactor-----------------', inventory.conversionFactor)
 
-    const beforeStockValue = Number(inventory.stockValue) || 0;
-    const newConversionFactor = conversionFactor ||  Number(inventory.conversionFactor);
+   
+    const newConversionFactor =  Number(inventory.conversionFactor) || conversionFactor ;
 
     // =====================================================
     //  PURCHASE DATA
@@ -100,6 +100,10 @@ export async function inventoryPurchase(
     // =====================================================
     //  CALCULATIONS
     // =====================================================
+    let purchaseStockValue = purchaseQuantity! * purchaseUnitCost!;
+     
+    
+    const beforeStockValue = Number(inventory.stockValue) || 0;
 
     let afterStock = beforeStock + quantity;
 
@@ -109,27 +113,58 @@ export async function inventoryPurchase(
     console.log("====================================");
     console.log("AVERAGE COST DEBUG");
     console.log("====================================");
-    console.log("Stock QTY:", beforeStock);
+    console.log("purchaseUnit:", purchaseUnit);
+    console.log("purchaseUnitCost:", purchaseUnitCost);
+    console.log("conversionFactor:", conversionFactor);
+    
     console.log("Purchase QTY:", quantity);
+
+    console.log("beforeStock:", inventory.currentStock);
+    console.log("beforeStockValue:", inventory.stockValue);
     console.log("afterStockValue:", afterStockValue);
     console.log("afterStock:", afterStock);
     console.log("newConversionFactor:", newConversionFactor);
     console.log("New AverageCost: ", afterAverageCost)
     console.log("====================================");
 
+const isFirstPurchase =
+  !inventory.stockValue;
 
 
-    tx.update(inventoryRef, {
-        currentStock: afterStock,
-        stockValue: afterStockValue,//afterStockValue,
-        // consumptionUnit: inventory.consumptionUnit? inventory.consumptionUnit : "gm",
-        averageCost: afterAverageCost,
-         conversionFactor: newConversionFactor,
-        //  costPrice: afterAverageCost,
-        purchaseUnit: purchaseUnit,
-        purchaseUnitCost: purchaseUnitCost,// THIS IS RECENT  PURCHASE COST FOR
-        updatedAt: now,
-    });
+const updateData: Record<string, any> = {
+  currentStock: afterStock,
+  stockValue: afterStockValue,
+  averageCost: afterAverageCost,
+  updatedAt: now,
+};
+
+if (isFirstPurchase) {
+  updateData.consumptionUnit =
+    inventory.consumptionUnit || "gm";
+
+  updateData.conversionFactor = conversionFactor;
+
+  updateData.costPrice = afterAverageCost;
+
+  updateData.purchaseUnit = purchaseUnit;
+
+  updateData.purchaseUnitCost = purchaseUnitCost;
+}
+
+tx.update(inventoryRef, updateData);
+
+
+    // tx.update(inventoryRef, {
+    //     currentStock: afterStock,
+    //     stockValue: afterStockValue,//afterStockValue,
+    //     // consumptionUnit: inventory.consumptionUnit? inventory.consumptionUnit : "gm",
+    //     averageCost: afterAverageCost,
+    //   // conversionFactor: newConversionFactor,
+    //     //  costPrice: afterAverageCost,
+    //    //purchaseUnit: purchaseUnit,
+    //   // purchaseUnitCost: purchaseUnitCost,// THIS IS RECENT  PURCHASE COST FOR
+    //     updatedAt: now,
+    // });
 
 
     const ledgerRef =
@@ -160,7 +195,7 @@ export async function inventoryPurchase(
         // =====================================================
         purchaseQuantity: quantity,
 
-        purchaseUnit: purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
+        purchaseUnit: purchaseUnit,
 
         purchaseUnitCost: purchaseUnitCost,
         quantity: quantity,

@@ -38,7 +38,7 @@ export default function ListView({
   inventoryItems,
   categories
 }: Props) {
-console.log("inventory------------------------",inventoryItems)
+//console.log("inventory------------------------",inventoryItems)
 
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);

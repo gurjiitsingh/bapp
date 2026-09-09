@@ -44,7 +44,7 @@ function TableRows({
 }: {
   item: InventoryItemType;
 }) {
-  console.log("item-----------------------", item)
+  //console.log("item-----------------------", item)
   const { settings } = UseSiteContext();
 
   const mapping = getPrimaryPurchaseMapping(item);
@@ -215,12 +215,12 @@ className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border borde
       {/* MIN STOCK */}
       <TableCell>
         <span className="text-sm font-medium text-gray-700">
-          {displayStock(
-            item.minStock!,
-            primaryMapping.purchaseUnit,
-            item.consumptionUnit,
-            primaryMapping.factor
-          )}
+        {displayStock(
+              item.currentStock!,
+              item.purchaseUnit,
+              item.consumptionUnit,
+              item.conversionFactor
+            )}
         </span>
       </TableCell>
 

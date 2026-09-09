@@ -28,15 +28,15 @@ export async function writeInventoryDataIssueStock(
     const newStockValue = Number((afterStock * averageCost / conversionFactor).toFixed(2));
     const newAvgPrice = Number((newStockValue / (afterStock / conversionFactor)).toFixed(2));
 
-    console.log("==========  Update Inventory ==========");
+    console.log("==========  Update Inventory after issue ==========");
 
-    // console.log("sendQty :", sendQty);
-    // console.log("afterStock :", afterStock);
-    // console.log("newStockValue      :", newStockValue);
+    console.log("sendQty :", sendQty);
+    console.log("afterStock :", afterStock);
+    console.log("newStockValue      :", newStockValue);
 
-    // console.log("conversionFactor   :", conversionFactor);
-    // console.log("averageCost  :", averageCost);
-    // console.log("New averageCost  :", newAvgPrice);
+    console.log("conversionFactor   :", conversionFactor);
+    console.log("averageCost  :", averageCost);
+    console.log("New averageCost  :", newAvgPrice);
 
     console.log("======================================");
 
