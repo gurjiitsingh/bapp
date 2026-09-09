@@ -219,7 +219,7 @@ export default function PayrollRunDetails({
           Back
         </Button>
 
-        <div className="rounded-lg border p-6 text-center text-red-600">
+        <div className="rounded-lg border border-slate-100 p-6 text-center text-red-600">
           {error || "Payroll run not found."}
         </div>
       </div>

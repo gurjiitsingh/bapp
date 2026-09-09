@@ -133,7 +133,7 @@ export default function EmployeePayrollProfileDialog({
 
         const profile =
           await getEmployeePayrollProfile(
-            employee.id
+            employee!.id
           );
 
         if (cancelled) return;
@@ -176,7 +176,7 @@ export default function EmployeePayrollProfileDialog({
 
           setEmploymentType(
             data.employmentType ??
-              employee.employmentType
+              employee!.employmentType
           );
 
           setSalaryType(
@@ -632,7 +632,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                   >
-                    <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                    <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -670,7 +670,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                   >
-                    <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                    <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -708,7 +708,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="PB, CA, NY, ENG"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -724,7 +724,7 @@ export default function EmployeePayrollProfileDialog({
                       setCity(e.target.value)
                     }
                     placeholder="Moga"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -742,7 +742,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="Asia/Kolkata"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
               </div>
@@ -777,7 +777,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                   >
-                    <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                    <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -815,7 +815,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                   >
-                    <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                    <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -849,7 +849,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                   >
-                    <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                    <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -907,7 +907,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="360000"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -933,7 +933,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="30000"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -959,7 +959,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="1200"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -985,7 +985,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="150"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -1006,7 +1006,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="200"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
               </div>
@@ -1040,7 +1040,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="Optional"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -1057,7 +1057,7 @@ export default function EmployeePayrollProfileDialog({
                       )
                     }
                     placeholder="Optional"
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
               </div>
@@ -1094,7 +1094,7 @@ export default function EmployeePayrollProfileDialog({
                         e.target.value
                       )
                     }
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
 
@@ -1114,7 +1114,7 @@ export default function EmployeePayrollProfileDialog({
                         e.target.value
                       )
                     }
-                    className="bg-white text-gray-900 border-gray-300"
+                    className="bg-white text-gray-900 border-gray-100"
                   />
                 </div>
               </div>

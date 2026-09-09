@@ -1,336 +1,336 @@
-import { EmployeeStatus } from "./EmployeeTypes";
-import { EmploymentType } from "./PayrollTypes";
+// import { EmployeeStatus } from "./EmployeeTypes";
+// import { EmploymentType } from "./PayrollTypes";
 
-interface Employee {
-  id: string;
+// interface Employee {
+//   id: string;
 
-  employeeCode: string;
+//   employeeCode: string;
 
-  firstName: string;
-  lastName?: string;
+//   firstName: string;
+//   lastName?: string;
 
-  email?: string;
-  phone?: string;
+//   email?: string;
+//   phone?: string;
 
-  dateOfBirth?: string;
+//   dateOfBirth?: string;
 
-  joiningDate: string;
+//   joiningDate: string;
 
-  departmentId?: string;
-  designationId?: string;
+//   departmentId?: string;
+//   designationId?: string;
 
-  employmentType: EmploymentType;
+//   employmentType: EmploymentType;
 
-  status: EmployeeStatus;
+//   status: EmployeeStatus;
 
-  userId?: string;
+//   userId?: string;
 
-  createdAt: string;
-  updatedAt: string;
-}
+//   createdAt: string;
+//   updatedAt: string;
+// }
 
-import { EmploymentType, PayFrequency, PayrollLocation, SalaryType } from "./PayrollTypes";
+// import { EmploymentType, PayFrequency, PayrollLocation, SalaryType } from "./PayrollTypes";
 
-export interface EmployeePayrollProfile {
-  employeeId: string;
+// export interface EmployeePayrollProfile {
+//   employeeId: string;
 
-  location: PayrollLocation;
+//   location: PayrollLocation;
 
-  employmentType: EmploymentType;
+//   employmentType: EmploymentType;
 
-  salaryType: SalaryType;
+//   salaryType: SalaryType;
 
-  payFrequency: PayFrequency;
+//   payFrequency: PayFrequency;
 
-  annualSalary?: number;
+//   annualSalary?: number;
 
-  monthlySalary?: number;
+//   monthlySalary?: number;
 
-  hourlyRate?: number;
+//   hourlyRate?: number;
 
-  dailyRate?: number;
+//   dailyRate?: number;
 
-  overtimeRate?: number;
+//   overtimeRate?: number;
 
-  taxProfileId?: string;
+//   taxProfileId?: string;
 
-  salaryStructureId?: string;
+//   salaryStructureId?: string;
 
-  effectiveFrom: Date | string;
+//   effectiveFrom: Date | string;
 
-  effectiveTo?: Date | string;
-}
+//   effectiveTo?: Date | string;
+// }
 
 
-import { z } from "zod";
+// import { z } from "zod";
 
-export const employeePayrollProfileSchema = z.object({
-  employeeId: z.string().min(1),
+// export const employeePayrollProfileSchema = z.object({
+//   employeeId: z.string().min(1),
 
-  countryCode: z.enum(["IN", "US", "CA", "GB"]),
+//   countryCode: z.enum(["IN", "US", "CA", "GB"]),
 
-  regionCode: z.string().optional(),
+//   regionCode: z.string().optional(),
 
-  city: z.string().optional(),
+//   city: z.string().optional(),
 
-  timezone: z.string().optional(),
+//   timezone: z.string().optional(),
 
-  currency: z.enum(["INR", "USD", "CAD", "GBP"]),
+//   currency: z.enum(["INR", "USD", "CAD", "GBP"]),
 
-  employmentType: z.enum([
-    "FULL_TIME",
-    "PART_TIME",
-    "CONTRACT",
-    "TEMPORARY",
-  ]),
+//   employmentType: z.enum([
+//     "FULL_TIME",
+//     "PART_TIME",
+//     "CONTRACT",
+//     "TEMPORARY",
+//   ]),
 
-  salaryType: z.enum([
-    "MONTHLY",
-    "DAILY",
-    "HOURLY",
-  ]),
+//   salaryType: z.enum([
+//     "MONTHLY",
+//     "DAILY",
+//     "HOURLY",
+//   ]),
 
-  payFrequency: z.enum([
-    "MONTHLY",
-    "BI_WEEKLY",
-    "WEEKLY",
-    "SEMI_MONTHLY",
-  ]),
+//   payFrequency: z.enum([
+//     "MONTHLY",
+//     "BI_WEEKLY",
+//     "WEEKLY",
+//     "SEMI_MONTHLY",
+//   ]),
 
-  annualSalary: z.number().nonnegative().optional(),
+//   annualSalary: z.number().nonnegative().optional(),
 
-  monthlySalary: z.number().nonnegative().optional(),
+//   monthlySalary: z.number().nonnegative().optional(),
 
-  hourlyRate: z.number().nonnegative().optional(),
+//   hourlyRate: z.number().nonnegative().optional(),
 
-  dailyRate: z.number().nonnegative().optional(),
+//   dailyRate: z.number().nonnegative().optional(),
 
-  overtimeRate: z.number().nonnegative().optional(),
+//   overtimeRate: z.number().nonnegative().optional(),
 
-  taxProfileId: z.string().optional(),
+//   taxProfileId: z.string().optional(),
 
-  salaryStructureId: z.string().optional(),
+//   salaryStructureId: z.string().optional(),
 
-  effectiveFrom: z.string().min(1),
+//   effectiveFrom: z.string().min(1),
 
-  effectiveTo: z.string().optional(),
-});
+//   effectiveTo: z.string().optional(),
+// });
 
 
 
-export type EmployeeStatus =
-  | "ACTIVE"
-  | "ON_LEAVE"
-  | "RESIGNED"
-  | "TERMINATED";
+// export type EmployeeStatus =
+//   | "ACTIVE"
+//   | "ON_LEAVE"
+//   | "RESIGNED"
+//   | "TERMINATED";
 
-export type EmploymentType =
-  | "FULL_TIME"
-  | "PART_TIME"
-  | "CONTRACT"
-  | "TEMPORARY";
+// export type EmploymentType =
+//   | "FULL_TIME"
+//   | "PART_TIME"
+//   | "CONTRACT"
+//   | "TEMPORARY";
 
-export interface Employee {
-  id: string;
+// export interface Employee {
+//   id: string;
 
-  employeeCode: string;
+//   employeeCode: string;
 
-  firstName: string;
-  lastName?: string;
+//   firstName: string;
+//   lastName?: string;
 
-  email?: string;
-  phone?: string;
+//   email?: string;
+//   phone?: string;
 
-  dateOfBirth?: string;
+//   dateOfBirth?: string;
 
-  joiningDate: string;
+//   joiningDate: string;
 
-  departmentId?: string;
-  designationId?: string;
+//   departmentId?: string;
+//   designationId?: string;
 
-  employmentType: EmploymentType;
+//   employmentType: EmploymentType;
 
-  status: EmployeeStatus;
+//   status: EmployeeStatus;
 
-  /**
-   * Optional connection to the application's
-   * authentication user.
-   */
-  userId?: string;
+//   /**
+//    * Optional connection to the application's
+//    * authentication user.
+//    */
+//   userId?: string;
 
-  createdAt: string;
-  updatedAt: string;
-}
-import { PayrollCurrency } from "./PayrollTypes";
+//   createdAt: string;
+//   updatedAt: string;
+// }
+// import { PayrollCurrency } from "./PayrollTypes";
 
-export interface PayrollItem {
-  id: string;
+// export interface PayrollItem {
+//   id: string;
 
-  payrollRunId: string;
+//   payrollRunId: string;
 
-  employeeId: string;
+//   employeeId: string;
 
-  employeeName: string;
+//   employeeName: string;
 
-  currency: PayrollCurrency;
+//   currency: PayrollCurrency;
 
-  workingDays: number;
+//   workingDays: number;
 
-  paidDays: number;
+//   paidDays: number;
 
-  unpaidDays: number;
+//   unpaidDays: number;
 
-  overtimeHours: number;
+//   overtimeHours: number;
 
-  earnings: PayrollLineItem[];
+//   earnings: PayrollLineItem[];
 
-  deductions: PayrollLineItem[];
+//   deductions: PayrollLineItem[];
 
-  employerContributions: PayrollLineItem[];
+//   employerContributions: PayrollLineItem[];
 
-  grossAmount: number;
+//   grossAmount: number;
 
-  totalDeductions: number;
+//   totalDeductions: number;
 
-  netAmount: number;
+//   netAmount: number;
 
-  status:
-    | "PENDING"
-    | "APPROVED"
-    | "PAID"
-    | "CANCELLED";
+//   status:
+//     | "PENDING"
+//     | "APPROVED"
+//     | "PAID"
+//     | "CANCELLED";
 
-  createdAt: Date | string;
-}
+//   createdAt: Date | string;
+// }
 
-export interface PayrollLineItem {
-  componentId: string;
+// export interface PayrollLineItem {
+//   componentId: string;
 
-  code: string;
+//   code: string;
 
-  name: string;
+//   name: string;
 
-  amount: number;
+//   amount: number;
 
-  taxable: boolean;
-}
+//   taxable: boolean;
+// }
 
-import { PayFrequency, PayrollCountryCode, PayrollCurrency } from "./PayrollTypes";
+// import { PayFrequency, PayrollCountryCode, PayrollCurrency } from "./PayrollTypes";
 
-export type PayrollRunStatus =
-  | "DRAFT"
-  | "CALCULATING"
-  | "REVIEW"
-  | "APPROVED"
-  | "LOCKED"
-  | "CANCELLED";
+// export type PayrollRunStatus =
+//   | "DRAFT"
+//   | "CALCULATING"
+//   | "REVIEW"
+//   | "APPROVED"
+//   | "LOCKED"
+//   | "CANCELLED";
 
-export interface PayrollRun {
-  id: string;
+// export interface PayrollRun {
+//   id: string;
 
-  countryCode: PayrollCountryCode;
+//   countryCode: PayrollCountryCode;
 
-  regionCode?: string;
+//   regionCode?: string;
 
-  currency: PayrollCurrency;
+//   currency: PayrollCurrency;
 
-  periodStart: string;
+//   periodStart: string;
 
-  periodEnd: string;
+//   periodEnd: string;
 
-  payDate: string;
+//   payDate: string;
 
-  payFrequency: PayFrequency;
+//   payFrequency: PayFrequency;
 
-  status: PayrollRunStatus;
+//   status: PayrollRunStatus;
 
-  employeeCount: number;
+//   employeeCount: number;
 
-  grossAmount: number;
+//   grossAmount: number;
 
-  totalDeductions: number;
+//   totalDeductions: number;
 
-  employerContributions: number;
+//   employerContributions: number;
 
-  netAmount: number;
+//   netAmount: number;
 
-  createdAt: Date | string;
+//   createdAt: Date | string;
 
-  updatedAt: Date | string;
+//   updatedAt: Date | string;
 
-  createdBy: string;
+//   createdBy: string;
 
-  approvedBy?: string;
+//   approvedBy?: string;
 
-  approvedAt?: Date | string;
-}
+//   approvedAt?: Date | string;
+// }
 
-import { PayrollCountryCode, PayrollCurrency } from "./PayrollTypes";
+// import { PayrollCountryCode, PayrollCurrency } from "./PayrollTypes";
 
-export interface SalaryStructure {
-  id: string;
+// export interface SalaryStructure {
+//   id: string;
 
-  name: string;
+//   name: string;
 
-  countryCode: PayrollCountryCode;
+//   countryCode: PayrollCountryCode;
 
-  regionCode?: string;
+//   regionCode?: string;
 
-  currency: PayrollCurrency;
+//   currency: PayrollCurrency;
 
-  components: SalaryStructureComponent[];
+//   components: SalaryStructureComponent[];
 
-  active: boolean;
+//   active: boolean;
 
-  effectiveFrom: Date | string;
+//   effectiveFrom: Date | string;
 
-  effectiveTo?: Date | string;
-}
+//   effectiveTo?: Date | string;
+// }
 
-export interface SalaryStructureComponent {
-  componentId: string;
+// export interface SalaryStructureComponent {
+//   componentId: string;
 
-  amount?: number;
+//   amount?: number;
 
-  percentage?: number;
+//   percentage?: number;
 
-  calculation?: SalaryComponentCalculation;
+//   calculation?: SalaryComponentCalculation;
 
-  sequence: number;
-}
+//   sequence: number;
+// }
 
-export type SalaryComponentType =
-  | "EARNING"
-  | "DEDUCTION"
-  | "EMPLOYER_CONTRIBUTION";
+// export type SalaryComponentType =
+//   | "EARNING"
+//   | "DEDUCTION"
+//   | "EMPLOYER_CONTRIBUTION";
 
-export type SalaryComponentCalculation =
-  | "FIXED"
-  | "PERCENTAGE"
-  | "FORMULA"
-  | "HOURS"
-  | "DAYS";
+// export type SalaryComponentCalculation =
+//   | "FIXED"
+//   | "PERCENTAGE"
+//   | "FORMULA"
+//   | "HOURS"
+//   | "DAYS";
 
-export interface SalaryComponent {
-  id: string;
+// export interface SalaryComponent {
+//   id: string;
 
-  code: string;
+//   code: string;
 
-  name: string;
+//   name: string;
 
-  type: SalaryComponentType;
+//   type: SalaryComponentType;
 
-  calculation: SalaryComponentCalculation;
+//   calculation: SalaryComponentCalculation;
 
-  amount?: number;
+//   amount?: number;
 
-  percentage?: number;
+//   percentage?: number;
 
-  taxable: boolean;
+//   taxable: boolean;
 
-  active: boolean;
+//   active: boolean;
 
-  countryCode?: PayrollCountryCode;
+//   countryCode?: PayrollCountryCode;
 
-  regionCode?: string;
-}
+//   regionCode?: string;
+// }

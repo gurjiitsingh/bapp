@@ -44,16 +44,16 @@ export async function inventoryPurchase(
         source = "SYSTEM",
     }: InventoryTransactionPurchaseType) {
 
-if (!Number.isFinite(purchaseQuantity!) || purchaseQuantity! <= 0) {
-  throw new Error(
-    `Invalid purchaseQuantity: ${purchaseQuantity}`
-  );
-}
-if (!Number.isFinite(purchaseUnitCost!) || purchaseUnitCost! < 0) {
-  throw new Error(
-    `Invalid purchaseUnitCost: ${purchaseUnitCost}`
-  );
-}
+    if (!Number.isFinite(purchaseQuantity!) || purchaseQuantity! <= 0) {
+        throw new Error(
+            `Invalid purchaseQuantity: ${purchaseQuantity}`
+        );
+    }
+    if (!Number.isFinite(purchaseUnitCost!) || purchaseUnitCost! < 0) {
+        throw new Error(
+            `Invalid purchaseUnitCost: ${purchaseUnitCost}`
+        );
+    }
     const now = admin.firestore.FieldValue.serverTimestamp();
 
     if (quantity <= 0) {
@@ -71,19 +71,26 @@ if (!Number.isFinite(purchaseUnitCost!) || purchaseUnitCost! < 0) {
     }
 
     const inventory = snap.data()!;
-    
+
 
     // =====================================================
     //  INVENTORY ITEM (MASTER STOCK) DATA FETCH
     // =====================================================
 
+    //     purchaseUnit,
+    //     purchaseQuantity,
+    //     purchaseUnitCost,
+    //     conversionFactor,
+
+    const purchaseQtyInConsumptionUint = purchaseQuantity * conversionFactor;
+
     const beforeStock =
         Number(inventory.currentStock) || 0;
 
-
+    console.log('inventory.conversionFactor-----------------', inventory.conversionFactor)
 
     const beforeStockValue = Number(inventory.stockValue) || 0;
-    const existingConversionFactor = Number(inventory.conversionFactor) || 1;
+    const newConversionFactor = conversionFactor ||  Number(inventory.conversionFactor);
 
     // =====================================================
     //  PURCHASE DATA
@@ -94,35 +101,37 @@ if (!Number.isFinite(purchaseUnitCost!) || purchaseUnitCost! < 0) {
     //  CALCULATIONS
     // =====================================================
 
-    let afterStock = beforeStock + quantity;;
+    let afterStock = beforeStock + quantity;
 
-    let afterStockValue = beforeStockValue + purchaseQuantity! * purchaseUnitCost!;;
-    let afterAverageCost = Number((afterStockValue /( afterStock / existingConversionFactor)).toFixed(2));
+    let afterStockValue = beforeStockValue + purchaseQuantity! * purchaseUnitCost!;
+    let afterAverageCost = Number((afterStockValue / (afterStock / newConversionFactor)).toFixed(2));
 
-console.log("====================================");
-console.log("AVERAGE COST DEBUG");
-console.log("====================================");
+    console.log("====================================");
+    console.log("AVERAGE COST DEBUG");
+    console.log("====================================");
+    console.log("Stock QTY:", beforeStock);
+    console.log("Purchase QTY:", quantity);
+    console.log("afterStockValue:", afterStockValue);
+    console.log("afterStock:", afterStock);
+    console.log("newConversionFactor:", newConversionFactor);
+    console.log("New AverageCost: ", afterAverageCost)
+    console.log("====================================");
 
-console.log("afterStockValue:", afterStockValue);
-console.log("afterStock:", afterStock);
-console.log("existingConversionFactor:", existingConversionFactor);
-console.log("New AverageCost: ", afterAverageCost)
-console.log("====================================");
 
 
-   
     tx.update(inventoryRef, {
         currentStock: afterStock,
         stockValue: afterStockValue,//afterStockValue,
-       // consumptionUnit: inventory.consumptionUnit? inventory.consumptionUnit : "gm",
+        // consumptionUnit: inventory.consumptionUnit? inventory.consumptionUnit : "gm",
         averageCost: afterAverageCost,
-      //  costPrice: afterAverageCost,
+         conversionFactor: newConversionFactor,
+        //  costPrice: afterAverageCost,
         purchaseUnit: purchaseUnit,
         purchaseUnitCost: purchaseUnitCost,// THIS IS RECENT  PURCHASE COST FOR
         updatedAt: now,
     });
 
- 
+
     const ledgerRef =
         adminDb.collection("stockLedgerInventory").doc();
 

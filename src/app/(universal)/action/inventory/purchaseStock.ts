@@ -76,19 +76,19 @@ export async function purchaseStock({
   const referenceId = "kjkljk"
   console.log("========== Purchase Inventory Stock ==========");
 
-  console.log("inventoryItemId:", inventoryItemId);
-  console.log("type:", type);
+  // console.log("inventoryItemId:", inventoryItemId);
+  // console.log("type:", type);
 
-  console.log("supplierName:", supplierName);
-  console.log("supplierId:", supplierId);
-
-  console.log("quantity:", quantity);
-  console.log("purchaseQuantity:", purchaseQuantity);
+  // console.log("supplierName:", supplierName);
+  // console.log("supplierId:", supplierId);
   console.log("purchaseUnit:", purchaseUnit);
   console.log("purchaseUnitCost:", purchaseUnitCost);
   console.log("conversionFactor:", conversionFactor);
-  console.log("purchaseStockValue:", stockValue);
 
+
+  console.log("quantity:", quantity);
+  console.log("purchaseQuantity:", purchaseQuantity);
+  console.log("purchaseStockValue:", stockValue);
   console.log("paymentStatus:", paymentStatus);
   console.log("note:", note);
   console.log("createdBy:", createdBy);

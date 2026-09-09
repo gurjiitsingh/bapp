@@ -278,7 +278,7 @@ export default function CreatePayrollRunDialog({
                   )
                 }
               >
-                <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                   <SelectValue placeholder="Select country" />
                 </SelectTrigger>
 
@@ -317,7 +317,7 @@ export default function CreatePayrollRunDialog({
                   )
                 }
               >
-                <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+                <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
 
@@ -355,7 +355,7 @@ export default function CreatePayrollRunDialog({
             </Label>
 
             <Input
-              className="bg-white text-gray-900 border-gray-300"
+              className="bg-white text-gray-900 border-gray-100"
               placeholder="e.g. PB, CA, NY, ENG"
               value={regionCode}
               onChange={(e) =>
@@ -381,7 +381,7 @@ export default function CreatePayrollRunDialog({
                 )
               }
             >
-              <SelectTrigger className="bg-white text-gray-900 border-gray-300">
+              <SelectTrigger className="bg-white text-gray-900 border-gray-100">
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>
 
@@ -440,7 +440,7 @@ export default function CreatePayrollRunDialog({
 
                 <Input
                   type="date"
-                  className="bg-white text-gray-900 border-gray-300"
+                  className="bg-white text-gray-900 border-gray-100"
                   value={periodStart}
                   onChange={(e) =>
                     setPeriodStart(
@@ -459,7 +459,7 @@ export default function CreatePayrollRunDialog({
 
                 <Input
                   type="date"
-                  className="bg-white text-gray-900 border-gray-300"
+                  className="bg-white text-gray-900 border-gray-100"
                   value={periodEnd}
                   onChange={(e) =>
                     setPeriodEnd(
@@ -484,7 +484,7 @@ export default function CreatePayrollRunDialog({
 
             <Input
               type="date"
-              className="bg-white text-gray-900 border-gray-300"
+              className="bg-white text-gray-900 border-gray-100"
               value={payDate}
               onChange={(e) =>
                 setPayDate(

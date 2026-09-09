@@ -28,6 +28,7 @@ export async function fetchManagers(): Promise<userDashboardType[]> {
       hashedPassword: docData.hashedPassword || "",
 
       role: docData.role || "user",
+      userType:  docData.userType || "",
       status: docData.status || "active",
 
       isAdmin: docData.isAdmin ?? false,
