@@ -3,6 +3,7 @@ import { getSupplierBusinessSummary } from "@/app/(universal)/action/businessDat
 import { fetchBusinessSummary } from "../../../action/businessData/fetchBusinessSummary";
 import Dashboard from "./Dashboard";
 import { getBusinessFinancialSummary } from "@/app/(universal)/action/businessData/getBusinessFinancialSummary";
+import { getTotalDepartmentStockValue } from "@/app/(universal)/action/production/departments/fetchdata/getTotalDepartmentStockValue";
 
 export default async function Page() {
 
@@ -11,11 +12,13 @@ const [
   customerResult,
   supplierResult,
   financialResult,
+  departmentStockResult,
 ] = await Promise.all([
   fetchBusinessSummary(),
   getCustomerBusinessSummary(),
   getSupplierBusinessSummary(),
   getBusinessFinancialSummary(),
+  getTotalDepartmentStockValue(),
 ]);
 
 // ✅ Check business summary first
@@ -24,6 +27,17 @@ if (!businessResult.success || !businessResult.data) {
     <div className="p-6">
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
         {businessResult.message || "Failed to load business summary."}
+      </div>
+    </div>
+  );
+}
+
+
+if (!departmentStockResult.success) {
+  return (
+    <div className="p-6">
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
+        {departmentStockResult.message || "Failed to load department stock."}
       </div>
     </div>
   );
@@ -70,6 +84,7 @@ if (!supplierResult.success || !supplierResult.data) {
   customerSummary={customerResult.data}
   supplierSummary={supplierResult.data}
   financialSummary={financialResult.data}
+  departmentStockValue={departmentStockResult.totalStockValue}
 />
   );
 }

@@ -58,7 +58,7 @@ const invData = {
   },
   message: 'Inventory item fetched',
 };
-console.log("invData data fetched----------------------",invData)
+ 
 
 return invData;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
- 
+
 import { Plus, Trash2, Package } from "lucide-react";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import toast from "react-hot-toast";
@@ -18,7 +18,7 @@ export default function StockIssueForm({
   inventoryItems,
 }: Props) {
 
-  
+
 
   const [departmentId, setDepartmentId] = useState("");
   const [items, setItems] = useState<any[]>([]);
@@ -26,87 +26,87 @@ export default function StockIssueForm({
   const [loading, setLoading] = useState(false);
 
   const selectedIds = items
-  .map((i) => i.inventoryItemId)
-  .filter(Boolean);
+    .map((i) => i.inventoryItemId)
+    .filter(Boolean);
 
-const addItem = () => {
-  setItems([
-    ...items,
-    {
-      inventoryItemId: "",
-      inventoryItemName: "",
+  const addItem = () => {
+    setItems([
+      ...items,
+      {
+        inventoryItemId: "",
+        inventoryItemName: "",
 
-      quantity: 0,
+        quantity: 0,
 
-      purchaseUnit: "",
-      consumptionUnit: "",
-      
-   purchaseUnitCost: 0, 
+        purchaseUnit: "",
+        consumptionUnit: "",
 
-   
+        purchaseUnitCost: 0,
 
-      conversionFactor: 1,
 
-      averageCost: 0,     // ✅ ADD THIS
-      costPerUnit: 0,     // (derived)
 
-      purchaseMappings: [],
-    },
-  ]);
-};
-const updateItem = (index: number, field: string, value: any) => {
-  const updated = [...items];
-  updated[index][field] = value;
+        conversionFactor: 1,
 
-  // ✅ When item selected
-  if (field === "inventoryItemId") {
-    const selected = inventoryItems.find((i) => i.id === value);
+        averageCost: 0,     // ✅ ADD THIS
+        costPerUnit: 0,     // (derived)
 
-    if (selected) {
-  updated[index].inventoryItemName = selected.name;
+        purchaseMappings: [],
+      },
+    ]);
+  };
+  const updateItem = (index: number, field: string, value: any) => {
+    const updated = [...items];
+    updated[index][field] = value;
 
-  updated[index].purchaseUnitCost =
-    selected.purchaseUnitCost || 0;
+    // ✅ When item selected
+    if (field === "inventoryItemId") {
+      const selected = inventoryItems.find((i) => i.id === value);
 
-  updated[index].averageCost =
-    selected.averageCost || 0;
+      if (selected) {
+        updated[index].inventoryItemName = selected.name;
 
-  // KEEP THIS
-  updated[index].purchaseMappings =
-    selected.purchaseMappings || [];
+        updated[index].purchaseUnitCost =
+          selected.purchaseUnitCost || 0;
 
-  const firstUnit = selected.purchaseMappings?.[0];
+        updated[index].averageCost =
+          selected.averageCost || 0;
 
-  if (firstUnit) {
-    updated[index].purchaseUnit =
-      firstUnit.purchaseUnit;
+        // KEEP THIS
+        updated[index].purchaseMappings =
+          selected.purchaseMappings || [];
 
-    updated[index].consumptionUnit =
-      firstUnit.consumptionUnit;
+        const firstUnit = selected.purchaseMappings?.[0];
 
-    updated[index].conversionFactor =
-      firstUnit.factor;
-  }
-}
-  }
+        if (firstUnit) {
+          updated[index].purchaseUnit =
+            firstUnit.purchaseUnit;
 
-  // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
-  if (field === "purchaseUnit") {
-    const mapping = updated[index].purchaseMappings.find(
-      (m: any) => m.purchaseUnit === value
-    );
+          updated[index].consumptionUnit =
+            firstUnit.consumptionUnit;
 
-    if (mapping) {
-      updated[index].consumptionUnit =
-        mapping.consumptionUnit;
-
-      // ✅ THIS IS YOUR LINE — PUT HERE
-      updated[index].conversionFactor = mapping.factor;
+          updated[index].conversionFactor =
+            firstUnit.factor;
+        }
+      }
     }
-  }
 
-  setItems(updated);
-};
+    // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
+    if (field === "purchaseUnit") {
+      const mapping = updated[index].purchaseMappings.find(
+        (m: any) => m.purchaseUnit === value
+      );
+
+      if (mapping) {
+        updated[index].consumptionUnit =
+          mapping.consumptionUnit;
+
+        // ✅ THIS IS YOUR LINE — PUT HERE
+        updated[index].conversionFactor = mapping.factor;
+      }
+    }
+
+    setItems(updated);
+  };
 
 
   const removeItem = (index: number) => {
@@ -114,15 +114,15 @@ const updateItem = (index: number, field: string, value: any) => {
   };
 
   const handleSubmit = async () => {
-if (!departmentId) {
-  toast.error("Select a department");
-  return;
-}
+    if (!departmentId) {
+      toast.error("Select a department");
+      return;
+    }
 
-if (!items.length) {
-  toast.error("Add at least one item");
-  return;
-}
+    if (!items.length) {
+      toast.error("Add at least one item");
+      return;
+    }
 
     setLoading(true);
 
@@ -138,17 +138,17 @@ if (!items.length) {
       });
 
       if (!res.success) {
-  toast.error(res.message);
-  return;
-}
+        toast.error(res.message);
+        return;
+      }
 
-    toast.success("Stock issued successfully.");
+      toast.success("Stock issued successfully.");
       setItems([]);
       setNote("");
       setDepartmentId("");
     } catch (err) {
       console.error(err);
-    toast.error("An error occurred while creating the batch");
+      toast.error("An error occurred while creating the batch");
     } finally {
       setLoading(false);
     }
@@ -158,9 +158,9 @@ if (!items.length) {
     <div className="p-6 max-w-5xl   space-y-6 bg-gray-50 min-h-screen">
 
       {/* HEADER */}
-   
 
-       <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+      <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
             Stock Issue
@@ -170,8 +170,8 @@ if (!items.length) {
             Transfer stock from the main store to a department.
           </p>
         </div>
-        <div className="flex gap-4"> 
-             <Link
+        <div className="flex gap-4">
+          <Link
             href="/admin/stock-finished/department/return-stock/add"
             className="inline-flex items-center justify-center rounded-xl bg-slate-400 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
           >
@@ -183,7 +183,7 @@ if (!items.length) {
           >
             All Departments
           </Link>
-            <Link
+          <Link
             href="/admin/stock-finished/department/transactions"
             className="inline-flex items-center justify-center rounded-xl bg-[#00897b]  px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
           >
@@ -248,31 +248,31 @@ if (!items.length) {
                 key={index}
                 className="grid grid-cols-5 gap-2 px-3 py-2 border-t items-center"
               >
-             <select
-  value={item.inventoryItemId}
-  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
-  onChange={(e) =>
-    updateItem(index, "inventoryItemId", e.target.value)
-  }
->
-  <option value="">Select</option>
+                <select
+                  value={item.inventoryItemId}
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+                  onChange={(e) =>
+                    updateItem(index, "inventoryItemId", e.target.value)
+                  }
+                >
+                  <option value="">Select</option>
 
-  {inventoryItems.map((i) => {
-    const alreadySelected =
-      selectedIds.includes(i.id) &&
-      item.inventoryItemId !== i.id; // allow current row
+                  {inventoryItems.map((i) => {
+                    const alreadySelected =
+                      selectedIds.includes(i.id) &&
+                      item.inventoryItemId !== i.id; // allow current row
 
-    return (
-      <option
-        key={i.id}
-        value={i.id}
-        disabled={alreadySelected}
-      >
-        {i.name}
-      </option>
-    );
-  })}
-</select>
+                    return (
+                      <option
+                        key={i.id}
+                        value={i.id}
+                        disabled={alreadySelected}
+                      >
+                        {i.name}
+                      </option>
+                    );
+                  })}
+                </select>
 
                 <input
                   type="number"
@@ -283,22 +283,35 @@ if (!items.length) {
                   }
                 />
 
-              <select
+                {/* <select
+                  value={item.purchaseUnit}
+                  onChange={(e) =>
+                    updateItem(index, "purchaseUnit", e.target.value)
+                  }
+                  className="border border-gray-300 rounded-md px-2 py-1 bg-white"
+                >
+                  <option value="">Select Unit</option>
+
+                  {item.purchaseMappings?.map((m: any, i: number) => (
+                    <option key={i} value={m.purchaseUnit}>
+                      {m.purchaseUnit}
+                    </option>
+                  ))}
+                </select> */}
+
+<select
   value={item.purchaseUnit}
   onChange={(e) =>
     updateItem(index, "purchaseUnit", e.target.value)
   }
   className="border border-gray-300 rounded-md px-2 py-1 bg-white"
 >
-  <option value="">Select Unit</option>
-
-  {item.purchaseMappings?.map((m: any, i: number) => (
-    <option key={i} value={m.purchaseUnit}>
-      {m.purchaseUnit}
-    </option>
-  ))}
+  <option value={item.purchaseUnit}>
+    {item.purchaseUnit}
+  </option>
 </select>
-{/* <div className="text-xs text-gray-500">
+
+                {/* <div className="text-xs text-gray-500">
   {item.consumptionUnit}
 </div> */}
 

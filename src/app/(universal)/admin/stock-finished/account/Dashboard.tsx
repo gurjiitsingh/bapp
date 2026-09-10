@@ -32,11 +32,14 @@ export default function Dashboard({
   customerSummary,
   supplierSummary,
   financialSummary,
+  departmentStockValue,
 }: {
   summary: BusinessSummary;
   customerSummary: CustomerSummary;
   supplierSummary: SupplierSummary;
   financialSummary: BusinessFinancialSummary;
+    departmentStockValue: number;
+  
 }) {
 
   const [open, setOpen] = useState(false);
@@ -46,13 +49,14 @@ export default function Dashboard({
 
   const [selectedValue, setSelectedValue] = useState(0);
 
-  const totalAssets =
-    summary.rawMaterialValue +
-    summary.finishedProductValue +
-    financialSummary.cashInHand +
-    financialSummary.cashInBank +
-    customerSummary.amountToReceive +
-    supplierSummary.supplierAdvance;
+ const totalAssets =
+  summary.rawMaterialValue +
+  departmentStockValue +
+  summary.finishedProductValue +
+  financialSummary.cashInHand +
+  financialSummary.cashInBank +
+  customerSummary.amountToReceive +
+  supplierSummary.supplierAdvance;
 
   const totalPayable =
     supplierSummary.supplierDue +
@@ -118,6 +122,10 @@ export default function Dashboard({
               label: "Raw Material",
               value: summary.rawMaterialValue,
             },
+             {
+    label: "Department Stock",
+    value: departmentStockValue,
+  },
             {
               label: "Finished Stock",
               value: summary.finishedProductValue,
