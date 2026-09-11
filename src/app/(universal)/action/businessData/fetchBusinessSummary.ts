@@ -18,14 +18,31 @@ export async function fetchBusinessSummary() {
     let rawMaterialValue = 0;
     let finishedProductValue = 0;
 
-    // ==========================
-    // Raw Material Value
-    // ==========================
-    inventorySnapshot.forEach((doc) => {
-      const item = doc.data();
+ // ==========================
+// Raw Material Value
+// ==========================
+inventorySnapshot.forEach((doc) => {
+  const item = doc.data();
 
-      rawMaterialValue += Number(item.stockValue ?? 0);
+  const rawStockValue = item.stockValue;
+  const stockValue = Number(rawStockValue);
+
+
+  // Prevent NaN from corrupting the complete total
+  if (!Number.isFinite(stockValue)) {
+    console.error("❌ INVALID RAW MATERIAL STOCK VALUE:", {
+      id: doc.id,
+      name: item.name,
+      stockValue: rawStockValue,
+      type: typeof rawStockValue,
+      fullItem: item,
     });
+
+    return;
+  }
+
+  rawMaterialValue += stockValue;
+});
 
     // ==========================
     // Finished Product Value

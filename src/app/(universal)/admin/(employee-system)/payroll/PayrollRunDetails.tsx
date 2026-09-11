@@ -32,8 +32,8 @@ import { PayrollItem } from "@/lib/types/payroll/PayrollItem";
 import { approvePayrollRun, getPayrollRun, lockPayrollRun } from "../../../action/employee-system/payroll/payrollRunActions";
 import { getPayrollItems } from "../../../action/employee-system/payroll/payrollItemActions";
 import { calculatePayrollRun } from "../../../action/employee-system/payroll/payrollCalculationActions";
-
-
+import PayrollPaymentDialog from "./PayrollPaymentDialog";
+import Payslip from "./Payslip";
 
 type Props = {
   payrollRunId: string;
@@ -50,6 +50,13 @@ export default function PayrollRunDetails({
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedPayrollItem, setSelectedPayrollItem] =
+    useState<PayrollItem | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] =
+    useState(false);
+  const [showPayslip, setShowPayslip] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] =
+    useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -225,6 +232,19 @@ export default function PayrollRunDetails({
       </div>
     );
   }
+
+  if (showPayslip && selectedEmployeeId) {
+  return (
+    <Payslip
+      payrollRunId={payrollRunId}
+      employeeId={selectedEmployeeId}
+      onBack={() => {
+        setShowPayslip(false);
+        setSelectedEmployeeId(null);
+      }}
+    />
+  );
+}
 
   return (
     <div className="space-y-6 p-6">
@@ -541,6 +561,10 @@ export default function PayrollRunDetails({
                       Status
                     </TableHead>
 
+                    <TableHead className="text-right">
+                      Actions
+                    </TableHead>
+
                   </TableRow>
                 </TableHeader>
 
@@ -594,14 +618,13 @@ export default function PayrollRunDetails({
                             py-1
                             text-xs
                             font-medium
-                            ${
-                              item.status === "PAID"
-                                ? "bg-green-100 text-green-700"
-                                : item.status === "APPROVED"
+                            ${item.status === "PAID"
+                              ? "bg-green-100 text-green-700"
+                              : item.status === "APPROVED"
                                 ? "bg-blue-100 text-blue-700"
                                 : item.status === "CANCELLED"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
                             }
                           `}
                         >
@@ -609,6 +632,33 @@ export default function PayrollRunDetails({
                         </span>
                       </TableCell>
 
+                   <TableCell className="text-right">
+  {payrollRun.status === "LOCKED" &&
+    item.status === "PENDING" && (
+      <Button
+        size="sm"
+        onClick={() => {
+          setSelectedPayrollItem(item);
+          setShowPaymentDialog(true);
+        }}
+      >
+        Pay
+      </Button>
+    )}
+
+  {item.status === "PAID" && (
+    <Button
+      size="sm"
+      variant="outline"
+      onClick={() => {
+        setSelectedEmployeeId(item.employeeId);
+        setShowPayslip(true);
+      }}
+    >
+      View Payslip
+    </Button>
+  )}
+</TableCell>
                     </TableRow>
                   ))}
 
@@ -620,7 +670,15 @@ export default function PayrollRunDetails({
 
         </CardContent>
       </Card>
+      <PayrollPaymentDialog
+        payrollRunId={payrollRun.id}
+        item={selectedPayrollItem}
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        onPaid={loadData}
+      />
 
+      
     </div>
   );
 }
