@@ -13,7 +13,7 @@ data: [],
 message: 'inventoryItemId is required',
 };
 }
-console.log("inventoryItemId-------------------",inventoryItemId)
+//console.log("inventoryItemId-------------------",inventoryItemId)
 
 // Get all department stock rows for the item
 const stockSnap = await adminDb
@@ -48,30 +48,48 @@ const rows = await Promise.all(
       }
     }
 
-    return {
-      id: doc.id,
-      departmentId: stock.departmentId || '',
-      departmentName,
+   return {
+  id: doc.id,
+  departmentId: stock.departmentId || '',
+  departmentName,
 
-      inventoryItemId: stock.inventoryItemId || '',
-      inventoryItemName: stock.inventoryItemName || '',
+  inventoryItemId: stock.inventoryItemId || '',
+  inventoryItemName: stock.inventoryItemName || '',
 
-      currentStock: Number(stock.currentStock || 0),
-      quantity: Number(stock.quantity || 0),
+  currentStock: Number(stock.currentStock || 0),
+  quantity: Number(stock.quantity || 0),
 
-      averageCost: Number(stock.averageCost || 0),
-      stockValue: Number(stock.stockValue || 0),
+  averageCost: Number(stock.averageCost || 0),
+  stockValue: Number(stock.stockValue || 0),
 
-      purchaseUnit: stock.purchaseUnit || '',
-      consumptionUnit: stock.consumptionUnit || '',
-      conversionFactor: Number(stock.conversionFactor || 1),
+  purchaseUnit: stock.purchaseUnit || '',
+  consumptionUnit: stock.consumptionUnit || '',
+  conversionFactor: Number(stock.conversionFactor || 1),
 
-      purchaseUnitCost: Number(stock.purchaseUnitCost || 0),
+  purchaseUnitCost: Number(stock.purchaseUnitCost || 0),
 
-      updatedAt: stock.updatedAt
-  ? stock.updatedAt.toDate().toISOString()
-  : null,
-    };
+updatedAt: (() => {
+  const value = stock.updatedAt;
+
+  if (!value) {
+    return null;
+  }
+
+  if (typeof value?.toDate === 'function') {
+    return value.toDate().toISOString();
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toISOString();
+})(),
+};
   })
 );
 

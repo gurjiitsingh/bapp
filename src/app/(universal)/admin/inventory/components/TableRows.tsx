@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 import {
   TableCell,
@@ -25,6 +25,7 @@ import {
   Building2,
   CheckCircle2,
   Package2,
+  Wrench,
 } from "lucide-react";
 
 import { deleteInventoryItem } from "@/app/(universal)/action/inventory/dbOperation";
@@ -35,6 +36,7 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import { displayStock } from "@/utils/inventory/displayStock";
 import { getDisplayAverageCost, getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
+import RepairInventoryItemDialog from "../RepairInventoryItemDialog";
 
 
 
@@ -44,11 +46,11 @@ function TableRows({
 }: {
   item: InventoryItemType;
 }) {
- console.log("item-----------------------", item)
+  console.log("item-----------------------", item)
   const { settings } = UseSiteContext();
 
   const mapping = getPrimaryPurchaseMapping(item);
-
+  const [repairOpen, setRepairOpen] = useState(false);
 
   const primaryMapping =
     getPrimaryPurchaseMapping(item);
@@ -96,24 +98,42 @@ function TableRows({
       <TableCell className="py-4">
         <div className="flex items-center gap-3">
           {/* ICON */}
-          <div className="h-11 w-11 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0">
+          {/* <div className="h-11 w-11 rounded-2xl bg-rose-100 flex items-center justify-center shrink-0">
             <Package2
               size={20}
               className="text-rose-600"
             />
-          </div>
+          </div> */}
 
           {/* TEXT */}
-        <div className="flex flex-col gap-1">
 
-<Link
-  href={`/admin/inventory/all-dp-stock/${item.id}`}
-className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:text-slate-900 hover:bg-slate-200">
-  <Building2 size={16} className="text-slate-500" />
-  <span>{item.name}</span>
-</Link>
+          {/* <Link
+            href={`/admin/inventory/all-dp-stock/${item.id}`}
+            className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:text-slate-900 hover:bg-slate-200">
+            <Building2 size={16} className="text-slate-500" />
+            <span>{item.name}</span>
+          </Link> */}
+            <Button
+              onClick={() => setRepairOpen(true)}
+              size="sm"
+              className="h-9 rounded-xl bg-slate-500 hover:bg-blue-700 text-white shadow-sm"
+            >
+              <Wrench size={18} />
+            </Button>
+          <div className="flex flex-col gap-1">
 
-  {/* {item.barcode ? (
+
+
+            <Link
+              href={`/admin/inventory/all-dp-stock/${item.id}`}
+              className="inline-flex min-w-[50px] items-center gap-2 rounded-2xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:text-slate-900 hover:bg-slate-200">
+
+              <span>DPT</span>
+            </Link>
+
+          
+
+            {/* {item.barcode ? (
     <span className="text-xs text-gray-400">
       Barcode: {item.barcode}
     </span>
@@ -123,17 +143,22 @@ className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border borde
     </span>
   )} */}
 
-</div>
+          </div>
         </div>
       </TableCell>
-      <TableCell>
+       <TableCell>
+        <span className="capitalize text-sm font-bold text-gray-700">
+         {item.name}
+        </span>
+      </TableCell>
+      {/* <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.categoryName}
         </span>
-      </TableCell>
+      </TableCell> */}
 
       {/* SKU */}
-      <TableCell>
+      {/* <TableCell>
         {item.sku ? (
           <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
             {item.sku}
@@ -143,14 +168,14 @@ className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border borde
             —
           </span>
         )}
-      </TableCell>
+      </TableCell> */}
 
       {/* UNIT */}
-      <TableCell>
+      {/* <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.purchaseUnit}
         </span>
-      </TableCell>
+      </TableCell> */}
 
       {/* STOCK */}
       <TableCell>
@@ -215,12 +240,12 @@ className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border borde
       {/* MIN STOCK */}
       <TableCell>
         <span className="text-sm font-medium text-gray-700">
-        {displayStock(
-              item.currentStock!,
-              item.purchaseUnit,
-              item.consumptionUnit,
-              item.conversionFactor
-            )}
+          {displayStock(
+            item.currentStock!,
+            item.purchaseUnit,
+            item.consumptionUnit,
+            item.conversionFactor
+          )}
         </span>
       </TableCell>
 
@@ -278,8 +303,16 @@ className="inline-flex min-w-[100px] items-center gap-2 rounded-2xl border borde
           >
             <MdDeleteForever size={18} />
           </Button>
+
         </div>
       </TableCell>
+
+
+      <RepairInventoryItemDialog
+        open={repairOpen}
+        onOpenChange={setRepairOpen}
+        inventoryItemId={item.id}
+      />
     </TableRow>
   );
 }

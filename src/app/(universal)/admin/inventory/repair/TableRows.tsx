@@ -97,9 +97,9 @@ function TableRows({
     const result =
       await deleteInventoryItem(item.id);
 
-    if (!result.success) {
-      alert(result.message);
-    }
+    // if (!result.success) {
+    //   alert(result.message);
+    // }
   }
 
   async function saveQty() {
