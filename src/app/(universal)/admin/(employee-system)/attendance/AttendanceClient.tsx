@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   Clock3,
@@ -32,6 +32,11 @@ import type {
   AttendanceStatus,
   EmployeeAttendance,
 } from "@/lib/types/attendance/AttendanceTypes";
+import {
+  getAttendanceByDate,
+  saveAttendance,
+} from "@/app/(universal)/action/employee-system/attendance/attendanceActions";
+import { Label } from "recharts";
 
 type EmployeeOption = {
   id: string;
@@ -71,6 +76,16 @@ export default function AttendanceClient({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const [filterDate, setFilterDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const [filterEmployeeId, setFilterEmployeeId] = useState("ALL");
+
+  const [filterStatus, setFilterStatus] = useState("ALL");
+
+  const [loadingRecords, setLoadingRecords] = useState(false);
+
   const selectedEmployee = useMemo(
     () =>
       employees.find(
@@ -78,6 +93,78 @@ export default function AttendanceClient({
       ),
     [employees, employeeId]
   );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadAttendance() {
+      try {
+        setError("");
+
+        const data = await getAttendanceByDate(date);
+
+        if (!cancelled) {
+          setRecords(data);
+        }
+      } catch (err) {
+        console.error(
+          "Failed to load attendance:",
+          err
+        );
+
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Failed to load attendance records."
+          );
+        }
+      }
+    }
+
+    if (date) {
+      loadAttendance();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [date]);
+
+
+  useEffect(() => {
+    const loadAttendance = async () => {
+      if (!filterDate) return;
+
+      try {
+        setLoadingRecords(true);
+
+        const data = await getAttendanceByDate(filterDate);
+
+        setRecords(data);
+      } catch (error) {
+        console.error("Failed to load attendance:", error);
+      } finally {
+        setLoadingRecords(false);
+      }
+    };
+
+    loadAttendance();
+  }, [filterDate]);
+
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
+      const employeeMatch =
+        filterEmployeeId === "ALL" ||
+        record.employeeId === filterEmployeeId;
+
+      const statusMatch =
+        filterStatus === "ALL" ||
+        record.status === filterStatus;
+
+      return employeeMatch && statusMatch;
+    });
+  }, [records, filterEmployeeId, filterStatus]);
 
   function calculateWorkingHours() {
     if (!checkIn || !checkOut) {
@@ -106,7 +193,7 @@ export default function AttendanceClient({
 
   const workingHours = calculateWorkingHours();
 
-  async function handleSave() {
+  async function handleSave1() {
     try {
       setError("");
 
@@ -168,28 +255,36 @@ export default function AttendanceClient({
         updatedAt: now,
       };
 
+      const savedAttendance = await saveAttendance({
+        employeeId: attendance.employeeId,
+        employeeName: attendance.employeeName,
+        date: attendance.date,
+        status: attendance.status,
+        checkIn: attendance.checkIn,
+        checkOut: attendance.checkOut,
+        workingHours: attendance.workingHours,
+        overtimeHours: attendance.overtimeHours,
+        leaveType: attendance.leaveType,
+        remarks: attendance.remarks,
+      });
+
       setRecords((current) => {
         const existingIndex = current.findIndex(
           (item) =>
-            item.employeeId === employeeId &&
-            item.date === date
+            item.employeeId === savedAttendance.employeeId &&
+            item.date === savedAttendance.date
         );
 
         if (existingIndex === -1) {
-          return [attendance, ...current];
+          return [savedAttendance, ...current];
         }
 
         const updated = [...current];
-        updated[existingIndex] = attendance;
+
+        updated[existingIndex] = savedAttendance;
 
         return updated;
       });
-
-      // Firestore save action will be connected next.
-      console.log(
-        "Attendance ready to save:",
-        attendance
-      );
 
       resetForm();
     } catch (err) {
@@ -207,6 +302,83 @@ export default function AttendanceClient({
       setSaving(false);
     }
   }
+
+  async function handleSave() {
+    try {
+      setError("");
+
+      if (!employeeId) {
+        setError("Please select an employee.");
+        return;
+      }
+
+      if (!date) {
+        setError("Please select a date.");
+        return;
+      }
+
+      if (status === "LEAVE" && !leaveType.trim()) {
+        setError("Please enter the leave type.");
+        return;
+      }
+
+      setSaving(true);
+
+      const employeeName =
+        selectedEmployee?.name || "Employee";
+
+      const savedAttendance = await saveAttendance({
+        employeeId,
+        employeeName,
+        date,
+        status,
+        checkIn: checkIn || undefined,
+        checkOut: checkOut || undefined,
+        workingHours:
+          workingHours > 0 ? workingHours : undefined,
+        overtimeHours: Number(overtimeHours) || 0,
+        leaveType:
+          status === "LEAVE"
+            ? leaveType.trim()
+            : undefined,
+        remarks:
+          remarks.trim() || undefined,
+      });
+
+      console.log(
+        "Attendance saved successfully:",
+        savedAttendance
+      );
+
+      // 🔥 Reload directly from Firestore
+      const refreshedRecords =
+        await getAttendanceByDate(date);
+
+      console.log(
+        "Attendance records after save:",
+        refreshedRecords
+      );
+
+      setRecords(refreshedRecords);
+
+      resetForm();
+    } catch (err) {
+      console.error(
+        "Failed to save attendance:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to save attendance."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+
 
   function resetForm() {
     setEmployeeId("");
@@ -262,15 +434,131 @@ export default function AttendanceClient({
           ADD ATTENDANCE
       ===================================================== */}
 
-      <Card>
-        <CardHeader>
+ <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+
+          {/* DATE */}
+          <div>
+            <Label className="mb-1.5 block text-xs text-muted-foreground">
+              Date
+            </Label>
+
+            <Input
+              type="date"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className="border-0 bg-slate-50 shadow-sm"
+            />
+          </div>
+
+          {/* EMPLOYEE */}
+          <div>
+            <Label className="mb-1.5 block text-xs text-muted-foreground">
+              Employee
+            </Label>
+
+            <Select
+              value={filterEmployeeId}
+              onValueChange={setFilterEmployeeId}
+            >
+              <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
+                <SelectValue placeholder="All Employees" />
+              </SelectTrigger>
+
+              <SelectContent className="border-0 shadow-sm">
+                <SelectItem value="ALL">
+                  All Employees
+                </SelectItem>
+
+                {employees?.map((employee) => (
+                  <SelectItem
+                    key={employee.id}
+                    value={employee.id}
+                  >
+                    {employee.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* STATUS */}
+          <div>
+            <Label className="mb-1.5 block text-xs text-muted-foreground">
+              Status
+            </Label>
+
+            <Select
+              value={filterStatus}
+              onValueChange={setFilterStatus}
+            >
+              <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+
+              <SelectContent className="border-0 shadow-sm">
+                <SelectItem value="ALL">
+                  All Status
+                </SelectItem>
+
+                <SelectItem value="PRESENT">
+                  Present
+                </SelectItem>
+
+                <SelectItem value="ABSENT">
+                  Absent
+                </SelectItem>
+
+                <SelectItem value="HALF_DAY">
+                  Half Day
+                </SelectItem>
+
+                <SelectItem value="LEAVE">
+                  Leave
+                </SelectItem>
+
+                <SelectItem value="HOLIDAY">
+                  Holiday
+                </SelectItem>
+
+                <SelectItem value="WEEK_OFF">
+                  Week Off
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* RESET */}
+          <div className="flex items-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full border-0 bg-slate-50 shadow-sm"
+              onClick={() => {
+                setFilterDate(
+                  new Date().toISOString().split("T")[0]
+                );
+                setFilterEmployeeId("ALL");
+                setFilterStatus("ALL");
+              }}
+            >
+              Reset Filters
+            </Button>
+          </div>
+
+        </div>
+
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="border-0 shadow-sm">
           <CardTitle className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5" />
+            <CalendarDays className="h-5 w-5 border-0 shadow-sm" />
             Add Attendance
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-6">
+       
+
+        <CardContent className="space-y-6 border-0 shadow-sm">
           {/* Error */}
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -290,11 +578,11 @@ export default function AttendanceClient({
                 value={employeeId}
                 onValueChange={setEmployeeId}
               >
-                <SelectTrigger>
+                <SelectTrigger border-0 shadow-sm>
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
 
-                <SelectContent>
+                <SelectContent border-0 shadow-sm>
                   {employees.length === 0 ? (
                     <SelectItem
                       value="__none__"
@@ -355,28 +643,28 @@ export default function AttendanceClient({
                 <SelectValue />
               </SelectTrigger>
 
-              <SelectContent>
-                <SelectItem value="PRESENT">
+              <SelectContent border-0 shadow-sm>
+                <SelectItem className="border-0 shadow-sm" value="PRESENT">
                   Present
                 </SelectItem>
 
-                <SelectItem value="ABSENT">
+                <SelectItem className="border-0 shadow-sm" value="ABSENT">
                   Absent
                 </SelectItem>
 
-                <SelectItem value="HALF_DAY">
+                <SelectItem className="border-0 shadow-sm" value="HALF_DAY">
                   Half Day
                 </SelectItem>
 
-                <SelectItem value="LEAVE">
+                <SelectItem className="border-0 shadow-sm" value="LEAVE">
                   Leave
                 </SelectItem>
 
-                <SelectItem value="HOLIDAY">
+                <SelectItem className="border-0 shadow-sm" value="HOLIDAY">
                   Holiday
                 </SelectItem>
 
-                <SelectItem value="WEEK_OFF">
+                <SelectItem className="border-0 shadow-sm" value="WEEK_OFF">
                   Week Off
                 </SelectItem>
               </SelectContent>
@@ -528,21 +816,15 @@ export default function AttendanceClient({
         </CardHeader>
 
         <CardContent>
-          {records.length === 0 ? (
-            <div className="flex min-h-[180px] items-center justify-center rounded-lg border border-dashed">
-              <div className="text-center">
-                <CalendarDays className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-
-                <p className="font-medium">
-                  No attendance records
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Add attendance to see records here.
-                </p>
-              </div>
-            </div>
-          ) : (
+        {loadingRecords ? (
+  <div className="py-10 text-center text-sm text-muted-foreground">
+    Loading attendance...
+  </div>
+) : filteredRecords.length === 0 ? (
+  <div className="rounded-lg bg-slate-50/70 py-10 text-center text-sm text-muted-foreground">
+    No attendance records found for the selected filters.
+  </div>
+)  : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -578,7 +860,7 @@ export default function AttendanceClient({
                 </thead>
 
                 <tbody>
-                  {records.map((record) => (
+                  {filteredRecords.map((record) => (
                     <tr
                       key={record.id}
                       className="border-b last:border-0"
