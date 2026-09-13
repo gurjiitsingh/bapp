@@ -82,19 +82,19 @@ export default function StockReturnForm({
     }
 
     // ✅ When unit changes (👉 ADD/KEEP THIS BLOCK HERE)
-    if (field === "purchaseUnit") {
-      const mapping = updated[index].purchaseMappings.find(
-        (m: any) => m.purchaseUnit === value
-      );
+    // if (field === "purchaseUnit") {
+    //   const mapping = updated[index].purchaseMappings.find(
+    //     (m: any) => m.purchaseUnit === value
+    //   );
 
-      if (mapping) {
-        updated[index].consumptionUnit =
-          mapping.consumptionUnit;
+    //   if (mapping) {
+    //     updated[index].consumptionUnit =
+    //       mapping.consumptionUnit;
 
-        // ✅ THIS IS YOUR LINE — PUT HERE
-        updated[index].conversionFactor = mapping.factor;
-      }
-    }
+    //     // ✅ THIS IS YOUR LINE — PUT HERE
+    //     updated[index].conversionFactor = mapping.factor;
+    //   }
+    // }
 
     setItems(updated);
   };
