@@ -23,7 +23,7 @@ supplierName?:string;
 
   // INTERNAL (consumption unit)
   quantity: number;
-  unitCost: number;
+  averageCost: number;
   stockValue?: number;
 paidAmount?: number;
 dueAmount?: number;
@@ -50,7 +50,7 @@ export async function adjustInventoryStock({
   direction,
 
   quantity,
-  unitCost,
+  averageCost,
   stockValue,
 
   purchaseQuantity,
@@ -73,7 +73,7 @@ paymentMethod,
   console.log("direction:", direction);
 
   console.log("quantity:", quantity);
-  console.log("unitCost:", unitCost);
+  console.log("averageCost:", averageCost);
 
   console.log("purchaseQuantity:", purchaseQuantity);
   console.log("purchaseUnit:", purchaseUnit);
@@ -91,6 +91,8 @@ paymentMethod,
   console.log("stockValue:", stockValue);
 
   console.log("==========================================");
+
+const now = admin.firestore.FieldValue.serverTimestamp();
 
   try {
     // =====================================================
@@ -158,25 +160,28 @@ paymentMethod,
         return;
       }
 
+
+
+
       const inventoryData =
         inventorySnap.data();
 
-      let averageCost = 0;
+    
       let totalAmount = 0;
 
       switch (type) {
         case "OPENING_STOCK":
-          averageCost = Number(unitCost);
+        
 
           totalAmount =
             Number(stockValue) ||
-            quantity * averageCost;
+            (quantity /Number(conversionFactor)) * averageCost;
 
           break;
 
         case "ADJUSTMENT":
           if (direction === "IN") {
-            averageCost = Number(unitCost);
+            averageCost = Number(purchaseUnitCost);
 
             totalAmount =
               Number(stockValue) ||
@@ -208,31 +213,35 @@ paymentMethod,
       // UPDATE INVENTORY
       // =====================================================
 
-      await inventoryAdjust(tx, {
-        inventoryItemId,
 
-        type,
-        direction,
+     if (type === "OPENING_STOCK") {
+  // console.log(
+  //   "OPENING STOCK VALUES BEING UPDATED:",
+  //   {
+  //     currentStock: quantity,
+  //     stockValue: totalAmount,
+  //     averageCost: averageCost,
+  //     costPrice: averageCost,
+  //     purchaseUnit: purchaseUnit,
+  //     purchaseUnitCost: averageCost,
+  //     updatedAt: now,
+  //   }
+  // );
 
-        quantity,
+  tx.update(inventoryRef, {
+    currentStock: quantity,
+    stockValue: totalAmount,
+    averageCost: averageCost,
+    costPrice: averageCost,
+    purchaseUnit,
+    purchaseUnitCost: averageCost,
+    conversionFactor,
+    updatedAt: now,
+  });
+}
 
-        unitCost: averageCost,
-        totalAmount,
-        stockValue,
 
-        purchaseQuantity,
-        purchaseUnit,
-        purchaseUnitCost,
-        conversionFactor,
-
-        referenceType,
-        referenceId,
-
-        note,
-        createdBy,
-
-        source: "WEB_ADMIN",
-      });
+    
     });
 
     revalidateTag("inventory-items", "max");
@@ -257,3 +266,30 @@ paymentMethod,
     };
   }
 }
+
+
+
+
+
+
+
+
+  // await inventoryAdjust(tx, {
+      //   inventoryItemId,
+
+      //   type,
+      //   direction,
+      //   quantity,
+      //   averageCost,
+      //   totalAmount,
+      //   stockValue,
+      //   purchaseQuantity,
+      //   purchaseUnit,
+      //   purchaseUnitCost,
+      //   conversionFactor,
+      //   referenceType,
+      //   referenceId,
+      //   note,
+      //   createdBy,
+      //   source: "WEB_ADMIN",
+      // });

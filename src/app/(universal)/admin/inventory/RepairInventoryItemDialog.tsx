@@ -825,11 +825,11 @@ function handlePurchaseUnitChange(value: string) {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">
-                      Purchase Units
+                       Qty (Purchase Units)
                     </span>
 
                     <span className="font-semibold text-gray-800">
-                      {purchaseQuantity.toLocaleString(
+                   {purchaseQuantity.toLocaleString(
                         undefined,
                         {
                           minimumFractionDigits: 2,

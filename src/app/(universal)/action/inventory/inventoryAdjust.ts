@@ -24,7 +24,7 @@ export async function inventoryAdjust(
 
         quantity,
         stockValue,
-        unitCost,
+        averageCost,
  
         purchaseQuantity,
         purchaseUnit,
@@ -50,14 +50,14 @@ export async function inventoryAdjust(
     }: ApplyInventoryTransactionType) {
 
 
-          console.log("========== adjustInventoryStock ==========");
+          console.log("========== adjustInventoryStock DB==========");
 
   console.log("inventoryItemId:", inventoryItemId);
   console.log("type:", type);
   console.log("direction:", direction);
 
   console.log("quantity:", quantity);
-  console.log("unitCost:", unitCost);
+  console.log("averageCost:", averageCost);
 
   console.log("purchaseQuantity:", purchaseQuantity);
   console.log("purchaseUnit:", purchaseUnit);
@@ -129,7 +129,7 @@ const isCostMovement =
 
 // Cost per consumption unit for ledger
 const finalUnitCost =
-  Number(unitCost ?? beforeAverageCost);
+  Number(averageCost ?? beforeAverageCost);
 
 // =====================================================
 // VALUES AFTER TRANSACTION
@@ -154,9 +154,7 @@ switch (type) {
   // =====================================================
   case "OPENING_STOCK": {
     afterStock = quantity;
-
     afterStockValue = totalAmount;
-
     afterAverageCost =
       afterStock > 0
         ? afterStockValue / afterStock

@@ -33,7 +33,7 @@ export type ApplyInventoryTransactionType = {
     direction: "IN" | "OUT";
 
     quantity: number;
-
+averageCost?: number;
     unitCost?: number;
 stockValue?: number;
     purchaseQuantity?: number;
