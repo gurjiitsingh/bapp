@@ -6,9 +6,13 @@ import {
   Clock3,
   Save,
   UserRound,
+  Pencil,
+  Trash2,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Card,
   CardContent,
@@ -32,11 +36,12 @@ import type {
   AttendanceStatus,
   EmployeeAttendance,
 } from "@/lib/types/attendance/AttendanceTypes";
+
 import {
   getAttendanceByDate,
   saveAttendance,
+  deleteAttendance,
 } from "@/app/(universal)/action/employee-system/attendance/attendanceActions";
-import { Label } from "recharts";
 
 type EmployeeOption = {
   id: string;
@@ -52,10 +57,19 @@ export default function AttendanceClient({
   employees = [],
   initialRecords = [],
 }: Props) {
+  // =========================================================
+  // RECORDS
+  // =========================================================
+
   const [records, setRecords] =
     useState<EmployeeAttendance[]>(initialRecords);
 
+  // =========================================================
+  // FORM STATE
+  // =========================================================
+
   const [employeeId, setEmployeeId] = useState("");
+
   const [date, setDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -63,8 +77,8 @@ export default function AttendanceClient({
   const [status, setStatus] =
     useState<AttendanceStatus>("PRESENT");
 
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
+ const [checkIn, setCheckIn] = useState("09:00");
+const [checkOut, setCheckOut] = useState("17:00");
 
   const [overtimeHours, setOvertimeHours] =
     useState("0");
@@ -73,18 +87,38 @@ export default function AttendanceClient({
 
   const [remarks, setRemarks] = useState("");
 
+  // =========================================================
+  // FORM / LOADING STATE
+  // =========================================================
+
   const [saving, setSaving] = useState(false);
+  const [loadingRecords, setLoadingRecords] = useState(false);
   const [error, setError] = useState("");
+
+  // =========================================================
+  // EDIT STATE
+  // =========================================================
+
+  const [editingRecordId, setEditingRecordId] =
+    useState<string | null>(null);
+
+  // =========================================================
+  // FILTER STATE
+  // =========================================================
 
   const [filterDate, setFilterDate] = useState(
     new Date().toISOString().split("T")[0]
   );
 
-  const [filterEmployeeId, setFilterEmployeeId] = useState("ALL");
+  const [filterEmployeeId, setFilterEmployeeId] =
+    useState("ALL");
 
-  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [filterStatus, setFilterStatus] =
+    useState("ALL");
 
-  const [loadingRecords, setLoadingRecords] = useState(false);
+  // =========================================================
+  // SELECTED EMPLOYEE
+  // =========================================================
 
   const selectedEmployee = useMemo(
     () =>
@@ -94,14 +128,20 @@ export default function AttendanceClient({
     [employees, employeeId]
   );
 
+  // =========================================================
+  // LOAD ATTENDANCE FOR FILTER DATE
+  // =========================================================
+
   useEffect(() => {
     let cancelled = false;
 
     async function loadAttendance() {
       try {
+        setLoadingRecords(true);
         setError("");
 
-        const data = await getAttendanceByDate(date);
+        const data =
+          await getAttendanceByDate(filterDate);
 
         if (!cancelled) {
           setRecords(data);
@@ -119,38 +159,25 @@ export default function AttendanceClient({
               : "Failed to load attendance records."
           );
         }
+      } finally {
+        if (!cancelled) {
+          setLoadingRecords(false);
+        }
       }
     }
 
-    if (date) {
+    if (filterDate) {
       loadAttendance();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [date]);
-
-
-  useEffect(() => {
-    const loadAttendance = async () => {
-      if (!filterDate) return;
-
-      try {
-        setLoadingRecords(true);
-
-        const data = await getAttendanceByDate(filterDate);
-
-        setRecords(data);
-      } catch (error) {
-        console.error("Failed to load attendance:", error);
-      } finally {
-        setLoadingRecords(false);
-      }
-    };
-
-    loadAttendance();
   }, [filterDate]);
+
+  // =========================================================
+  // FILTER RECORDS
+  // =========================================================
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) => {
@@ -164,7 +191,15 @@ export default function AttendanceClient({
 
       return employeeMatch && statusMatch;
     });
-  }, [records, filterEmployeeId, filterStatus]);
+  }, [
+    records,
+    filterEmployeeId,
+    filterStatus,
+  ]);
+
+  // =========================================================
+  // CALCULATE WORKING HOURS
+  // =========================================================
 
   function calculateWorkingHours() {
     if (!checkIn || !checkOut) {
@@ -193,9 +228,44 @@ export default function AttendanceClient({
 
   const workingHours = calculateWorkingHours();
 
-  async function handleSave1() {
+  // =========================================================
+  // RESET FORM
+  // =========================================================
+
+  function resetForm() {
+    setEditingRecordId(null);
+
+    setEmployeeId("");
+
+    setDate(
+      new Date().toISOString().split("T")[0]
+    );
+
+    setStatus("PRESENT");
+
+    // setCheckIn("");
+    // setCheckOut("");
+
+    // setOvertimeHours("0");
+
+    setLeaveType("");
+
+    setRemarks("");
+
+    setError("");
+  }
+
+  // =========================================================
+  // SAVE / UPDATE ATTENDANCE
+  // =========================================================
+
+  async function handleSave() {
     try {
       setError("");
+
+      // -----------------------------------------------------
+      // VALIDATION
+      // -----------------------------------------------------
 
       if (!employeeId) {
         setError("Please select an employee.");
@@ -217,149 +287,56 @@ export default function AttendanceClient({
 
       setSaving(true);
 
-      const now = new Date().toISOString();
-
       const employeeName =
         selectedEmployee?.name || "Employee";
 
-      const attendance: EmployeeAttendance = {
-        id: `${employeeId}_${date}`,
+      // -----------------------------------------------------
+      // SAVE TO FIRESTORE
+      // -----------------------------------------------------
 
-        employeeId,
-        employeeName,
+      const savedAttendance =
+        await saveAttendance({
+          employeeId,
+          employeeName,
+          date,
+          status,
+          checkIn: checkIn || undefined,
+          checkOut: checkOut || undefined,
 
-        date,
+          workingHours:
+            workingHours > 0
+              ? workingHours
+              : undefined,
 
-        status,
+          overtimeHours:
+            Number(overtimeHours) || 0,
 
-        checkIn: checkIn || undefined,
-        checkOut: checkOut || undefined,
+          leaveType:
+            status === "LEAVE"
+              ? leaveType.trim()
+              : undefined,
 
-        workingHours:
-          workingHours > 0
-            ? workingHours
-            : undefined,
-
-        overtimeHours:
-          Number(overtimeHours) || 0,
-
-        leaveType:
-          status === "LEAVE"
-            ? leaveType.trim()
-            : undefined,
-
-        remarks:
-          remarks.trim() || undefined,
-
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      const savedAttendance = await saveAttendance({
-        employeeId: attendance.employeeId,
-        employeeName: attendance.employeeName,
-        date: attendance.date,
-        status: attendance.status,
-        checkIn: attendance.checkIn,
-        checkOut: attendance.checkOut,
-        workingHours: attendance.workingHours,
-        overtimeHours: attendance.overtimeHours,
-        leaveType: attendance.leaveType,
-        remarks: attendance.remarks,
-      });
-
-      setRecords((current) => {
-        const existingIndex = current.findIndex(
-          (item) =>
-            item.employeeId === savedAttendance.employeeId &&
-            item.date === savedAttendance.date
-        );
-
-        if (existingIndex === -1) {
-          return [savedAttendance, ...current];
-        }
-
-        const updated = [...current];
-
-        updated[existingIndex] = savedAttendance;
-
-        return updated;
-      });
-
-      resetForm();
-    } catch (err) {
-      console.error(
-        "Failed to save attendance:",
-        err
-      );
-
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to save attendance."
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleSave() {
-    try {
-      setError("");
-
-      if (!employeeId) {
-        setError("Please select an employee.");
-        return;
-      }
-
-      if (!date) {
-        setError("Please select a date.");
-        return;
-      }
-
-      if (status === "LEAVE" && !leaveType.trim()) {
-        setError("Please enter the leave type.");
-        return;
-      }
-
-      setSaving(true);
-
-      const employeeName =
-        selectedEmployee?.name || "Employee";
-
-      const savedAttendance = await saveAttendance({
-        employeeId,
-        employeeName,
-        date,
-        status,
-        checkIn: checkIn || undefined,
-        checkOut: checkOut || undefined,
-        workingHours:
-          workingHours > 0 ? workingHours : undefined,
-        overtimeHours: Number(overtimeHours) || 0,
-        leaveType:
-          status === "LEAVE"
-            ? leaveType.trim()
-            : undefined,
-        remarks:
-          remarks.trim() || undefined,
-      });
+          remarks:
+            remarks.trim() || undefined,
+        });
 
       console.log(
         "Attendance saved successfully:",
         savedAttendance
       );
 
-      // 🔥 Reload directly from Firestore
-      const refreshedRecords =
-        await getAttendanceByDate(date);
+      // -----------------------------------------------------
+      // RELOAD CURRENT FILTER DATE
+      // -----------------------------------------------------
 
-      console.log(
-        "Attendance records after save:",
-        refreshedRecords
-      );
+      const refreshedRecords =
+        await getAttendanceByDate(filterDate);
 
       setRecords(refreshedRecords);
+
+      // -----------------------------------------------------
+      // RESET FORM
+      // -----------------------------------------------------
 
       resetForm();
     } catch (err) {
@@ -378,17 +355,104 @@ export default function AttendanceClient({
     }
   }
 
+  // =========================================================
+  // EDIT ATTENDANCE
+  // =========================================================
 
+  function handleEdit(
+    record: EmployeeAttendance
+  ) {
+    setEditingRecordId(record.id);
 
-  function resetForm() {
-    setEmployeeId("");
-    setStatus("PRESENT");
-    setCheckIn("");
-    setCheckOut("");
-    setOvertimeHours("0");
-    setLeaveType("");
-    setRemarks("");
+    setEmployeeId(record.employeeId);
+
+    setDate(record.date);
+
+    setStatus(record.status);
+
+    setCheckIn(record.checkIn ?? "");
+
+    setCheckOut(record.checkOut ?? "");
+
+    setOvertimeHours(
+      record.overtimeHours != null
+        ? String(record.overtimeHours)
+        : "0"
+    );
+
+    setLeaveType(record.leaveType ?? "");
+
+    setRemarks(record.remarks ?? "");
+
+    setError("");
+
+    // Scroll back to the form
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   }
+
+  // =========================================================
+  // DELETE ATTENDANCE
+  // =========================================================
+
+  async function handleDelete(
+    record: EmployeeAttendance
+  ) {
+    const confirmed = window.confirm(
+      `Delete attendance for ${record.employeeName} on ${record.date}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setError("");
+      setLoadingRecords(true);
+
+      await deleteAttendance(
+        record.employeeId,
+        record.date
+      );
+
+      // -----------------------------------------------------
+      // REMOVE FROM CURRENT LIST
+      // -----------------------------------------------------
+
+      setRecords((current) =>
+        current.filter(
+          (item) => item.id !== record.id
+        )
+      );
+
+      // -----------------------------------------------------
+      // IF CURRENTLY EDITING THIS RECORD, CANCEL EDIT
+      // -----------------------------------------------------
+
+      if (editingRecordId === record.id) {
+        resetForm();
+      }
+    } catch (err) {
+      console.error(
+        "Failed to delete attendance:",
+        err
+      );
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to delete attendance."
+      );
+    } finally {
+      setLoadingRecords(false);
+    }
+  }
+
+  // =========================================================
+  // FORMAT STATUS
+  // =========================================================
 
   function formatStatus(
     value: AttendanceStatus
@@ -396,10 +460,15 @@ export default function AttendanceClient({
     return value
       .replace(/_/g, " ")
       .toLowerCase()
-      .replace(/\b\w/g, (letter) =>
-        letter.toUpperCase()
+      .replace(
+        /\b\w/g,
+        (letter) => letter.toUpperCase()
       );
   }
+
+  // =========================================================
+  // STATUS STYLE
+  // =========================================================
 
   function statusClass(
     value: AttendanceStatus
@@ -428,77 +497,151 @@ export default function AttendanceClient({
     }
   }
 
+  // =========================================================
+  // RENDER
+  // =========================================================
+
   return (
     <div className="space-y-6">
+
       {/* =====================================================
-          ADD ATTENDANCE
+          ADD / EDIT ATTENDANCE
       ===================================================== */}
 
- <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+      <Card className="border-0 shadow-sm">
 
-          {/* DATE */}
-          <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
-              Date
-            </Label>
+        <CardHeader className="border-0 shadow-sm">
 
-            <Input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="border-0 bg-slate-50 shadow-sm"
-            />
+          <CardTitle className="flex items-center gap-2">
+
+            <CalendarDays className="h-5 w-5" />
+
+            {editingRecordId
+              ? "Edit Attendance"
+              : "Add Attendance"}
+
+          </CardTitle>
+
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+
+          {/* =================================================
+              ERROR
+          ================================================= */}
+
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {/* =================================================
+              EMPLOYEE + DATE
+          ================================================= */}
+
+          <div className="grid gap-4 md:grid-cols-2">
+
+            {/* EMPLOYEE */}
+
+            <div className="space-y-2">
+
+              <label className="text-sm font-medium">
+                Employee
+              </label>
+
+              <Select
+                value={employeeId}
+                onValueChange={setEmployeeId}
+              >
+
+                <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
+                  <SelectValue placeholder="Select employee" />
+                </SelectTrigger>
+
+                <SelectContent className="border-0 shadow-sm bg-slate-50">
+
+                  {employees.length === 0 ? (
+
+                    <SelectItem
+                      value="__none__"
+                      disabled
+                    >
+                      No employees available
+                    </SelectItem>
+
+                  ) : (
+
+                    employees.map((employee) => (
+
+                      <SelectItem
+                        key={employee.id}
+                        value={employee.id}
+                      >
+                        {employee.name}
+                      </SelectItem>
+
+                    ))
+
+                  )}
+
+                </SelectContent>
+
+              </Select>
+
+            </div>
+
+            {/* DATE */}
+
+            <div className="space-y-2">
+
+              <label className="text-sm font-medium">
+                Date
+              </label>
+
+              <div className="relative">
+
+                <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(event) =>
+                    setDate(event.target.value)
+                  }
+                  className="pl-9"
+                />
+
+              </div>
+
+            </div>
+
           </div>
 
-          {/* EMPLOYEE */}
-          <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
-              Employee
-            </Label>
+          {/* =================================================
+              STATUS
+          ================================================= */}
+
+          <div className="space-y-2">
+
+            <label className="text-sm font-medium">
+              Attendance Status
+            </label>
 
             <Select
-              value={filterEmployeeId}
-              onValueChange={setFilterEmployeeId}
+              value={status}
+              onValueChange={(value) =>
+                setStatus(
+                  value as AttendanceStatus
+                )
+              }
             >
+
               <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
-                <SelectValue placeholder="All Employees" />
+                <SelectValue />
               </SelectTrigger>
 
               <SelectContent className="border-0 shadow-sm">
-                <SelectItem value="ALL">
-                  All Employees
-                </SelectItem>
-
-                {employees?.map((employee) => (
-                  <SelectItem
-                    key={employee.id}
-                    value={employee.id}
-                  >
-                    {employee.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* STATUS */}
-          <div>
-            <Label className="mb-1.5 block text-xs text-muted-foreground">
-              Status
-            </Label>
-
-            <Select
-              value={filterStatus}
-              onValueChange={setFilterStatus}
-            >
-              <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-
-              <SelectContent className="border-0 shadow-sm">
-                <SelectItem value="ALL">
-                  All Status
-                </SelectItem>
 
                 <SelectItem value="PRESENT">
                   Present
@@ -523,162 +666,29 @@ export default function AttendanceClient({
                 <SelectItem value="WEEK_OFF">
                   Week Off
                 </SelectItem>
+
               </SelectContent>
+
             </Select>
+
           </div>
 
-          {/* RESET */}
-          <div className="flex items-end">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full border-0 bg-slate-50 shadow-sm"
-              onClick={() => {
-                setFilterDate(
-                  new Date().toISOString().split("T")[0]
-                );
-                setFilterEmployeeId("ALL");
-                setFilterStatus("ALL");
-              }}
-            >
-              Reset Filters
-            </Button>
-          </div>
+          {/* =================================================
+              CHECK IN / CHECK OUT / WORKING HOURS
+          ================================================= */}
 
-        </div>
-
-
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="border-0 shadow-sm">
-          <CardTitle className="flex items-center gap-2">
-            <CalendarDays className="h-5 w-5 border-0 shadow-sm" />
-            Add Attendance
-          </CardTitle>
-        </CardHeader>
-
-       
-
-        <CardContent className="space-y-6 border-0 shadow-sm">
-          {/* Error */}
-          {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          {/* Employee + Date */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Employee */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Employee
-              </label>
-
-              <Select
-                value={employeeId}
-                onValueChange={setEmployeeId}
-              >
-                <SelectTrigger border-0 shadow-sm>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-
-                <SelectContent border-0 shadow-sm>
-                  {employees.length === 0 ? (
-                    <SelectItem
-                      value="__none__"
-                      disabled
-                    >
-                      No employees available
-                    </SelectItem>
-                  ) : (
-                    employees.map((employee) => (
-                      <SelectItem
-                        key={employee.id}
-                        value={employee.id}
-                      >
-                        {employee.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Date */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Date
-              </label>
-
-              <div className="relative">
-                <CalendarDays className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-
-                <Input
-                  type="date"
-                  value={date}
-                  onChange={(event) =>
-                    setDate(event.target.value)
-                  }
-                  className="pl-9"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Status */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Attendance Status
-            </label>
-
-            <Select
-              value={status}
-              onValueChange={(value) =>
-                setStatus(
-                  value as AttendanceStatus
-                )
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent border-0 shadow-sm>
-                <SelectItem className="border-0 shadow-sm" value="PRESENT">
-                  Present
-                </SelectItem>
-
-                <SelectItem className="border-0 shadow-sm" value="ABSENT">
-                  Absent
-                </SelectItem>
-
-                <SelectItem className="border-0 shadow-sm" value="HALF_DAY">
-                  Half Day
-                </SelectItem>
-
-                <SelectItem className="border-0 shadow-sm" value="LEAVE">
-                  Leave
-                </SelectItem>
-
-                <SelectItem className="border-0 shadow-sm" value="HOLIDAY">
-                  Holiday
-                </SelectItem>
-
-                <SelectItem className="border-0 shadow-sm" value="WEEK_OFF">
-                  Week Off
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Check In / Check Out */}
           <div className="grid gap-4 md:grid-cols-3">
+
+            {/* CHECK IN */}
+
             <div className="space-y-2">
+
               <label className="text-sm font-medium">
                 Check In
               </label>
 
               <div className="relative">
+
                 <Clock3 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
                 <Input
@@ -689,15 +699,21 @@ export default function AttendanceClient({
                   }
                   className="pl-9"
                 />
+
               </div>
+
             </div>
 
+            {/* CHECK OUT */}
+
             <div className="space-y-2">
+
               <label className="text-sm font-medium">
                 Check Out
               </label>
 
               <div className="relative">
+
                 <Clock3 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 
                 <Input
@@ -708,10 +724,15 @@ export default function AttendanceClient({
                   }
                   className="pl-9"
                 />
+
               </div>
+
             </div>
 
+            {/* WORKING HOURS */}
+
             <div className="space-y-2">
+
               <label className="text-sm font-medium">
                 Working Hours
               </label>
@@ -724,12 +745,21 @@ export default function AttendanceClient({
                 }
                 readOnly
               />
+
             </div>
+
           </div>
 
-          {/* Overtime */}
+          {/* =================================================
+              OVERTIME + LEAVE TYPE
+          ================================================= */}
+
           <div className="grid gap-4 md:grid-cols-2">
+
+            {/* OVERTIME */}
+
             <div className="space-y-2">
+
               <label className="text-sm font-medium">
                 Overtime Hours
               </label>
@@ -745,11 +775,15 @@ export default function AttendanceClient({
                   )
                 }
               />
+
             </div>
 
-            {/* Leave Type */}
+            {/* LEAVE TYPE */}
+
             {status === "LEAVE" && (
+
               <div className="space-y-2">
+
                 <label className="text-sm font-medium">
                   Leave Type
                 </label>
@@ -758,15 +792,24 @@ export default function AttendanceClient({
                   placeholder="e.g. Annual Leave"
                   value={leaveType}
                   onChange={(event) =>
-                    setLeaveType(event.target.value)
+                    setLeaveType(
+                      event.target.value
+                    )
                   }
                 />
+
               </div>
+
             )}
+
           </div>
 
-          {/* Remarks */}
+          {/* =================================================
+              REMARKS
+          ================================================= */}
+
           <div className="space-y-2">
+
             <label className="text-sm font-medium">
               Remarks
             </label>
@@ -779,56 +822,274 @@ export default function AttendanceClient({
               }
               rows={3}
             />
+
           </div>
 
-          {/* Save */}
-          <div className="flex justify-end">
+          {/* =================================================
+              SAVE / UPDATE / CANCEL
+          ================================================= */}
+
+          <div className="flex justify-end gap-2">
+
+            {editingRecordId && (
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={saving}
+              >
+
+                <X className="mr-2 h-4 w-4" />
+
+                Cancel
+
+              </Button>
+
+            )}
+
             <Button
+              type="button"
               onClick={handleSave}
-              disabled={saving || employees.length === 0}
+              disabled={
+                saving ||
+                employees.length === 0
+              }
             >
+
               {saving ? (
+
                 <>
                   <Clock3 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
+
               ) : (
+
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Attendance
+
+                  {editingRecordId
+                    ? "Update Attendance"
+                    : "Save Attendance"}
+
                 </>
+
               )}
+
             </Button>
+
           </div>
+
         </CardContent>
+
       </Card>
 
       {/* =====================================================
           ATTENDANCE RECORDS
       ===================================================== */}
 
-      <Card>
+      <Card className="border-0 shadow-sm">
+
         <CardHeader>
+
           <CardTitle className="flex items-center gap-2">
+
             <UserRound className="h-5 w-5" />
+
             Attendance Records
+
           </CardTitle>
+
+          {/* =================================================
+              FILTERS
+          ================================================= */}
+
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+
+            {/* DATE */}
+
+            <div>
+
+              <label className="mb-1.5 block text-xs text-muted-foreground">
+                Date
+              </label>
+
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(event) =>
+                  setFilterDate(
+                    event.target.value
+                  )
+                }
+                className="border-0 bg-slate-50 shadow-sm"
+              />
+
+            </div>
+
+            {/* EMPLOYEE */}
+
+            <div>
+
+              <label className="mb-1.5 block text-xs text-muted-foreground">
+                Employee
+              </label>
+
+              <Select
+                value={filterEmployeeId}
+                onValueChange={
+                  setFilterEmployeeId
+                }
+              >
+
+                <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
+                  <SelectValue placeholder="All Employees" />
+                </SelectTrigger>
+
+                <SelectContent className="border-0 shadow-sm">
+
+                  <SelectItem value="ALL">
+                    All Employees
+                  </SelectItem>
+
+                  {employees.map(
+                    (employee) => (
+
+                      <SelectItem
+                        key={employee.id}
+                        value={employee.id}
+                      >
+                        {employee.name}
+                      </SelectItem>
+
+                    )
+                  )}
+
+                </SelectContent>
+
+              </Select>
+
+            </div>
+
+            {/* STATUS */}
+
+            <div>
+
+              <label className="mb-1.5 block text-xs text-muted-foreground">
+                Status
+              </label>
+
+              <Select
+                value={filterStatus}
+                onValueChange={
+                  setFilterStatus
+                }
+              >
+
+                <SelectTrigger className="border-0 bg-slate-50 shadow-sm">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+
+                <SelectContent className="border-0 shadow-sm">
+
+                  <SelectItem value="ALL">
+                    All Status
+                  </SelectItem>
+
+                  <SelectItem value="PRESENT">
+                    Present
+                  </SelectItem>
+
+                  <SelectItem value="ABSENT">
+                    Absent
+                  </SelectItem>
+
+                  <SelectItem value="HALF_DAY">
+                    Half Day
+                  </SelectItem>
+
+                  <SelectItem value="LEAVE">
+                    Leave
+                  </SelectItem>
+
+                  <SelectItem value="HOLIDAY">
+                    Holiday
+                  </SelectItem>
+
+                  <SelectItem value="WEEK_OFF">
+                    Week Off
+                  </SelectItem>
+
+                </SelectContent>
+
+              </Select>
+
+            </div>
+
+            {/* RESET */}
+
+            <div className="flex items-end">
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-0 bg-slate-50 shadow-sm"
+                onClick={() => {
+
+                  setFilterDate(
+                    new Date()
+                      .toISOString()
+                      .split("T")[0]
+                  );
+
+                  setFilterEmployeeId(
+                    "ALL"
+                  );
+
+                  setFilterStatus(
+                    "ALL"
+                  );
+
+                }}
+              >
+                Reset Filters
+              </Button>
+
+            </div>
+
+          </div>
+
         </CardHeader>
 
         <CardContent>
-        {loadingRecords ? (
-  <div className="py-10 text-center text-sm text-muted-foreground">
-    Loading attendance...
-  </div>
-) : filteredRecords.length === 0 ? (
-  <div className="rounded-lg bg-slate-50/70 py-10 text-center text-sm text-muted-foreground">
-    No attendance records found for the selected filters.
-  </div>
-)  : (
+
+          {/* =================================================
+              LOADING
+          ================================================= */}
+
+          {loadingRecords ? (
+
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              Loading attendance...
+            </div>
+
+          ) : filteredRecords.length === 0 ? (
+
+            <div className="rounded-lg bg-slate-50/70 py-10 text-center text-sm text-muted-foreground">
+              No attendance records found for the selected filters.
+            </div>
+
+          ) : (
+
             <div className="overflow-x-auto">
+
               <table className="w-full text-sm">
+
                 <thead>
+
                   <tr className="border-b text-left">
+
                     <th className="px-3 py-3 font-medium">
                       Employee
                     </th>
@@ -856,62 +1117,146 @@ export default function AttendanceClient({
                     <th className="px-3 py-3 text-right font-medium">
                       OT
                     </th>
+
+                    <th className="px-3 py-3 text-right font-medium">
+                      Actions
+                    </th>
+
                   </tr>
+
                 </thead>
 
                 <tbody>
-                  {filteredRecords.map((record) => (
-                    <tr
-                      key={record.id}
-                      className="border-b last:border-0"
-                    >
-                      <td className="px-3 py-3 font-medium">
-                        {record.employeeName}
-                      </td>
 
-                      <td className="px-3 py-3">
-                        {record.date}
-                      </td>
+                  {filteredRecords.map(
+                    (record) => (
 
-                      <td className="px-3 py-3">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(
-                            record.status
-                          )}`}
-                        >
-                          {formatStatus(
-                            record.status
-                          )}
-                        </span>
-                      </td>
+                      <tr
+                        key={record.id}
+                        className="border-b last:border-0"
+                      >
 
-                      <td className="px-3 py-3">
-                        {record.checkIn || "-"}
-                      </td>
+                        {/* EMPLOYEE */}
 
-                      <td className="px-3 py-3">
-                        {record.checkOut || "-"}
-                      </td>
+                        <td className="px-3 py-3 font-medium">
+                          {record.employeeName}
+                        </td>
 
-                      <td className="px-3 py-3 text-right">
-                        {record.workingHours
-                          ? record.workingHours.toFixed(2)
-                          : "0.00"}
-                      </td>
+                        {/* DATE */}
 
-                      <td className="px-3 py-3 text-right">
-                        {record.overtimeHours
-                          ? record.overtimeHours.toFixed(2)
-                          : "0.00"}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="px-3 py-3">
+                          {record.date}
+                        </td>
+
+                        {/* STATUS */}
+
+                        <td className="px-3 py-3">
+
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(
+                              record.status
+                            )}`}
+                          >
+                            {formatStatus(
+                              record.status
+                            )}
+                          </span>
+
+                        </td>
+
+                        {/* CHECK IN */}
+
+                        <td className="px-3 py-3">
+                          {record.checkIn || "-"}
+                        </td>
+
+                        {/* CHECK OUT */}
+
+                        <td className="px-3 py-3">
+                          {record.checkOut || "-"}
+                        </td>
+
+                        {/* HOURS */}
+
+                        <td className="px-3 py-3 text-right">
+                          {record.workingHours != null
+                            ? record.workingHours.toFixed(2)
+                            : "0.00"}
+                        </td>
+
+                        {/* OT */}
+
+                        <td className="px-3 py-3 text-right">
+                          {record.overtimeHours != null
+                            ? record.overtimeHours.toFixed(2)
+                            : "0.00"}
+                        </td>
+
+                        {/* ACTIONS */}
+
+                        <td className="px-3 py-3">
+
+                          <div className="flex justify-end gap-1">
+
+                            {/* EDIT */}
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() =>
+                                handleEdit(
+                                  record
+                                )
+                              }
+                              title="Edit attendance"
+                            >
+
+                              <Pencil className="h-4 w-4" />
+
+                            </Button>
+
+                            {/* DELETE */}
+
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-red-500 hover:text-red-600"
+                              onClick={() =>
+                                handleDelete(
+                                  record
+                                )
+                              }
+                              title="Delete attendance"
+                            >
+
+                              <Trash2 className="h-4 w-4" />
+
+                            </Button>
+
+                          </div>
+
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
                 </tbody>
+
               </table>
+
             </div>
+
           )}
+
         </CardContent>
+
       </Card>
+
     </div>
   );
 }

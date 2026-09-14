@@ -11,7 +11,7 @@ export type EmploymentType =
   | "TEMPORARY";
 
 export interface Employee {
-  id: string;
+   id: string;
 
   employeeCode: string;
 
@@ -21,22 +21,30 @@ export interface Employee {
   email?: string;
   phone?: string;
 
-  dateOfBirth?: string;
-
   joiningDate: string;
 
   departmentId?: string;
   designationId?: string;
 
-  employmentType: EmploymentType;
+  employmentType: string;
 
-  status: EmployeeStatus;
+  status: string;
 
-  /**
-   * Optional connection to the application's
-   * authentication user.
-   */
   userId?: string;
+
+  // ==========================================
+  // WEEKLY OFF DAYS
+  // ==========================================
+  // 0 = Sunday
+  // 1 = Monday
+  // 2 = Tuesday
+  // 3 = Wednesday
+  // 4 = Thursday
+  // 5 = Friday
+  // 6 = Saturday
+  //
+  // [] = no weekly off
+  weeklyOffDays: number[];
 
   createdAt: string;
   updatedAt: string;

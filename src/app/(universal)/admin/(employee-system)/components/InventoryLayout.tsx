@@ -129,7 +129,7 @@ export default function InventoryTabs() {
 
   const isTransactions =
     pathname.startsWith(
-      "/admin/distribution/stock-movements"
+      "/admin/attendance"
     );
 
   const isTrip =
@@ -234,8 +234,8 @@ export default function InventoryTabs() {
               STOCK MOVEMENTS
           ===================================================== */}
 
-          {/* <ActionCard
-            href="/admin/distribution/stock-movements"
+          <ActionCard
+            href="/admin/attendance"
             active={isTransactions}
             activeBg="bg-amber-500/10 border-amber-500/40 shadow-md"
             inactiveHover="hover:border-amber-500/30 hover:shadow-md"
@@ -251,11 +251,11 @@ export default function InventoryTabs() {
                 }
               />
             }
-            title="Movements"
-            description="View all stock movements"
+            title="Attendance"
+            description="Employee Attendance"
             titleColor="text-gray-800"
             activeTitleColor="text-amber-600"
-          /> */}
+          />
 
           {/* =====================================================
               TRIPS

@@ -25,18 +25,27 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
- 
-
 import type {
   Employee,
   EmployeeStatus,
   EmploymentType,
 } from "@/lib/types/payroll/EmployeeTypes";
+
 import { createEmployee } from "../../../action/employee-system/payroll/employee";
 
 type Props = {
   onCreated?: (employee: Employee) => void;
 };
+
+const WEEK_DAYS = [
+  { value: 0, label: "Sunday", short: "Sun" },
+  { value: 1, label: "Monday", short: "Mon" },
+  { value: 2, label: "Tuesday", short: "Tue" },
+  { value: 3, label: "Wednesday", short: "Wed" },
+  { value: 4, label: "Thursday", short: "Thu" },
+  { value: 5, label: "Friday", short: "Fri" },
+  { value: 6, label: "Saturday", short: "Sat" },
+];
 
 export default function AddEmployeeDialog({
   onCreated,
@@ -76,11 +85,44 @@ export default function AddEmployeeDialog({
   const [status, setStatus] =
     useState<EmployeeStatus>("ACTIVE");
 
+  // =========================================================
+  // WEEKLY OFF DAYS
+  // =========================================================
+  //
+  // []       = no weekly off
+  // [0]      = Sunday
+  // [0, 6]   = Sunday + Saturday
+  //
+  // 0 = Sunday
+  // 1 = Monday
+  // 2 = Tuesday
+  // 3 = Wednesday
+  // 4 = Thursday
+  // 5 = Friday
+  // 6 = Saturday
+  //
+  const [weeklyOffDays, setWeeklyOffDays] =
+    useState<number[]>([]);
+
   const [loading, setLoading] =
     useState(false);
 
   const [error, setError] =
     useState("");
+
+  function toggleWeeklyOff(day: number) {
+    setWeeklyOffDays((current) => {
+      if (current.includes(day)) {
+        return current.filter(
+          (item) => item !== day
+        );
+      }
+
+      return [...current, day].sort(
+        (a, b) => a - b
+      );
+    });
+  }
 
   function resetForm() {
     setEmployeeCode("");
@@ -94,6 +136,10 @@ export default function AddEmployeeDialog({
     setDesignationId("");
     setEmploymentType("FULL_TIME");
     setStatus("ACTIVE");
+
+    // Reset weekly offs
+    setWeeklyOffDays([]);
+
     setError("");
   }
 
@@ -132,17 +178,30 @@ export default function AddEmployeeDialog({
         id: "",
         employeeCode: employeeCode.trim(),
         firstName: firstName.trim(),
-        lastName: lastName.trim() || undefined,
-        email: email.trim() || undefined,
-        phone: phone.trim() || undefined,
-        dateOfBirth: dateOfBirth || undefined,
+        lastName:
+          lastName.trim() || undefined,
+        email:
+          email.trim() || undefined,
+        phone:
+          phone.trim() || undefined,
+        dateOfBirth:
+          dateOfBirth || undefined,
         joiningDate,
+
         departmentId:
           departmentId.trim() || undefined,
+
         designationId:
           designationId.trim() || undefined,
+
         employmentType,
         status,
+
+        // =================================================
+        // WEEKLY OFF DAYS
+        // =================================================
+        weeklyOffDays: [...weeklyOffDays],
+
         createdAt: now,
         updatedAt: now,
       };
@@ -220,6 +279,7 @@ export default function AddEmployeeDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-2">
+
           {/* =================================================
               BASIC INFORMATION
           ================================================= */}
@@ -235,6 +295,7 @@ export default function AddEmployeeDialog({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
               {/* Employee Code */}
               <div className="space-y-2">
                 <Label className="text-gray-700">
@@ -375,6 +436,7 @@ export default function AddEmployeeDialog({
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
               {/* Employment Type */}
               <div className="space-y-2">
                 <Label className="text-gray-700">
@@ -490,6 +552,100 @@ export default function AddEmployeeDialog({
                   We can replace this with a designation selector later.
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* =================================================
+              WEEKLY OFF
+          ================================================= */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-900">
+                Weekly Off
+              </h3>
+
+              <p className="text-xs text-gray-500">
+                Select the employee's normal weekly days off.
+                Leave all unselected if the employee normally
+                works every day.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {WEEK_DAYS.map((day) => {
+                const selected =
+                  weeklyOffDays.includes(day.value);
+
+                return (
+                  <button
+                    key={day.value}
+                    type="button"
+                    onClick={() =>
+                      toggleWeeklyOff(day.value)
+                    }
+                    disabled={loading}
+                    className={`
+                      rounded-lg
+                      border
+                      px-3
+                      py-2.5
+                      text-sm
+                      font-medium
+                      transition-colors
+                      ${
+                        selected
+                          ? "border-blue-600 bg-blue-50 text-blue-700"
+                          : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span>{day.label}</span>
+
+                      <span
+                        className={`
+                          flex h-4 w-4 items-center justify-center
+                          rounded border text-[10px]
+                          ${
+                            selected
+                              ? "border-blue-600 bg-blue-600 text-white"
+                              : "border-gray-300 bg-white"
+                          }
+                        `}
+                      >
+                        {selected ? "✓" : ""}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="rounded-md bg-gray-50 px-3 py-2 text-xs text-gray-600">
+              {weeklyOffDays.length === 0 ? (
+                <>
+                  <span className="font-medium text-gray-900">
+                    No weekly off selected.
+                  </span>{" "}
+                  This employee can work every day.
+                </>
+              ) : (
+                <>
+                  <span className="font-medium text-gray-900">
+                    Weekly off:
+                  </span>{" "}
+                  {weeklyOffDays
+                    .map(
+                      (day) =>
+                        WEEK_DAYS.find(
+                          (item) =>
+                            item.value === day
+                        )?.label
+                    )
+                    .filter(Boolean)
+                    .join(", ")}
+                </>
+              )}
             </div>
           </div>
 
