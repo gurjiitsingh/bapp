@@ -281,7 +281,7 @@ export default function SupplierInventoryrReturnForm({
 
           // Internal stock values
           quantity: finalQuantity,
-          unitCost: finalUnitCost,
+          averageCost: finalUnitCost,
           stockValue,
           // Original values entered by user
           purchaseQuantity: originalQuantity,

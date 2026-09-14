@@ -119,8 +119,8 @@ export default function StockAdjustmentForm({
       "averageCost",
       Number(
         (
-          (selectedInventory.averageCost ?? 0) *
-          mapping.factor
+          (selectedInventory.averageCost ?? 0) 
+         
         ).toFixed(2)
       )
     );

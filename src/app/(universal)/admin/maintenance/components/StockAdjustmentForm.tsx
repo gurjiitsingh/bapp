@@ -320,7 +320,7 @@ export default function StockAdjustmentForm({
 
   // INTERNAL VALUES (consumption unit)
   quantity: finalQuantity,
-  unitCost: averageCost,
+  averageCost: averageCost,
   stockValue: Number(data.stockValue),
 
   // DISPLAY / PURCHASE UNIT VALUES

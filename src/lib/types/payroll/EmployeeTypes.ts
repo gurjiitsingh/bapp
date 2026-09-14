@@ -20,15 +20,15 @@ export interface Employee {
 
   email?: string;
   phone?: string;
-
+dateOfBirth?: string;
   joiningDate: string;
 
   departmentId?: string;
   designationId?: string;
 
-  employmentType: string;
+  employmentType: EmploymentType;
 
-  status: string;
+  status: EmployeeStatus;
 
   userId?: string;
 
