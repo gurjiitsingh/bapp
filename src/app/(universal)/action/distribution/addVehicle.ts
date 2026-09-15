@@ -71,6 +71,7 @@ export async function addVehicle({
 
       // Save normalized code
       locationCode: normalizedCode,
+      vehicleNumber: normalizedCode,
       name: name.trim(),
 
       type,

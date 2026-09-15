@@ -19,7 +19,8 @@ export async function getVehicles(): Promise<VehicleType[]> {
 
     data.push({
       id: doc.id,
-
+ vehicleNumber: d.vehicleNumber, // <-- add this
+ 
       locationCode: d.locationCode,
       name: d.name,
       type: d.type,

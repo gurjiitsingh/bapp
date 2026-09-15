@@ -50,6 +50,22 @@ export default async function Page() {
                     Add Vehicle
                   </button>
                 </Link>
+
+               <Link href="/admin/distribution/vehicle/finance">
+                  <button className="btn-save-4 flex items-center gap-2">
+                    
+                    Finance
+                  </button>
+                </Link>
+
+                 <Link href="/admin/distribution/vehicle/insurance">
+                  <button className="btn-save-4 flex items-center gap-2">
+                    
+                    Insurance
+                  </button>
+                </Link>
+
+
               </div>
             </div>
           </div>

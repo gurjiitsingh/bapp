@@ -46,6 +46,23 @@ dateOfBirth?: string;
   // [] = no weekly off
   weeklyOffDays: number[];
 
+  
+// ==========================================
+// ATTENDANCE MACHINE
+// ==========================================
+
+// ID of the attendance machine assigned to
+// this employee.
+// Example: "ATT-001"
+attendanceMachineId?: string;
+
+// Employee/User ID assigned to this employee
+// inside the attendance machine.
+// Example: "27"
+attendanceMachineUserId?: string;
+
+
+
   createdAt: string;
   updatedAt: string;
 }
