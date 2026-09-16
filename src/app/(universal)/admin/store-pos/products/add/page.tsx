@@ -81,6 +81,9 @@ const Page = () => {
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
   }, [selectedCategoryId, categoryData, setValue]);
+
+
+  
   async function onSubmit(data: TnewProductSchema) {
     setIsSubmitting(true);
     const formData = new FormData();

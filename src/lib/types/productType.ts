@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+
+
+export type ProductImageType = {
+  id: string;
+  url: string;
+  name?: string;
+  sortOrder: number;
+};
+
 export type ProductType = {
   id: string;
   name: string;
@@ -14,6 +23,7 @@ export type ProductType = {
   productDesc: string;
   sortOrder: number;
   image: string;
+   images?: ProductImage[];
   isFeatured: boolean;
 favorite:boolean;
   flavors?: boolean;
