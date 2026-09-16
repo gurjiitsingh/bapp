@@ -156,7 +156,7 @@ const Sidebar = () => {
       icon: <MdOutlineCrisisAlert />,
     },
     { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
-    { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
+    // { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
 
    {
   key: "SHOW_STORE_POS",

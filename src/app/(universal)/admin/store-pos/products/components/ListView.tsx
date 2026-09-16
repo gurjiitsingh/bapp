@@ -15,7 +15,7 @@ import { ProductType } from "@/lib/types/productType";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function ListView() {
+export default function ListView() { 
   const router = useRouter();
   const searchParams = useSearchParams();
 

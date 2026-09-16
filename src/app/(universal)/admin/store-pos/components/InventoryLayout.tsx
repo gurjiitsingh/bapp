@@ -66,7 +66,7 @@ export default function InventoryTabs() {
   );
 
   const isProducts =
-    pathname === "/admin/store-pos/products" ||
+    pathname === "/admin/store-pos" ||
     pathname === "/admin/stock-finished";
 
   const isTransactions = pathname.startsWith(
@@ -87,7 +87,7 @@ export default function InventoryTabs() {
   return (
   <div className="grid grid-cols-2 mt-3 mx-1  xl:grid-cols-9 gap-3">
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productsbatchs"
     active={isProduction}
     activeBg="bg-purple-50 border-purple-300 shadow-md"
@@ -104,9 +104,9 @@ export default function InventoryTabs() {
     description="Batches & Cost"
     titleColor="text-gray-800"
     activeTitleColor="text-purple-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productsdepartment"
     active={isEstimate}
     activeBg="bg-cyan-50 border-cyan-300 shadow-md"
@@ -123,9 +123,9 @@ export default function InventoryTabs() {
     description="Track Stock & Employees"
     titleColor="text-gray-800"
     activeTitleColor="text-cyan-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productssale/add"
     active={isSale}
     activeBg="bg-orange-50 border-orange-300 shadow-md"
@@ -142,10 +142,10 @@ export default function InventoryTabs() {
     description="Sale Finished Products"
     titleColor="text-gray-800"
     activeTitleColor="text-orange-700"
-  />
+  /> */}
 
   <ActionCard
-    href="/admin/store-pos/products"
+    href="/admin/store-pos"
     active={isProducts}
     activeBg="bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
     inactiveHover="hover:border-[#00897b]/30 hover:shadow-md"
@@ -163,7 +163,7 @@ export default function InventoryTabs() {
     activeTitleColor="text-[#00897b]"
   />
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productstransactions"
     active={isTransactions}
     activeBg="bg-amber-50 border-amber-300 shadow-md"
@@ -180,9 +180,9 @@ export default function InventoryTabs() {
     description="View all stock movements"
     titleColor="text-gray-800"
     activeTitleColor="text-amber-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productsadjust-stock"
     active={isAdjustStock}
     activeBg="bg-blue-50 border-blue-300 shadow-md"
@@ -199,9 +199,9 @@ export default function InventoryTabs() {
     description="Add or remove finished stock"
     titleColor="text-gray-800"
     activeTitleColor="text-blue-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productscustomer/all"
     active={isCustomer}
     activeBg="bg-yellow-50 border-yellow-300 shadow-md"
@@ -218,9 +218,9 @@ export default function InventoryTabs() {
     description="View customers & accounts"
     titleColor="text-gray-800"
     activeTitleColor="text-yellow-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
     href="/admin/store-pos/productscustomer/return"
     active={isCustomerReturn}
     activeBg="bg-red-50 border-red-300 shadow-md"
@@ -237,9 +237,9 @@ export default function InventoryTabs() {
     description="Finished goods return"
     titleColor="text-gray-800"
     activeTitleColor="text-red-700"
-  />
+  /> */}
 
-  <ActionCard
+  {/* <ActionCard
   href="/admin/store-pos/pos-users"
   active={isAccount}
   activeBg="bg-emerald-50 border-emerald-300 shadow-md"
@@ -256,7 +256,7 @@ export default function InventoryTabs() {
   description="Manage POS users"
   titleColor="text-gray-800"
   activeTitleColor="text-emerald-700"
-/>
+/> */}
 
   {/* <ActionCard
     href="/admin/store-pos/productsproducts"

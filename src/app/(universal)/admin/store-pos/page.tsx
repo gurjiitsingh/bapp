@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import ListView from "./components/ListView";
+ 
 
 import Link from "next/link";
 
@@ -10,6 +10,7 @@ import { Plus, Package2, ArrowLeft } from "lucide-react";
 import { fetchCategories } from "../../action/category/dbOperations";
  
 import { fetchProductsStock } from "../../action/products/fetchProductsStock";
+import ListView from "./products/components/ListView";
 
 
 export default async function Page() {

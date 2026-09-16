@@ -9,6 +9,12 @@ import { MdLocalFireDepartment } from "react-icons/md";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   deleteProduct,
   toggleFeatured,
   toggleFavorite,
@@ -21,7 +27,7 @@ import { useState } from "react";
 import ModifierModal from "@/components/ModifierModal";
 
 
-function TableRows({
+function TableRows({ 
   product,
   index,
 }: {
@@ -29,7 +35,7 @@ function TableRows({
   index: number;
 }) {
 
-  console.log("product---------------",product.name,product)
+  
   const { settings } = UseSiteContext();
   const { TEXT } = useLanguage();
   const [isFeatured, setIsFeatured] = useState(product.isFeatured);
@@ -37,6 +43,7 @@ function TableRows({
     product.favorite ?? false
   );
   const [showModifierModal, setShowModifierModal] = useState(false);
+const [showDescription, setShowDescription] = useState(false);
 
 
   const price = formatCurrencyNumber(
@@ -261,10 +268,51 @@ function TableRows({
           </span>
         </TableCell>
 
-        {/* 📝 Description */}
-        <TableCell className="whitespace-normal break-words max-w-[200px]">
-          {product.productDesc}
-        </TableCell>
+       <TableCell className="max-w-[200px]">
+  {product.productDesc ? (
+    <button
+      type="button"
+      onClick={() => setShowDescription(true)}
+      className="
+        max-w-[200px]
+        text-left
+        text-sm
+        text-gray-700
+        hover:text-blue-600
+        hover:underline
+        line-clamp-2
+        cursor-pointer
+      "
+      title="Click to view full description"
+    >
+      {product.productDesc}
+    </button>
+  ) : (
+    <span className="text-sm text-gray-400 italic">
+      —
+    </span>
+  )}
+</TableCell>
+
+{/* 📖 Full Description Dialog */}
+<Dialog
+  open={showDescription}
+  onOpenChange={setShowDescription}
+>
+  <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle>
+        {product.name}
+      </DialogTitle>
+    </DialogHeader>
+
+    <div className="mt-2 max-h-[60vh] overflow-y-auto rounded-lg bg-gray-50 p-4">
+      <p className="whitespace-pre-wrap break-words text-sm leading-6 text-gray-700">
+        {product.productDesc}
+      </p>
+    </div>
+  </DialogContent>
+</Dialog>
         <TableCell className="whitespace-normal break-words max-w-[200px]">
           <span
             className={`px-2 py-1 text-xs rounded-full ${product.hasVariants
