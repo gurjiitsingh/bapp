@@ -238,7 +238,7 @@ export default function ProductImagesForm({
     const newImage:
       ProductImageType = {
       id: imageId,
-      productId,
+    //  productId,
       url: result.url,
       name:
         file.name ||

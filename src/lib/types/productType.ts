@@ -23,7 +23,7 @@ export type ProductType = {
   productDesc: string;
   sortOrder: number;
   image: string;
-   images?: ProductImage[];
+   images?: ProductImageType[];
   isFeatured: boolean;
 favorite:boolean;
   flavors?: boolean;
