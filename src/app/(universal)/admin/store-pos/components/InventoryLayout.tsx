@@ -47,7 +47,7 @@ const tabs = [
 export default function InventoryTabs() {
   const pathname = usePathname();
   const isNewProducts = pathname.startsWith(
-  "/admin/store-pos/productsproducts"
+  "/admin/store-pos/carousel/add"
 );
 
   const isAccount = pathname.startsWith(
@@ -258,8 +258,8 @@ export default function InventoryTabs() {
   activeTitleColor="text-emerald-700"
 /> */}
 
-  {/* <ActionCard
-    href="/admin/store-pos/productsproducts"
+  <ActionCard
+    href="/admin/store-pos/carousel/add"
     active={isNewProducts}
     activeBg="bg-indigo-50 border-indigo-300 shadow-md"
     inactiveHover="hover:border-indigo-300 hover:shadow-md"
@@ -271,11 +271,11 @@ export default function InventoryTabs() {
         className={isNewProducts ? "text-white" : "text-indigo-600"}
       />
     }
-    title="+ Products"
+    title="Carousel"
     description=" "
     titleColor="text-gray-800"
     activeTitleColor="text-indigo-700"
-  /> */}
+  />
 
 </div>
   );

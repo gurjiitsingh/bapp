@@ -302,102 +302,6 @@ export async function uploadProductImage(
     };
   }
 }
-/* =========================================================
-   UPDATE PRODUCT IMAGES
-   Used for reorder / rename
-========================================================= */
-
-export async function updateProductImages(
-  productId: string,
-  images: ProductImageType[]
-): Promise<ProductImagesResult> {
-  try {
-    if (!productId) {
-      return {
-        errors: {
-          general: "Product ID is required",
-        },
-      };
-    }
-
-    if (!Array.isArray(images)) {
-      return {
-        errors: {
-          images: "Invalid image data",
-        },
-      };
-    }
-
-    /* -----------------------------------------------------
-       LIMIT
-    ----------------------------------------------------- */
-
-    if (images.length > 4) {
-      return {
-        errors: {
-          images: "Maximum 4 additional images are allowed",
-        },
-      };
-    }
-
-    /* -----------------------------------------------------
-       NORMALIZE SORT ORDER
-    ----------------------------------------------------- */
-
-    const normalizedImages: ProductImageType[] =
-      images.map((image, index) => ({
-        id: image.id || randomUUID(),
-
-        url: image.url,
-
-        name:
-          image.name?.trim() ||
-          `Image ${index + 1}`,
-
-        sortOrder: index + 1,
-      }));
-
-    /* -----------------------------------------------------
-       UPDATE FIRESTORE
-    ----------------------------------------------------- */
-
-    await adminDb
-      .collection("products")
-      .doc(productId)
-      .update({
-        images: normalizedImages,
-        updatedAt: new Date().toISOString(),
-      });
-
-    /* -----------------------------------------------------
-       CACHE
-    ----------------------------------------------------- */
-
-    revalidateTag("products", "max");
-    revalidateTag("featured-products", "max");
-
-    revalidatePath("/");
-    revalidatePath("/products");
-    revalidatePath("/admin/products");
-
-    return {
-      success: true,
-      message: "Product images updated successfully",
-      images: normalizedImages,
-    };
-  } catch (error) {
-    console.error(
-      "❌ Failed to update product images:",
-      error
-    );
-
-    return {
-      errors: {
-        general: "Could not update product images",
-      },
-    };
-  }
-}
 
 /* =========================================================
    DELETE PRODUCT IMAGE
@@ -541,3 +445,102 @@ export async function deleteProductImage(
   }
 }
 
+
+
+
+/* =========================================================
+   UPDATE PRODUCT IMAGES
+   Used for reorder / rename
+========================================================= */
+
+export async function updateProductImages(
+  productId: string,
+  images: ProductImageType[]
+): Promise<ProductImagesResult> {
+  try {
+    if (!productId) {
+      return {
+        errors: {
+          general: "Product ID is required",
+        },
+      };
+    }
+
+    if (!Array.isArray(images)) {
+      return {
+        errors: {
+          images: "Invalid image data",
+        },
+      };
+    }
+
+    /* -----------------------------------------------------
+       LIMIT
+    ----------------------------------------------------- */
+
+    if (images.length > 4) {
+      return {
+        errors: {
+          images: "Maximum 4 additional images are allowed",
+        },
+      };
+    }
+
+    /* -----------------------------------------------------
+       NORMALIZE SORT ORDER
+    ----------------------------------------------------- */
+
+    const normalizedImages: ProductImageType[] =
+      images.map((image, index) => ({
+        id: image.id || randomUUID(),
+
+        url: image.url,
+
+        name:
+          image.name?.trim() ||
+          `Image ${index + 1}`,
+
+        sortOrder: index + 1,
+      }));
+
+    /* -----------------------------------------------------
+       UPDATE FIRESTORE
+    ----------------------------------------------------- */
+
+    await adminDb
+      .collection("products")
+      .doc(productId)
+      .update({
+        images: normalizedImages,
+        updatedAt: new Date().toISOString(),
+      });
+
+    /* -----------------------------------------------------
+       CACHE
+    ----------------------------------------------------- */
+
+    revalidateTag("products", "max");
+    revalidateTag("featured-products", "max");
+
+    revalidatePath("/");
+    revalidatePath("/products");
+    revalidatePath("/admin/products");
+
+    return {
+      success: true,
+      message: "Product images updated successfully",
+      images: normalizedImages,
+    };
+  } catch (error) {
+    console.error(
+      "❌ Failed to update product images:",
+      error
+    );
+
+    return {
+      errors: {
+        general: "Could not update product images",
+      },
+    };
+  }
+}
