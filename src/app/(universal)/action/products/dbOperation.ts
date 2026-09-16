@@ -726,7 +726,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
     console.error("❌ Firestore add failed:", error);
     return { errors: { general: "Could not save product" } };
   }
-}
+} 
 
 export async function fetchProductById(
   id: string
@@ -758,6 +758,7 @@ export async function fetchProductById(
       quantity: 0,
       sortOrder: data?.sortOrder ?? 0,
       image: data?.image ?? "",
+      images: Array.isArray(data?.images) ? data.images : [],
       isFeatured: data?.isFeatured ?? false,
       favorite: data?.favorite ?? false,
       purchaseSession: data?.purchaseSession ?? null,
