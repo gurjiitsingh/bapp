@@ -183,7 +183,7 @@ export default function CarouselImagesForm({
 
     formData.append(
       "file",
-      compressedFile,
+      file,
       `${imageId}.jpg`
     );
 
