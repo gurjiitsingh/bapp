@@ -8,6 +8,75 @@ const EMPLOYEE_COLLECTION = "employees";
 export async function createEmployee(
   employee: Employee
 ): Promise<string> {
+
+  console.log("emplooye-------------------",employee)
+  const docRef = adminDb
+    .collection(EMPLOYEE_COLLECTION)
+    .doc();
+
+  const now = new Date().toISOString();
+
+  await docRef.set({
+    ...employee,
+
+    // ==========================================
+    // SYSTEM ID
+    // ==========================================
+    id: docRef.id,
+
+    // ==========================================
+    // DEPARTMENT
+    // ==========================================
+    // departmentId   = stable department reference
+    // departmentName = display/snapshot name
+    departmentId:
+      employee.departmentId?.trim() || undefined,
+
+    departmentName:
+      employee.departmentName?.trim() || undefined,
+
+    // ==========================================
+    // ROLE
+    // ==========================================
+    // roleId = stable role reference
+    // role   = human-readable role name
+    roleId:
+      employee.roleId?.trim() || undefined,
+
+    role:
+      employee.role?.trim() || undefined,
+
+    // ==========================================
+    // WEEKLY OFF
+    // ==========================================
+    // 0 = Sunday
+    // 1 = Monday
+    // 2 = Tuesday
+    // 3 = Wednesday
+    // 4 = Thursday
+    // 5 = Friday
+    // 6 = Saturday
+    //
+    // [] = employee has no weekly off
+    // [0] = Sunday off
+    // [0, 6] = Sunday + Saturday off
+    weeklyOffDays: Array.isArray(employee.weeklyOffDays)
+      ? employee.weeklyOffDays
+      : [],
+
+    // ==========================================
+    // TIMESTAMPS
+    // ==========================================
+    createdAt: now,
+    updatedAt: now,
+  });
+
+  return docRef.id;
+}
+
+export async function createEmployee_old(
+  employee: Employee
+): Promise<string> {
   const docRef = adminDb
     .collection(EMPLOYEE_COLLECTION)
     .doc();

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
-
+import { getDepartments } from "@/app/(universal)/action/department/getDepartments";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,8 @@ type Props = {
   onCreated?: (employee: Employee) => void;
 };
 
+
+
 const WEEK_DAYS = [
   { value: 0, label: "Sunday", short: "Sun" },
   { value: 1, label: "Monday", short: "Mon" },
@@ -46,6 +48,9 @@ const WEEK_DAYS = [
   { value: 5, label: "Friday", short: "Fri" },
   { value: 6, label: "Saturday", short: "Sat" },
 ];
+
+
+const STATIC_DEPARTMENTS = [{ id: "management", name: "Management" }, { id: "sales", name: "Sales" }, { id: "inventory", name: "Inventory" }, { id: "accounts", name: "Accounts" }, { id: "production", name: "Production" }, { id: "delivery", name: "Delivery" },]
 
 export default function AddEmployeeDialog({
   onCreated,
@@ -76,14 +81,30 @@ export default function AddEmployeeDialog({
   const [departmentId, setDepartmentId] =
     useState("");
 
-  const [designationId, setDesignationId] =
-    useState("");
 
   const [employmentType, setEmploymentType] =
     useState<EmploymentType>("FULL_TIME");
 
   const [status, setStatus] =
     useState<EmployeeStatus>("ACTIVE");
+
+  const [roleId, setRoleId] = useState("");
+  const [role, setRole] = useState("");
+
+
+  const [departments, setDepartments] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [departmentName, setDepartmentName] = useState("");
+
+  const [departmentsLoading, setDepartmentsLoading] =
+    useState(false);
+
+
+  const allDepartments = [
+    ...STATIC_DEPARTMENTS,
+    ...departments,
+  ];
 
   // =========================================================
   // WEEKLY OFF DAYS
@@ -133,7 +154,9 @@ export default function AddEmployeeDialog({
     setDateOfBirth("");
     setJoiningDate("");
     setDepartmentId("");
-    setDesignationId("");
+    setDepartmentName("");
+    setRoleId("");
+    setRole("");
     setEmploymentType("FULL_TIME");
     setStatus("ACTIVE");
 
@@ -188,11 +211,18 @@ export default function AddEmployeeDialog({
           dateOfBirth || undefined,
         joiningDate,
 
+
+
         departmentId:
           departmentId.trim() || undefined,
+        departmentName:
+          departmentName.trim() || undefined,
 
-        designationId:
-          designationId.trim() || undefined,
+        roleId:
+          roleId.trim() || undefined,
+
+        role:
+          role.trim() || undefined,
 
         employmentType,
         status,
@@ -233,6 +263,39 @@ export default function AddEmployeeDialog({
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    async function loadDepartments() {
+      try {
+        setDepartmentsLoading(true);
+
+        const departmentsRaw = await getDepartments();
+
+        const departments = (departmentsRaw || []).map(
+          (d: any) => ({
+            id: d.id,
+            name: d.name,
+            managerName: d.managerName,
+            employeeCount:
+              Number(d.employeeCount) || 0,
+          })
+        );
+
+        setDepartments(departments);
+      } catch (error) {
+        console.error(
+          "Failed to load departments:",
+          error
+        );
+
+        setDepartments([]);
+      } finally {
+        setDepartmentsLoading(false);
+      }
+    }
+
+    loadDepartments();
+  }, []);
 
   return (
     <Dialog
@@ -513,45 +576,145 @@ export default function AddEmployeeDialog({
                 </Select>
               </div>
 
+
+
               {/* Department */}
-              <div className="space-y-2">
-                <Label className="text-gray-700">
-                  Department ID
-                </Label>
+          
+<div className="space-y-2">
+  <Label className="text-gray-700">
+    Department
+  </Label>
 
-                <Input
-                  value={departmentId}
-                  onChange={(e) =>
-                    setDepartmentId(e.target.value)
-                  }
-                  placeholder="e.g. KITCHEN"
-                  className="bg-white text-gray-900 border-gray-300"
-                />
+  <select
+    value={departmentId}
+    onChange={(e) => {
+      const selectedId = e.target.value;
 
-                <p className="text-xs text-gray-500">
-                  We can replace this with a department selector later.
-                </p>
-              </div>
+      setDepartmentId(selectedId);
+
+      const selectedDepartment = allDepartments.find(
+        (department) => department.id === selectedId
+      );
+
+      setDepartmentName(
+        selectedDepartment?.name || ""
+      );
+    }}
+    disabled={departmentsLoading}
+    className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+    style={{
+      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+      backgroundPosition: "right 1rem center",
+      backgroundSize: "1em",
+      backgroundRepeat: "no-repeat",
+    }}
+  >
+    <option value="">
+      {departmentsLoading
+        ? "Loading departments..."
+        : "Select Department"}
+    </option>
+
+    {allDepartments.map((department) => (
+      <option
+        key={department.id}
+        value={department.id}
+      >
+        {department.name}
+      </option>
+    ))}
+  </select>
+
+  <p className="text-xs text-gray-500">
+    Select the employee's department.
+  </p>
+</div>
+ 
+
 
               {/* Designation */}
+              {/* <div className="space-y-2">
+  <Label className="text-gray-700">
+    Designation ID
+  </Label>
+
+  <Input
+    value={designationId}
+    onChange={(e) => setDesignationId(e.target.value)}
+    placeholder="e.g. production_supervisor"
+    className="bg-white text-gray-900 border-gray-300"
+  />
+
+  <p className="text-xs text-gray-500">
+    Employee's payroll / HR designation.
+  </p>
+</div> */}
+
+              {/* Role */}
+
+              {/* Role ID */}
               <div className="space-y-2">
                 <Label className="text-gray-700">
-                  Designation ID
+                  Role ID
                 </Label>
 
-                <Input
-                  value={designationId}
-                  onChange={(e) =>
-                    setDesignationId(e.target.value)
-                  }
-                  placeholder="e.g. CHEF"
-                  className="bg-white text-gray-900 border-gray-300"
-                />
+                <select
+                  value={roleId}
+                  onChange={(e) => {
+                    const selectedId = e.target.value;
+                    setRoleId(selectedId);
+
+                    const selectedRole = e.target.options[e.target.selectedIndex].text;
+                    setRole(selectedId ? selectedRole : "");
+                  }}
+                  className="w-full px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                    backgroundPosition: "right 1rem center",
+                    backgroundSize: "1em",
+                    backgroundRepeat: "no-repeat",
+                  }}
+                >
+                  <option value="">Select Role</option>
+
+                  <option value="accountant">Accountant</option>
+                  <option value="admin">Administrator</option>
+                  <option value="captain">Captain</option>
+                  <option value="cashier">Cashier</option>
+                  <option value="chef">Chef</option>
+                  <option value="confectioner">Confectioner</option>
+                  <option value="customer">Customer</option>
+                  <option value="delivery">Delivery Boy</option>
+                  <option value="dispatch_operator">Dispatch Operator</option>
+                  <option value="driver">Driver</option>
+                  <option value="employee">Employee</option>
+                  <option value="head_chef">Head Chef</option>
+                  <option value="host">Host</option>
+                  <option value="manager">Manager</option>
+                  <option value="production_manager">Production Manager</option>
+                  <option value="production_supervisor">Production Supervisor</option>
+                  <option value="purchase_manager">Purchase Manager</option>
+                  <option value="quality_control">Quality Control</option>
+                  <option value="restaurant_manager">Restaurant Manager</option>
+                  <option value="sales_executive">Sales Executive</option>
+                  <option value="sales_manager">Sales Manager</option>
+                  <option value="shopkeeper">Shopkeeper</option>
+                  <option value="steward">Steward</option>
+                  <option value="storekeeper">Store Keeper</option>
+                  <option value="supplier">Supplier</option>
+                  <option value="user">User</option>
+                  <option value="waiter">Waiter</option>
+                  <option value="warehouse_assistant">Warehouse Assistant</option>
+                </select>
 
                 <p className="text-xs text-gray-500">
-                  We can replace this with a designation selector later.
+                  Select the employee's ERP role.
                 </p>
               </div>
+
+
+
+
             </div>
           </div>
 
@@ -592,10 +755,9 @@ export default function AddEmployeeDialog({
                       text-sm
                       font-medium
                       transition-colors
-                      ${
-                        selected
-                          ? "border-blue-600 bg-blue-50 text-blue-700"
-                          : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                      ${selected
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
                       }
                     `}
                   >
@@ -606,10 +768,9 @@ export default function AddEmployeeDialog({
                         className={`
                           flex h-4 w-4 items-center justify-center
                           rounded border text-[10px]
-                          ${
-                            selected
-                              ? "border-blue-600 bg-blue-600 text-white"
-                              : "border-gray-300 bg-white"
+                          ${selected
+                            ? "border-blue-600 bg-blue-600 text-white"
+                            : "border-gray-300 bg-white"
                           }
                         `}
                       >

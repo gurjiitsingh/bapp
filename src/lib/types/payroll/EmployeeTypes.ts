@@ -23,8 +23,11 @@ export interface Employee {
 dateOfBirth?: string;
   joiningDate: string;
 
-  departmentId?: string;
-  designationId?: string;
+  departmentName?: string;
+ departmentId?: string;
+
+  roleId?: string;
+  role?: string;
 
   employmentType: EmploymentType;
 
