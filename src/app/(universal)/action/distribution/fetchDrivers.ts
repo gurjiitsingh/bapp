@@ -3,7 +3,88 @@
 import { adminDb } from "@/lib/firebaseAdmin";
 import { userDashboardType } from "@/lib/types/userDashboardType";
 
+
 export async function fetchDrivers(): Promise<userDashboardType[]> {
+  const data: userDashboardType[] = [];
+
+  const snapshot = await adminDb
+    .collection("employees")
+    .where("roleId", "==", "driver")
+    .get();
+
+  snapshot.forEach((doc) => {
+    const docData = doc.data();
+
+    data.push({
+      id: doc.id,
+
+      // ==========================================
+      // EMPLOYEE BASIC INFORMATION
+      // ==========================================
+      fullName: [
+        docData.firstName || "",
+        docData.lastName || "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+
+      username: docData.employeeCode || "",
+
+      email: docData.email || "",
+      mobile: docData.phone || "",
+
+      // Employee collection does not store password
+      hashedPassword: "",
+
+      // ==========================================
+      // ROLE
+      // ==========================================
+      role: docData.role || "Driver",
+      userType: "employee",
+
+      // Employee status
+      status: docData.status || "ACTIVE",
+
+      isAdmin: false,
+      isVerfied: true,
+
+      // ==========================================
+      // EMPLOYEE ID
+      // ==========================================
+      employeeId: doc.id,
+
+      // ==========================================
+      // DEPARTMENT
+      // ==========================================
+      department: docData.departmentName || "",
+
+      // ==========================================
+      // ADDRESS / NOTES
+      // ==========================================
+      address: docData.address || "",
+      notes: docData.notes || "",
+
+      // ==========================================
+      // TIMESTAMPS
+      // ==========================================
+      createdAt:
+        docData.createdAt?.toDate?.()?.toISOString() ||
+        docData.createdAt ||
+        undefined,
+
+      updatedAt:
+        docData.updatedAt?.toDate?.()?.toISOString() ||
+        docData.updatedAt ||
+        undefined,
+    });
+  });
+
+  return data;
+}
+ 
+
+
+export async function fetchDrivers_old(): Promise<userDashboardType[]> {
   const data: userDashboardType[] = [];
 
   const snapshot = await adminDb

@@ -20,7 +20,7 @@ type VehicleFormType = {
   locationCode: string;
   name: string;
 
-  type: StorageType; 
+  type: StorageType;
 
   responsiblePersonId: string;
   responsiblePersonName: string;
@@ -42,25 +42,25 @@ export default function VehicleForm({
   drivers,
 }: Props) {
 
- //console.log("user name------------",drivers)
+  //console.log("user name------------",drivers)
   const [isSubmitting, startTransition] = useTransition();
 
-const {
-  register,
-  handleSubmit,
-  reset,
-  setValue,
-} = useForm<VehicleFormType>({
-  defaultValues: {
-    locationCode: "",
-    name: "",
-    type: "PICKUP",
-    responsiblePersonId: "",
-    responsiblePersonName: "",
-    capacity: undefined,
-    remarks: "",
-  },
-});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+  } = useForm<VehicleFormType>({
+    defaultValues: {
+      locationCode: "",
+      name: "",
+      type: "PICKUP",
+      responsiblePersonId: "",
+      responsiblePersonName: "",
+      capacity: undefined,
+      remarks: "",
+    },
+  });
 
   const onSubmit = (data: VehicleFormType) => {
     startTransition(async () => {
@@ -128,7 +128,7 @@ const {
                 <input
                   {...register("name")}
                   className="input-style-4"
-                  placeholder="Tata Ace"
+                  placeholder="Tata Ace, V1, T1"
                 />
               </div>
 
@@ -155,19 +155,19 @@ const {
                 </select>
 
                 <div className="flex flex-col gap-2">
-  <label className="label-style-4">
-    Capacity (Kg)
-  </label>
+                  <label className="label-style-4">
+                    Capacity (Kg)
+                  </label>
 
-  <input
-    type="number"
-    {...register("capacity", {
-      valueAsNumber: true,
-    })}
-    className="input-style-4"
-    placeholder="1000"
-  />
-</div>
+                  <input
+                    type="number"
+                    {...register("capacity", {
+                      valueAsNumber: true,
+                    })}
+                    className="input-style-4"
+                    placeholder="1000"
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -175,43 +175,43 @@ const {
                   Driver
                 </label>
                 <input
-  type="hidden"
-  {...register("responsiblePersonName")}
-/>
+                  type="hidden"
+                  {...register("responsiblePersonName")}
+                />
 
-<select
-  {...register("responsiblePersonId")}
-  className="input-style-4"
-  onChange={(e) => {
-    const id = e.target.value;
+                <select
+                  {...register("responsiblePersonId")}
+                  className="input-style-4"
+                  onChange={(e) => {
+                    const id = e.target.value;
 
-    const driver = drivers.find(
-      (d) => d.id === id
-    );
+                    const driver = drivers.find(
+                      (d) => d.id === id
+                    );
 
-    setValue("responsiblePersonId", id);
-    setValue(
-      "responsiblePersonName",
-      driver?.fullName ?? ""
-    );
-  }}
->
-  <option value="">
-    Select Driver
-  </option>
+                    setValue("responsiblePersonId", id);
+                    setValue(
+                      "responsiblePersonName",
+                      driver?.fullName ?? ""
+                    );
+                  }}
+                >
+                  <option value="">
+                    Select Driver
+                  </option>
 
-  {drivers.map((driver) => (
-    <option
-      key={driver.id}
-      value={driver.id}
-    >
-      {driver.fullName}
-      {driver.employeeId
-        ? ` (${driver.employeeId})`
-        : ""}
-    </option>
-  ))}
-</select>
+                  {drivers.map((driver) => (
+                    <option
+                      key={driver.id}
+                      value={driver.id}
+                    >
+                      {driver.fullName}
+                      {/* {driver.employeeId
+                        ? ` (${driver.employeeId})`
+                        : ""} */}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="md:col-span-2 flex flex-col gap-2">
@@ -266,6 +266,6 @@ const {
 
     </div>
   </div>
-);
- 
+  );
+
 }

@@ -6,7 +6,7 @@ import ListView from './components/ListView';
 
 export default function Page() {
   return (
-    <div className='mt-10'>
+    <div className='mt-1'>
     <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-50 via-slate-100/40 to-slate-50 text-slate-900 flex flex-col selection:bg-indigo-500/10 selection:text-indigo-600">
       
       {/* Premium Dashboard Global Layout Wrapper */}
@@ -29,7 +29,7 @@ export default function Page() {
             </h1>
             
             <p className="text-slate-500 text-sm max-w-2xl leading-relaxed">
-              Provision internal employee roles, monitor active stakeholder state, and manage your operational business framework intelligently through automated access policies.
+              Provision internal user roles, monitor active stakeholder state, and manage your operational business framework intelligently through automated access policies.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ export default function Page() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              <span>Add New Employee</span>
+              <span>Add New user</span>
               
               {/* Dynamic hover bottom reflective sheen border */}
               <span className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none" />

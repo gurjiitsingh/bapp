@@ -195,7 +195,7 @@ router.push(`/admin/store-pos/products?productId=${data.id}`);
       </div>
       <form
         onSubmit={handleSubmit(onsubmit)}
-        className="w-full max-w-7xl mx-auto p-5"
+        className="w-full max-w-7xl  p-5"
       >
         <h1 className="text-2xl font-semibold mb-4">Edit Product</h1>
 

@@ -1,17 +1,15 @@
-'use client'
+import { Suspense } from "react";
+import ListView from "./ListView";
+import { fetchCategories } from "@/app/(universal)/action/category/fetchCategories";
 
-import { Suspense } from 'react'
-import ListView from './components/ListView'
-import Link from "next/link"
+export default async function Page() {
+  const categories = await fetchCategories();
 
-export default function page(){
   return (
     <Suspense>
-    <div className='h-screen flex flex-col '>
-    
-      <ListView />
-
-    </div>
+      <div className="h-screen flex flex-col"> 
+        <ListView categories={categories} />
+      </div>
     </Suspense>
-  )
+  );
 }

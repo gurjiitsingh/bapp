@@ -145,7 +145,7 @@ export default function InventoryTabs() {
   /> */}
 
   <ActionCard
-    href="/admin/store-pos"
+    href="/admin/store-pos/products"
     active={isProducts}
     activeBg="bg-[#00897b]/10 border-[#00897b]/40 shadow-md"
     inactiveHover="hover:border-[#00897b]/30 hover:shadow-md"

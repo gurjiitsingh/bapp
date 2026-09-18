@@ -9,7 +9,7 @@ export async function createEmployee(
   employee: Employee
 ): Promise<string> {
 
-  console.log("emplooye-------------------",employee)
+  
   const docRef = adminDb
     .collection(EMPLOYEE_COLLECTION)
     .doc();

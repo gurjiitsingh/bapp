@@ -135,7 +135,7 @@ const Sidebar = () => {
         
         coupon: "Coupon",
         delivery: "Delivery",
-        users: "Employees",
+        users: "Userss",
         dayschedule: "Opening Timing",
         setting: "Setting",
         data_backup: "Data Backup",
@@ -161,7 +161,7 @@ const Sidebar = () => {
    {
   key: "SHOW_STORE_POS",
   name: "Store & POS",
-  link: "/admin/store-pos",
+  link: "/admin/store-pos/products",
   icon: <MdStorefront />,
 },
 {
@@ -270,7 +270,7 @@ const Sidebar = () => {
 
     { key: "SHOW_LOCATIONS", name: "Locations", link: "/admin/locations", icon: <TbTruckDelivery /> },
 
-    { key: "SHOW_USERS", name: "Employee", link: "/admin/users", icon: <FaUsers /> },
+    { key: "SHOW_USERS", name: "Users", link: "/admin/users", icon: <FaUsers /> },
 
     { key: "SHOW_TIMMING", name: "Opening Timing", link: "/admin/day-schedule/form", icon: <MdAccessTime /> },
 
