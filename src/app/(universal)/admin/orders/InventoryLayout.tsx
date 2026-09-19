@@ -15,6 +15,7 @@ import {
   Undo2,
 } from "lucide-react";
 import { WalletCards, UserRound } from "lucide-react";
+import { MdOutlineCrisisAlert } from "react-icons/md";
 const ActionCard = ({
   href,
   active,
@@ -129,7 +130,7 @@ export default function InventoryTabs() {
 
   const isTransactions =
     pathname.startsWith(
-      "/admin/attendance"
+      "/admin/orders/order-realtime"
     );
 
   const isTrip =
@@ -234,15 +235,16 @@ export default function InventoryTabs() {
               STOCK MOVEMENTS
           ===================================================== */}
 
-          {/* <ActionCard
-            href="/admin/attendance"
+          <ActionCard
+            href="/admin/orders/order-realtime"
             active={isTransactions}
             activeBg="bg-amber-500/10 border-amber-500/40 shadow-md"
             inactiveHover="hover:border-amber-500/30 hover:shadow-md"
             iconBg="bg-amber-100"
             activeIconBg="bg-amber-500"
             icon={
-              <BookOpen
+              <MdOutlineCrisisAlert 
+             
                 size={22}
                 className={
                   isTransactions
@@ -251,11 +253,11 @@ export default function InventoryTabs() {
                 }
               />
             }
-            title="Attendance"
-            description="Employee Attendance"
+            title="Live Orders"
+            description="Realtime Web orders "
             titleColor="text-gray-800"
             activeTitleColor="text-amber-600"
-          /> */}
+          />
 
           {/* =====================================================
               TRIPS

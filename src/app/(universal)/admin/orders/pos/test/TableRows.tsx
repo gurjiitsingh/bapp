@@ -270,8 +270,8 @@ function TableRows({
       {/* =================================================
           STATUS
           ================================================= */}
-{/* 
-      <TableCell className="py-4">
+
+      {/* <TableCell className="py-4">
 
         <span
           className={`
@@ -372,7 +372,7 @@ function TableRows({
           PRINTED
           ================================================= */}
 
-      <TableCell className="py-4">
+      {/* <TableCell className="py-4">
 
         {order.printed ? (
           <span className="
@@ -405,7 +405,7 @@ function TableRows({
           </span>
         )}
 
-      </TableCell>
+      </TableCell> */}
 
       {/* =================================================
           ACTION
@@ -417,8 +417,8 @@ function TableRows({
 
           {/* VIEW */}
 
-              <Link
-         href={`/admin/orders/order-detail/${order.id}`}
+          <Link
+         href={`/admin/orders/pos/order-detail/${order.id}`}
 
             className="
               inline-flex
@@ -444,7 +444,7 @@ function TableRows({
 
           {/* DELETE */}
 
-          {/* <button
+          <button
             onClick={() =>
               handleDelete(order.id)
             }
@@ -468,7 +468,7 @@ function TableRows({
             aria-label="Delete Order"
           >
             <MdDeleteForever size={17} />
-          </button> */}
+          </button>
 
         </div>
 

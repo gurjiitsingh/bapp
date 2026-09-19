@@ -444,7 +444,7 @@ function TableRows({
 
           {/* DELETE */}
 
-          {/* <button
+          <button
             onClick={() =>
               handleDelete(order.id)
             }
@@ -468,7 +468,7 @@ function TableRows({
             aria-label="Delete Order"
           >
             <MdDeleteForever size={17} />
-          </button> */}
+          </button>
 
         </div>
 

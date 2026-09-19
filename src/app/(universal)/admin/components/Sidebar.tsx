@@ -123,7 +123,7 @@ const Sidebar = () => {
       sidebar: {
         home: "Home",
         orders: "Orders",
-        orders_realtime: "Orders Realtime",
+      //  orders_realtime: "Orders Realtime",
         sale: "Sale",
         reservations: "Reservations",
         categories: "Categories",
@@ -148,13 +148,13 @@ const Sidebar = () => {
 
   const menuList: Titem[] = [
     { key: "SHOW_HOME", name: BRANDING.sidebar.home, link: "/", icon: <GoHome /> },
-    { key: "SHOW_ORDERS", name: BRANDING.sidebar.orders, link: "/admin", icon: <MdDashboard /> },
-    {
-      key: "SHOW_ORDERS_REALTIME",
-      name: BRANDING.sidebar.orders_realtime,
-      link: "/admin/order-realtime",
-      icon: <MdOutlineCrisisAlert />,
-    },
+    { key: "SHOW_ORDERS", name: BRANDING.sidebar.orders, link: "/admin/orders", icon: <MdDashboard /> },
+    // {
+    //   key: "SHOW_ORDERS_REALTIME",
+    //   name: BRANDING.sidebar.orders_realtime,
+    //   link: "/admin/order-realtime",
+    //   icon: <MdOutlineCrisisAlert />,
+    // },
     { key: "SHOW_CATEGORIES", name: BRANDING.sidebar.categories, link: "/admin/categories", icon: <MdCategory /> },
     // { key: "SHOW_PRODUCTS", name: BRANDING.sidebar.products, link: "/admin/products", icon: <MdInventory /> },
 
