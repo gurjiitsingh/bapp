@@ -2,9 +2,22 @@ import { Timestamp } from "firebase/firestore";
 
 export function formatDateTimeStamp(
   date: string | number | Timestamp | undefined,
-  locale: string = "en-GB"
+  locale?: string
 ): string {
   if (!date) return "";
+
+  // Always force a valid locale
+  let safeLocale = "en-GB";
+
+  if (typeof locale === "string" && locale.trim() !== "") {
+    try {
+      // Validate locale
+      new Intl.DateTimeFormat(locale);
+      safeLocale = locale;
+    } catch {
+      safeLocale = "en-GB";
+    }
+  }
 
   const timeZoneMap: Record<string, string> = {
     "de-DE": "Europe/Berlin",
@@ -17,23 +30,20 @@ export function formatDateTimeStamp(
   };
 
   const timeZone =
-    timeZoneMap[locale] ??
+    timeZoneMap[safeLocale] ??
     Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   let dateObj: Date;
 
-  // 🔥 Firestore Timestamp (UTC → Date)
   if (date instanceof Timestamp) {
     dateObj = date.toDate();
-  }
-  // 🔥 string or number
-  else {
+  } else {
     dateObj = new Date(date);
   }
 
   if (isNaN(dateObj.getTime())) return "";
 
-  return dateObj.toLocaleString(locale, {
+  return dateObj.toLocaleString(safeLocale, {
     dateStyle: "medium",
     timeStyle: "short",
     timeZone,

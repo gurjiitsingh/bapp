@@ -18,7 +18,7 @@ export async function addProductDraft(
   const product = {
     prodcutId: element.id,
     name: element.name,
-    price: element.price,
+    basePrice: element.price,
     quantity: element.quantity,
     itemSubtotal: element.itemSubtotal,
     orderMasterId,

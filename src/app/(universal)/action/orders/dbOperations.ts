@@ -386,7 +386,7 @@ export async function fetchOrderProductsByOrderMasterId(OrderMasterId: string) {
 
   orderMasterId: raw.orderMasterId || "",
   name: raw.name || "",
-  price: raw.price || 0,
+  basePrice: raw.basePrice || 0,
   quantity: raw.quantity || 0,
   itemSubtotal: raw.itemSubtotal || 0,
 

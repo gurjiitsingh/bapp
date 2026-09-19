@@ -86,8 +86,8 @@ export default function PrintOrderPage() {
           <span className="w-1/6 text-right">Total</span>
         </div>
         {orderProducts.map((item) => {
-          const total = formatCurrency(Number(item.quantity) * Number(item.price));
-          const price = formatCurrency(Number(item.price));
+          const total = formatCurrency(Number(item.quantity) * Number(item.basePrice));
+          const price = formatCurrency(Number(item.basePrice));
           return (
             <div key={item.id} className="flex justify-between py-0.5">
               <span className="w-1/2 truncate">{item.name}</span>

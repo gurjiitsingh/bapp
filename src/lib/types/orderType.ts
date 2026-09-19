@@ -7,7 +7,8 @@ export type OrderProductT = {
   orderMasterId: string;
 
   name: string;
-  price: number;        // base price per item
+  //price: number;        // base price per item
+  basePrice?: number;
   quantity: number;
   itemSubtotal:number;
 

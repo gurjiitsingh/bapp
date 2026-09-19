@@ -99,7 +99,7 @@ export default function PrintOrderPage() {
   </div>
 
   {orderProducts.map((item) => {
-    const price = formatCurrency(Number(item.price));
+    const price = formatCurrency(Number(item.basePrice));
     const taxAmount = formatCurrency(Number(item.taxAmount));
     const finalPrice = formatCurrency(Number(item.finalPrice));
     const finalTotal = formatCurrency(Number(item.finalTotal));
