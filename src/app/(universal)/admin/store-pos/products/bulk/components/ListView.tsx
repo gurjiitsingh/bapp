@@ -166,7 +166,7 @@ export default function ListView() {
                 <th>Price</th>
                 <th>Product Name</th>
                 <th>Category</th>
-                
+                 <th>Enable/Disable Discount</th>
                 <th>Discount Price</th>
                 {/* <th>Qty</th> */}
                 <th>Tax</th>

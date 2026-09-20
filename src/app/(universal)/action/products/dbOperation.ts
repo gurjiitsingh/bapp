@@ -1017,6 +1017,7 @@ export async function updateProductField(
     taxType: "inclusive" | "exclusive";
     currentStock: number;
     sortOrder: number;
+    discountEligible: boolean;
   }>
 ) {
   try {
@@ -1030,30 +1031,45 @@ export async function updateProductField(
     const safeUpdates: Record<string, any> = {};
 
     // ✅ Sanitize input
-    for (const key in updates) {
-      const val = updates[key as keyof typeof updates];
-      if (val === undefined || val === null) continue;
+   // ✅ Sanitize input
+for (const key in updates) {
+  const val = updates[key as keyof typeof updates];
 
-      if (["name", "searchCode", "categoryId", "taxType"].includes(key)) {
-        safeUpdates[key] = val;
-        continue;
-      }
+  if (val === undefined || val === null) continue;
 
-      if (typeof val === "string" && !isNaN(Number(val))) {
-        safeUpdates[key] = parseFloat(val);
-      } else {
-        safeUpdates[key] = val;
-      }
-    }
+  // Boolean fields
+  if (key === "discountEligible") {
+    safeUpdates[key] = Boolean(val);
+    continue;
+  }
 
-    // ✅ Fetch category name (like old form)
+  // String fields
+  if (
+    ["name", "searchCode", "categoryId", "taxType"].includes(key)
+  ) {
+    safeUpdates[key] = val;
+    continue;
+  }
+
+  // Numeric fields
+  if (typeof val === "string" && !isNaN(Number(val))) {
+    safeUpdates[key] = parseFloat(val);
+  } else {
+    safeUpdates[key] = val;
+  }
+}
+
+    // ✅ Fetch category name
     if (safeUpdates.categoryId) {
       try {
         const categories = await fetchCategories();
+
         const matchedCategory = categories.find(
           (cat) => cat.id === safeUpdates.categoryId
         );
-        safeUpdates.productCat = matchedCategory?.name ?? "Uncategorized";
+
+        safeUpdates.productCat =
+          matchedCategory?.name ?? "Uncategorized";
       } catch (err) {
         console.error("⚠️ Failed to fetch categories:", err);
         safeUpdates.productCat = "Uncategorized";
@@ -1065,10 +1081,18 @@ export async function updateProductField(
     await productRef.update(safeUpdates);
 
     console.log("✅ Product updated:", productId, safeUpdates);
-    return { success: true, message: "Product field updated successfully" };
+
+    return {
+      success: true,
+      message: "Product field updated successfully",
+    };
   } catch (error) {
     console.error("❌ updateProductField error:", error);
-    return { success: false, error: "Failed to update product field" };
+
+    return {
+      success: false,
+      error: "Failed to update product field",
+    };
   }
 }
 

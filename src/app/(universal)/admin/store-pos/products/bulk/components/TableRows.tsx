@@ -27,6 +27,8 @@ export default function TableRows({
     taxType: product.taxType ?? "inclusive",
     currentStock: product.currentStock ?? 0,
     sortOrder: product.sortOrder ?? 0,
+    discountEligible:product.discountEligible ?? true,
+
   });
 
   async function handleSave() {
@@ -112,7 +114,19 @@ export default function TableRows({
         </select>
       </TableCell>
 
-    
+     <TableCell className="flex justify-center">
+  <input
+    type="checkbox"
+    checked={editData.discountEligible}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        discountEligible: e.target.checked,
+      })
+    }
+    className="h-4 w-4 cursor-pointer"
+  />
+</TableCell>
 
       <TableCell>
         <input
