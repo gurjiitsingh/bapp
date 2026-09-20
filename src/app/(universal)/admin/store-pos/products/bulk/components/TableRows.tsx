@@ -3,10 +3,11 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { FaSave } from "react-icons/fa";
-import { updateProductField } from "@/app/(universal)/action/products/dbOperation";
+ 
 import { ProductType } from "@/lib/types/productType";
 import { useState } from "react";
 import { categoryType } from "@/lib/types/categoryType";
+import { updateProductField } from "@/app/(universal)/action/products/updateProductField";
 
 export default function TableRows({
   product,
@@ -32,6 +33,7 @@ export default function TableRows({
   });
 
   async function handleSave() {
+     
     setIsSaving(true);
     try {
       await updateProductField(product.id!, {
@@ -43,7 +45,7 @@ export default function TableRows({
       setIsSaving(false);
     }
   }
-
+ 
   return (
     <TableRow className="whitespace-nowrap transition rounded-xl text-slate-600 hover:bg-green-50">
        <TableCell>
