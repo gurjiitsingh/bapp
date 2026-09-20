@@ -14,6 +14,7 @@ export type ProductType = {
   name: string;
   price: number;
   quantity: number | null;
+  discountEligible?: boolean;
   discountPrice: number | undefined;
   categoryId: string;
   masterCategoryId?: string;
