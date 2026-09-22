@@ -69,18 +69,27 @@ export async function fetchPosOrdersPaginated({
           "",
 
         paymentMode:
-          data.paymentType ||
           data.paymentMode ||
+          data.paymentType ||
           "",
+
+        paymentProvider:
+          data.paymentProvider || "",
+
+        paymentMethod:
+          data.paymentMethod || "",
 
         paymentStatus:
           data.paymentStatus || "NEW",
 
-        status:
-          data.publishStatus || "",
+        paidAmount:
+          data.paidAmount || 0,
+
+        dueAmount:
+          data.dueAmount || 0,
 
         orderStatus:
-          data.publishStatus || "NEW",
+          data.orderStatus || "NEW",
 
         itemTotal:
           data.itemTotal || 0,

@@ -32,7 +32,7 @@ import {   getFinancialYearCode, getNextWebOrderSerial } from "./getNextWebOrder
 
 export async function createNewOrder(purchaseData: orderDataType) {
 
- // console.log("addreas full oredr masrer---------------",purchaseData)
+  console.log("addreas full oredr masrer---------------",purchaseData)
   const {
     // -----------------------------
     // BASIC
@@ -100,12 +100,12 @@ export async function createNewOrder(purchaseData: orderDataType) {
   // =====================================================
   // 1️⃣ STOCK CHECK (BEFORE ANY CALCULATION)
   // =====================================================
-  if (SHOULD_MAINTAIN_STOCK) {
-    const stockCheck = await checkStockAvailabilityV2(cartData);
-    if (!stockCheck.success) {
-      return { success: false, message: stockCheck.message };
-    }
-  }
+  // if (SHOULD_MAINTAIN_STOCK) {
+  //   const stockCheck = await checkStockAvailabilityV2(cartData);
+  //   if (!stockCheck.success) {
+  //     return { success: false, message: stockCheck.message };
+  //   }
+  // }
 
   // =====================================================
   // 2️⃣ TAX CALCULATION (SERVER = SOURCE OF TRUTH)
@@ -188,22 +188,61 @@ const orderSerialNo = await getNextWebOrderSerial(
 const new_srno = `WEB-${financialYear}-${orderSerialNo}`;
 
 
-// =====================================================
-// 7️⃣ ORDER / PAYMENT STATUS
-// =====================================================
 
-const paymentStatus =
-  paymentType === "COD"
-    ? "PAID"
-    : "NEW";
 
 
 // =====================================================
 // 8️⃣ ORDER MASTER DATA
 // =====================================================
 
- 
+const normalizedPaymentType =
+  paymentType?.toLowerCase();
 
+  const allowedPaymentTypes = [
+  "cash",
+  "cod",
+  "stripe",
+  "paypal",
+];
+
+if (
+  !normalizedPaymentType ||
+  !allowedPaymentTypes.includes(
+    normalizedPaymentType
+  )
+) {
+  return {
+    success: false,
+    message: "Invalid payment type.",
+  };
+}
+
+const isCashPayment =
+  normalizedPaymentType === "cash" ||
+  normalizedPaymentType === "cod";
+
+const paymentMode =
+  isCashPayment
+    ? "CASH"
+    : "ONLINE";
+
+const paymentProvider =
+  isCashPayment
+    ? "CASH"
+    : normalizedPaymentType === "stripe"
+      ? "STRIPE"
+      : normalizedPaymentType === "paypal"
+        ? "PAYPAL"
+        : "";
+
+const paymentMethod =
+  isCashPayment
+    ? "CASH"
+    : normalizedPaymentType === "stripe"
+      ? "CARD"
+      : normalizedPaymentType === "paypal"
+        ? "PAYPAL"
+        : "";
 
 const orderMasterData: orderMasterDataT = {
   // =====================================================
@@ -217,21 +256,21 @@ const orderMasterData: orderMasterDataT = {
   email,
 
   customerPhone: customerPhone || "",
-  customerCountryCode: "+91", //  default
+  customerCountryCode: "", //  default
 
   addressId,
 
   // ---------- Delivery Address Snapshot (FLAT) ----------
   dAddressLine1: deliveryAddressLine1 || "",
   dAddressLine2: deliveryAddressLine2 || "",
-  dCity: deliveryCity || "Jalandhar",
-  dState: deliveryState || "Punjab",
+  dCity: deliveryCity || "",
+  dState: deliveryState || "",
   dZipcode: deliveryZipcode || "",
   dLandmark: "", //  optional default
 
   tableNo,
-  orderType,
-  paymentMode:"CASH",
+orderType,
+paymentMode,
 
   ownerId: "temp_OW_ID",     // 🔑 Restaurant owner
   outletId: "temp_Oulet_ID", // 🔑 Outlet / Branch
@@ -266,9 +305,26 @@ const orderMasterData: orderMasterDataT = {
   // =====================================================
   // PAYMENT (DEFAULTS ADDED)
   // =====================================================
-  paymentStatus: "PAID",
-  paymentProvider: "CASH", //  safe default (STRIPE / PAYPAL later)
-  paymentMethod: "CASH",   //  VISA / GPAY later
+  
+
+paymentProvider,
+
+paymentMethod,
+
+paymentStatus:
+  isCashPayment
+    ? "PAID"
+    : "NEW",
+
+paidAmount:
+  isCashPayment
+    ? totals.grandTotal
+    : 0,
+
+dueAmount:
+  isCashPayment
+    ? 0
+    : totals.grandTotal,
 
   // =====================================================
   // ORDER STATE

@@ -248,7 +248,7 @@ function TableRows({
           TABLE
           ================================================= */}
 
-      <TableCell className="py-4">
+      {/* <TableCell className="py-4">
 
         {order.tableNo ? (
           <span className="
@@ -272,36 +272,36 @@ function TableRows({
           </span>
         )}
 
-      </TableCell>
-
-      {/* =================================================
-          STATUS
-          ================================================= */}
-      {/* 
-      <TableCell className="py-4">
-
-        <span
-          className={`
-            inline-flex
-            items-center
-            rounded-full
-            px-2.5
-            py-1
-            text-[10px]
-            font-bold
-            uppercase
-            tracking-wide
-            ring-1
-            ring-inset
-            ${statusStyle}
-          `}
-        >
-          <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
-
-          {status}
-        </span>
-
       </TableCell> */}
+
+{/* =================================================
+    ORDER STATUS
+    ================================================= */}
+
+<TableCell className="py-4">
+
+  <span
+    className={`
+      inline-flex
+      items-center
+      rounded-full
+      px-2.5
+      py-1
+      text-[10px]
+      font-bold
+      uppercase
+      tracking-wide
+      ring-1
+      ring-inset
+      ${statusStyle}
+    `}
+  >
+    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
+
+    {status}
+  </span>
+
+</TableCell>
 
       {/* =================================================
           TOTAL
@@ -321,6 +321,33 @@ function TableRows({
 
       </TableCell>
 
+      <TableCell className="py-4">
+
+  <span
+    className={`
+      inline-flex
+      items-center
+      rounded-full
+      px-2.5
+      py-1
+      text-[10px]
+      font-bold
+      uppercase
+      tracking-wide
+      ring-1
+      ring-inset
+      ${statusStyle}
+    `}
+  >
+    <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-current" />
+
+    {order.paymentStatus}
+  </span>
+
+</TableCell>
+
+
+
       {/* =================================================
           PAYMENT
           ================================================= */}
@@ -339,7 +366,7 @@ function TableRows({
             ${paymentStyle}
           `}
         >
-          {payment}
+          {order.paymentProvider}
         </span>
 
       </TableCell>

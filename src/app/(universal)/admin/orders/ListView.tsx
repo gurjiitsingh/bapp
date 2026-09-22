@@ -275,21 +275,25 @@ const ListView = ({
                   Type
                 </TableHead>
 
-                <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Table
-                </TableHead>
-
                 {/* <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Status
+                  Table
                 </TableHead> */}
+
+                <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                 Order Status
+                </TableHead>
 
                 <TableHead className="h-12 text-right text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Total
                 </TableHead>
 
-                <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Payment
-                </TableHead>
+              <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+  Payment Status
+</TableHead>
+
+<TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+  Payment Mode
+</TableHead>
 
                 <TableHead className="h-12 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Discount

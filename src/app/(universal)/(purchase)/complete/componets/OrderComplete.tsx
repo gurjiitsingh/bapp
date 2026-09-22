@@ -76,21 +76,7 @@ export default function OrderComplete() {
     }
   }
 
-  // useEffect(() => {
-  //   createOrder();
-  //   if (PaymentType === 'paypal' && Paymentstatus === 'success') {
-  //     updateOrderStatus('COMPLETED');
-  //   }
-  //   if (PaymentType === 'paypal' && Paymentstatus === 'fail') {
-  //     updateOrderStatus('Payment failed');
-  //   }
-  //   if (PaymentType === 'stripe' && Paymentstatus === 'success') {
-  //     updateOrderStatus('COMPLETED');
-  //   }
-  //   if (PaymentType === 'stripe' && Paymentstatus === 'fail') {
-  //     updateOrderStatus('Payment failed');
-  //   }
-  // }, []);
+
 
   useEffect(() => {
     async function finalizeOrder() {
@@ -108,9 +94,11 @@ export default function OrderComplete() {
         await updateOrderStatus("COMPLETED");
         if (MAINTAIN_STOCK) await decreaseProductStockFromOrder(id);
       }
+
       if (PaymentType === "stripe" && Paymentstatus === "fail") {
         await updateOrderStatus("Payment failed");
       }
+
 
       // COD / Cash
       if (PaymentType === "cod" || PaymentType === "Barzahlung") {
