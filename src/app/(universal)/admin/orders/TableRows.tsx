@@ -29,6 +29,8 @@ function TableRows({
   order: orderMasterDataT;
 }) {
 
+  console.log("order-------------------",order)
+
   const { TEXT } = useLanguage();
   const { settings } = UseSiteContext();
 
@@ -43,6 +45,11 @@ function TableRows({
     settings.currency as string,
     settings.locale as string
   );
+
+  const data = formatDateTimeStamp(
+            order.createdAt as Timestamp,
+            String(settings.locale)
+          )
 
   async function handleDelete(id: string) {
 
@@ -77,16 +84,16 @@ function TableRows({
     status === "NEW"
       ? "bg-amber-50 text-amber-700 ring-amber-600/20"
       : status === "ACCEPTED"
-      ? "bg-blue-50 text-blue-700 ring-blue-600/20"
-      : status === "PREPARING"
-      ? "bg-violet-50 text-violet-700 ring-violet-600/20"
-      : status === "READY"
-      ? "bg-cyan-50 text-cyan-700 ring-cyan-600/20"
-      : status === "COMPLETED"
-      ? "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
-      : status === "CANCELLED"
-      ? "bg-red-50 text-red-700 ring-red-600/20"
-      : "bg-slate-100 text-slate-600 ring-slate-500/20";
+        ? "bg-blue-50 text-blue-700 ring-blue-600/20"
+        : status === "PREPARING"
+          ? "bg-violet-50 text-violet-700 ring-violet-600/20"
+          : status === "READY"
+            ? "bg-cyan-50 text-cyan-700 ring-cyan-600/20"
+            : status === "COMPLETED"
+              ? "bg-emerald-50 text-emerald-700 ring-emerald-600/20"
+              : status === "CANCELLED"
+                ? "bg-red-50 text-red-700 ring-red-600/20"
+                : "bg-slate-100 text-slate-600 ring-slate-500/20";
 
   // -----------------------------------------------------
   // Payment
@@ -99,12 +106,12 @@ function TableRows({
     payment === "CASH"
       ? "bg-emerald-50 text-emerald-700"
       : payment === "CARD"
-      ? "bg-blue-50 text-blue-700"
-      : payment === "UPI"
-      ? "bg-violet-50 text-violet-700"
-      : payment === "CREDIT"
-      ? "bg-orange-50 text-orange-700"
-      : "bg-slate-100 text-slate-600";
+        ? "bg-blue-50 text-blue-700"
+        : payment === "UPI"
+          ? "bg-violet-50 text-violet-700"
+          : payment === "CREDIT"
+            ? "bg-orange-50 text-orange-700"
+            : "bg-slate-100 text-slate-600";
 
   return (
     <TableRow
@@ -270,7 +277,7 @@ function TableRows({
       {/* =================================================
           STATUS
           ================================================= */}
-{/* 
+      {/* 
       <TableCell className="py-4">
 
         <span
@@ -344,7 +351,7 @@ function TableRows({
       <TableCell className="py-4">
 
         {order.discountTotal ||
-        order.couponFlat ? (
+          order.couponFlat ? (
           <div>
 
             {order.discountTotal ? (
@@ -417,28 +424,48 @@ function TableRows({
 
           {/* VIEW */}
 
-              <Link
-         href={`/admin/orders/order-detail/${order.id}`}
+          <Link
+            href={{
+              pathname: `/admin/orders/order-detail/${order.id}`,
+              query: {
+              srno: order.srno,
 
+    createdAt: data,
+
+    subTotal: String(order.subTotal),
+    taxTotal: String(order.taxTotal),
+    discountTotal: String(order.discountTotal),
+    deliveryFee: String(order.deliveryFee),
+    grandTotal: String(order.grandTotal),
+
+    paymentMode: order.paymentMode,
+    paymentStatus: order.paymentStatus,
+    orderStatus: order.orderStatus,
+
+    email: order.email,
+    notes: order.notes,
+
+    addressId: order.addressId,
+              },
+            }}
             className="
-              inline-flex
-              items-center
-              gap-1.5
-              rounded-lg
-              bg-slate-900
-              px-3
-              py-2
-              text-xs
-              font-semibold
-              text-white
-              shadow-sm
-              transition
-              hover:bg-indigo-600
-              active:scale-[0.97]
-            "
+    inline-flex
+    items-center
+    gap-1.5
+    rounded-lg
+    bg-slate-900
+    px-3
+    py-2
+    text-xs
+    font-semibold
+    text-white
+    shadow-sm
+    transition
+    hover:bg-indigo-600
+    active:scale-[0.97]
+  "
           >
             <Eye className="h-3.5 w-3.5" />
-
             View
           </Link>
 

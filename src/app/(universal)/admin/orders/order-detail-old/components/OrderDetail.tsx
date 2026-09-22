@@ -64,7 +64,7 @@ if (addressId === "POS_ORDER" || addressId === "" ||  addressId === null  || add
     city: "-",
     state: "-",
     zipCode: "-"
-  };
+  }; 
 } else {
    addressRes = await searchAddressByAddressId(addressId);
  }
