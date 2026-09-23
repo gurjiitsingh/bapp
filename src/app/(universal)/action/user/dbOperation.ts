@@ -86,7 +86,7 @@ export async function addUserDirectPrimaryMOB(
     console.error("Mobile number is required");
     return undefined;
   }
- console.log("user data----",email,password,firstName,lastName,mobNo)
+ console.log("INSERT: addUserDirectPrimaryMOB----",email,password,firstName,lastName,mobNo)
   // 🔍 1️⃣ Search existing user by mobile
   const existing = await adminDb
     .collection("users")

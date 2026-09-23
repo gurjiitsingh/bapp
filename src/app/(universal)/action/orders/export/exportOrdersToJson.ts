@@ -772,7 +772,7 @@ export async function exportOrdersToJson({
               uses "price", not "basePrice".
             */
 
-            price:
+            basePrice:
               raw.price != null
                 ? Number(
                     raw.price
@@ -888,21 +888,21 @@ export async function exportOrdersToJson({
                OrderProductT contains them.
             ---------------------------------------------- */
 
-            createdAt:
-              timestampToISOString(
-                raw.createdAt
-              ) ?? null,
+            // createdAt:
+            //   timestampToISOString(
+            //     raw.createdAt
+            //   ) ?? null,
 
-            orderDate:
-              timestampToISOString(
-                raw.orderDate
-              ) ??
-              (
-                typeof raw.orderDate ===
-                "string"
-                  ? raw.orderDate
-                  : null
-              ),
+            // orderDate:
+            //   timestampToISOString(
+            //     raw.orderDate
+            //   ) ??
+            //   (
+            //     typeof raw.orderDate ===
+            //     "string"
+            //       ? raw.orderDate
+            //       : null
+            //   ),
           };
 
         orderItems.push(

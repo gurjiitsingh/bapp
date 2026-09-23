@@ -64,6 +64,7 @@ export async function editCustomerAddress(formData: FormData) {
 
 //  Search address by email
 export async function searchAddressEmail(email: string): Promise<addressResType | null> {
+  console.log("INSIDE : searchAddressEmail ------------------", email)
 if (!email) return null;
 
 const value = email.trim();
@@ -78,7 +79,7 @@ const value = email.trim();
 
   const doc = querySnapshot.docs[0];
   const docData = doc.data();
-
+console.log("data---------------------",docData)
   return {
     id: doc.id,
     addressLine1: docData.addressLine1 || '',
@@ -92,6 +93,37 @@ const value = email.trim();
     mobNo: docData.mobNo || '',
     userId: docData.userId || '',
     createdAt: docData.createdAt?.toDate().toISOString() || '',
+  };
+}
+
+export async function searchAddressByMob(
+  mobNo: string
+): Promise<addressResType | null> {
+
+  const querySnapshot = await adminDb
+    .collection("address")
+    .where("mobNo", "==", mobNo)
+    .limit(1)
+    .get();
+
+  if (querySnapshot.empty) return null;
+
+  const doc = querySnapshot.docs[0];
+  const docData = doc.data();
+
+  return {
+    id: doc.id,
+    addressLine1: docData.addressLine1 || "",
+    addressLine2: docData.addressLine2 || "",
+    city: docData.city || "",
+    state: docData.state || "",
+    zipCode: docData.zipCode || "",
+    email: docData.email || "",
+    firstName: docData.firstName || "",
+    lastName: docData.lastName || "",
+    mobNo: docData.mobNo || "",
+    userId: docData.userId || "",
+    createdAt: docData.createdAt?.toDate().toISOString() || "",
   };
 }
 

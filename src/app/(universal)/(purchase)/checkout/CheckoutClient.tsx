@@ -82,7 +82,7 @@ const CheckoutClient = ({ weeklySchedule }: Props) => {
               </>
             )}
 
-            <AddressWrapper country="IN" />
+            <AddressWrapper country="ALL" />
             <PaymentSelector />
           </div>
 

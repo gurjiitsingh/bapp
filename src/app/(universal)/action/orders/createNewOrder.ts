@@ -32,7 +32,7 @@ import {   getFinancialYearCode, getNextWebOrderSerial } from "./getNextWebOrder
 
 export async function createNewOrder(purchaseData: orderDataType) {
 
-  console.log("addreas full oredr masrer---------------",purchaseData)
+  //console.log("createNewOrder: Start of order master ---------------",purchaseData)
   const {
     // -----------------------------
     // BASIC

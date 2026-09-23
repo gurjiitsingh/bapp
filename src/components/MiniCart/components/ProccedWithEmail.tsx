@@ -8,7 +8,11 @@ import {
   TCustomerLookup,
 } from "@/lib/types/addressType";
 import { IoClose } from "react-icons/io5";
-import { FiMail, FiArrowRight } from "react-icons/fi";
+import {
+  FiUser,
+  FiArrowRight,
+  FiShield,
+} from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
@@ -33,14 +37,113 @@ const ProccedWithEmail = () => {
     },
   });
 
-  async function onSubmit(data: TCustomerLookup) {
-    const identifier = data.identifier.trim();
+  /*
+   * ---------------------------------------------------------
+   * Detect email
+   * ---------------------------------------------------------
+   */
+  function isEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      value.trim()
+    );
+  }
 
+  /*
+   * ---------------------------------------------------------
+   * Normalize Indian mobile number
+   * ---------------------------------------------------------
+   *
+   * Examples:
+   *
+   * 9876543210
+   * +919876543210
+   * +91 9876543210
+   * +91-9876543210
+   *
+   * all become:
+   *
+   * 9876543210
+   * ---------------------------------------------------------
+   */
+  function normalizeMobile(value: string): string {
+    return value
+      .replace(/\D/g, "")
+      .replace(/^0+/, "")
+      .replace(/^91/, "");
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * Normalize identifier before storing it in context
+   * ---------------------------------------------------------
+   *
+   * Email:
+   *     Customer@Gmail.com
+   *
+   * becomes:
+   *     Customer@Gmail.com
+   *
+   * Phone:
+   *     +91 98765 43210
+   *
+   * becomes:
+   *     9876543210
+   * ---------------------------------------------------------
+   */
+  function normalizeIdentifier(value: string): string {
+    const trimmed = value.trim();
+
+    if (isEmail(trimmed)) {
+      return trimmed;
+    }
+
+    return normalizeMobile(trimmed);
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * Submit
+   * ---------------------------------------------------------
+   */
+  async function onSubmit(data: TCustomerLookup) {
+    const identifier = normalizeIdentifier(
+      data.identifier
+    );
+
+    if (!identifier) {
+      return;
+    }
+
+    /*
+     * customerEmailG is currently used as the shared
+     * customer identifier.
+     *
+     * It can contain:
+     *
+     *     email
+     *
+     * OR
+     *
+     *     mobile number
+     *
+     * The checkout Address component will determine
+     * which database lookup should be performed.
+     */
     setCustomerAddressIsComplete(false);
-    emailFormToggle(false);
+
+    console.log("customer email set-----------------", identifier)
+
     setCustomerEmailG(identifier);
 
-    router.push(`/checkout`);
+    /*
+     * Close identifier modal.
+     */
+    emailFormToggle(false);
+
+    /*
+     * Continue to checkout.
+     */
+    router.push("/checkout");
   }
 
   return (
@@ -89,6 +192,20 @@ const ProccedWithEmail = () => {
           "
         />
 
+        <div
+          className="
+            pointer-events-none
+            absolute
+            -bottom-24
+            -left-20
+            h-40
+            w-40
+            rounded-full
+            bg-[#F59E45]/5
+            blur-3xl
+          "
+        />
+
         {/* =====================================================
             Header
         ===================================================== */}
@@ -107,8 +224,6 @@ const ProccedWithEmail = () => {
           "
         >
           <div className="flex items-start gap-3">
-            {/* Icon */}
-
             <div
               className="
                 flex
@@ -124,7 +239,10 @@ const ProccedWithEmail = () => {
                 shadow-orange-200/50
               "
             >
-              <FiMail size={19} strokeWidth={2} />
+              <FiUser
+                size={19}
+                strokeWidth={2}
+              />
             </div>
 
             <div>
@@ -142,18 +260,19 @@ const ProccedWithEmail = () => {
               <p
                 className="
                   mt-1
-                  max-w-[240px]
+                  max-w-[250px]
                   text-sm
                   leading-5
                   text-[#8C7D73]
                 "
               >
-                Enter your email or mobile number to continue.
+                Enter your email or mobile number to
+                continue.
               </p>
             </div>
           </div>
 
-          {/* Close */}
+          {/* Close button */}
 
           <button
             type="button"
@@ -188,9 +307,16 @@ const ProccedWithEmail = () => {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="relative px-6 pb-6 pt-6"
+          className="
+            relative
+            px-6
+            pb-6
+            pt-6
+          "
         >
-          {/* Field */}
+          {/* ===================================================
+              Identifier
+          =================================================== */}
 
           <div className="flex flex-col gap-2.5">
             <label
@@ -205,6 +331,8 @@ const ProccedWithEmail = () => {
             </label>
 
             <div className="relative">
+              {/* Icon */}
+
               <div
                 className="
                   pointer-events-none
@@ -217,14 +345,21 @@ const ProccedWithEmail = () => {
                   text-[#A38F82]
                 "
               >
-                <FiMail size={18} />
+                <FiUser
+                  size={18}
+                  strokeWidth={1.8}
+                />
               </div>
 
               <input
                 id="identifier"
+                type="text"
+                inputMode="text"
+                autoComplete="email"
                 {...register("identifier")}
                 placeholder="9876543210 or abc@gmail.com"
                 autoFocus
+                disabled={isSubmitting}
                 className="
                   h-13
                   w-full
@@ -244,9 +379,13 @@ const ProccedWithEmail = () => {
                   focus:border-[#F59E45]
                   focus:ring-4
                   focus:ring-[#F59E45]/10
+                  disabled:cursor-not-allowed
+                  disabled:bg-[#F8F2EC]
                 "
               />
             </div>
+
+            {/* Validation error */}
 
             {errors.identifier?.message && (
               <span
@@ -261,7 +400,9 @@ const ProccedWithEmail = () => {
             )}
           </div>
 
-          {/* Continue button */}
+          {/* ===================================================
+              Continue button
+          =================================================== */}
 
           <Button
             type="submit"
@@ -291,7 +432,7 @@ const ProccedWithEmail = () => {
           >
             <span>
               {isSubmitting
-                ? "Looking up customer..."
+                ? "Continuing..."
                 : "Continue"}
             </span>
 
@@ -316,11 +457,16 @@ const ProccedWithEmail = () => {
             )}
           </Button>
 
-          {/* Information */}
+          {/* ===================================================
+              Privacy / autofill information
+          =================================================== */}
 
           <div
             className="
               mt-5
+              flex
+              items-start
+              gap-3
               rounded-2xl
               border
               border-[#F0E1D3]
@@ -329,16 +475,36 @@ const ProccedWithEmail = () => {
               py-3.5
             "
           >
+            <div
+              className="
+                mt-0.5
+                flex
+                h-7
+                w-7
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-[#F59E45]/15
+                text-[#C76A20]
+              "
+            >
+              <FiShield
+                size={14}
+                strokeWidth={2}
+              />
+            </div>
+
             <p
               className="
-                text-center
                 text-xs
                 leading-5
                 text-[#806F64]
               "
             >
-              Returning customers will have their address and
-              contact details filled automatically.
+              Returning customers can have their saved
+              address and contact details filled
+              automatically.
             </p>
           </div>
         </form>
@@ -348,3 +514,4 @@ const ProccedWithEmail = () => {
 };
 
 export default ProccedWithEmail;
+ 

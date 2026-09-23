@@ -3,10 +3,11 @@
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { FaSave } from "react-icons/fa";
-import { updateProductField } from "@/app/(universal)/action/products/dbOperation";
+ 
 import { ProductType } from "@/lib/types/productType";
 import { useState } from "react";
 import { categoryType } from "@/lib/types/categoryType";
+import { updateProductField } from "@/app/(universal)/action/products/updateProductField";
 
 export default function TableRows({
   product,
