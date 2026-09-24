@@ -1,4 +1,5 @@
 import { cartModifierItem } from "../cartDataType";
+import { Timestamp } from "firebase/firestore";
 
 export type OrderExportProductT = {
   id?: string;
@@ -40,4 +41,8 @@ export type OrderExportProductT = {
   modifiers?: cartModifierItem[];
 
   note?: string;
+
+createdAt?: string | null;
+  orderDate?: string;
+  orderMonth?: string;
 };

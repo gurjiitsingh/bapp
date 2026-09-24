@@ -888,21 +888,18 @@ export async function exportOrdersToJson({
                OrderProductT contains them.
             ---------------------------------------------- */
 
-            // createdAt:
-            //   timestampToISOString(
-            //     raw.createdAt
-            //   ) ?? null,
+           createdAt:
+  timestampToISOString(raw.createdAt) ?? null,
 
-            // orderDate:
-            //   timestampToISOString(
-            //     raw.orderDate
-            //   ) ??
-            //   (
-            //     typeof raw.orderDate ===
-            //     "string"
-            //       ? raw.orderDate
-            //       : null
-            //   ),
+orderDate:
+  typeof raw.orderDate === "string"
+    ? raw.orderDate
+    : undefined,
+
+orderMonth:
+  typeof raw.orderMonth === "string"
+    ? raw.orderMonth
+    : undefined,
           };
 
         orderItems.push(
