@@ -208,28 +208,28 @@ export default function LoadVehicleFormOeprator({
         locationCode:
           selectedVehicle.locationCode,
 
-// ==========================
-// SALESMAN
-// ==========================
+        // ==========================
+        // SALESMAN
+        // ==========================
 
-salesmanId:
-  selectedRoute.salesmanId || "",
+        salesmanId:
+          selectedRoute.salesmanId || "",
 
-salesmanName:
-  selectedRoute.salesmanName || "",
+        salesmanName:
+          selectedRoute.salesmanName || "",
 
-// ==========================
-// LEGACY DRIVER FIELDS
-// ==========================
+        // ==========================
+        // LEGACY DRIVER FIELDS
+        // ==========================
 
-driverId:
-  selectedRoute.salesmanId || "",
+        driverId:
+          selectedRoute.salesmanId || "",
 
-driverName:
-  selectedRoute.salesmanName || "",
+        driverName:
+          selectedRoute.salesmanName || "",
 
-responsiblePerson:
-  selectedRoute.salesmanName || "",
+        responsiblePerson:
+          selectedRoute.salesmanName || "",
 
         // ==========================
         // OTHER
@@ -310,23 +310,23 @@ responsiblePerson:
 
       await fetchVanStock(data.vehicleId);
 
-    
-form.reset({
-  routeId: data.routeId,
 
-  vehicleId: data.vehicleId,
+      form.reset({
+        routeId: data.routeId,
 
-  salesmanId:
-    selectedRoute?.salesmanId || "",
+        vehicleId: data.vehicleId,
 
-  remarks: "",
+        salesmanId:
+          selectedRoute?.salesmanId || "",
 
-  items: factoryData.map((item) => ({
-    productId: item.productId,
-    quantity: 0,
-    wholesalePrice: item.wholesalePrice,
-  })),
-});
+        remarks: "",
+
+        items: factoryData.map((item) => ({
+          productId: item.productId,
+          quantity: 0,
+          wholesalePrice: item.wholesalePrice,
+        })),
+      });
 
     } catch (error) {
       console.error("Load vehicle error:", error);
@@ -378,21 +378,22 @@ form.reset({
                         <SelectValue placeholder="Select route" />
                       </SelectTrigger>
 
-                      <SelectContent>
-
+                      <SelectContent className="bg-white border border-gray-300">
                         {routes.map((route) => (
                           <SelectItem
                             key={route.id}
                             value={route.id}
+                            className="bg-white focus:bg-gray-100"
                           >
                             {route.routeName}
                           </SelectItem>
                         ))}
-
                       </SelectContent>
                     </Select>
                   )}
                 />
+
+
 
               </div>
 
@@ -442,12 +443,12 @@ form.reset({
                   Salesman
                 </label>
 
-            <Input
-  value={selectedRoute?.salesmanName || ""}
-  placeholder="Auto Selected"
-  disabled
-  className="h-10 w-48 bg-gray-100 text-sm"
-/>
+                <Input
+                  value={selectedRoute?.salesmanName || ""}
+                  placeholder="Auto Selected"
+                  disabled
+                  className="h-10 w-48 bg-gray-100 text-sm"
+                />
 
               </div>
 

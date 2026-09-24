@@ -105,21 +105,59 @@ const Page = () => {
     formData.append("searchCode", data.searchCode || "");
    
 
-         if (data.image?.[0]) {
-            const compressedFile =
-              await imageCompression(data.image[0], {
-              maxWidthOrHeight: Number(
-  process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_SIZE || 500
-),
-                 maxSizeMB: 0.2,
-  initialQuality: 0.8,
-  useWebWorker: true,
-              });
-    
-            formData.append("image", compressedFile);
-          } else {
-            formData.append("image", "0");
-          }
+if (data.image?.[0]) {
+  const imageFile = data.image[0];
+
+  const maxImageSize = Number(
+    process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_SIZE || 500
+  );
+
+  const maxPixMbSize = Number(
+    process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_PIXMB || 0.2
+  );
+
+  const imageDimensions = await new Promise<{
+    width: number;
+    height: number;
+  }>((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => {
+      resolve({
+        width: img.width,
+        height: img.height,
+      });
+    };
+
+    img.onerror = reject;
+
+    img.src = URL.createObjectURL(imageFile);
+  });
+
+  const { width, height } = imageDimensions;
+
+  // File size in MB
+  const fileSizeMB = imageFile.size / (1024 * 1024);
+
+  let finalImage = imageFile;
+
+  // Resize/compress if dimensions OR file size exceeds limits
+  if (
+    width > maxImageSize ||
+    height > maxImageSize ||
+    fileSizeMB > maxPixMbSize
+  ) {
+    finalImage = await imageCompression(imageFile, {
+      maxWidthOrHeight: maxImageSize,
+      maxSizeMB: maxPixMbSize,
+      useWebWorker: true,
+    });
+  }
+
+  formData.append("image", finalImage);
+} else {
+  formData.append("image", "0");
+}
 
 
 

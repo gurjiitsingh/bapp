@@ -549,9 +549,11 @@ export default function TruckDeliverySale({
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
 
-                      <SelectContent>
+                      <SelectContent className="bg-white border border-gray-300">
                         {vehicles.map((v) => (
-                          <SelectItem key={v.id} value={v.id}>
+                          <SelectItem key={v.id} value={v.id}
+                           className="bg-white focus:bg-gray-100"
+                          >
                             {v.name}
                           </SelectItem>
                         ))}
@@ -574,7 +576,7 @@ export default function TruckDeliverySale({
 
               {/* Customer */}
               <div className="relative w-56">
-
+  <label className="text-xs text-gray-500">Customer</label>
                 {/* INPUT */}
                 <div className="relative">
                   <Search
