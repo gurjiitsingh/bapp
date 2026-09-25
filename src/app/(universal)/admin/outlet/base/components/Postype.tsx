@@ -1,6 +1,7 @@
 "use client";
 
-import { updatePosType } from "@/app/(universal)/action/outlet/dbOperation";
+ 
+import { updatePosType } from "@/app/(universal)/action/outlet/updatePosType";
 import { useState } from "react";
 
 type Props = {
