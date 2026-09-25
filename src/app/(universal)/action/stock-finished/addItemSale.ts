@@ -51,7 +51,7 @@ type AdjustSaleStock = {
     | "SALE";
 };
 
-export async function addItemSale({
+export async function addItemSale({ 
   id,
   wholeSaleCutomerId,
   wholeSaleCutomerName,
