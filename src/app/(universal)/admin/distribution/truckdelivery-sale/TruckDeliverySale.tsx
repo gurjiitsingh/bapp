@@ -32,6 +32,7 @@ import { saveDeiveryTruckSale } from "@/app/(universal)/action/distribution/sale
 
 
 type TruckDeliverySaleType = {
+  saleDate: string;
   vehicleId: string;
   vehicleName: string;
   wholeSaleCutomerId?: string;
@@ -104,10 +105,15 @@ export default function TruckDeliverySale({
 
   const [customerSearch, setCustomerSearch] = useState("");
 
-
+const getTodayDate = () => {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+  }).format(new Date());
+};
 
   const form = useForm<TruckDeliverySaleType>({
     defaultValues: {
+       saleDate: getTodayDate(),
       vehicleId: "",
       remarks: "",
 
@@ -278,6 +284,11 @@ export default function TruckDeliverySale({
         return;
       }
 
+      if (!data.saleDate) {
+  toast.error("Please select sale date.");
+  return;
+}
+
       if (!selectedVehicle?.name) {
         toast.error('Selected vehicle not found.');
         return;
@@ -308,6 +319,7 @@ export default function TruckDeliverySale({
       // }
 
       const result = await saveDeiveryTruckSale({
+        saleDate: data.saleDate,
         vehicleId: data.vehicleId,
         vehicleName: selectedVehicle.name,
         locationCode: selectedVehicle.locationCode,
@@ -344,169 +356,7 @@ export default function TruckDeliverySale({
     }
   };
 
-  //   const onSubmit = async (
-  //     data: TruckDeliverySaleType
-  //   ) => {
-  //     const items = data.items.filter(
-  //       (x) => x.quantity > 0
-  //     );
-
-
-  //     if (!data.vehicleId) {
-  //       toast.error("Please select a vehicle.");
-  //       return;
-  //     }
-
-  //     if (!selectedVehicle?.name) {
-  //       toast.error("Selected vehicle not found.");
-  //       return;
-  //     }
-
-  //     if (
-  //       !data.wholeSaleCutomerId ||
-  //       !data.wholeSaleCutomerName
-  //     ) {
-  //       toast.error("Please select a wholesale customer.");
-  //       return;
-  //     }
-
-  //     if (!items.length) {
-  //       toast.error(
-  //         "Please enter at least one quantity."
-  //       );
-  //       return;
-  //     }
-
-  //     if (data.paidAmount > data.totalAmount) {
-
-  //       toast.error(
-  //         "Paid amount cannot be greater than total amount."
-  //       );
-
-  //       return;
-
-  //     }
-
-  //     const result = await deiveryTruckSale({
-
-  //       vehicleId: data.vehicleId,
-
-  //       vehicleName: selectedVehicle!.name,
-
-  //       locationCode: selectedVehicle!.locationCode,
-
-  //       responsiblePerson:
-  //         selectedVehicle!.responsiblePersonName,
-
-
-  //       wholeSaleCutomerId:
-  //         data.wholeSaleCutomerId!,
-
-
-  //       wholeSaleCutomerName:
-  //         data.wholeSaleCutomerName!,
-
-
-  //       totalAmount: Number(data.totalAmount),
-
-  //       paidAmount: Number(data.paidAmount),
-
-  //       dueAmount: Number(data.dueAmount),
-
-  //       paymentStatus: data.paymentStatus,
-
-
-
-  //       remarks: data.remarks,
-
-
-  //       items,
-
-  //     });
-
-
-
-  //     if (!result.success) {
-  //       toast.error(result.message);
-  //       return;
-  //     }
-
-  //     // ==========================
-  //     // Update Factory Stock
-  //     // ==========================
-
-  //     setFactoryData((prev) =>
-  //       prev.map((stock) => {
-  //         const unloaded = items.find(
-  //           (i) => i.productId === stock.productId
-  //         );
-
-  //         if (!unloaded) return stock;
-
-  //         return {
-  //           ...stock,
-  //           quantity:
-  //             stock.quantity + unloaded.quantity,
-  //         };
-  //       })
-  //     );
-
-  //     // ==========================
-  //     // Update Vehicle Stock
-  //     // ==========================
-
-  //     setVanStock((prev) =>
-  //       prev
-  //         .map((stock) => {
-  //           const unloaded = items.find(
-  //             (i) => i.productId === stock.productId
-  //           );
-
-  //           if (!unloaded) return stock;
-
-  //           return {
-  //             ...stock,
-  //             quantity:
-  //               stock.quantity - unloaded.quantity,
-  //           };
-  //         })
-  //         .filter((x) => x.quantity > 0)
-  //     );
-
-  //     toast.success(result.message);
-
-  //     await fetchVanStock(data.vehicleId);
-
-
-
-  //     form.reset({
-
-  //       vehicleId: data.vehicleId,
-
-  //       wholeSaleCutomerId: "",
-
-  //       wholeSaleCutomerName: "",
-
-  //       remarks: "",
-
-  //       paymentStatus: "PAID",
-
-  //       totalAmount: 0,
-
-  //       paidAmount: 0,
-
-  //       dueAmount: 0,
-
-
-  //    items: vanStock.map((item) => ({
-  //   productId: item.productId,
-  //   quantity: 0,
-  //   wholesalePrice: item.wholesalePrice,
-  // }))
-  //     });
-
-  //     setCustomerSearch("");
-  //   };
+ 
 
 
   return (
@@ -532,6 +382,21 @@ export default function TruckDeliverySale({
 
 
             <div className="flex items-end gap-4 flex-wrap   pb-3">
+
+              {/* Sale Date */}
+<div className="flex flex-col">
+  <label className="text-xs text-gray-500">
+    Sale Date
+  </label>
+
+  <Input
+    type="date"
+    {...form.register("saleDate", {
+      required: "Sale date is required",
+    })}
+    className="h-9 w-40 text-sm"
+  />
+</div>
 
               {/* Vehicle */}
               <div className="flex flex-col">

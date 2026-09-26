@@ -211,7 +211,7 @@ export default function StockMovementReportTable({
   return (
     <div className='space-y-4'>
       {/* Filters */}
-      <div className='rounded-xl border bg-white p-4 shadow-sm'>
+      <div className='rounded-xl border border-slate-100 bg-white p-4 shadow-sm'>
         <div className='grid gap-4 md:grid-cols-6'>
           <div>
             <label className='mb-1 block text-sm font-medium'>
@@ -253,7 +253,7 @@ export default function StockMovementReportTable({
                   e.target.value
                 )
               }
-              className='h-10 w-full rounded-md border border-gray-300 bg-white px-3'
+              className='h-10 w-full rounded-md border   border-gray-300 bg-white px-3'
             >
               {movementTypes.map((t) => (
                 <option
@@ -324,7 +324,7 @@ export default function StockMovementReportTable({
       </div>
 
       {/* Table */}
-      <div className='overflow-hidden rounded-xl border bg-white shadow-sm'>
+      <div className='overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm'>
         <Table>
           <TableHeader className='bg-zinc-100'>
             <TableRow>
@@ -428,7 +428,7 @@ export default function StockMovementReportTable({
         </Table>
 
         {/* Footer */}
-        <div className='flex flex-col gap-2 border-t bg-gray-50 px-4 py-3 text-sm md:flex-row md:items-center md:justify-between'>
+        <div className='flex flex-col gap-2 border-t border-slate-200   bg-gray-50 px-4 py-3 text-sm md:flex-row md:items-center md:justify-between'>
           <span className='text-gray-600'>
             Total Transactions:{' '}
             <span className='font-semibold'>

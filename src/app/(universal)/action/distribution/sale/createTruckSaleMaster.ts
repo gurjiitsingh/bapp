@@ -31,6 +31,7 @@ tripNo: string;
 
   totalItems: number;
   totalQuantity: number;
+  saleDate: string;
 };
 
 export async function createTruckSaleMaster(
@@ -108,7 +109,7 @@ tripNo:data.tripNo,
       data.createdBy || "",
 
     status: "COMPLETED",
-
+saleDate:data.saleDate,
     createdAt:
       admin.firestore.FieldValue.serverTimestamp(),
   });

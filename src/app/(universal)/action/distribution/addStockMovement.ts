@@ -35,6 +35,7 @@ export type AddStockMovementProps = {
   toLocationRef: string;
 
   remarks?: string;
+  saleDate: string;
   createdBy?: string;
 };
 
@@ -64,6 +65,7 @@ export async function addStockMovement({
   toLocationRef,
 
   remarks,
+  saleDate,
   createdBy,
 }: AddStockMovementProps) {
   const ref = adminDb
@@ -117,7 +119,7 @@ export async function addStockMovement({
 
     // New searchable date field
     movementDate,
-
+    saleDate,
     // Keep timestamp for exact time
     createdAt:
       admin.firestore.FieldValue.serverTimestamp(),

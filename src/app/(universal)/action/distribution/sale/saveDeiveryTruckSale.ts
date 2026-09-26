@@ -31,6 +31,7 @@ import { upateFinishedStockAfterSale } from "./upateFinishedStockAfterSale";
 // =====================================================
 
 type DeliveryTruckSaleProps = {
+  saleDate: string;
   vehicleId: string;
   vehicleName: string;
 
@@ -68,6 +69,7 @@ type DeliveryTruckSaleProps = {
 // =====================================================
 
 export async function saveDeiveryTruckSale({
+  saleDate,
   vehicleId,
   vehicleName,
 
@@ -431,6 +433,7 @@ export async function saveDeiveryTruckSale({
           paymentMethod,
 
           remarks,
+          saleDate,
           createdBy,
         }
       );
@@ -531,7 +534,7 @@ export async function saveDeiveryTruckSale({
             wholeSaleCutomerId,
 
           remarks,
-
+saleDate,
           createdBy,
         });
 

@@ -77,14 +77,80 @@ export async function getSaleMovements({
 
     const snapshot = await query.get();
 
-    return snapshot.docs.map((doc) => {
-      const data = doc.data();
+  return snapshot.docs.map((doc) => {
+  const data = doc.data();
 
-      return {
-        id: doc.id,
-        ...data,
-      } as StockMovementType;
-    });
+  return {
+    id: doc.id,
+
+    movementType:
+      data.movementType || "TRANSFER",
+
+    customerId:
+      data.customerId || "",
+
+    customerName:
+      data.customerName || "",
+
+    productId:
+      data.productId || "",
+
+    productName:
+      data.productName || "",
+
+    batchId:
+      data.batchId || "",
+
+    productMode:
+      data.productMode || "finished_stock",
+
+    locationCode:
+      data.locationCode || "",
+
+    responsiblePerson:
+      data.responsiblePerson || "",
+
+    quantity:
+      Number(data.quantity || 0),
+
+    name:
+      data.name || "",
+
+    fromLocationType:
+      data.fromLocationType || "",
+
+    fromLocationRef:
+      data.fromLocationRef || "",
+
+    fromLocationName:
+      data.fromLocationName || "",
+
+    toLocationType:
+      data.toLocationType || "",
+
+    toLocationRef:
+      data.toLocationRef || "",
+
+    toLocationName:
+      data.toLocationName || "",
+
+    remarks:
+      data.remarks || "",
+
+    movementDate:
+      data.movementDate || "",
+
+    createdBy:
+      data.createdBy || "",
+
+    // Firestore Timestamp → plain number
+    createdAt:
+      data.createdAt?.toMillis
+        ? data.createdAt.toMillis()
+        : null,
+
+  } satisfies StockMovementType;
+});
   } catch (error) {
     console.error(
       'Error fetching stock movements:',
