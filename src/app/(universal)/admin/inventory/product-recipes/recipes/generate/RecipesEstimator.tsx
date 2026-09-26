@@ -58,6 +58,8 @@ export default function RecipesEstimator({
   const [recipeResult, setRecipeResult] = useState<
     CalculatedRecipeItem[]
   >([]);
+  const [savedRecipeItems, setSavedRecipeItems] =
+  useState<string[]>([]);
   // --------------------------------------------------
   // PRODUCT SEARCH
   // --------------------------------------------------
@@ -197,9 +199,7 @@ export default function RecipesEstimator({
 
       toast.success("Recipe calculated successfully");
 
-      setRecipeResult(res.recipe);
-
-      toast.success("Recipe calculated successfully");
+     
 
       setItems([]);
       setNote("");
@@ -217,72 +217,77 @@ export default function RecipesEstimator({
   };
 
 
-  const addCalculatedRecipeItem = async (
-    item: CalculatedRecipeItem
-  ) => {
-    if (!selectedProduct) {
-      toast.error("Select a finished product");
+ const addCalculatedRecipeItem = async (
+  item: CalculatedRecipeItem
+) => {
+  if (!selectedProduct) {
+    toast.error("Select a finished product");
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+
+    formData.append(
+      "productId",
+      selectedProduct.id
+    );
+
+    formData.append(
+      "inventoryItemId",
+      item.inventoryItemId
+    );
+
+    formData.append(
+      "quantity",
+      String(
+        item.requiedInvetroyItemAmount
+      )
+    );
+
+    formData.append(
+      "unit",
+      item.consumptionUnit ||
+        item.purchaseUnit ||
+        ""
+    );
+
+    const result =
+      await addProductRecipe(formData);
+
+    if (result?.errors) {
+      const errorMessage =
+        result.errors.duplicate ||
+        result.errors.inventory ||
+        result.errors.product ||
+        result.errors.general ||
+        "Could not save recipe";
+
+      toast.error(errorMessage);
       return;
     }
 
-    try {
-      const formData = new FormData();
+    // Mark this ingredient as saved
+    setSavedRecipeItems((prev) => [
+      ...prev,
+      item.inventoryItemId,
+    ]);
 
-      formData.append(
-        "productId",
-        selectedProduct.id
-      );
+    toast.success(
+      `${item.inventoryItemName} saved to recipe`
+    );
 
-      formData.append(
-        "inventoryItemId",
-        item.inventoryItemId
-      );
+  } catch (error) {
+    console.error(
+      "Save calculated recipe error:",
+      error
+    );
 
-      // IMPORTANT:
-      // Save the calculated PER KG quantity
-      formData.append(
-        "quantity",
-        String(
-          item.requiedInvetroyItemAmount
-        )
-      );
-
-      formData.append(
-        "unit",
-        item.consumptionUnit ||
-        item.purchaseUnit ||
-        ""
-      );
-
-      const result =
-        await addProductRecipe(formData);
-
-      if (result?.errors) {
-        const errorMessage =
-          result.errors.duplicate ||
-          result.errors.inventory ||
-          result.errors.product ||
-          result.errors.general ||
-          "Could not add recipe";
-
-        toast.error(errorMessage);
-        return;
-      }
-
-      toast.success(
-        `${item.inventoryItemName} added to recipe`
-      );
-    } catch (error) {
-      console.error(
-        "Add calculated recipe error:",
-        error
-      );
-
-      toast.error(
-        "Could not add recipe item"
-      );
-    }
-  };
+    toast.error(
+      "Could not save recipe item"
+    );
+  }
+};
 
 
   return (
@@ -400,15 +405,28 @@ export default function RecipesEstimator({
 
         <div>
 
-          <button
-            type="button"
-            onClick={() =>
-              addCalculatedRecipeItem(item)
-            }
-            className="px-4 py-1.5 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
-          >
-            Add
-          </button>
+        <button
+  type="button"
+  disabled={savedRecipeItems.includes(
+    item.inventoryItemId
+  )}
+  onClick={() =>
+    addCalculatedRecipeItem(item)
+  }
+  className={`px-4 py-1.5 rounded-md text-sm ${
+    savedRecipeItems.includes(
+      item.inventoryItemId
+    )
+      ? "bg-green-600 text-white cursor-default"
+      : "bg-blue-600 text-white hover:bg-blue-700"
+  }`}
+>
+  {savedRecipeItems.includes(
+    item.inventoryItemId
+  )
+    ? "Saved"
+    : "Save"}
+</button>
 
         </div>
 
@@ -634,23 +652,23 @@ export default function RecipesEstimator({
 
                 {/* QUANTITY */}
 
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={item.quantity}
-                  placeholder="0"
-                  className="border border-gray-300 rounded-md px-2 py-1.5"
-                  onChange={(e) =>
-                    updateItem(
-                      index,
-                      "quantity",
-                      Number(e.target.value)
-                    )
-                  }
-                />
+           <input
+  type="number"
+  min="0"
+  step="any"
+  value={item.quantity === 0 ? "" : item.quantity}
+  placeholder="0"
+  className="border border-gray-300 rounded-md px-2 py-1.5"
+  onChange={(e) => {
+    const value = e.target.value;
 
-
+    updateItem(
+      index,
+      "quantity",
+      value === "" ? 0 : Number(value)
+    );
+  }}
+/>
                 {/* UNIT */}
 
                 <input

@@ -82,13 +82,22 @@ export default function ListView({
               Search product to view Recipes/components
             </p>
           </div>
+<div className="flex gap-4">
+        
+           <Link
+            href="/admin/inventory/product-recipes/recipes/generate"
+            className="btn-save-4"
+          >
+            Calculate Recipe
+          </Link>
 
-          <Link
+            <Link
             href="/admin/inventory/product-recipes/new/recipes"
             className="btn-save-4"
           >
             Add Recipe
           </Link>
+          </div>
         </div>
 
         {/* SEARCH */}
