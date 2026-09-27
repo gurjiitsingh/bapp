@@ -3,7 +3,11 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { getSchedule, saveDaySchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
+import {
+  getSchedule,
+  saveDaySchedule,
+} from "@/app/(universal)/action/schedule/saveDaySchedule";
+import toast from "react-hot-toast";
 
 type DaySchedule = {
   day: string;
@@ -19,7 +23,6 @@ type ScheduleFormType = {
   schedule: DaySchedule[];
 };
 
-
 const DAY_ORDER = [
   "monday",
   "tuesday",
@@ -31,171 +34,447 @@ const DAY_ORDER = [
 ];
 
 const defaultSchedule: DaySchedule[] = [
-  { day: "monday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "tuesday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "wednesday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "thursday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "friday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "saturday", isOpen: true, fullDay: true, amOpen: "09:00", amClose: "20:00", pmOpen: "", pmClose: "" },
-  { day: "sunday", isOpen: false, fullDay: false, amOpen: "", amClose: "", pmOpen: "", pmClose: "" },
+  {
+    day: "monday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "tuesday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "wednesday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "thursday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "friday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "saturday",
+    isOpen: true,
+    fullDay: true,
+    amOpen: "09:00",
+    amClose: "20:00",
+    pmOpen: "",
+    pmClose: "",
+  },
+  {
+    day: "sunday",
+    isOpen: false,
+    fullDay: false,
+    amOpen: "",
+    amClose: "",
+    pmOpen: "",
+    pmClose: "",
+  },
 ];
 
-
-
 export default function ScheduleForm() {
-  const { register, handleSubmit, watch, setValue, reset } = useForm<ScheduleFormType>({
-    defaultValues: { schedule: defaultSchedule },
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+  } = useForm<ScheduleFormType>({
+    defaultValues: {
+      schedule: defaultSchedule,
+    },
   });
-const [sortedSchedule, setSortedSchedule] = useState<DaySchedule[]>([]);
-const [sameForAll, setSameForAll] = useState(false);
+
+  const [sortedSchedule, setSortedSchedule] = useState<
+    DaySchedule[]
+  >([]);
+
+  const [sameForAll, setSameForAll] = useState(false);
+
+  // NEW
+  const [isSaving, setIsSaving] = useState(false);
+
   const schedule = watch("schedule");
 
-  // auto-clear pm when full day
+  // Auto-clear PM when Full Day
   useEffect(() => {
     schedule.forEach((day, realIndex) => {
       if (day.fullDay) {
-        setValue(`schedule.${realIndex}.pmOpen`, "");
-        setValue(`schedule.${realIndex}.pmClose`, "");
+        setValue(
+          `schedule.${realIndex}.pmOpen`,
+          ""
+        );
+
+        setValue(
+          `schedule.${realIndex}.pmClose`,
+          ""
+        );
       }
     });
   }, [schedule, setValue]);
 
+  // Load saved schedule
   useEffect(() => {
-  async function loadData() {
-    const data = await getSchedule();
+    async function loadData() {
+      const data = await getSchedule();
 
-    if (data?.length) {
-      reset({ schedule: data });
+      if (data?.length) {
+        reset({
+          schedule: data,
+        });
+      }
     }
-  }
 
-  loadData();
-}, [reset]);
+    loadData();
+  }, [reset]);
 
-useEffect(() => {
-  if (!schedule?.length) return;
+  // Sort days Monday -> Sunday
+  useEffect(() => {
+    if (!schedule?.length) return;
 
+    const sorted = [...schedule].sort(
+      (a, b) =>
+        DAY_ORDER.indexOf(a.day) -
+        DAY_ORDER.indexOf(b.day)
+    );
 
+    setSortedSchedule(sorted);
+  }, [schedule]);
 
-  const sorted = [...schedule].sort(
-  (a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day)
-);
+  // Apply same timing to all days
+  useEffect(() => {
+    if (!sameForAll) return;
 
-  setSortedSchedule(sorted);
-}, [schedule])
+    const firstDay = schedule[0];
 
+    if (!firstDay) return;
 
-useEffect(() => {
-  if (!sameForAll) return;
+    const updated = schedule.map((day) => ({
+      ...day,
+      isOpen: firstDay.isOpen,
+      fullDay: firstDay.fullDay,
+      amOpen: firstDay.amOpen,
+      amClose: firstDay.amClose,
+      pmOpen: firstDay.pmOpen,
+      pmClose: firstDay.pmClose,
+    }));
 
-  const firstDay = schedule[0];
-  if (!firstDay) return;
+    updated.forEach((day, realIndex) => {
+      setValue(
+        `schedule.${realIndex}.isOpen`,
+        day.isOpen
+      );
 
-  const updated = schedule.map((day) => ({
-    ...day,
-    isOpen: firstDay.isOpen,
-    fullDay: firstDay.fullDay,
-    amOpen: firstDay.amOpen,
-    amClose: firstDay.amClose,
-    pmOpen: firstDay.pmOpen,
-    pmClose: firstDay.pmClose,
-  }));
+      setValue(
+        `schedule.${realIndex}.fullDay`,
+        day.fullDay
+      );
 
-  updated.forEach((day, realIndex) => {
-    setValue(`schedule.${realIndex}.isOpen`, day.isOpen);
-    setValue(`schedule.${realIndex}.fullDay`, day.fullDay);
-    setValue(`schedule.${realIndex}.amOpen`, day.amOpen);
-    setValue(`schedule.${realIndex}.amClose`, day.amClose);
-    setValue(`schedule.${realIndex}.pmOpen`, day.pmOpen);
-    setValue(`schedule.${realIndex}.pmClose`, day.pmClose);
-  });
-}, [sameForAll, schedule, setValue]);
+      setValue(
+        `schedule.${realIndex}.amOpen`,
+        day.amOpen
+      );
 
+      setValue(
+        `schedule.${realIndex}.amClose`,
+        day.amClose
+      );
+
+      setValue(
+        `schedule.${realIndex}.pmOpen`,
+        day.pmOpen
+      );
+
+      setValue(
+        `schedule.${realIndex}.pmClose`,
+        day.pmClose
+      );
+    });
+  }, [sameForAll, schedule, setValue]);
 
   async function onSubmit(data: ScheduleFormType) {
-    console.log("FINAL SCHEDULE:", data);
+    // Prevent duplicate clicks
+    if (isSaving) return;
 
-    const formData = new FormData();
+    setIsSaving(true);
 
-    data.schedule.forEach((day, realIndex) => {
-    formData.append(`schedule[${realIndex}][day]`, day.day);
-    formData.append(`schedule[${realIndex}][isOpen]`, String(day.isOpen));
-    formData.append(`schedule[${realIndex}][fullDay]`, String(day.fullDay));
-    formData.append(`schedule[${realIndex}][amOpen]`, day.amOpen || "");
-    formData.append(`schedule[${realIndex}][amClose]`, day.amClose || "");
-    formData.append(`schedule[${realIndex}][pmOpen]`, day.pmOpen || "");
-    formData.append(`schedule[${realIndex}][pmClose]`, day.pmClose || "");
-  });
+    try {
+      console.log("FINAL SCHEDULE:", data);
 
-    const res = await saveDaySchedule(formData);
+      const formData = new FormData();
 
-    if (!res?.success) {
-      alert("❌ Failed to save schedule");
-    } else {
-      alert(" Schedule saved successfully");
+      data.schedule.forEach((day, realIndex) => {
+        formData.append(
+          `schedule[${realIndex}][day]`,
+          day.day
+        );
+
+        formData.append(
+          `schedule[${realIndex}][isOpen]`,
+          String(day.isOpen)
+        );
+
+        // formData.append(
+        //   `schedule[${realIndex}][fullDay]`,
+        //   String(day.fullDay)
+        // );
+        formData.append(
+  `schedule[${realIndex}][fullDay]`,
+  "true"
+);
+
+
+        formData.append(
+          `schedule[${realIndex}][amOpen]`,
+          day.amOpen || ""
+        );
+
+        formData.append(
+          `schedule[${realIndex}][amClose]`,
+          day.amClose || ""
+        );
+
+        formData.append(
+          `schedule[${realIndex}][pmOpen]`,
+          day.pmOpen || ""
+        );
+
+        formData.append(
+          `schedule[${realIndex}][pmClose]`,
+          day.pmClose || ""
+        );
+      });
+
+      const res = await saveDaySchedule(formData);
+
+      if (!res?.success) {
+    toast.error(res?.error || "Failed to save schedule.");
+        return;
+      }
+
+    toast.success("Schedule saved successfully.");
+    } catch (error) {
+      console.error(
+        "❌ Schedule save error:",
+        error
+      );
+
+      toast.error("Something went wrong while saving the schedule.");
+    } finally {
+      // Always restore button
+      setIsSaving(false);
     }
   }
 
-
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-4xl mx-auto p-5">
-     <h1 className="text-2xl font-semibold mb-4">Food Ordering Timings</h1>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full max-w-4xl mx-auto p-5"
+    >
+      <h1 className="text-2xl font-semibold mb-4">
+        Order Timings
+      </h1>
 
-     <div className="flex items-center gap-2 mb-4">
-  <input
-    type="checkbox"
-    checked={sameForAll}
-    onChange={(e) => setSameForAll(e.target.checked)}
-  />
-  <span className="text-sm font-medium">
-    Apply same timing for all days
-  </span>
-</div>
+      {/* Same timing for all days */}
+      <div className="flex items-center gap-2 mb-4">
+        <input
+          type="checkbox"
+          checked={sameForAll}
+          onChange={(e) =>
+            setSameForAll(e.target.checked)
+          }
+          className="h-4 w-4"
+        />
+
+        <span className="text-sm font-medium">
+          Apply same timing for all days
+        </span>
+      </div>
 
       {sortedSchedule.map((day) => {
-         const realIndex = schedule.findIndex(d => d.day === day.day);
+        const realIndex = schedule.findIndex(
+          (d) => d.day === day.day
+        );
 
-  return (<div key={day.day} className="bg-gray-100 rounded-xl p-4 mb-4">
-          {/* hidden field – VERY IMPORTANT */}
-          <input
-            type="hidden"
-            {...register(`schedule.${realIndex}.day`)}
-            value={day.day}
-          />
-
-          <div className="flex justify-between mb-3">
-            <h3 className="capitalize font-semibold">{day.day}</h3>
-
-            <div className="flex gap-4">
-              <label>
-                <input type="checkbox" {...register(`schedule.${realIndex}.isOpen`)} /> Open
-              </label>
-
-              <label>
-                <input type="checkbox" {...register(`schedule.${realIndex}.fullDay`)} /> Full Day
-              </label>
-            </div>
-          </div>
-
-          {day.isOpen && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <input type="time"  className="pr-15" {...register(`schedule.${realIndex}.amOpen`)} />
-              <input type="time"  className="pr-15" {...register(`schedule.${realIndex}.amClose`)} />
-              {!day.fullDay && (
-                <>
-                  <input type="time"  className="pr-15" {...register(`schedule.${realIndex}.pmOpen`)} />
-                  <input type="time"  className="pr-15" {...register(`schedule.${realIndex}.pmClose`)} />
-                </>
+        return (
+          <div
+            key={day.day}
+            className="bg-gray-100 rounded-xl p-4 mb-4"
+          >
+            {/* Hidden day */}
+            <input
+              type="hidden"
+              {...register(
+                `schedule.${realIndex}.day`
               )}
-            </div>
-          )}
-        </div>
-      )})}
+              value={day.day}
+            />
 
-      <Button className="mt-6 w-full" type="submit">
-        Save Schedule
+         
+            {/* <div className="flex justify-between mb-3">
+              <h3 className="capitalize font-semibold">
+                {day.day}
+              </h3>
+
+              <div className="flex gap-4">
+                <label>
+                  <input
+                    type="checkbox"
+                    {...register(
+                      `schedule.${realIndex}.isOpen`
+                    )}
+                  />{" "}
+                  Open
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    {...register(
+                      `schedule.${realIndex}.fullDay`
+                    )}
+                  />{" "}
+                  Full Day
+                </label>
+              </div>
+            </div>
+
+          
+            {day.isOpen && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <input
+                  type="time"
+                  className="pr-15"
+                  {...register(
+                    `schedule.${realIndex}.amOpen`
+                  )}
+                />
+
+                <input
+                  type="time"
+                  className="pr-15"
+                  {...register(
+                    `schedule.${realIndex}.amClose`
+                  )}
+                />
+
+                {!day.fullDay && (
+                  <>
+                    <input
+                      type="time"
+                      className="pr-15"
+                      {...register(
+                        `schedule.${realIndex}.pmOpen`
+                      )}
+                    />
+
+                    <input
+                      type="time"
+                      className="pr-15"
+                      {...register(
+                        `schedule.${realIndex}.pmClose`
+                      )}
+                    />
+                  </>
+                )}
+              </div>
+            )} */}
+<div className="flex justify-between mb-3">
+  <h3 className="capitalize font-semibold">
+    {day.day}
+  </h3>
+
+  <label className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      {...register(
+        `schedule.${realIndex}.isOpen`
+      )}
+    />
+    Open
+  </label>
+</div>
+
+{day.isOpen && (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label className="block text-sm font-medium mb-1">
+        Opening Time
+      </label>
+
+      <input
+        type="time"
+        className="w-full rounded-lg border bg-white px-3 py-2"
+        {...register(
+          `schedule.${realIndex}.amOpen`
+        )}
+      />
+    </div>
+
+    <div>
+      <label className="block text-sm font-medium mb-1">
+        Closing Time
+      </label>
+
+      <input
+        type="time"
+        className="w-full rounded-lg border bg-white px-3 py-2"
+        {...register(
+          `schedule.${realIndex}.amClose`
+        )}
+      />
+    </div>
+  </div>
+)}
+
+
+          </div>
+        );
+      })}
+
+      {/* Save button */}
+      <Button
+        className="mt-6 w-full bg-red-600 text-white font-bold"
+        type="submit"
+        disabled={isSaving}
+      >
+        {isSaving ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="h-4 w-4 animate-spin  rounded-full border-2 border-current border-t-transparent" />
+            Saving Schedule...
+          </span>
+        ) : (
+          "Save Schedule"
+        )}
       </Button>
     </form>
   );
 }
+ 

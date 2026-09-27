@@ -12,6 +12,8 @@ type Props = {
 };
 
 export default function SchedulePicker({ onChange, schedule }: Props) {
+
+  console.log("weekshecdule----------------", schedule)
   const { setScheduledAt } = useCartContext();
 
   const [selectedDate, setSelectedDate] = useState("");
