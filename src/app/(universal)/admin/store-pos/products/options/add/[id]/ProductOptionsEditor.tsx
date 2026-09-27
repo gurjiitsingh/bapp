@@ -343,6 +343,8 @@ return (
 
           <div className="flex items-center gap-3">
 
+            
+
             <input
               type="text"
               value={option.name}
@@ -409,6 +411,16 @@ return (
                 key={value.id}
                 className="flex items-center gap-2"
               >
+
+                {/* <input
+  type="color"
+  value={value.color || "#000000"}
+  onChange={(e) =>
+    updateValue(option.id, value.id, {
+      color: e.target.value,
+    })
+  }
+/> */}
 
                 <input
                   type="text"

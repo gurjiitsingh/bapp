@@ -186,17 +186,42 @@ export default function ProductImagesForm({
      * 800 x 1200  -> 333 x 500
      * 1000 x 1000 -> 500 x 500
      */
-    const compressedFile =
-      await imageCompression(
-        file,
-        {
-          maxWidthOrHeight: 500,
-          maxSizeMB: 0.2,
-          initialQuality: 0.8,
-          useWebWorker: true,
-        }
-      );
+ 
 
+let compressedFile = file;
+
+const image = new Image();
+
+const imageUrl = URL.createObjectURL(file);
+
+await new Promise<void>((resolve, reject) => {
+  image.onload = () => {
+    URL.revokeObjectURL(imageUrl);
+    resolve();
+  };
+
+  image.onerror = () => {
+    URL.revokeObjectURL(imageUrl);
+    reject(new Error("Unable to read image dimensions."));
+  };
+
+  image.src = imageUrl;
+});
+
+if (
+  image.width > 600 ||
+  image.height > 600
+) {
+  compressedFile = await imageCompression(
+    file,
+    {
+      maxWidthOrHeight: 600,
+      maxSizeMB: 0.2,
+      useWebWorker: true,
+    }
+  );
+}
+ 
     // ========================================================
     // FORM DATA
     // ========================================================
