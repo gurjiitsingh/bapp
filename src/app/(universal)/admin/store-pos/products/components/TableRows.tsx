@@ -132,7 +132,13 @@ const [showDescription, setShowDescription] = useState(false);
   }
 
   return (
- 
+    <>
+      {showModifierModal && (
+        <ModifierModal
+          productId={product.id!}
+          onClose={() => setShowModifierModal(false)}
+        />
+      )}
 
       <TableRow
         className={`
@@ -319,133 +325,139 @@ const [showDescription, setShowDescription] = useState(false);
         </TableCell>
 
         {/* ⚙️ Actions */}
-     {/* ⚙️ Actions */}
-<TableCell>
-  <div className="flex gap-2">
+        <TableCell>
+          <div className="flex gap-2">
+            {/* 🖼️ Product Images */}
+<Link
+  href={`/admin/store-pos/products/images/add/${product.id}`}
+>
+  <Button
+    size="sm"
+    className="
+      h-8
+      rounded-lg
+      bg-pink-50
+      hover:bg-pink-100
+      text-pink-700
+      border
+      border-pink-200
+      shadow-none
+    "
+  >
+    Images
+  </Button>
+</Link>
+     
+     <Link
+  href={`/admin/store-pos/products/options/add/${product.id}`}
+>
+  <Button
+    size="sm"
+    className="
+      h-8
+      rounded-lg
+      bg-pink-50
+      hover:bg-pink-100
+      text-pink-700
+      border
+      border-pink-200
+      shadow-none
+    "
+  >
+    Options
+  </Button>
+</Link>
+     
+            <Button
+              size="sm"
+              className="
+    h-8
+    rounded-lg
+    bg-violet-50
+    hover:bg-violet-100
+    text-violet-700
+    border
+    border-violet-200
+    shadow-none
+  "
+              onClick={() => setShowModifierModal(true)}
+            >
+              Modifiers
+            </Button>
+            {/* ✏️ Edit */}
+            <Link
+              href={{
+                pathname: "/admin/products/editform",
+                query: { id: product.id },
+              }}
+            >
+              <Button
+                size="sm"
+                className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-blue-50
+    hover:bg-blue-100
+    text-blue-600
+    shadow-none
+  "
+              >
+                <CiEdit size={18} />
+              </Button>
+            </Link>
 
-    {/* 🖼️ Product Images */}
-    <Link
-      href={`/admin/store-pos/products/images/add/${product.id}`}
-    >
-      <Button
-        size="sm"
-        className="
-          h-8
-          rounded-lg
-          bg-pink-50
-          hover:bg-pink-100
-          text-pink-700
-          border
-          border-pink-200
-          shadow-none
-        "
-      >
-        Images
-      </Button>
-    </Link>
+            {/* 🧩 Variants */}
+            <Link
+              href={{
+                pathname: "/admin/product-variant",
+                query: {
+                  nameBase: product.name,
+                  categoryBase: product.productCat,
+                  id: product.id,
+                  categoryId: product.categoryId,
+                  productCat: product.productCat,
+                },
+              }}
+            >
+              <Button
+                size="sm"
+                className={`
+    h-8
+    rounded-lg
+    border
+    shadow-none
+    ${product.hasVariants
+                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                    : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+                  }
+  `}
+              >
+                {TEXT.button_variants || "Variants"}
+              </Button>
+            </Link>
 
-    {/* 🧩 Modifiers */}
-    <Button
-      size="sm"
-      className="
-        h-8
-        rounded-lg
-        bg-violet-50
-        hover:bg-violet-100
-        text-violet-700
-        border
-        border-violet-200
-        shadow-none
-      "
-      onClick={() => setShowModifierModal(true)}
-    >
-      Modifiers
-    </Button>
-
-    {/* ✏️ Edit */}
-    <Link
-      href={{
-        pathname: "/admin/store-pos/products/editform",
-        query: { id: product.id },
-      }}
-    >
-      <Button
-        size="sm"
-        className="
-          h-8
-          w-8
-          p-0
-          rounded-lg
-          bg-blue-50
-          hover:bg-blue-100
-          text-blue-600
-          shadow-none
-        "
-      >
-        <CiEdit size={18} />
-      </Button>
-    </Link>
-
-    {/* 🧩 Variants */}
-    <Link
-      href={{
-        pathname: "/admin/store-pos/product-variant",
-        query: {
-          nameBase: product.name,
-          categoryBase: product.productCat,
-          id: product.id,
-          categoryId: product.categoryId,
-          productCat: product.productCat,
-        },
-      }}
-    >
-      <Button
-        size="sm"
-        className={`
-          h-8
-          rounded-lg
-          border
-          shadow-none
-          ${
-            product.hasVariants
-              ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-              : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
-          }
-        `}
-      >
-        {TEXT.button_variants || "Variants"}
-      </Button>
-    </Link>
-
-    {/* 🗑 Delete */}
-    <Button
-      onClick={() => handleDelete(product)}
-      size="sm"
-      className="
-        h-8
-        w-8
-        p-0
-        rounded-lg
-        bg-red-50
-        hover:bg-red-100
-        text-red-600
-        shadow-none
-      "
-    >
-      <MdDeleteForever size={18} />
-    </Button>
-
-    {/* Modifier Modal */}
-    {showModifierModal && (
-      <ModifierModal
-        productId={product.id!}
-        onClose={() => setShowModifierModal(false)}
-      />
-    )}
-
-  </div>
-</TableCell>
-      </TableRow>   
+            {/* 🗑 Delete */}
+            <Button
+              onClick={() => handleDelete(product)}
+              size="sm"
+              className="
+    h-8
+    w-8
+    p-0
+    rounded-lg
+    bg-red-50
+    hover:bg-red-100
+    text-red-600
+    shadow-none
+  "
+            >
+              <MdDeleteForever size={18} />
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>  </>
   );
 }
 

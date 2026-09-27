@@ -759,6 +759,7 @@ export async function fetchProductById(
       sortOrder: data?.sortOrder ?? 0,
       image: data?.image ?? "",
       images: Array.isArray(data?.images) ? data.images : [],
+      options: Array.isArray(data?.options) ? data.options : [],
       isFeatured: data?.isFeatured ?? false,
       favorite: data?.favorite ?? false,
       purchaseSession: data?.purchaseSession ?? null,

@@ -324,25 +324,46 @@ const [showDescription, setShowDescription] = useState(false);
   <div className="flex gap-2">
 
     {/* 🖼️ Product Images */}
-    <Link
-      href={`/admin/store-pos/products/images/add/${product.id}`}
-    >
-      <Button
-        size="sm"
-        className="
-          h-8
-          rounded-lg
-          bg-pink-50
-          hover:bg-pink-100
-          text-pink-700
-          border
-          border-pink-200
-          shadow-none
-        "
-      >
-        Images
-      </Button>
-    </Link>
+              {/* 🖼️ Product Images */}
+<Link
+  href={`/admin/store-pos/products/images/add/${product.id}`}
+>
+  <Button
+    size="sm"
+    className="
+      h-8
+      rounded-lg
+      bg-pink-50
+      hover:bg-pink-100
+      text-pink-700
+      border
+      border-pink-200
+      shadow-none
+    "
+  >
+    Images
+  </Button>
+</Link>
+     
+     <Link
+  href={`/admin/store-pos/products/options/add/${product.id}`}
+>
+  <Button
+    size="sm"
+    className="
+      h-8
+      rounded-lg
+      bg-pink-50
+      hover:bg-pink-100
+      text-pink-700
+      border
+      border-pink-200
+      shadow-none
+    "
+  >
+    Options
+  </Button>
+</Link>
 
     {/* 🧩 Modifiers */}
     <Button
