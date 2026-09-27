@@ -220,7 +220,7 @@ tripId:"dummy",
         toLocationRef: "NA",
 
         remarks: "NA",
-
+ saleDate: "",
         createdBy,
       });
 

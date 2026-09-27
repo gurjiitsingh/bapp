@@ -446,7 +446,7 @@ export async function loadVehicle({
             vehicleId,
 
           remarks,
-
+ saleDate: "",
           createdBy,
         });
 

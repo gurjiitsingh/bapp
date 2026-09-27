@@ -6,7 +6,7 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectTrigger,
+  SelectTrigger, 
   SelectValue,
 } from "@/components/ui/select";
 import { Controller, useForm } from "react-hook-form";
@@ -106,7 +106,7 @@ const result = await loadVehicle({
 
   routeId: "",
   routeName: "",
-
+ 
   // =========================================
   // VEHICLE
   // =========================================
@@ -273,7 +273,7 @@ const result = await loadVehicle({
             </div>
           ))}
         </div>
-
+ 
         {/* 🔹 Bottom Bar */}
         <div className="p-3 bg-white border-t border-slate-200 sticky bottom-0">
           <div className="flex justify-between text-sm mb-2">

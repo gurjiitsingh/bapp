@@ -177,6 +177,7 @@ export async function unloadVehicle({
           toLocationRef: "MAIN",
 
           remarks,
+           saleDate: "",
           createdBy,
         });
       }

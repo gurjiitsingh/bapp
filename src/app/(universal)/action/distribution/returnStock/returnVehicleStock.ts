@@ -559,7 +559,7 @@ export async function returnVehicleStock({
           remarks:
             reason ||
             remarks,
-
+ saleDate: "",
           createdBy:
             createdBy ||
             "ADMIN",
