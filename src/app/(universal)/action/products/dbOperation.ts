@@ -90,7 +90,7 @@ export const fetchProducts = unstable_cache(
 
           discountPrice:
             data.discountPrice ?? 0,
-discountEligible:data.discountEligible ?? true,
+          discountEligible: data.discountEligible ?? true,
           categoryId:
             data.categoryId ?? "",
 
@@ -142,7 +142,7 @@ discountEligible:data.discountEligible ?? true,
           isFeatured:
             data.isFeatured ?? false,
 
-            favorite:
+          favorite:
             data.favorite ?? false,
 
           purchaseSession:
@@ -357,7 +357,7 @@ export async function addNewProduct(formData: FormData) {
       updateProductType(parentId, "parent", true);
     }
 
-    return { 
+    return {
       success: true,
       message: "Product saved successfully",
       id: docRef.id,
@@ -713,7 +713,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
       createdAt: new Date().toISOString(),
     };
 
- 
+
 
     //  Save to Firestore
     const docRef = await adminDb.collection("products").add(data);
@@ -726,7 +726,7 @@ export async function addNewProduct_without_revalidate(formData: FormData) {
     console.error("❌ Firestore add failed:", error);
     return { errors: { general: "Could not save product" } };
   }
-} 
+}
 
 export async function fetchProductById(
   id: string
@@ -795,50 +795,50 @@ export async function fetchProductByCategoryId(
     }
 
     const products: ProductType[] = querySnapshot.docs.map((doc) => {
-  const data = doc.data();
+      const data = doc.data();
 
-  return {
-    id: doc.id,
-    name: data.name ?? "",
-    price: data.price ?? 0,
-    currentStock: data.currentStock ?? 0,
-    discountPrice: data.discountPrice,
+      return {
+        id: doc.id,
+        name: data.name ?? "",
+        price: data.price ?? 0,
+        currentStock: data.currentStock ?? 0,
+        discountPrice: data.discountPrice,
 
-    categoryId: data.categoryId ?? "",
-    masterCategoryId: data.masterCategoryId ?? "",
-    masterCategoryName: data.masterCategoryName ?? "",
+        categoryId: data.categoryId ?? "",
+        masterCategoryId: data.masterCategoryId ?? "",
+        masterCategoryName: data.masterCategoryName ?? "",
 
-    productCat: data.productCat,
-    baseProductId: data.baseProductId ?? "",
-    productDesc: data.productDesc ?? "",
+        productCat: data.productCat,
+        baseProductId: data.baseProductId ?? "",
+        productDesc: data.productDesc ?? "",
 
-    quantity: 0,
+        quantity: 0,
 
-    // ⭐ REQUIRED BY ProductType
-    favorite: data.favorite ?? false,
+        // ⭐ REQUIRED BY ProductType
+        favorite: data.favorite ?? false,
 
-    sortOrder: data.sortOrder ?? 0,
-    image: data.image ?? "",
-    isFeatured: data.isFeatured ?? false,
-    flavors: data.flavors ?? false,
-    publishStatus: data.publishStatus ?? "draft",
-    stockStatus: data.stockStatus ?? "out_of_stock",
-    searchCode: data.searchCode ?? "",
+        sortOrder: data.sortOrder ?? 0,
+        image: data.image ?? "",
+        isFeatured: data.isFeatured ?? false,
+        flavors: data.flavors ?? false,
+        publishStatus: data.publishStatus ?? "draft",
+        stockStatus: data.stockStatus ?? "out_of_stock",
+        searchCode: data.searchCode ?? "",
 
-    taxRate: data.taxRate,
-    taxType: data.taxType,
+        taxRate: data.taxRate,
+        taxType: data.taxType,
 
-    purchaseSession: data.purchaseSession ?? null,
+        purchaseSession: data.purchaseSession ?? null,
 
-    sku: data.sku,
-    barcode: data.barcode,
-    minStock: data.minStock,
-    productMode: data.productMode,
-    inventoryItemId: data.inventoryItemId,
-    trackInventory: data.trackInventory,
-    allowNegativeStock: data.allowNegativeStock,
-  };
-});
+        sku: data.sku,
+        barcode: data.barcode,
+        minStock: data.minStock,
+        productMode: data.productMode,
+        inventoryItemId: data.inventoryItemId,
+        trackInventory: data.trackInventory,
+        allowNegativeStock: data.allowNegativeStock,
+      };
+    });
 
     return products;
   } catch (error) {
@@ -906,9 +906,8 @@ export async function toggleFavorite(
 
     return {
       success: true,
-      message: `Product ${
-        favorite ? "added to favorites" : "removed from favorites"
-      } successfully.`,
+      message: `Product ${favorite ? "added to favorites" : "removed from favorites"
+        } successfully.`,
     };
   } catch (error) {
     console.error(
@@ -946,7 +945,7 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     sortOrder: data.sortOrder !== undefined ? Number(data.sortOrder) : 0,
     image: data.image ?? "",
     isFeatured: String(data.isFeatured).toLowerCase() === "true" ? true : false,
-     favorite: data.favorite ?? false,
+    favorite: data.favorite ?? false,
     purchaseSession: data.purchaseSession ?? null,
     quantity:
       data.quantity !== undefined && data.quantity !== null
@@ -1075,7 +1074,7 @@ export const fetchLatestProducts = unstable_cache(
           image: data.image ?? "",
 
           isFeatured: data.isFeatured ?? false,
- favorite: data.favorite ?? false,
+          favorite: data.favorite ?? false,
           purchaseSession: data.purchaseSession ?? null,
 
           quantity: data.currentStock ?? null,
