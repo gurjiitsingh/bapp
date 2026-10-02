@@ -35,6 +35,7 @@ export async function updateProductOptions(
           .map((value, index) => ({
             id: value.id,
             name: value.name.trim(),
+             ...(value.color ? { color: value.color } : {}),
             sortOrder: index + 1,
           })),
       }));

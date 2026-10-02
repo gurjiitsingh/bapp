@@ -12,6 +12,7 @@ import ProccedWithEmail from "./components/ProccedWithEmail";
 import { useCartContext } from "@/store/CartContext";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
+import CartToMargin from "../../../custom/margin/cartToMargin";
 
 const framerSidebarBackground = {
   initial: { opacity: 0 },
@@ -87,6 +88,7 @@ export const SideCart = () => {
 
                 {/* Cart content */}
                 <div className="flex-1 overflow-y-auto p-3">
+                   <CartToMargin />
                   <MiniCartContent />
                 </div>
 
