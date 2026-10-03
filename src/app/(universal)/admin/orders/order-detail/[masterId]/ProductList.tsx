@@ -28,6 +28,8 @@ const locale =
     ? settings.locale
     : "de-DE";
 
+
+     console.log("in item list---------------------", currency, locale)
   const quantity =
     Number(item.quantity) || 0;
 

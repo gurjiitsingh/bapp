@@ -108,17 +108,26 @@ export async function createNewOrderCustomerAddressSMALL(
 
   // --- Add address ---
   const formAddress = new FormData();
-  formAddress.append("firstName", firstName);
-  formAddress.append("lastName", lastName);
-  formAddress.append("userId", UserAddedId);
-  formAddress.append("email", finalEmail);
-  formAddress.append("mobNo", address.mobNo);
-  formAddress.append("password", password);
-  formAddress.append("addressLine1", address.addressLine1 ?? "");
-  formAddress.append("addressLine2", address.addressLine2 ?? "");
-  formAddress.append("city", address.city ?? "");
-  formAddress.append("state", address.state ?? "Punjab");
-  formAddress.append("zipCode", address.zipCode ?? "123");
+
+formAddress.append("firstName", firstName);
+formAddress.append("lastName", lastName);
+formAddress.append("userId", UserAddedId);
+formAddress.append("email", finalEmail);
+formAddress.append("mobNo", address.mobNo);
+formAddress.append("password", password);
+
+formAddress.append("addressLine1", address.addressLine1 ?? "");
+formAddress.append("addressLine2", address.addressLine2 ?? "");
+formAddress.append("city", address.city ?? "");
+formAddress.append("state", address.state ?? "");
+formAddress.append("zipCode", address.zipCode ?? "");
+
+// Spain / additional address fields
+formAddress.append("portal", address.portal ?? "");
+formAddress.append("staircase", address.staircase ?? "");
+formAddress.append("floor", address.floor ?? "");
+formAddress.append("door", address.door ?? "");
+formAddress.append("deliveryNotes", address.deliveryNotes ?? "");
 
   const addressAddedId = await addCustomerAddressDirectPrimaryMOB(formAddress);
 

@@ -5,10 +5,11 @@ import dynamic from "next/dynamic";
 
 import PaymentSelector from "./components/PaymentSelector";
 import OrderTypeSelector from "@/components/OrderTypeSelector";
-import AddressWrapper from "@/components/checkout/address/AddressWrapper";
 import OrderSummeryProcess from "./components/Cart/OrderSummeryProcess";
 
 import { DaySchedule } from "@/lib/types/daySchedule";
+import AddressWrapper from "@/custom/address/AddressWrapper";
+
 const ENABLE_ORDER_SCHEDULE =
   process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
 // 🔥 Disable SSR
@@ -82,7 +83,7 @@ const CheckoutClient = ({ weeklySchedule }: Props) => {
               </>
             )}
 
-            <AddressWrapper country="ALL" />
+            <AddressWrapper />
             <PaymentSelector />
           </div>
 

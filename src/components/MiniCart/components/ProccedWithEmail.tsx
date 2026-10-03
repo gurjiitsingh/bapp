@@ -131,7 +131,7 @@ const ProccedWithEmail = () => {
      */
     setCustomerAddressIsComplete(false);
 
-    console.log("customer email set-----------------", identifier)
+    console.log("customer email/phone set-----------------", identifier)
 
     setCustomerEmailG(identifier);
 
