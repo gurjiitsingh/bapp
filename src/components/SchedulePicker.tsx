@@ -19,7 +19,7 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  const MIN_BUFFER_MINUTES = 30;
+   
   const today = new Date();
 
   const formatISO = (d: Date) => d.toISOString().split("T")[0];
@@ -63,42 +63,106 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
   };
 
   //  Generate 30-min slots
-const getSlots = () => {
-  const SLOT_INTERVAL = 15; // minutes
+// const getSlots = () => {
+//   const SLOT_INTERVAL = 15; // minutes
+//   const { open, close } = getOpenClose();
+//   if (!open || !close) return [];
+
+//   const openMinutes = toMinutes(open);
+//   const closeMinutes = toMinutes(close);
+
+//   let startMinutes = openMinutes;
+
+//   const selected = new Date(selectedDate);
+//   const isToday = selected.toDateString() === today.toDateString();
+
+//   // 🟢 TODAY → now + 30 mins
+//   if (isToday) {
+//     const nowMinutes = today.getHours() * 60 + today.getMinutes();
+//     startMinutes = Math.max(openMinutes, nowMinutes + MIN_BUFFER_MINUTES);
+//   }
+
+//   // 🟢 FUTURE DAY → open + 30 mins
+//   if (!isToday) {
+//     startMinutes = openMinutes + MIN_BUFFER_MINUTES;
+//   }
+
+//   // ⏱ round UP to next 15-min slot
+//   startMinutes = Math.ceil(startMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
+
+//   const slots: string[] = [];
+//   for (let m = startMinutes; m < closeMinutes; m += SLOT_INTERVAL) {
+//     slots.push(toTime(m));
+//   }
+
+//   return slots;
+// };
+
+ const getSlots = () => {
+  const SLOT_INTERVAL = 15;
+
   const { open, close } = getOpenClose();
+
   if (!open || !close) return [];
 
   const openMinutes = toMinutes(open);
   const closeMinutes = toMinutes(close);
 
-  let startMinutes = openMinutes;
-
-  const selected = new Date(selectedDate);
-  const isToday = selected.toDateString() === today.toDateString();
-
-  // 🟢 TODAY → now + 30 mins
-  if (isToday) {
-    const nowMinutes = today.getHours() * 60 + today.getMinutes();
-    startMinutes = Math.max(openMinutes, nowMinutes + MIN_BUFFER_MINUTES);
-  }
-
-  // 🟢 FUTURE DAY → open + 30 mins
-  if (!isToday) {
-    startMinutes = openMinutes + MIN_BUFFER_MINUTES;
-  }
-
-  // ⏱ round UP to next 15-min slot
-  startMinutes = Math.ceil(startMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-
   const slots: string[] = [];
-  for (let m = startMinutes; m < closeMinutes; m += SLOT_INTERVAL) {
+
+  for (
+    let m = openMinutes;
+    m < closeMinutes;
+    m += SLOT_INTERVAL
+  ) {
     slots.push(toTime(m));
   }
 
   return slots;
 };
 
+// const getSlots = () => {
+//   const SLOT_INTERVAL = 15;
 
+//   const { open, close } = getOpenClose();
+
+//   if (!open || !close) return [];
+
+//   const openMinutes = toMinutes(open);
+//   const closeMinutes = toMinutes(close);
+
+//   const selected = new Date(`${selectedDate}T00:00:00`);
+
+//   const isToday = selected.toDateString() === today.toDateString();
+
+//   let startMinutes = openMinutes;
+
+//   if (isToday) {
+//     const nowMinutes =
+//       today.getHours() * 60 + today.getMinutes();
+
+//     // Do not show slots inside the buffer.
+//     const bufferCutoff = nowMinutes + MIN_BUFFER_MINUTES;
+
+//     // First actual 15-minute slot at or after the cutoff.
+//     startMinutes = Math.ceil(bufferCutoff / SLOT_INTERVAL) * SLOT_INTERVAL;
+
+//     // Never start before opening time.
+//     startMinutes = Math.max(startMinutes, openMinutes);
+//   }
+
+//   const slots: string[] = [];
+
+//   for (
+//     let m = startMinutes;
+//     m < closeMinutes;
+//     m += SLOT_INTERVAL
+//   ) {
+//     slots.push(toTime(m));
+//   }
+
+//   return slots;
+// };
   
   // const getSlots = () => {
   //   const { open, close } = getOpenClose();
@@ -122,6 +186,7 @@ const getSlots = () => {
 
 
   //  Save selected date & time
+
   useEffect(() => {
     if (selectedDate && selectedTime) {
       const iso = new Date(`${selectedDate}T${selectedTime}:00`).toISOString();
@@ -163,6 +228,9 @@ const getSlots = () => {
       >
         {!selectedDate && <option>Select day first</option>}
         {slots.length === 0 && selectedDate && <option>Store closed</option>}
+          <option key="iuiuiwerwerew" value="">
+            Select Time
+          </option>
         {slots.map((t) => (
           <option key={t} value={t}>
             {t}
