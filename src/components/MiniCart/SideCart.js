@@ -69,7 +69,8 @@ export const SideCart = () => {
               <motion.div
                 {...framerSidebarPanel}
                 ref={ref}
-                className="fixed top-0 bottom-0 left-0 z-50 w-full max-w-md h-screen bg-gradient-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col"
+                // className="fixed top-0 bottom-0 left-0 z-50 w-full max-w-md h-screen bg-gradient-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col"
+                className="fixed inset-y-0 left-0 z-50 w-full max-w-md bg-gradient-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col"
                 aria-label="Sidebar"
               >
                 {/* Header */}
@@ -93,7 +94,13 @@ export const SideCart = () => {
                 </div>
 
                 {/* Subtotal & Actions */}
-                <div className="p-4 border-t border-gray-100 bg-white">
+                {/* <div className="p-4 border-t border-gray-100 bg-white"> */}
+                <div
+  className="px-4 pt-4 border-t border-gray-100 bg-white"
+  style={{
+    paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
+  }}
+>
                   <MiniCartSubtotal />
 
                   <div className="flex flex-col items-center justify-center gap-3 mt-4">
