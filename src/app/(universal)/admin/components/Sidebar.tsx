@@ -302,44 +302,108 @@ const Sidebar = () => {
         <div></div>
         <button
           onClick={() => setAdminSideBarToggleG(false)}
-          className="p-2 rounded-full hover:bg-gray-700 transition"
+          className="rounded-xl border border-white/10 bg-white/[0.04] p-2 text-slate-300 transition hover:bg-white/10 hover:text-white"
           aria-label="close sidebar"
         >
           <IoClose size={24} className="text-white" />
         </button>
       </div>
 
-    <div className="
-  pt-6
-  min-h-[100dvh]
-  overflow-y-auto
-  w-[260px]
-  flex flex-col justify-between
-  px-3 py-6
-  sb-bg shadow-md
-  bg-slate-800
-">    <ul className="flex flex-col gap-1">
-          {filteredMenu.map((item) => (
-            <Tab key={item.link} item={item} />
-          ))}
-        </ul>
+    
+ 
+<div className="relative flex h-[100dvh] w-[260px] shrink-0 flex-col overflow-hidden border-r border-white/[0.08] bg-[#090e1b] text-slate-300">
 
-        {/* <div className="mt-6 pt-4">
-          <button className="flex items-center gap-3 px-4 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition">
-            <IoIosLogOut size={20} />
-            {BRANDING.sidebar.logout}
-          </button>
-        </div> */}
+  {/* Ambient background glow */}
+  <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="absolute -left-28 top-20 h-64 w-64 rounded-full bg-blue-600/[0.12] blur-[90px]" />
+    <div className="absolute -right-24 top-[42%] h-64 w-64 rounded-full bg-indigo-600/[0.10] blur-[100px]" />
+  </div>
 
-<button
-  onClick={() => signOut({ callbackUrl: "/auth/login" })}
-  className="flex items-center gap-3 mb-10 px-4 mb-10 py-2 w-full text-sm font-medium rounded-md bg-amber-600 text-white hover:bg-rose-700 transition"
->
-  <IoIosLogOut size={20} />
-  {BRANDING.sidebar.logout}
-</button>
-
+  {/* Brand header */}
+  <div className="relative px-4 pb-5 pt-5">
+    <div className="flex items-center gap-3">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-blue-400/20 bg-gradient-to-br from-blue-500/25 to-indigo-500/15 text-blue-300 shadow-lg shadow-blue-950/40">
+        <MdStorefront size={25} />
       </div>
+
+      <div className="min-w-0">
+        <h2 className="text-sm font-bold tracking-wide text-white">
+          ERP POS
+        </h2>
+        <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.17em] text-slate-500">
+          Control Center
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-5 h-px bg-gradient-to-r from-blue-400/30 via-white/[0.08] to-transparent" />
+  </div>
+
+  {/* Navigation menu */}
+  <div className="relative flex min-h-0 flex-1 flex-col px-3">
+    <div className="mb-3 flex items-center justify-between px-2">
+      <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+        Workspace
+      </span>
+
+      <span className="rounded-md border border-white/[0.07] bg-white/[0.03] px-1.5 py-0.5 text-[9px] text-slate-500">
+        {filteredMenu.length}
+      </span>
+    </div>
+
+    <ul className="flex min-h-0 flex-1 flex-col gap-1 overflow-x-hidden overflow-y-auto pb-4 [scrollbar-width:thin] [scrollbar-color:#26344c_transparent]">
+      {filteredMenu.map((item) => (
+        <Tab key={item.link} item={item} />
+      ))}
+    </ul>
+  </div>
+
+  {/* Bottom section */}
+  <div className="relative mt-2 px-3 pb-4 pt-3">
+    <div className="mb-3 rounded-2xl border border-blue-400/[0.12] bg-gradient-to-br from-blue-500/[0.10] to-indigo-500/[0.04] p-3">
+      <div className="flex items-center gap-2.5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/15 text-blue-300">
+          <MdSettings size={20} />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-slate-200">
+            System Control
+          </p>
+          <p className="mt-1 text-[10px] text-slate-500">
+            Manage your operations
+          </p>
+        </div>
+
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      </div>
+    </div>
+
+    <button
+      onClick={() => signOut({ callbackUrl: "/auth/login" })}
+      className="group flex w-full items-center gap-3 rounded-xl border hover:border-white/[0.07] hover:bg-white/[0.025] px-3 py-3 text-left transition-all duration-200 border-rose-400/20 bg-rose-500/[0.08]"
+    >
+      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/[0.08] group-hover:text-rose-400 bg-rose-500/15">
+        <IoIosLogOut size={22} />
+      </span>
+
+      <span className="flex-1">
+        <span className="block text-xs font-semibold  text-rose-300 group-hover:text-slate-300">
+          {BRANDING.sidebar.logout}
+        </span>
+        <span className="mt-1 block text-[10px] text-slate-600">
+          Sign out of your account
+        </span>
+      </span>
+
+      <span className="group-hover:text-slate-600 transition-transform group-hover:translate-x-0.5 text-rose-400">
+        →
+      </span>
+    </button>
+  </div>
+</div>
+ 
+ 
     </>
   );
 };
@@ -353,7 +417,8 @@ function Tab({ item }: { item: Titem }) {
   if (!isMounted) return null;
 
   const isSelected = pathname === item.link;
-  const baseClasses = isSelected ? "sb-tab-active" : "sb-tab";
+  // const baseClasses = isSelected ? "sb-tab-active" : "sb-tab";
+  const baseClasses = isSelected ? "bg-blue-600" : "bg-slate-600";
 
   return (
     <Link

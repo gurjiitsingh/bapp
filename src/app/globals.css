@@ -90,9 +90,7 @@
   @apply bg-[#121C1B]; /* Very dark teal slate background */
 }
 
-.sb-tab {
-  @apply text-slate-300 hover:bg-[#1C2B29]; /* Soft slate hover */
-}
+
 
 .sb-tab-active {
   @apply bg-[#00897B] text-white shadow-md; /* Main active tab color */
