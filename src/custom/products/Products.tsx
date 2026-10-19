@@ -5,18 +5,8 @@ import { UseSiteContext } from "@/SiteContext/SiteContext";
 import dynamic from "next/dynamic";
 import { ProductType } from "@/lib/types/productType";
 import { addOnType } from "@/lib/types/addOnType";
-import ProductCardHorizontical from "./ProductCard-h1_1_1";
-//import ProdcutCardHorizontical19 from "../custom/cus-componets/ProductCard-h19"
+import Card from "@/custom/products/ProductCard-h1_1_1";
 
-// export type ProductType = {
-//   id: string;
-//   name: string;
-//   price: number;
-//   image?: string;
-//   categoryId: string;
-//   sortOrder?: number; 
-//   [key: string]: any;
-// };
 export default function Products({ initialProducts }: { initialProducts: ProductType[] }) {
   const { productCategoryIdG, settings, setAllProduct, productToSearchQuery } =
     UseSiteContext();
@@ -35,7 +25,9 @@ const [productModifiers, setProductModifiers] = useState<any[]>([]);
 
   const cardType = process.env.NEXT_PUBLIC_PRODUCT_CARD_TYPE;
 
- 
+  //  DYNAMIC IMPORT — SAFE, NO RERENDER LOOP
+
+
 
   //  Set initial category (runs only when settings OR global id changes)
 
@@ -133,56 +125,16 @@ const mappingData = await mappingRes.json();
   return () => clearTimeout(timer);
 }, []);
   //  Layout logic (unchanged)
-  let containerClass = "";
-  switch (cardType) {
-    case "1":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5 ";
-      break;
-    case "11":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-2 md:gap-2";
-      break;
-    case "12":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
-      break;
-    case "2":
-    case "3":
-      containerClass =
-        "flex flex-col md:flex-row justify-between md:flex-wrap gap-3 md:gap-5 justify-center";
-      break;
-    case "4":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
-      break;
-    case "5":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-3 lg:grid-cols-4 gap-3";
-      break;
-    case "6":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
-      break;
-    case "7":
-      containerClass =
-        "grid grid-cols-2 justify-between sm:grid-cols-4 lg:grid-cols-6 gap-3";
-      break;
-    case "16":
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-1 md:gap-1";
-      break;
-    default:
-      containerClass =
-        "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
-  }
+
+
+ let  containerClass =  "flex flex-col justify-between md:flex-row md:flex-wrap gap-3 md:gap-5";
 
   return (
     <div className="max-w-7xl mx-auto my-6">
       <div className="px-4 sm:px-6 lg:px-12">
         <div className={containerClass}>
           {products.map((product, i) => (
-            <ProductCardHorizontical
+            <Card
               key={product.id ?? `${product.name}-${i}`}
              product={product}
   variants={variant}

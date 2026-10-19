@@ -12,7 +12,7 @@ import { useState } from "react";
 import type { TnewModifierItemSchema } from "@/lib/types/modifierItemType";
 import { IoClose } from "react-icons/io5";
 import CartButtonAdd from "@/components/AddToCart/CartButtonAdd";
-export default function ProductCardHorizontical({
+export default function Card({
   product,
   variants,
   allAddOns,

@@ -59,6 +59,7 @@
     "baseline-browser-mapping": "^2.11.26",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.0.8",
+    "knip": "^6.42.0",
     "postcss": "^8",
     "tailwindcss": "^4",
     "ts-prune": "^0.10.3",

@@ -5,7 +5,6 @@ import { Suspense } from "react";
 
 import HeroSectionCustom from "@/custom/cus-components/HeroSectionCustom";
 import CategorySliderLight from "@/components/level-1/CategorySliderLight";
-import Products from "@/components/level-1/Products";
 import BestOfMonth from "@/custom/cus-components/BestOfMonth";
 import ContactInfoWrapper from "@/components/ContactInfoWrapper";
 import ProductsWrapper from "@/components/ProductsWrapper";

@@ -1,6 +1,5 @@
  
-  
-  export default CategorySliderSm2-0.1;
+ 
   
   "use client";
 
