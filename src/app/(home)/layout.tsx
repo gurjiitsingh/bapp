@@ -1,7 +1,7 @@
 import "@/app/globals.css";
 import { Toaster } from "react-hot-toast";
 import type { Metadata } from "next";
-import CartBottomWrapper from "@/components/CartBottom/CartBottomWrapper";
+import CartBottomWrapper from "@/custom/CartBottom/CartBottomWrapper";
 import "@/css/style.css";
 import UTMInitializer from "../UTMInitializer";
 import { Providers } from "../Providers";
@@ -9,7 +9,7 @@ import SafeSideCart from "./SafeSideCart";
 
 import { BargerMenu } from "@/components/Bargermenu/Menu";
 import Modal from "@/components/level-1/Modal";
-import Header from "@/custom/cus-components/Header";
+import Header from "@/custom/cus-com/Header";
 
 
 import { SEO } from "@/config/languages";

@@ -1,7 +1,7 @@
 "use client";
 
-import Header from "@/custom/cus-components/Header";
-import Footer from "@/custom/cus-components/Footer";
+import Header from "@/custom/cus-com/Header";
+import Footer from "@/custom/cus-com/Footer";
 import { SideCart } from "@/components/MiniCart/SideCart";
 import { BargerMenu } from "@/components/Bargermenu/Menu";
 import { Providers } from "@/app/Providers";
@@ -10,7 +10,7 @@ import dynamic from "next/dynamic";
 //  Conditionally import CartBottom based on .env (completely excluded if disabled)
 const isCartEnabled = process.env.NEXT_PUBLIC_CART_BOTTOM_ENABLED === "true";
 const CartBottom = isCartEnabled
-  ? dynamic(() => import("@/components/CartBottom/CartBottom"), { ssr: false })
+  ? dynamic(() => import("@/custom/CartBottom/CartBottom"), { ssr: false })
   : null;
 
 export default function SiteLayout({

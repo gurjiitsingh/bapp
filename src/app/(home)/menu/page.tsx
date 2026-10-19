@@ -4,7 +4,7 @@
 //import CategorySlider from "@/components/level-1/CategorySlider";
 
 import { useLanguage } from "@/store/LanguageContext";
-import HeroSectionCustom from "@/custom/cus-components/HeroSectionCustom";
+ 
 import ProductMenuList from "@/custom/products/ProductsMenuList";
 
 
@@ -27,10 +27,9 @@ export default function Page() {
     <main className=" text-gray-900 font-sans">
     
         
-          <HeroSectionCustom />
+          
           <ProductMenuList />
-          {/* <ProductCategorySliderList />
-          <Products /> */}
+         
      
       </main>
     </>

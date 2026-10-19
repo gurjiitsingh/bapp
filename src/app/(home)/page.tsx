@@ -3,11 +3,12 @@
 import { Suspense } from "react";
 //import AOSInit from "@/components/AOSInit";
 
-import HeroSectionCustom from "@/custom/cus-components/HeroSectionCustom";
-import CategorySliderLight from "@/components/level-1/CategorySliderLight";
-import BestOfMonth from "@/custom/cus-components/BestOfMonth";
-import ContactInfoWrapper from "@/components/ContactInfoWrapper";
+ 
+import BestOfMonth from "@/custom/slider/BestOfMonth";
+import ContactInfoWrapper from "@/custom/cus-com/ContactInfoWrapper";
 import ProductsWrapper from "@/components/ProductsWrapper";
+import CategorySlider from "@/custom/slider/CategorySlider";
+import HeroSectionCustom from "@/custom/cus-com/HeroSectionCustom";
 
 export default function Page() {
   return (
@@ -19,7 +20,7 @@ export default function Page() {
       {/* Sections */}
       <HeroSectionCustom />
       <BestOfMonth />
-      <CategorySliderLight />
+      <CategorySlider />
       <Suspense fallback={<div>Loading...</div>}>
         <ProductsWrapper />
       </Suspense>

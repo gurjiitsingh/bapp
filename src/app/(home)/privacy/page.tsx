@@ -1,4 +1,4 @@
-import PrivacyPolicy from "@/custom/cus-components/PrivacyPolicy";
+import PrivacyPolicy from "@/custom/cus-page/PrivacyPolicy";
 import { getCachedOutlet } from "@/lib/outlet/getCachedOutlet";
 
 export default async function PrivacyPolicyWrapper() {
