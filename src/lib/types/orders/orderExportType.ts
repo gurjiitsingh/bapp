@@ -82,7 +82,7 @@ export type OrderExportMasterT = {
 
   notes?: string;
 
-  syncStatus?: "NEW" | "SYNCED" | "FAILED";
+  syncStatus?: "NEW" | "SYNCED" | "FAILED" | "NEWONLINE";
 
   lastSyncedAt?: string;
 

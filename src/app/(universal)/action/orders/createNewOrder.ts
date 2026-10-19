@@ -25,8 +25,8 @@ import { toTimestamp } from "@/utils/toTimestamp";
 import { toAdminTimestamp } from "@/utils/toAdminTimestamp";
 import { processSaleInventory } from "../inventory/processSaleInventory";
 import { checkStockAvailabilityV2 } from "../inventory/checkStockAvailabilityV2";
-import { addOrderToMaster } from "./addOrderToMaster";
-import { addProductDraft } from "./addProductDraft";
+import {  addOrderWithProducts } from "./addOrderToMaster";
+ 
 import { marketingData } from "./marketingData";
 import {   getFinancialYearCode, getNextWebOrderSerial } from "./getNextWebOrderSerial";
 
@@ -341,7 +341,7 @@ dueAmount:
   // =====================================================
   // SYNC / OFFLINE (POS SAFE)
   // =====================================================
-  syncStatus: "SYNCED", //  default
+  syncStatus: "NEWONLINE", //  default
   lastSyncedAt: admin.firestore.FieldValue.serverTimestamp(),
 
   // =====================================================
@@ -375,14 +375,14 @@ dueAmount:
   // =====================================================
   // 8️⃣ SAVE ORDER MASTER
   // =====================================================
-  const orderMasterId = await addOrderToMaster(orderMasterData);
+  //const orderMasterId = await addOrderToMaster(orderMasterData);
+  const orderMasterId = await addOrderWithProducts(
+  orderMasterData,
+  cartWithTax,
+  userId!
+);
 
-  // =====================================================
-  // 9️⃣ SAVE ORDER PRODUCTS (WITH TAX SNAPSHOT)
-  // =====================================================
-  for (const product of cartWithTax) {
-    await addProductDraft(product, userId!, orderMasterId!);
-  }
+ 
 
   // ===================================================
 // 9.5️⃣ PROCESS INVENTORY

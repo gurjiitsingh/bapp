@@ -129,7 +129,7 @@ dueAmount?: number;
   //  SYNC / OFFLINE (POS SAFE)
   // =====================================================
 
-  syncStatus?: "NEW" | "SYNCED" | "FAILED";
+  syncStatus?: "NEW" | "SYNCED" | "FAILED" | "NEWONLINE";
   lastSyncedAt?: Timestamp | FieldValue;
 
   // =====================================================

@@ -53,6 +53,6 @@ export type customerLedgerT = {
   // =====================================================
   // SYNC CONTROL
   // =====================================================
-  syncStatus?: "NEW" | "SYNCED" | "FAILED";
+ syncStatus?: "NEW" | "SYNCED" | "FAILED" | "NEWONLINE";
   lastSyncedAt?: Timestamp | FieldValue;
 };

@@ -50,7 +50,7 @@ export default function AddressES() {
     emailFormToggle,
   } = UseSiteContext();
 
- 
+
 
 
   async function getAddressByEmail(inputEmail: string) {
@@ -63,13 +63,13 @@ export default function AddressES() {
       setdeliveryDis(zipInfo);
     } else {
       setAddressReset();
-       localStorage.removeItem("customer_email");
+      localStorage.removeItem("customer_email");
       console.warn("No address found for email:", inputEmail);
     }
   }
 
   async function getAddressByMob(inputMob: string) {
-      console.log("START: searchAddressMob ------------------",inputMob)
+    console.log("START: searchAddressMob ------------------", inputMob)
     const addressRes = await searchAddressByMob(inputMob);
     console.log("FETCHED searchAddressMOB------------------", addressRes)
     if (addressRes) {
@@ -78,18 +78,18 @@ export default function AddressES() {
       setdeliveryDis(zipInfo);
     } else {
       setAddressReset();
-       localStorage.removeItem("customer_email");
+      localStorage.removeItem("customer_email");
       console.warn("No address found for email:", inputMob);
     }
 
-    
+
   }
 
 
 
 
   useEffect(() => {
-     console.log("Identifier value come from email cature form ----------------", customerEmail)
+    console.log("Identifier value come from email cature form ----------------", customerEmail)
     if (!customerEmail?.trim()) {
       return;
     }
@@ -308,10 +308,10 @@ export default function AddressES() {
       //   userId: "sfad", //session?.user?.id,
       //   address: customAddress,
       // } as purchaseDataT;
-const purchaseData: purchaseDataT = {
-  userId: data.userId ?? "",
-  address: customAddress,
-};
+      const purchaseData: purchaseDataT = {
+        userId: data.userId ?? "",
+        address: customAddress,
+      };
 
       //  const purchaseData = {
       //   userId: data.userId ?? "",
@@ -607,77 +607,50 @@ const purchaseData: purchaseDataT = {
 
 
 
-return (
-  <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-5 font-sans">
-    <div className="mb-6">
-      <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-        Dirección de entrega
-      </h2>
-      <p className="text-xs text-gray-500 mt-1">
-        ¿Dónde debemos enviar tu pedido?
-      </p>
-    </div>
+  return (
+    <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-5 font-sans">
+      <div className="mb-6">
+        <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+          Dirección de entrega
+        </h2>
+        <p className="text-xs text-gray-500 mt-1">
+          ¿Dónde debemos enviar tu pedido?
+        </p>
+      </div>
 
-    <form
-      onSubmit={handleSubmit(onSubmit, (errors) => {
-        console.log("FORM ERRORS ❌", errors);
-      })}
-      className="space-y-5"
-    >
-      {/* ================= REQUIRED SECTION ================= */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Contacto y ubicación
-          </span>
-        </div>
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log("FORM ERRORS ❌", errors);
+        })}
+        className="space-y-5"
+      >
+        {/* ================= REQUIRED SECTION ================= */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              Contacto y ubicación
+            </span>
+          </div>
 
-        {/* Mobile */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Teléfono móvil <span className="text-red-500">*</span>
-          </label>
+          {/* Mobile */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Teléfono móvil <span className="text-red-500">*</span>
+            </label>
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Phone className="w-4 h-4" />
-            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <Phone className="w-4 h-4" />
+              </div>
 
-            <input
-              {...register("mobNo")}
-              className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              placeholder="612 345 678"
-              inputMode="numeric"
-              autoComplete="tel"
-              onChange={async (e) => {
-                let digits = e.target.value
-                  .replace(/\D/g, "")
-                  .replace(/^0+/, "")
-                  .replace(/^91/, "");
-
-                setValue("mobNo", digits, { shouldValidate: true });
-
-                if (digits.length === 9) {
-                  await handleMobSearch(digits);
-                }
-              }}
-              onBlur={async (e) => {
-                let digits = e.target.value
-                  .replace(/\D/g, "")
-                  .replace(/^0+/, "")
-                  .replace(/^91/, "");
-
-                setValue("mobNo", digits, { shouldValidate: true });
-
-                if (digits.length === 9) {
-                  await handleMobSearch(digits);
-                }
-              }}
-              onKeyDown={async (e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-
-                  let digits = e.currentTarget.value
+              <input
+                {...register("mobNo")}
+                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                placeholder="612 345 678"
+                inputMode="numeric"
+                autoComplete="tel"
+                onChange={async (e) => {
+                  let digits = e.target.value
                     .replace(/\D/g, "")
                     .replace(/^0+/, "")
                     .replace(/^91/, "");
@@ -687,354 +660,391 @@ return (
                   if (digits.length === 9) {
                     await handleMobSearch(digits);
                   }
-                }
-              }}
-            />
-          </div>
+                }}
+                onBlur={async (e) => {
+                  let digits = e.target.value
+                    .replace(/\D/g, "")
+                    .replace(/^0+/, "")
+                    .replace(/^91/, "");
 
-          {errors.mobNo?.message && (
-            <p className="text-red-500 text-xs mt-1 font-medium">
-              {errors.mobNo?.message}
-            </p>
-          )}
-        </div>
+                  setValue("mobNo", digits, { shouldValidate: true });
 
-        {/* Name Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Nombre <span className="text-red-500">*</span>
-            </label>
+                  if (digits.length === 9) {
+                    await handleMobSearch(digits);
+                  }
+                }}
+                onKeyDown={async (e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <User className="w-4 h-4" />
-              </div>
+                    let digits = e.currentTarget.value
+                      .replace(/\D/g, "")
+                      .replace(/^0+/, "")
+                      .replace(/^91/, "");
 
-              <input
-                {...register("firstName")}
-                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                placeholder="Nombre"
+                    setValue("mobNo", digits, { shouldValidate: true });
+
+                    if (digits.length === 9) {
+                      await handleMobSearch(digits);
+                    }
+                  }
+                }}
               />
             </div>
 
-            {errors.firstName?.message && (
+            {errors.mobNo?.message && (
               <p className="text-red-500 text-xs mt-1 font-medium">
-                {errors.firstName?.message}
+                {errors.mobNo?.message}
               </p>
             )}
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Apellidos <span className="text-red-500">*</span>
-            </label>
+          {/* Name Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Nombre <span className="text-red-500">*</span>
+              </label>
 
-            <input
-              {...register("lastName")}
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              placeholder="Apellidos"
-            />
-
-            {errors.lastName?.message && (
-              <p className="text-red-500 text-xs mt-1 font-medium">
-                {errors.lastName?.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="relative">
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Calle / Dirección <span className="text-red-500">*</span>
-          </label>
-
-          {(() => {
-            const { onChange, onBlur, ref, name } =
-              register("addressLine1");
-
-            return (
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                  <MapPin className="w-4 h-4 text-emerald-600" />
+                  <User className="w-4 h-4" />
                 </div>
 
                 <input
-                  name={name}
-                  ref={ref}
-                  className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                  placeholder="Calle Mayor 12"
-                  autoComplete="off"
-                  onChange={(e) => {
-                    onChange(e);
-
-                    const value = e.target.value;
-
-                    handleLocationInput(value);
-                    handleVillageTownCostCheck(value);
-                  }}
-                  onFocus={(e) =>
-                    handleLocationInput(e.target.value)
-                  }
-                  onBlur={(e) => {
-                    onBlur(e);
-
-                    setTimeout(
-                      () => setShowSuggestions(false),
-                      200
-                    );
-                  }}
+                  {...register("firstName")}
+                  className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                  placeholder="Nombre"
                 />
               </div>
-            );
-          })()}
 
-          {errors.addressLine1?.message && (
-            <p className="text-red-500 text-xs mt-1 font-medium">
-              {errors.addressLine1?.message}
-            </p>
-          )}
-
-          {/* Dropdown Suggestions */}
-          {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute z-30 w-full bg-white border border-gray-100 rounded-xl shadow-xl max-h-52 overflow-y-auto mt-1.5 py-1 divide-y divide-gray-50">
-              {suggestions.map((loc) => (
-                <li
-                  key={loc.id}
-                  className="px-4 py-2.5 hover:bg-gray-50 active:bg-gray-100 cursor-pointer text-sm flex items-center gap-2 transition-colors"
-                  onClick={() => {
-                    setValue("addressLine1", loc.name, {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    });
-
-                    setValue("city", loc.city || "");
-                    setValue("state", loc.state || "");
-
-                    handleVillageTownCostCheck(loc.name);
-
-                    setSuggestions([]);
-                    setShowSuggestions(false);
-                  }}
-                >
-                  <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-
-                  <div>
-                    <span className="font-semibold text-gray-800">
-                      {loc.name}
-                    </span>
-
-                    {loc.city && (
-                      <span className="text-xs text-gray-400">
-                        , {loc.city}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-    {/* City + Province */}
-<div className="grid grid-cols-2 gap-3">
-  <div>
-    <label className="block text-xs font-semibold text-gray-700 mb-1">
-      Ciudad
-    </label>
-
-    <input
-      {...register("city")}
-      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-      placeholder="Barcelona"
-      autoComplete="address-level2"
-    />
-
-    {errors.city?.message && (
-      <p className="text-red-500 text-xs mt-1 font-medium">
-        {errors.city.message}
-      </p>
-    )}
-  </div>
-
-  <div>
-    <label className="block text-xs font-semibold text-gray-700 mb-1">
-      Provincia
-    </label>
-
-    <input
-      {...register("state")}
-      className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-      placeholder="Barcelona"
-      autoComplete="address-level1"
-    />
-
-    {errors.state?.message && (
-      <p className="text-red-500 text-xs mt-1 font-medium">
-        {errors.state.message}
-      </p>
-    )}
-  </div>
-</div>
-      </div>
-
-      {/* ================= OPTIONAL SECTION ================= */}
-      <div className="space-y-4 pt-3">
-        <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-            Datos adicionales (Opcional)
-          </span>
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Correo electrónico
-          </label>
-
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-              <Mail className="w-4 h-4" />
+              {errors.firstName?.message && (
+                <p className="text-red-500 text-xs mt-1 font-medium">
+                  {errors.firstName?.message}
+                </p>
+              )}
             </div>
 
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Apellidos <span className="text-red-500">*</span>
+              </label>
+
+              <input
+                {...register("lastName")}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                placeholder="Apellidos"
+              />
+
+              {errors.lastName?.message && (
+                <p className="text-red-500 text-xs mt-1 font-medium">
+                  {errors.lastName?.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="relative">
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Calle / Dirección <span className="text-red-500">*</span>
+            </label>
+
+            {(() => {
+              const { onChange, onBlur, ref, name } =
+                register("addressLine1");
+
+              return (
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                  </div>
+
+                  <input
+                    name={name}
+                    ref={ref}
+                    className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                    placeholder="Calle Mayor 12"
+                    autoComplete="off"
+                    onChange={(e) => {
+                      onChange(e);
+
+                      const value = e.target.value;
+
+                      handleLocationInput(value);
+                      handleVillageTownCostCheck(value);
+                    }}
+                    onFocus={(e) =>
+                      handleLocationInput(e.target.value)
+                    }
+                    onBlur={(e) => {
+                      onBlur(e);
+
+                      setTimeout(
+                        () => setShowSuggestions(false),
+                        200
+                      );
+                    }}
+                  />
+                </div>
+              );
+            })()}
+
+            {errors.addressLine1?.message && (
+              <p className="text-red-500 text-xs mt-1 font-medium">
+                {errors.addressLine1?.message}
+              </p>
+            )}
+
+            {/* Dropdown Suggestions */}
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className="absolute z-30 w-full bg-white border border-gray-100 rounded-xl shadow-xl max-h-52 overflow-y-auto mt-1.5 py-1 divide-y divide-gray-50">
+                {suggestions.map((loc) => (
+                  <li
+                    key={loc.id}
+                    className="px-4 py-2.5 hover:bg-gray-50 active:bg-gray-100 cursor-pointer text-sm flex items-center gap-2 transition-colors"
+                    onClick={() => {
+                      setValue("addressLine1", loc.name, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+
+                      setValue("city", loc.city || "");
+                      setValue("state", loc.state || "");
+
+                      handleVillageTownCostCheck(loc.name);
+
+                      setSuggestions([]);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+
+                    <div>
+                      <span className="font-semibold text-gray-800">
+                        {loc.name}
+                      </span>
+
+                      {loc.city && (
+                        <span className="text-xs text-gray-400">
+                          , {loc.city}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* City + Province */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Ciudad
+              </label>
+
+              <input
+                {...register("city")}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                placeholder="Barcelona"
+                autoComplete="address-level2"
+              />
+
+              {errors.city?.message && (
+                <p className="text-red-500 text-xs mt-1 font-medium">
+                  {errors.city.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Provincia
+              </label>
+
+              <input
+                {...register("state")}
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                placeholder="Barcelona"
+                autoComplete="address-level1"
+              />
+
+              {errors.state?.message && (
+                <p className="text-red-500 text-xs mt-1 font-medium">
+                  {errors.state.message}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ================= OPTIONAL SECTION ================= */}
+        <div className="space-y-4 pt-3">
+          <div className="flex items-center gap-2 pb-1 border-b border-gray-100">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              Datos adicionales (Opcional)
+            </span>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Correo electrónico
+            </label>
+
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <Mail className="w-4 h-4" />
+              </div>
+
+              <input
+                {...register("email")}
+                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                placeholder="nombre@ejemplo.com"
+              />
+            </div>
+          </div>
+
+          {/* House / Street & Postal Code */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Piso / Casa / Edificio
+              </label>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Home className="w-4 h-4" />
+                </div>
+
+                <input
+                  {...register("addressLine2")}
+                  className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                  placeholder="2º B, Calle Mayor 12"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                Código postal
+              </label>
+
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                  <Hash className="w-3.5 h-3.5" />
+                </div>
+
+                <input
+                  {...register("zipCode")}
+                  className="w-full pl-8 pr-2 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                  placeholder="08001"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Spain Address Details */}
+
+        <div className="grid grid-cols-2 gap-3">
+          {/* Portal */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Portal
+            </label>
+
             <input
-              {...register("email")}
-              className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-              placeholder="nombre@ejemplo.com"
+              {...register("portal")}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="Portal 2"
+            />
+          </div>
+
+          {/* Staircase */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Escalera
+            </label>
+
+            <input
+              {...register("staircase")}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="Escalera A"
             />
           </div>
         </div>
 
-        {/* House / Street & Postal Code */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="col-span-2">
-            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Piso / Casa / Edificio
-            </label>
-
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <Home className="w-4 h-4" />
-              </div>
-
-              <input
-                {...register("addressLine2")}
-                className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                placeholder="2º B, Calle Mayor 12"
-              />
-            </div>
-          </div>
-
+        <div className="grid grid-cols-2 gap-3">
+          {/* Floor */}
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-              Código postal
+              Piso
             </label>
 
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                <Hash className="w-3.5 h-3.5" />
-              </div>
+            <input
+              {...register("floor")}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="3º"
+            />
+          </div>
 
-              <input
-                {...register("zipCode")}
-                className="w-full pl-8 pr-2 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-                placeholder="08001"
-              />
-            </div>
+          {/* Door */}
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+              Puerta
+            </label>
+
+            <input
+              {...register("door")}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+              placeholder="B"
+            />
           </div>
         </div>
-      </div>
 
-      {/* Spain Address Details */}
+        {/* Delivery Notes */}
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* Portal */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Portal
+            Indicaciones para la entrega
           </label>
 
-          <input
-            {...register("portal")}
-            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-            placeholder="Portal 2"
+          <textarea
+            {...register("deliveryNotes")}
+            rows={3}
+            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all resize-none"
+            placeholder="Indicaciones adicionales para la entrega..."
           />
         </div>
 
-        {/* Staircase */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Escalera
-          </label>
+        {/* Submit CTA */}
 
-          <input
-            {...register("staircase")}
-            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-            placeholder="Escalera A"
-          />
-        </div>
-      </div>
+        <div className="flex gap-3 pt-2">
+          <button
+            type="submit"
+            className="flex-1 min-w-0 py-3.5 px-2 bg-black hover:bg-gray-800 text-white font-semibold rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <span>Guardar dirección y continuar</span>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* Floor */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Piso
-          </label>
+            {customerAddressIsComplete && (
+              <Check className="w-5 h-5 shrink-0 text-emerald-400" />
+            )}
+          </button>
 
-          <input
-            {...register("floor")}
-            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-            placeholder="3º"
-          />
+          {/* <button
+            type="button"
+            // onClick={handleUseOtherAddress}
+            className="flex-1 min-w-0 py-3.5 px-2 bg-black hover:bg-gray-800 text-white font-semibold rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            <span>Usar otra dirección</span>
+          </button> */}
         </div>
 
-        {/* Door */}
-        <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-            Puerta
-          </label>
-
-          <input
-            {...register("door")}
-            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
-            placeholder="B"
-          />
-        </div>
-      </div>
-
-      {/* Delivery Notes */}
-
-      <div>
-        <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-          Indicaciones para la entrega
-        </label>
-
-        <textarea
-          {...register("deliveryNotes")}
-          rows={3}
-          className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all resize-none"
-          placeholder="Indicaciones adicionales para la entrega..."
-        />
-      </div>
-
-      {/* Submit CTA */}
-      <div className="pt-2">
-        <button
-          type="submit"
-          className="w-full py-3.5 px-4 bg-black hover:bg-gray-800 text-white font-semibold rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-        >
-          <span>Guardar dirección y continuar</span>
-
-          {customerAddressIsComplete && (
-            <Check className="w-5 h-5 text-emerald-400" />
-          )}
-        </button>
-      </div>
-    </form>
-  </div>
-);
+      </form>
+    </div>
+  );
 
 
 
