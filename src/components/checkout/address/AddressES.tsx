@@ -93,7 +93,7 @@ export default function AddressAll() {
     // =====================================================
 
     if (isEmailIdentifier(identifier)) {
-      console.log("CUSTOMER IDENTIFIER = EMAIL:", identifier);
+      console.log("CUSTOMER IDENTIFIER = EMAIL:ES1", identifier);
       getAddressByEmail(identifier)
       // Put identifier in EMAIL field
       setValue("email", identifier);

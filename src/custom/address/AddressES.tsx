@@ -54,9 +54,9 @@ export default function AddressES() {
 
 
   async function getAddressByEmail(inputEmail: string) {
-    console.log("START: searchAddressEmail ------------------", inputEmail)
+    console.log("START: searchAddressEmail ------------------ES", inputEmail)
     const addressRes = await searchAddressEmail(inputEmail);
-    console.log("FETCHED searchAddressEmail------------------", addressRes)
+    console.log("FETCHED searchAddressEmail------------------ES", addressRes)
     if (addressRes) {
       setAddress(addressRes);
       const zipInfo = await fetchdeliveryByZip(addressRes.zipCode);
@@ -101,7 +101,7 @@ export default function AddressES() {
     // =====================================================
 
     if (isEmailIdentifier(identifier)) {
-      console.log("CUSTOMER IDENTIFIER = EMAIL:", identifier);
+      console.log("CUSTOMER IDENTIFIER = EMAIL:ES", identifier);
       getAddressByEmail(identifier)
       // Put identifier in EMAIL field
       setValue("email", identifier);

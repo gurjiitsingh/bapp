@@ -19,7 +19,7 @@ export type customerT = {
   addressLine2?: string;
   city?: string;
   state?: string;
-  zipcode?: string;
+  zipcode?: string; 
   landmark?: string;
 
   // Credit Control
