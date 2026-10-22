@@ -52,46 +52,21 @@ const CheckoutClient = ({ weeklySchedule }: Props) => {
   // ✅ CRITICAL: prevent hydration mismatch
   if (!mounted) return null;
 console.log("INSIDE CHECK OUT-----------------------")
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div translate="no" className="bg-white flex flex-col mt-10">
-        <div className="container mx-auto flex flex-col md:flex-row gap-6 p-2">
+return (
+  <Suspense fallback={<div>Loading...</div>}>
+    <div translate="no" className="bg-white flex flex-col mt-10">
+      <div className="container mx-auto flex flex-col gap-6 p-2">
+        <div className="flex flex-col gap-3 w-full">
+          <PaymentSelector />
+        </div>
 
-          <div className="flex flex-col gap-3 w-full">
-
-            {ENABLE_ORDER_SCHEDULE && (
-              <>
-                <StoreOpenStatus onStatusChange={setIsStoreOpen} />
-
-                <OrderTypeSelector
-                  isStoreOpen={isStoreOpen}
-                  onSelect={setOrderType}
-                />
-
-                {orderType === "instant" && (
-                  <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
-                    Your order will be prepared in 30–45 minutes.
-                  </div>
-                )}
-
-                {orderType === "schedule" && (
-                  <SchedulePicker
-                    onChange={setScheduledAt}
-                    schedule={weeklySchedule}
-                  />
-                )}
-              </>
-            )}
-
-            <AddressWrapper />
-            <PaymentSelector />
-          </div>
-
+        <div className="w-full">
           <OrderSummeryProcess isStoreOpen={isStoreOpen} />
         </div>
       </div>
-    </Suspense>
-  );
+    </div>
+  </Suspense>
+);
 };
 
 export default CheckoutClient;

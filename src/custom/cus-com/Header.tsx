@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import Navbar from "@/custom/menu/Navbar";
 import Login from "../../components/buttons/Login";
 import { LanguageSwitcher } from "../../languages/LanguageSwitcher";
+import LogoutButton from "@/app/user/components/LogoutButton";
 
 export const headerFlags = {
   SHOW_LANGUAGE_SWITCHER: process.env.NEXT_PUBLIC_SHOW_LANGUAGE_SWITCHER === "1",
@@ -55,7 +56,8 @@ const Header = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          {headerFlags.SHOW_LANGUAGE_SWITCHER && <LanguageSwitcher />}
+          {/* {headerFlags.SHOW_LANGUAGE_SWITCHER && <LanguageSwitcher />} */}
+          <LogoutButton />
           {headerFlags.SHOW_LOGIN_BUTTON && <Login />}
         </div>
       </div>

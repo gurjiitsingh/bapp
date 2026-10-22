@@ -1,21 +1,31 @@
-'use client'
+"use client";
 
 import { IoCartOutline } from "react-icons/io5";
-import CartCount from './CartCount';
-import { UseSiteContext } from '@/SiteContext/SiteContext';
+import CartCount from "./CartCount";
+import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 const CartBottom = () => {
   const { sideBarToggle } = UseSiteContext();
 
   return (
-    <button 
-      onClick={() => sideBarToggle(false)} 
-      className="cart-bg hover:bg-red-400 text-white rounded-full shadow-lg transition duration-300 p-3 cursor-pointer"
+    <button
+      type="button"
+      onClick={() => sideBarToggle(true)}
+      aria-label="Open shopping cart"
+      className="
+        cart-bg group flex items-center gap-2
+        rounded-full p-3 text-white
+        shadow-lg transition-all duration-300
+        hover:scale-105 hover:bg-red-400 hover:shadow-xl
+        active:scale-95
+      "
     >
-      <div className="flex items-center gap-2">
-        <IoCartOutline size={28} />
-        <CartCount /> 
-      </div>
+      <IoCartOutline
+        size={28}
+        className="transition-transform duration-300 group-hover:rotate-[-8deg]"
+      />
+
+      <CartCount />
     </button>
   );
 };

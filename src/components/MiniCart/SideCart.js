@@ -1,10 +1,10 @@
- 
-   "use client";
+"use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useClickAway } from "react-use";
 import { IoClose } from "react-icons/io5";
+import { useSession } from "next-auth/react";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import MiniCartContent from "./MiniCartcontent";
 import { MiniCartSubtotal } from "./MiniSubtotal";
@@ -30,21 +30,43 @@ const framerSidebarPanel = {
 
 export const SideCart = () => {
   const { TEXT } = useLanguage();
-  const { open, sideBarToggle } = UseSiteContext();
-  const { openEmailForm, emailFormToggle, customerEmail } = UseSiteContext();
+
+  const {
+    open,
+    sideBarToggle,
+    openEmailForm,
+    emailFormToggle,
+  } = UseSiteContext();
+
   const { cartData } = useCartContext();
-  const ref = useRef(null);
+  const { status } = useSession();
+
+  const ref = useRef < HTMLDivElement | null > (null);
   const router = useRouter();
+
   useClickAway(ref, () => sideBarToggle());
 
-  function pickUpHandle() {
-    sideBarToggle();
-    
-    if (!customerEmail) {
-      emailFormToggle(true);
-    } else {
-      router.push(`/checkout`);
+  // An authenticated customer should never see the login/register popup.
+  useEffect(() => {
+    if (status === "authenticated" && openEmailForm) {
+      emailFormToggle(false);
     }
+  }, [status, openEmailForm, emailFormToggle]);
+
+  function pickUpHandle() {
+    // Wait until Auth.js has finished checking the session.
+    if (status === "loading") return;
+
+    sideBarToggle();
+
+    if (status === "authenticated") {
+      emailFormToggle(false);
+      router.push("/checkout");
+      return;
+    }
+
+    // Only unauthenticated customers need to log in or register.
+    emailFormToggle(true);
   }
 
   function shopMoreHandle() {
@@ -54,83 +76,95 @@ export const SideCart = () => {
 
   return (
     <div translate="no" className="z-50">
-      {typeof window !== "undefined" && !openEmailForm && (
-        <AnimatePresence mode="wait" initial={false}>
-          {open && (
-            <>
-              {/* Background blur */}
-              <motion.div
-                {...framerSidebarBackground}
-                aria-hidden="true"
-                className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-              ></motion.div>
+      {
+        !openEmailForm && (
+          <AnimatePresence mode="wait" initial={false}>
+            {open && (
+              <>
+                {/* Background blur */}
+                <motion.div
+                  {...framerSidebarBackground}
+                  aria-hidden="true"
+                  className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+                />
 
-              {/* Sidebar panel */}
-              <motion.div
-                {...framerSidebarPanel}
-                ref={ref}
-                // className="fixed top-0 bottom-0 left-0 z-50 w-full max-w-md h-screen bg-gradient-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col"
-                className="fixed inset-y-0 left-0 z-50 w-full max-w-md bg-gradient-to-b from-white to-gray-50 shadow-2xl border-r border-gray-200 flex flex-col"
-                aria-label="Sidebar"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
-                  <span className="text-lg font-semibold text-gray-800">
-                    {TEXT.cart_sidebar_title}
-                  </span>
-                  <button
-                    onClick={sideBarToggle}
-                    className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
-                    aria-label="close sidebar"
-                  >
-                    <IoClose size={26} />
-                  </button>
-                </div>
-
-                {/* Cart content */}
-                <div className="flex-1 overflow-y-auto p-3">
-                   <CartToMargin />
-                  <MiniCartContent />
-                </div>
-
-                {/* Subtotal & Actions */}
-                {/* <div className="p-4 border-t border-gray-100 bg-white"> */}
-                <div
-  className="px-4 pt-4 border-t border-gray-100 bg-white"
-  style={{
-    paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
-  }}
->
-                  <MiniCartSubtotal />
-
-                  <div className="flex flex-col items-center justify-center gap-3 mt-4">
-                    {cartData.length ? (
-                      <button
-                        onClick={pickUpHandle}
-                        className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-xl transition-all shadow-sm hover:shadow-md"
-                      >
-                        {TEXT.checkout_button}
-                      </button>
-                    ) : (
-                      <div className="text-gray-500 font-medium text-center">
-                        {TEXT.empty_cart_message}
-                      </div>
-                    )}
+                {/* Sidebar panel */}
+                <motion.div
+                  {...framerSidebarPanel}
+                  ref={ref}
+                  className="fixed inset-y-0 left-0 z-50 flex w-full max-w-md flex-col border-r border-gray-200 bg-gradient-to-b from-white to-gray-50 shadow-2xl"
+                  aria-label="Sidebar"
+                >
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-3">
+                    <span className="text-lg font-semibold text-gray-800">
+                      {TEXT.cart_sidebar_title}
+                    </span>
 
                     <button
-                      onClick={shopMoreHandle}
-                      className="w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl transition-all"
+                      type="button"
+                      onClick={sideBarToggle}
+                      className="rounded-lg p-2 transition-colors hover:bg-gray-200"
+                      aria-label="Close sidebar"
                     >
-                      {TEXT.shop_more_button}
+                      <IoClose size={26} />
                     </button>
                   </div>
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
+
+                  {/* Cart content */}
+                  <div className="flex-1 overflow-y-auto p-3">
+                    <CartToMargin />
+                    <MiniCartContent />
+                  </div>
+
+                  {/* Subtotal and actions */}
+                  <div
+                    className="border-t border-gray-100 bg-white px-4 pt-4"
+                    style={{
+                      paddingBottom:
+                        "calc(1rem + env(safe-area-inset-bottom))",
+                    }}
+                  >
+                    <MiniCartSubtotal />
+
+                    <div className="mt-4 flex flex-col items-center justify-center gap-3">
+                      {cartData.length > 0 ? (
+                        <button
+                          type="button"
+                          onClick={pickUpHandle}
+                          disabled={status === "loading"}
+                          className="w-full rounded-xl bg-slate-800 py-2 font-semibold text-white shadow-sm transition-all hover:bg-slate-700 hover:shadow-md disabled:cursor-wait disabled:opacity-60"
+                        >
+                          {status === "loading"
+                            ? "Please wait..."
+                            : TEXT.checkout_button}
+                        </button>
+                      ) : (
+                        <div className="text-center font-medium text-gray-500">
+                          {TEXT.empty_cart_message}
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={shopMoreHandle}
+                        className="w-full rounded-xl bg-gray-200 py-2 font-semibold text-gray-800 transition-all hover:bg-gray-300"
+                      >
+                        {TEXT.shop_more_button}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        )
+      }
+
+      {/* Show login/register only to unauthenticated customers */}
+      {status === "unauthenticated" && openEmailForm && (
+        <ProccedWithEmail />
       )}
-      {openEmailForm && <ProccedWithEmail />}
     </div>
   );
 };

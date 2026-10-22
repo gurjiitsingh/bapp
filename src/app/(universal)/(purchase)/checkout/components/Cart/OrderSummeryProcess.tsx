@@ -375,41 +375,53 @@ export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProc
         return;
       }
 
+     
       // =====================================================
-      // 4️⃣ READ CUSTOMER DATA
+      // 4️⃣ READ SELECTED CUSTOMER ADDRESS
       // =====================================================
 
-      // const addressId =
-      //   JSON.parse(localStorage.getItem("customer_address_Id") || "null") || "";
+      function readStoredString(key: string): string {
+        const raw = localStorage.getItem(key);
 
-      let addressId = "";
-      try {
-        addressId =
-          JSON.parse(localStorage.getItem("customer_address_Id") ?? "null") ||
-          "";
-      } catch {
-        addressId = "";
+        if (!raw) return "";
+
+        try {
+          const parsed: unknown = JSON.parse(raw);
+          return typeof parsed === "string" ? parsed : raw;
+        } catch {
+          return raw;
+        }
       }
 
-      const userId = localStorage.getItem("order_user_Id") as string;
+      const addressId = readStoredString("customer_address_Id");
+      const userId = readStoredString("order_user_Id");
 
-      const email =
-        JSON.parse(localStorage.getItem("customer_email") || '""') || "";
+      const customerAddress = getLS("customer_address", undefined);
 
-      const customerAddress = getLS("customer_address", "");
+      if (!customerAddress) {
+        toast.error(TEXT.error_select_address);
+        return;
+      }
 
-      const customerEmail = customerAddress?.email ?? "";
-      const customerfirstName = customerAddress?.firstName ?? "";
-      const customerlastName = customerAddress?.lastName ?? "";
-      const customerPhone = customerAddress?.mobNo ?? "";
+      const customerEmail = customerAddress.email ?? "";
+      const customerfirstName = customerAddress.firstName ?? "";
+      const customerlastName = customerAddress.lastName ?? "";
+      const customerPhone = customerAddress.mobNo ?? "";
 
-      const addressLine1 = customerAddress?.addressLine1 ?? "";
-      const addressLine2 = customerAddress?.addressLine2 ?? "";
-      const city = customerAddress?.city ?? "";
-      const state = customerAddress?.state ?? "";
-      const zipCode = customerAddress?.zipCode ?? "";
+      const customerName =
+        `${customerfirstName} ${customerlastName}`.trim();
 
-      const customerName = customerfirstName + " " + customerlastName;
+      const addressLine1 = customerAddress.addressLine1 ?? "";
+      const addressLine2 = customerAddress.addressLine2 ?? "";
+      const city = customerAddress.city ?? "";
+      const state = customerAddress.state ?? "";
+      const zipCode = customerAddress.zipCode ?? "";
+
+      if (deliveryType === "delivery" && !addressLine1.trim()) {
+        toast.error(TEXT.error_select_address);
+        return;
+      }
+
       // =====================================================
       // 5️⃣ FINAL SAFETY CHECKS
       // =====================================================

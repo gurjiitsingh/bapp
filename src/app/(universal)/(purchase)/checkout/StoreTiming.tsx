@@ -1,0 +1,97 @@
+"use client";
+
+import React, { Suspense, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+import PaymentSelector from "./components/PaymentSelector";
+import OrderTypeSelector from "@/components/OrderTypeSelector";
+import OrderSummeryProcess from "./components/Cart/OrderSummeryProcess";
+
+import { DaySchedule } from "@/lib/types/daySchedule";
+import AddressWrapper from "@/custom/address/AddressWrapper";
+
+const ENABLE_ORDER_SCHEDULE =
+  process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
+// 🔥 Disable SSR
+const StoreOpenStatus = dynamic(
+  () => import("@/components/StoreOpenStatus"),
+  { ssr: false }
+);
+
+const SchedulePicker = dynamic(
+  () => import("@/components/SchedulePicker"),
+  { ssr: false }
+);
+
+type Props = {
+  weeklySchedule: DaySchedule[];
+};
+
+const Scheduler = ({ weeklySchedule }: Props) => {
+  const [mounted, setMounted] = useState(false);
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
+  const [orderType, setOrderType] = useState<"instant" | "schedule" | null>(
+    null
+  );
+  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (!isStoreOpen) {
+      setOrderType("schedule");
+    } else {
+      setOrderType(null);
+    }
+  }, [isStoreOpen, mounted]);
+
+  // ✅ CRITICAL: prevent hydration mismatch
+  if (!mounted) return null;
+console.log("INSIDE CHECK OUT-----------------------")
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <div translate="no" className="bg-white flex flex-col mt-10">
+        <div className="container mx-auto flex flex-col md:flex-row gap-6 p-2">
+
+          <div className="flex flex-col gap-3 w-full">
+
+            {ENABLE_ORDER_SCHEDULE && (
+              <>
+                <StoreOpenStatus onStatusChange={setIsStoreOpen} />
+
+                <OrderTypeSelector
+                  isStoreOpen={isStoreOpen}
+                  onSelect={setOrderType}
+                />
+
+                {orderType === "instant" && (
+                  <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
+                    Your order will be prepared in 30–45 minutes.
+                  </div>
+                )}
+
+                {orderType === "schedule" && (
+                  <SchedulePicker
+                    onChange={setScheduledAt}
+                    schedule={weeklySchedule}
+                  />
+                )}
+              </>
+            )}
+
+           
+         
+          </div>
+
+         
+        </div>
+      </div>
+    </Suspense>
+  );
+};
+
+export default Scheduler;
