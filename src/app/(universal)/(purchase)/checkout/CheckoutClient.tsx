@@ -51,7 +51,7 @@ const CheckoutClient = ({ weeklySchedule }: Props) => {
 
   // ✅ CRITICAL: prevent hydration mismatch
   if (!mounted) return null;
-
+console.log("INSIDE CHECK OUT-----------------------")
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div translate="no" className="bg-white flex flex-col mt-10">
