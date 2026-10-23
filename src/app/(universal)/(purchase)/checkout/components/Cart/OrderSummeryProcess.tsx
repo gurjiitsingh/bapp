@@ -552,47 +552,107 @@ export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProc
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full ">
-      <div className="flex flex-col bg-slate-50 p-5 h-full w-full gap-7 rounded-2xl">
-        <div className="flex flex-col gap-2 items-center">
-          <h2
-            className="text-sm font-semibold text-gray-700 mb-4 w-full text-left"
-          // className="text-xl font-semibold border-b border-slate-200 py-3 w-full uppercase"
-          >
+  
+ 
+  <div className="w-full">
+    <div className="flex w-full flex-col gap-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:gap-6 sm:p-5">
+
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold tracking-tight text-slate-900 sm:text-lg">
             {TEXT.cart_heading}
           </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Review your order before checkout
+          </p>
+        </div>
 
-          <div className="font-semibold border-b border-slate-200 py-3 w-full flex flex-col justify-between gap-4">
-            <div className="w-fit">
-              <button
-                onClick={() => setAddCoupon(!addCoupon)}
-                className="flex gap-2 items-center text-sm text-slate-600 bg-green-200 rounded-2xl px-3 font-semibold py-1 w-full text-left "
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="21"
+            height="21"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="8" cy="21" r="1" />
+            <circle cx="19" cy="21" r="1" />
+            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.96-1.6L22 7H5" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Coupon */}
+      <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4">
+        <button
+          type="button"
+          onClick={() => setAddCoupon(!addCoupon)}
+          aria-expanded={addCoupon}
+          className="flex w-full items-center justify-between gap-3 text-left"
+        >
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <span>{TEXT.add_coupon_button}</span>
-                <span>
-                  <FaChevronDown />
-                </span>
-              </button>
-            </div>
+                <path d="M20.59 13.41 11 3.83V3H4v7h.83l9.58 9.59a2 2 0 0 0 2.83 0l3.35-3.35a2 2 0 0 0 0-2.83Z" />
+                <circle cx="7.5" cy="6.5" r=".5" />
+              </svg>
+            </span>
 
-            {addCoupon && (
-              <>
-                <CouponDiscForm />
-              </>
-            )}
+            <span>
+              <span className="block text-sm font-semibold text-slate-800">
+                {TEXT.add_coupon_button}
+              </span>
+              <span className="mt-0.5 block text-xs text-slate-500">
+                Apply an available discount
+              </span>
+            </span>
+          </span>
+
+          <FaChevronDown
+            className={`shrink-0 text-xs text-slate-500 transition-transform duration-200 ${
+              addCoupon ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {addCoupon && (
+          <div className="mt-4 border-t border-slate-100 pt-4">
+            <CouponDiscForm />
           </div>
+        )}
+      </div>
 
-          <div className="font-semibold border-b border-slate-200 py-3 w-full flex justify-between">
-            <div className="text-sm font-semibold py-3 w-full text-left">
-              {TEXT.subtotal_label}
-            </div>
-            <div className="flex gap-1">
-              {itemTotalComa && <span> </span>} <span>{itemTotalComa}</span>
-            </div>
-          </div>
+      {/* Price summary */}
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white px-4">
 
+        {/* Subtotal */}
+        <div className="flex items-center justify-between gap-4 border-b border-slate-100 py-4">
+          <span className="text-sm font-medium text-slate-600">
+            {TEXT.subtotal_label}
+          </span>
+          <span className="text-sm font-semibold tabular-nums text-slate-900">
+            {itemTotalComa}
+          </span>
+        </div>
+
+        {/* Delivery / pickup options */}
+        <div className="space-y-4 border-b border-slate-100 py-4">
           <SetDeliveryType />
-
           <DeliveryFee />
 
           <Pickup
@@ -604,79 +664,125 @@ export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProc
             flatcouponPercent + calcouponPercent !== 0 && (
               <CouponDisc total={itemTotal} />
             )}
+        </div>
 
-          <div className="font-semibold border-b border-slate-200 py-3 w-full flex justify-between items-center">
-            <div className="text-md font-semibold py-3 w-full text-left">
+        {/* Total */}
+        <div className="flex items-center justify-between gap-3 py-4">
+          <div>
+            <p className="text-base font-bold text-slate-900">
               {TEXT.total_label}
-            </div>
-            <div className="flex gap-1">
-              {endTotalComma && <span></span>} <span>{endTotalComma}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center space-x-2 text-sm text-gray-700">
-            <input
-              id="noOffersCheckbox"
-              type="checkbox"
-              checked={noOffers}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                setNoOffers(checked);
-                setShowAlert(checked);
-              }}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="noOffersCheckbox">{TEXT.no_offers_checkbox}</label>
+            </p>
+            <p className="mt-1 text-xs text-slate-500">
+              Final order amount
+            </p>
           </div>
 
-          {showAlert && (
-            <div className="bg-yellow-100 text-yellow-800 p-3 rounded-md text-sm border border-yellow-300">
-              <p>{TEXT.no_offers_alert_line1}</p>
-              <p className="mt-1">{TEXT.no_offers_alert_line2}</p>
-            </div>
-          )}
+          <span className="text-xl font-bold tracking-tight text-orange-600 tabular-nums sm:text-2xl">
+            {endTotalComma}
+          </span>
         </div>
+      </div>
 
-        <button
-          onClick={proceedToOrder}
-          disabled={isLoading}
-          className="w-full px-4 py-2 font-bold rounded-xl text-[1.2rem] bg-red-500 text-blue-900 hover:bg-amber-500 disabled:opacity-50 flex items-center justify-center gap-2"
+      {/* Offers preference */}
+      <div className="space-y-3">
+        <label
+          htmlFor="noOffersCheckbox"
+          className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 transition hover:border-orange-200 sm:p-4"
         >
-          {isLoading && (
-            <svg
-              className="animate-spin h-5 w-5 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8H4z"
-              ></path>
-            </svg>
-          )}
+          <input
+            id="noOffersCheckbox"
+            type="checkbox"
+            checked={noOffers}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setNoOffers(checked);
+              setShowAlert(checked);
+            }}
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-slate-300 accent-orange-500 focus:ring-2 focus:ring-orange-400"
+          />
+
+          <span className="text-sm leading-5 text-slate-700">
+            {TEXT.no_offers_checkbox}
+          </span>
+        </label>
+
+        {showAlert && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-800">
+            <p>{TEXT.no_offers_alert_line1}</p>
+            <p className="mt-1">{TEXT.no_offers_alert_line2}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Place order */}
+      <button
+        type="button"
+        onClick={proceedToOrder}
+        disabled={isLoading}
+        className="group flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-base font-bold text-white shadow-sm shadow-orange-200/70 transition-all duration-200 hover:bg-orange-600 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-14 sm:text-lg"
+      >
+        {isLoading && (
+          <svg
+            className="h-5 w-5 animate-spin text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 0 1 8-8v8H4z"
+            />
+          </svg>
+        )}
+
+        <span>
           {isLoading ? (
             TEXT.placing_order_text
           ) : (
             <>
-              {TEXT.place_order_button}
-              <span className="text-sky-500">{TEXT.order_button_suffix}</span>
+              {TEXT.place_order_button}{" "}
+              <span className="text-orange-100">
+                {TEXT.order_button_suffix}
+              </span>
             </>
           )}
-        </button>
-      </div>
+        </span>
+
+        {!isLoading && (
+          <svg
+            className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        )}
+      </button>
+
+      <p className="text-center text-xs leading-5 text-slate-500">
+        Please review your delivery details and payment method before placing your order.
+      </p>
     </div>
+  </div>
+ 
+
   );
 }
 function getLS(key: string, fallback = "") {

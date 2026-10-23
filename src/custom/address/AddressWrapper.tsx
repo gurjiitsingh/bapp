@@ -9,7 +9,7 @@ export default async function AddressWrapper() {
   const userId = session?.user?.id;
   const role = session?.user?.role;
 
-  console.log("test-----------------", role, userId)
+ 
 
   if (role !== "user" || !userId) {
     return <AddressES />;

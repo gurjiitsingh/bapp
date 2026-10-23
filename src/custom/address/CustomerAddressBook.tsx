@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,8 +6,12 @@ import { useRouter } from "next/navigation";
 import {
   MapPin,
   CheckCircle2,
+  Check,
   Plus,
   Pencil,
+  Phone,
+  ArrowRight,
+  MapPinned,
 } from "lucide-react";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 
@@ -45,13 +50,11 @@ export default function CustomerAddressBook({
     addresses[0]?.id ?? ""
   );
   const [error, setError] = useState("");
-
-  // Open the checkout-specific page to add an address.
+  const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
   function addAddress() {
     router.push("/checkout/address?returnTo=%2Fcheckout");
   }
 
-  // Open the checkout-specific page to edit an existing address.
   function editAddress(addressId: string) {
     router.push(
       `/checkout/address?edit=${encodeURIComponent(
@@ -89,153 +92,250 @@ export default function CustomerAddressBook({
 
     localStorage.setItem(
       "customer_name",
-      `${selectedAddress.firstName ?? ""} ${
-        selectedAddress.lastName ?? ""
-      }`.trim()
+      `${selectedAddress.firstName ?? ""} ${selectedAddress.lastName ?? ""
+        }`.trim()
     );
 
     setCustomerAddressIsComplete(true);
+    setIsAddressConfirmed(true);
     setError("");
   }
 
   return (
-    <section className="w-full space-y-4 rounded-lg border border-gray-200 p-4">
-      {/* Heading and Add Address button */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">
-          Select delivery address
-        </h2>
+    <section className="w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white/90 shadow-sm backdrop-blur-md">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-4 py-4 sm:px-5">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
+            <MapPinned size={17} strokeWidth={1.8} />
+          </span>
+
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900 sm:text-base">
+              Delivery address
+            </h2>
+            <p className="mt-0.5 text-[11px] text-gray-500 sm:text-xs">
+              Choose where you want your order delivered
+            </p>
+          </div>
+        </div>
 
         <button
           type="button"
           onClick={addAddress}
-          className="inline-flex items-center gap-2 rounded-lg border border-blue-600 px-3 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
+          className="inline-flex h-8 items-center gap-1.5 rounded-full border border-orange-300/60 bg-orange-500/10 px-3 text-[11px] font-semibold text-orange-700 transition hover:border-orange-400/70 hover:bg-orange-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
         >
-          <Plus className="h-4 w-4" />
-          Add a new address
+          <Plus size={13} />
+          Add address
         </button>
       </div>
 
-      {addresses.length === 0 ? (
-        <div className="space-y-3 rounded-lg bg-gray-50 p-4">
-          <MapPin className="h-8 w-8 text-gray-400" />
+      <div className="space-y-3 p-3 sm:p-4">
+        {/* Empty state */}
+        {addresses.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50/70 px-4 py-8 text-center">
+            <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-orange-100/80 text-orange-600">
+              <MapPin size={19} strokeWidth={1.7} />
+            </span>
 
-          <p className="text-sm text-gray-600">
-            No saved addresses were found for your account.
-          </p>
+            <h3 className="mt-3 text-sm font-semibold text-gray-800">
+              No saved addresses yet
+            </h3>
 
-          <button
-            type="button"
-            onClick={addAddress}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-            Add your first address
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {addresses.map((address) => {
-            const selected = selectedId === address.id;
+            <p className="mx-auto mt-1 max-w-xs text-xs leading-5 text-gray-500">
+              Add your delivery details to make checkout quicker and easier.
+            </p>
 
-            return (
-              <div
-                key={address.id}
-                className={`rounded-lg border p-3 transition ${
-                  selected
-                    ? "border-blue-600 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-400"
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  {/* Address selection */}
-                  <input
-                    type="radio"
-                    name="customerAddress"
-                    value={address.id}
-                    checked={selected}
-                    onChange={() => {
-                      setSelectedId(address.id);
-                      setError("");
-                    }}
-                    aria-label={`Select address for ${
-                      address.firstName ?? "customer"
+            <button
+              type="button"
+              onClick={addAddress}
+              className="mt-4 inline-flex h-9 items-center gap-2 rounded-full bg-orange-500 px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-orange-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
+            >
+              <Plus size={14} />
+              Add your first address
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {addresses.map((address) => {
+              const selected = selectedId === address.id;
+
+              const fullName = [
+                address.firstName,
+                address.lastName,
+              ]
+                .filter(Boolean)
+                .join(" ");
+
+              const cityLine = [
+                address.city,
+                address.state,
+                address.zipCode,
+              ]
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <div
+                  key={address.id}
+                  onClick={() => {
+                    setSelectedId(address.id);
+                    setIsAddressConfirmed(false);
+                    setCustomerAddressIsComplete(false);
+                    setError("");
+                  }
+                  }
+                  className={`group relative cursor-pointer rounded-xl border p-3 transition-all duration-200 sm:p-4 ${selected
+                      ? "border-orange-300 bg-orange-50/50 shadow-sm shadow-orange-100/50"
+                      : "border-gray-200/90 bg-white/70 hover:border-orange-200 hover:bg-orange-50/20"
                     }`}
-                    className="mt-1"
-                  />
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Custom selection indicator */}
+                    <span
+                      className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${selected
+                          ? "border-orange-500 bg-orange-500 text-white"
+                          : "border-gray-300 bg-white group-hover:border-orange-300"
+                        }`}
+                    >
+                      {selected && (
+                        <CheckCircle2
+                          size={12}
+                          strokeWidth={2.5}
+                        />
+                      )}
+                    </span>
 
-                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-gray-600" />
+                    {/* Address content */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-xs font-semibold text-gray-900 sm:text-sm">
+                          {fullName || "Delivery address"}
+                        </h3>
 
-                  {/* Address details */}
-                  <div className="min-w-0 flex-1 text-sm">
-                    <p className="font-semibold">
-                      {address.firstName ?? ""}{" "}
-                      {address.lastName ?? ""}
-                    </p>
+                        {selected && (
+                          <span className="rounded-full bg-orange-100/80 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-orange-700">
+                            Selected
+                          </span>
+                        )}
+                      </div>
 
-                    {address.addressLine1 && (
-                      <p>{address.addressLine1}</p>
-                    )}
+                      <div className="mt-2 flex items-start gap-2">
+                        <MapPin
+                          size={13}
+                          strokeWidth={1.8}
+                          className="mt-0.5 shrink-0 text-gray-400"
+                        />
 
-                    {address.addressLine2 && (
-                      <p>{address.addressLine2}</p>
-                    )}
+                        <div className="min-w-0 text-xs leading-5 text-gray-600">
+                          {address.addressLine1 && (
+                            <p>{address.addressLine1}</p>
+                          )}
 
-                    <p>
-                      {[
-                        address.city,
-                        address.state,
-                        address.zipCode,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
+                          {address.addressLine2 && (
+                            <p>{address.addressLine2}</p>
+                          )}
 
-                    {address.mobNo && (
-                      <p className="mt-1 text-gray-600">
-                        Phone: {address.mobNo}
-                      </p>
-                    )}
+                          {cityLine && <p>{cityLine}</p>}
 
-                    {selected && (
-                      <span className="mt-2 inline-flex items-center gap-1 font-medium text-blue-700">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Selected
-                      </span>
-                    )}
+                          {(address.portal ||
+                            address.staircase ||
+                            address.floor ||
+                            address.door) && (
+                              <p className="mt-1 text-[11px] text-gray-500">
+                                {[
+                                  address.portal &&
+                                  `Portal ${address.portal}`,
+                                  address.staircase &&
+                                  `Staircase ${address.staircase}`,
+                                  address.floor &&
+                                  `Floor ${address.floor}`,
+                                  address.door &&
+                                  `Door ${address.door}`,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" · ")}
+                              </p>
+                            )}
+                        </div>
+                      </div>
+
+                      {address.mobNo && (
+                        <div className="mt-2 flex items-center gap-1.5 text-[11px] text-gray-500">
+                          <Phone size={11} strokeWidth={1.8} />
+                          <span>{address.mobNo}</span>
+                        </div>
+                      )}
+
+                      {address.deliveryNotes && (
+                        <p className="mt-2 rounded-lg bg-gray-50 px-2.5 py-2 text-[11px] leading-4 text-gray-500">
+                          Note: {address.deliveryNotes}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Edit button */}
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        editAddress(address.id);
+                      }}
+                      aria-label={`Edit address for ${fullName || "customer"
+                        }`}
+                      className="inline-flex h-7 shrink-0 items-center gap-1 rounded-full border border-gray-200/80 bg-white/80 px-2 text-[10px] font-medium text-gray-600 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 sm:px-2.5 sm:text-[11px]"
+                    >
+                      <Pencil size={11} />
+                      <span>Edit</span>
+                    </button>
                   </div>
-
-                  {/* Edit button */}
-                  <button
-                    type="button"
-                    onClick={() => editAddress(address.id)}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-sm font-medium text-blue-600 hover:bg-blue-100"
-                    aria-label={`Edit address for ${
-                      address.firstName ?? "customer"
-                    }`}
-                  >
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
 
-      {error && (
-        <p className="text-sm text-red-600">{error}</p>
-      )}
+        {/* Validation message */}
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600"
+          >
+            {error}
+          </p>
+        )}
 
-      <button
-        type="button"
-        onClick={handleUseAddress}
-        disabled={addresses.length === 0 || !selectedId}
-        className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Deliver to this address
-      </button>
+        {/* Confirm selected address */}
+       
+<button
+  type="button"
+  onClick={handleUseAddress}
+  disabled={addresses.length === 0 || !selectedId}
+  className={`group flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-semibold shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none sm:h-12 sm:text-sm ${
+    isAddressConfirmed
+      ? "bg-green-600 text-white shadow-green-200/50 hover:bg-green-700 focus-visible:ring-green-400"
+      : "bg-orange-500 text-white shadow-orange-200/50 hover:bg-orange-600 focus-visible:ring-orange-400"
+  }`}
+>
+  {isAddressConfirmed ? (
+    <>
+      <CheckCircle2 size={16} strokeWidth={2.2} />
+      Address confirmed
+      <Check size={15} strokeWidth={2.5} />
+    </>
+  ) : (
+    <>
+      <MapPin size={14} />
+      Confirm delivery address
+      <ArrowRight
+        size={14}
+        className="transition-transform group-hover:translate-x-0.5"
+      />
+    </>
+  )}
+</button>
+
+      </div>
     </section>
   );
 }
