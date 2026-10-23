@@ -24,6 +24,7 @@ export default function ProccedWithEmail() {
     emailFormToggle,
     setCustomerEmailG,
     setCustomerAddressIsComplete,
+    cartItems,
   } = UseSiteContext();
 
   const router = useRouter();
@@ -63,12 +64,18 @@ export default function ProccedWithEmail() {
     setMessage("");
   }
 
-  async function continueToCheckout(identifier: string) {
-    setCustomerEmailG(identifier);
-    setCustomerAddressIsComplete(false);
-    emailFormToggle(false);
-    router.push("/checkout");
+async function continueToCheckout(identifier: string) {
+  // Prevent checkout when the cart is empty.
+  if (!cartItems || cartItems.length === 0) {
+    setError("Your cart is empty. Please add items before checkout.");
+    return;
   }
+
+  setCustomerEmailG(identifier);
+  setCustomerAddressIsComplete(false);
+  emailFormToggle(false);
+  router.push("/checkout");
+}
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
