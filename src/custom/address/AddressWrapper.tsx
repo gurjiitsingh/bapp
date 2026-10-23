@@ -9,20 +9,13 @@ export default async function AddressWrapper() {
   const userId = session?.user?.id;
   const role = session?.user?.role;
 
-// Guests and non-customer users use the checkout address form.
-if (role !== "user" || !userId) {
-return <AddressES />;
-}
+  console.log("test-----------------", role, userId)
 
-// Load addresses saved to this customer's account.
-const addresses = await getCustomerAddresses(userId);
+  if (role !== "user" || !userId) {
+    return <AddressES />;
+  }
 
-// No saved address: capture the first address.
-// if (!addresses || addresses.length === 0) {
-// return <AddressES />;
-// }
-
-  
+  const addresses = await getCustomerAddresses(userId);
 
   return (
     <CustomerAddressBook

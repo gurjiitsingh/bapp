@@ -35,7 +35,7 @@ export async function createCustomer(data: NewCustomer) {
     hashedPassword: data.hashedPassword,
 
     // Customer account only. Never accept this role from the form.
-    role: "customer",
+    role: "user",
     accountType: "customer",
 
     status: "active",

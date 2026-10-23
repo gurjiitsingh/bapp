@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function UserPage() {
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-8">
+    <main className="mx-auto w-full max-w-7xl px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">
           My Account
@@ -17,7 +17,7 @@ export default function UserPage() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/user/orders"
-          className="rounded-xl border p-6 transition hover:shadow-md"
+          className="rounded-xl border  border-slate-200 p-6 transition hover:shadow-md"
         >
           <h2 className="text-lg font-semibold">
             My Orders
@@ -30,7 +30,7 @@ export default function UserPage() {
 
         <Link
           href="/user/addresses"
-          className="rounded-xl border p-6 transition hover:shadow-md"
+          className="rounded-xl border  border-slate-200 p-6 transition hover:shadow-md"
         >
           <h2 className="text-lg font-semibold">
             My Addresses
@@ -43,7 +43,7 @@ export default function UserPage() {
 
         <Link
           href="/user/profile"
-          className="rounded-xl border p-6 transition hover:shadow-md"
+          className="rounded-xl border  border-slate-200 p-6 transition hover:shadow-md"
         >
           <h2 className="text-lg font-semibold">
             My Profile
@@ -56,7 +56,7 @@ export default function UserPage() {
 
         <Link
           href="/user/account"
-          className="rounded-xl border p-6 transition hover:shadow-md"
+          className="rounded-xl border  border-slate-200 p-6 transition hover:shadow-md"
         >
           <h2 className="text-lg font-semibold">
             Account Details
