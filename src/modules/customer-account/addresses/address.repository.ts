@@ -153,6 +153,7 @@ export async function createCustomerAddressRecord(
   return toCustomerAddress(newRef.id, record);
 }
 
+
 export async function updateCustomerAddressRecord(
   userId: string,
   addressId: string,
@@ -183,15 +184,11 @@ export async function updateCustomerAddressRecord(
     }
   }
 
-  const patch: Record<string, unknown> = {
+  // Preserve the input fields while giving Firestore a compatible update type.
+  const patch = {
     ...input,
     updatedAt: now,
   };
-
-  // If explicitly unsetting the current default, don't leave it marked default.
-  if (input.isDefault === false) {
-    patch.isDefault = false;
-  }
 
   batch.update(targetRef, patch);
   await batch.commit();
@@ -205,6 +202,7 @@ export async function updateCustomerAddressRecord(
       )
     : null;
 }
+
 
 export async function deleteCustomerAddressRecord(
   userId: string,
