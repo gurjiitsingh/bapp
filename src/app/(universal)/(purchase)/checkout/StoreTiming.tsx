@@ -29,7 +29,8 @@ type Props = {
 
 const Scheduler = ({ weeklySchedule }: Props) => {
   const [mounted, setMounted] = useState(false);
-  const [isStoreOpen, setIsStoreOpen] = useState(false);
+  // const [isStoreOpen, setIsStoreOpen] = useState(false);
+  const [isStoreOpen, setIsStoreOpen] = useState<boolean | null>(null);
   const [orderType, setOrderType] = useState<"instant" | "schedule" | null>(
     null
   );
@@ -39,19 +40,15 @@ const Scheduler = ({ weeklySchedule }: Props) => {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return;
+useEffect(() => {
+  if (!mounted || isStoreOpen === null) return;
 
-    if (!isStoreOpen) {
-      setOrderType("schedule");
-    } else {
-      setOrderType(null);
-    }
-  }, [isStoreOpen, mounted]);
+  setOrderType(isStoreOpen ? "instant" : "schedule");
+}, [isStoreOpen, mounted]);
 
   // ✅ CRITICAL: prevent hydration mismatch
   if (!mounted) return null;
-console.log("INSIDE CHECK OUT-----------------------")
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div translate="no" className="bg-white flex flex-col mt-10">
@@ -61,15 +58,19 @@ console.log("INSIDE CHECK OUT-----------------------")
 
             {ENABLE_ORDER_SCHEDULE && (
               <>
-                <StoreOpenStatus onStatusChange={setIsStoreOpen} />
+             <StoreOpenStatus
+  onStatusChange={(open) => setIsStoreOpen(open)}
+/>
 
-                <OrderTypeSelector
-                  isStoreOpen={isStoreOpen}
-                  onSelect={setOrderType}
-                />
+{isStoreOpen !== null && (
+  <OrderTypeSelector
+    isStoreOpen={isStoreOpen}
+    onSelect={setOrderType}
+  />
+)}
 
                 {orderType === "instant" && (
-                  <div className="mt-3 px-3 py-2 rounded-md border border-green-100 bg-green-50 text-xs text-green-700">
+                  <div>
                     Your order will be prepared in 30–45 minutes.
                   </div>
                 )}
@@ -83,11 +84,11 @@ console.log("INSIDE CHECK OUT-----------------------")
               </>
             )}
 
-           
-         
+
+
           </div>
 
-         
+
         </div>
       </div>
     </Suspense>

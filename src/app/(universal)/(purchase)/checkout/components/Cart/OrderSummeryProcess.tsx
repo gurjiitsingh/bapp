@@ -24,7 +24,7 @@ type OrderSummeryProcessProps = {
   // scheduledAt?: string | null;
 };
 
-export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProcessProps) {
+export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcessProps) {
   const { TEXT } = useLanguage();
   const {
     couponDisc,
@@ -315,12 +315,15 @@ export default function OrderSummeryProcessMOB({ isStoreOpen }: OrderSummeryProc
         }
       }
 
-      if (!isStoreOpen && !scheduledAt) {
-        toast.error(
-          "Now store is closed, please select a time when the store is open"
-        );
-        return;
-      }
+   if (!scheduledAt && !isStoreOpen) {
+  toast.error(
+    "Store is closed. Please select a scheduled date and time."
+  );
+  return;
+}
+
+const orderScheduledAt = scheduledAt || null;
+
     }
 
     setIsLoading(true);

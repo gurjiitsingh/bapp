@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { useCartContext } from "@/store/CartContext";
 import { DaySchedule } from "@/lib/types/daySchedule";
+import { fromZonedTime } from "date-fns-tz";
+import { toZonedTime } from "date-fns-tz";
+const RESTAURANT_TIME_ZONE = "Europe/Madrid";
+
 
 
 
@@ -13,16 +17,25 @@ type Props = {
 
 export default function SchedulePicker({ onChange, schedule }: Props) {
 
-  console.log("weekshecdule----------------", schedule)
+
   const { setScheduledAt } = useCartContext();
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
    
-  const today = new Date();
+  const today = toZonedTime(
+  new Date(),
+  RESTAURANT_TIME_ZONE
+);
 
-  const formatISO = (d: Date) => d.toISOString().split("T")[0];
+const formatISO = (d: Date) => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
 
   const toMinutes = (time: string) => {
     const [h, m] = time.split(":").map(Number);
@@ -34,7 +47,7 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
       2,
       "0"
     )}`;
-
+ 
   //  Generate next 7 days
   const getNext7Days = () =>
     Array.from({ length: 7 }).map((_, i) => {
@@ -47,58 +60,46 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
     });
 
   //  Get open/close for selected date
-  const getOpenClose = () => {
+ 
+const getOpenClose = () => {
+  if (!selectedDate) {
+    console.log("[SCHEDULE PICKER] No date selected");
+    return { open: "", close: "" };
+  }
 
-    
-    if (!selectedDate) return { open: "11:00", close: "22:00" }; // fallback
-
-    const dayName = new Date(selectedDate).toLocaleDateString("en-US", {
+  const dayName = new Date(`${selectedDate}T00:00:00`)
+    .toLocaleDateString("en-US", {
       weekday: "long",
-    }).toLowerCase();
+    })
+    .toLowerCase();
 
-    const day = schedule.find((d) => d.day === dayName);
-    if (!day || !day.isOpen) return { open: "", close: "" }; // store closed
+  const day = schedule.find(
+    (d) => d.day.trim().toLowerCase() === dayName
+  );
 
-    return { open: day.amOpen, close: day.amClose };
-  };
+  console.group("[SCHEDULE PICKER] Schedule lookup");
+  console.log("Selected date:", selectedDate);
+  console.log("Weekday calculated by browser:", dayName);
+  console.log("Full weekly schedule:", schedule);
+  console.log("Matched schedule:", day);
+  console.log("Day is open:", day?.isOpen);
+  console.log("Configured opening time:", day?.amOpen);
+  console.log("Configured closing time:", day?.amClose);
+  console.groupEnd();
 
-  //  Generate 30-min slots
-// const getSlots = () => {
-//   const SLOT_INTERVAL = 15; // minutes
-//   const { open, close } = getOpenClose();
-//   if (!open || !close) return [];
+  if (!day || !day.isOpen) {
+    return { open: "", close: "" };
+  }
 
-//   const openMinutes = toMinutes(open);
-//   const closeMinutes = toMinutes(close);
+  return { open: day.amOpen, close: day.amClose };
+};
 
-//   let startMinutes = openMinutes;
 
-//   const selected = new Date(selectedDate);
-//   const isToday = selected.toDateString() === today.toDateString();
 
-//   // 🟢 TODAY → now + 30 mins
-//   if (isToday) {
-//     const nowMinutes = today.getHours() * 60 + today.getMinutes();
-//     startMinutes = Math.max(openMinutes, nowMinutes + MIN_BUFFER_MINUTES);
-//   }
 
-//   // 🟢 FUTURE DAY → open + 30 mins
-//   if (!isToday) {
-//     startMinutes = openMinutes + MIN_BUFFER_MINUTES;
-//   }
+const MIN_BUFFER_MINUTES = 30;
 
-//   // ⏱ round UP to next 15-min slot
-//   startMinutes = Math.ceil(startMinutes / SLOT_INTERVAL) * SLOT_INTERVAL;
-
-//   const slots: string[] = [];
-//   for (let m = startMinutes; m < closeMinutes; m += SLOT_INTERVAL) {
-//     slots.push(toTime(m));
-//   }
-
-//   return slots;
-// };
-
- const getSlots = () => {
+const getSlots = () => {
   const SLOT_INTERVAL = 15;
 
   const { open, close } = getOpenClose();
@@ -108,10 +109,29 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
   const openMinutes = toMinutes(open);
   const closeMinutes = toMinutes(close);
 
+  let startMinutes = openMinutes;
+
+  const now = new Date();
+  const todayDate = formatISO(now);
+
+  if (selectedDate === todayDate) {
+    const nowMinutes =
+      now.getHours() * 60 + now.getMinutes();
+
+    const earliestAllowed =
+      nowMinutes + MIN_BUFFER_MINUTES;
+
+    startMinutes = Math.max(
+      openMinutes,
+      Math.ceil(earliestAllowed / SLOT_INTERVAL) *
+        SLOT_INTERVAL
+    );
+  }
+
   const slots: string[] = [];
 
   for (
-    let m = openMinutes;
+    let m = startMinutes;
     m < closeMinutes;
     m += SLOT_INTERVAL
   ) {
@@ -121,79 +141,31 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
   return slots;
 };
 
-// const getSlots = () => {
-//   const SLOT_INTERVAL = 15;
-
-//   const { open, close } = getOpenClose();
-
-//   if (!open || !close) return [];
-
-//   const openMinutes = toMinutes(open);
-//   const closeMinutes = toMinutes(close);
-
-//   const selected = new Date(`${selectedDate}T00:00:00`);
-
-//   const isToday = selected.toDateString() === today.toDateString();
-
-//   let startMinutes = openMinutes;
-
-//   if (isToday) {
-//     const nowMinutes =
-//       today.getHours() * 60 + today.getMinutes();
-
-//     // Do not show slots inside the buffer.
-//     const bufferCutoff = nowMinutes + MIN_BUFFER_MINUTES;
-
-//     // First actual 15-minute slot at or after the cutoff.
-//     startMinutes = Math.ceil(bufferCutoff / SLOT_INTERVAL) * SLOT_INTERVAL;
-
-//     // Never start before opening time.
-//     startMinutes = Math.max(startMinutes, openMinutes);
-//   }
-
-//   const slots: string[] = [];
-
-//   for (
-//     let m = startMinutes;
-//     m < closeMinutes;
-//     m += SLOT_INTERVAL
-//   ) {
-//     slots.push(toTime(m));
-//   }
-
-//   return slots;
-// };
-  
-  // const getSlots = () => {
-  //   const { open, close } = getOpenClose();
-  //   if (!open || !close) return [];
-
-  //   let start = toMinutes(open);
-  //   const end = toMinutes(close);
-
-  //   if (selectedDate === formatISO(today)) {
-  //     const nowMinutes = today.getHours() * 60 + today.getMinutes();
-  //     start = Math.max(start, Math.ceil((nowMinutes + MIN_BUFFER_MINUTES) / 30) * 30);
-  //   }
-
-  //   const slots: string[] = [];
-  //   for (let i = start; i < end; i += 30) {
-  //     slots.push(toTime(i));
-  //   }
-  //   return slots;
-  // };
-
-
-
+ 
   //  Save selected date & time
+// Save selected date & time using Spain's timezone
+useEffect(() => {
+  if (!selectedDate || !selectedTime) {
+    return;
+  }
 
-  useEffect(() => {
-    if (selectedDate && selectedTime) {
-      const iso = new Date(`${selectedDate}T${selectedTime}:00`).toISOString();
-      onChange(iso);
-      setScheduledAt(iso);
-    }
-  }, [selectedDate, selectedTime]);
+  const scheduledDate = fromZonedTime(
+    `${selectedDate}T${selectedTime}:00`,
+    RESTAURANT_TIME_ZONE
+  );
+
+  const iso = scheduledDate.toISOString();
+
+  onChange(iso);
+  setScheduledAt(iso);
+}, [
+  selectedDate,
+  selectedTime,
+  onChange,
+  setScheduledAt,
+]);
+
+
 
   const days = getNext7Days();
   const slots = selectedDate ? getSlots() : [];
@@ -207,7 +179,11 @@ export default function SchedulePicker({ onChange, schedule }: Props) {
         {days.map((d) => (
           <button
             key={d.value}
-            onClick={() => setSelectedDate(d.value)}
+           onClick={() => {
+  setSelectedDate(d.value);
+  setSelectedTime("");
+  setScheduledAt("");
+}}
             className={`px-3 py-2 rounded-lg border text-sm ${
               selectedDate === d.value
                 ? "bg-green-100 border-green-400 text-green-800"
