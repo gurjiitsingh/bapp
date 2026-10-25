@@ -1,218 +1,247 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useCartContext } from "@/store/CartContext";
 import { DaySchedule } from "@/lib/types/daySchedule";
-import { fromZonedTime } from "date-fns-tz";
 import { toZonedTime } from "date-fns-tz";
-const RESTAURANT_TIME_ZONE = "Europe/Madrid";
 
+const RESTAURANT_TIME_ZONE =
+  process.env.NEXT_PUBLIC_DEFAULT_TIMEZONE || "Europe/Madrid";
 
-
+const MIN_BUFFER_MINUTES = 30;
+const SLOT_INTERVAL = 15;
 
 type Props = {
   onChange: (dateTime: string) => void;
-  schedule: DaySchedule[]; // pass weekly schedule
+  schedule: DaySchedule[];
 };
 
-export default function SchedulePicker({ onChange, schedule }: Props) {
-
-
+export default function SchedulePicker({
+  onChange,
+  schedule,
+}: Props) {
   const { setScheduledAt } = useCartContext();
 
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-   
-  const today = toZonedTime(
-  new Date(),
-  RESTAURANT_TIME_ZONE
-);
+  // Get date parts in the restaurant's timezone.
+  const getRestaurantToday = () =>
+    toZonedTime(new Date(), RESTAURANT_TIME_ZONE);
 
-const formatISO = (d: Date) => {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const formatISO = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
-};
-
-  const toMinutes = (time: string) => {
-    const [h, m] = time.split(":").map(Number);
-    return h * 60 + m;
+    return `${year}-${month}-${day}`;
   };
 
-  const toTime = (m: number) =>
-    `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(
-      2,
-      "0"
-    )}`;
- 
-  //  Generate next 7 days
-  const getNext7Days = () =>
-    Array.from({ length: 7 }).map((_, i) => {
-      const d = new Date();
-      d.setDate(today.getDate() + i);
+  const toMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const toTime = (minutes: number) =>
+    `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(
+      minutes % 60
+    ).padStart(2, "0")}`;
+
+  // Generate the next 7 calendar dates in restaurant-local time.
+  const getNext7Days = () => {
+    const today = getRestaurantToday();
+
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const day = today.getDate();
+
+    return Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(
+        Date.UTC(year, month, day + i, 12)
+      );
+
+      const value = [
+        date.getUTCFullYear(),
+        String(date.getUTCMonth() + 1).padStart(2, "0"),
+        String(date.getUTCDate()).padStart(2, "0"),
+      ].join("-");
+
+      const weekday = new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        timeZone: "UTC",
+      }).format(date);
+
       return {
-        label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString("en-GB", { weekday: "long" }),
-        value: formatISO(d),
+        label:
+          i === 0
+            ? "Today"
+            : i === 1
+              ? "Tomorrow"
+              : weekday,
+        value,
       };
     });
+  };
 
-  //  Get open/close for selected date
- 
-const getOpenClose = () => {
-  if (!selectedDate) {
-    console.log("[SCHEDULE PICKER] No date selected");
-    return { open: "", close: "" };
-  }
+  // Match the selected calendar date to the restaurant's weekly schedule.
+  const getOpenClose = () => {
+    if (!selectedDate) {
+      return { open: "", close: "" };
+    }
 
-  const dayName = new Date(`${selectedDate}T00:00:00`)
-    .toLocaleDateString("en-US", {
-      weekday: "long",
-    })
-    .toLowerCase();
+    const [year, month, day] = selectedDate
+      .split("-")
+      .map(Number);
 
-  const day = schedule.find(
-    (d) => d.day.trim().toLowerCase() === dayName
-  );
-
-  console.group("[SCHEDULE PICKER] Schedule lookup");
-  console.log("Selected date:", selectedDate);
-  console.log("Weekday calculated by browser:", dayName);
-  console.log("Full weekly schedule:", schedule);
-  console.log("Matched schedule:", day);
-  console.log("Day is open:", day?.isOpen);
-  console.log("Configured opening time:", day?.amOpen);
-  console.log("Configured closing time:", day?.amClose);
-  console.groupEnd();
-
-  if (!day || !day.isOpen) {
-    return { open: "", close: "" };
-  }
-
-  return { open: day.amOpen, close: day.amClose };
-};
-
-
-
-
-const MIN_BUFFER_MINUTES = 30;
-
-const getSlots = () => {
-  const SLOT_INTERVAL = 15;
-
-  const { open, close } = getOpenClose();
-
-  if (!open || !close) return [];
-
-  const openMinutes = toMinutes(open);
-  const closeMinutes = toMinutes(close);
-
-  let startMinutes = openMinutes;
-
-  const now = new Date();
-  const todayDate = formatISO(now);
-
-  if (selectedDate === todayDate) {
-    const nowMinutes =
-      now.getHours() * 60 + now.getMinutes();
-
-    const earliestAllowed =
-      nowMinutes + MIN_BUFFER_MINUTES;
-
-    startMinutes = Math.max(
-      openMinutes,
-      Math.ceil(earliestAllowed / SLOT_INTERVAL) *
-        SLOT_INTERVAL
+    const date = new Date(
+      Date.UTC(year, month - 1, day, 12)
     );
-  }
 
-  const slots: string[] = [];
+    const dayName = new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      timeZone: "UTC",
+    })
+      .format(date)
+      .toLowerCase();
 
-  for (
-    let m = startMinutes;
-    m < closeMinutes;
-    m += SLOT_INTERVAL
-  ) {
-    slots.push(toTime(m));
-  }
+    const daySchedule = schedule.find(
+      (item) => item.day.trim().toLowerCase() === dayName
+    );
 
-  return slots;
-};
+    if (!daySchedule || !daySchedule.isOpen) {
+      return { open: "", close: "" };
+    }
 
- 
-  //  Save selected date & time
-// Save selected date & time using Spain's timezone
-useEffect(() => {
-  if (!selectedDate || !selectedTime) {
-    return;
-  }
+    return {
+      open: daySchedule.amOpen,
+      close: daySchedule.amClose,
+    };
+  };
 
-  const scheduledDate = fromZonedTime(
-    `${selectedDate}T${selectedTime}:00`,
-    RESTAURANT_TIME_ZONE
-  );
+  // Generate slots using restaurant-local current time.
+  const getSlots = () => {
+    const { open, close } = getOpenClose();
 
-  const iso = scheduledDate.toISOString();
+    if (!open || !close) return [];
 
-  onChange(iso);
-  setScheduledAt(iso);
-}, [
-  selectedDate,
-  selectedTime,
-  onChange,
-  setScheduledAt,
-]);
+    const openMinutes = toMinutes(open);
+    const closeMinutes = toMinutes(close);
 
+    if (
+      !Number.isFinite(openMinutes) ||
+      !Number.isFinite(closeMinutes) ||
+      closeMinutes <= openMinutes
+    ) {
+      return [];
+    }
 
+    let startMinutes = openMinutes;
+
+    const now = getRestaurantToday();
+    const restaurantToday = formatISO(now);
+
+    if (selectedDate === restaurantToday) {
+      const nowMinutes =
+        now.getHours() * 60 + now.getMinutes();
+
+      const earliestAllowed =
+        nowMinutes + MIN_BUFFER_MINUTES;
+
+      startMinutes = Math.max(
+        openMinutes,
+        Math.ceil(earliestAllowed / SLOT_INTERVAL) *
+          SLOT_INTERVAL
+      );
+    }
+
+    const slots: string[] = [];
+
+    for (
+      let minutes = startMinutes;
+      minutes < closeMinutes;
+      minutes += SLOT_INTERVAL
+    ) {
+      slots.push(toTime(minutes));
+    }
+
+    return slots;
+  };
+
+  // Save the selected restaurant-local wall-clock time.
+  useEffect(() => {
+    if (!selectedDate || !selectedTime) {
+      onChange("");
+      setScheduledAt("");
+      return;
+    }
+
+    const scheduledAt = `${selectedDate}T${selectedTime}:00`;
+
+    onChange(scheduledAt);
+    setScheduledAt(scheduledAt);
+  }, [
+    selectedDate,
+    selectedTime,
+    onChange,
+    setScheduledAt,
+  ]);
 
   const days = getNext7Days();
   const slots = selectedDate ? getSlots() : [];
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-gray-700">Select day & time</h3>
+    <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
+      <h3 className="text-sm font-semibold text-gray-700">
+        Select day &amp; time
+      </h3>
 
       {/* DAY SELECTOR */}
       <div className="flex gap-2 overflow-x-auto">
-        {days.map((d) => (
+        {days.map((day) => (
           <button
-            key={d.value}
-           onClick={() => {
-  setSelectedDate(d.value);
-  setSelectedTime("");
-  setScheduledAt("");
-}}
-            className={`px-3 py-2 rounded-lg border text-sm ${
-              selectedDate === d.value
-                ? "bg-green-100 border-green-400 text-green-800"
-                : "bg-white border-gray-200 text-gray-600"
+            key={day.value}
+            type="button"
+            onClick={() => {
+              setSelectedDate(day.value);
+              setSelectedTime("");
+            }}
+            className={`whitespace-nowrap rounded-lg border px-3 py-2 text-sm ${
+              selectedDate === day.value
+                ? "border-green-400 bg-green-100 text-green-800"
+                : "border-gray-200 bg-white text-gray-600"
             }`}
           >
-            {d.label}
+            {day.label}
           </button>
         ))}
       </div>
 
       {/* TIME SELECTOR */}
       <select
-        className="border rounded-md px-3 py-2 text-sm w-full"
+        className="w-full rounded-md border px-3 py-2 text-sm"
         value={selectedTime}
         disabled={!selectedDate || slots.length === 0}
-        onChange={(e) => setSelectedTime(e.target.value)}
+        onChange={(event) => setSelectedTime(event.target.value)}
       >
-        {!selectedDate && <option>Select day first</option>}
-        {slots.length === 0 && selectedDate && <option>Store closed</option>}
-          <option key="iuiuiwerwerew" value="">
-            Select Time
-          </option>
-        {slots.map((t) => (
-          <option key={t} value={t}>
-            {t}
-          </option>
+        <option value="">
+          {!selectedDate
+            ? "Select day first"
+            : slots.length === 0
+              ? "No available slots"
+              : "Select time"}
+        </option>
+
+        {slots.map((time) => (
+          <option key={time} value={time}>
+            {time}
+        </option>
         ))}
       </select>
+
+      <p className="text-xs text-gray-500">
+        Times shown in restaurant local time.
+      </p>
     </div>
   );
 }

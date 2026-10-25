@@ -52,7 +52,7 @@ export const SiteProvider: React.FC<Props> = ({
   const [allProduct, setAllProduct] = useState<ProductType[]>([]);
   const [productToSearchQuery, setProductToSearchQuery] = useState("");
   const [customerData, setCustomerData] = useState<any>(null);
-
+const [isStoreOpen, setIsStoreOpen] = useState<boolean | null>(null);
   const [customerAddressIsCompleteA, setCustomerAddressIsCompleteA] =
     useState<boolean>(false);
   // useEffect(() => {
@@ -226,6 +226,8 @@ export const SiteProvider: React.FC<Props> = ({
         disablePickupCatDiscountIds,
         setDisablePickupCatDiscountIds,
         settings,
+        isStoreOpen,
+setIsStoreOpen,
       }}
     >
       {children}

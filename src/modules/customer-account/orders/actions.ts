@@ -1,9 +1,11 @@
-
 "use server";
 
 import { auth } from "@/auth";
 import { adminDb } from "@/lib/firebaseAdmin";
 import { Timestamp } from "firebase-admin/firestore";
+import { fromZonedTime } from "date-fns-tz";
+import { DEFAULT_TIMEZONE } from "@/lib/localeConfig";
+ 
 
 export type CustomerOrder = {
   id: string;
@@ -15,6 +17,7 @@ export type CustomerOrder = {
   grandTotal: number;
   customerName: string;
   createdAt: string | null;
+  scheduledAt: string | null;
 };
 
 type GetCustomerOrdersResult =
@@ -28,9 +31,9 @@ type GetCustomerOrdersResult =
       error: string;
     };
 
-function getTodayIndiaDate(): string {
+function getTodayLocalDate(): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
+    timeZone: DEFAULT_TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -55,9 +58,42 @@ function isValidDate(value: string): boolean {
   );
 }
 
-function indiaDayStart(date: string): Date {
-  // India uses UTC+05:30 and does not observe daylight saving time.
-  return new Date(`${date}T00:00:00+05:30`);
+function localDayStart(date: string): Date {
+  return fromZonedTime(
+    `${date}T00:00:00`,
+    DEFAULT_TIMEZONE
+  );
+}
+
+function getNextDate(date: string): string {
+  const next = new Date(`${date}T00:00:00.000Z`);
+  next.setUTCDate(next.getUTCDate() + 1);
+  return next.toISOString().slice(0, 10);
+}
+
+function timestampToISOString(value: unknown): string | null {
+  if (
+    value &&
+    typeof value === "object" &&
+    "toDate" in value &&
+    typeof value.toDate === "function"
+  ) {
+    const date = value.toDate();
+
+    return date instanceof Date && !Number.isNaN(date.getTime())
+      ? date.toISOString()
+      : null;
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    const date = new Date(value);
+
+    if (!Number.isNaN(date.getTime())) {
+      return date.toISOString();
+    }
+  }
+
+  return null;
 }
 
 export async function getCustomerOrders(
@@ -78,8 +114,8 @@ export async function getCustomerOrders(
       };
     }
 
-    // Default to today in India.
-    const selectedDate = dateFilter || getTodayIndiaDate();
+    // Default to today's date in the configured country/timezone.
+    const selectedDate = dateFilter || getTodayLocalDate();
 
     if (
       selectedDate !== "all" &&
@@ -91,46 +127,25 @@ export async function getCustomerOrders(
       };
     }
 
-    let query: FirebaseFirestore.Query =
-      adminDb
-        .collection("orderMaster")
-        .where("customerId", "==", userId);
+    let query: FirebaseFirestore.Query = adminDb
+      .collection("orderMaster")
+      .where("customerId", "==", userId);
 
     if (selectedDate !== "all") {
-      const start = indiaDayStart(selectedDate);
-      const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+      const start = localDayStart(selectedDate);
+      const end = localDayStart(getNextDate(selectedDate));
 
       query = query
         .where("createdAt", ">=", Timestamp.fromDate(start))
         .where("createdAt", "<", Timestamp.fromDate(end));
     }
 
-    // Sort in Firestore, rather than loading all records to sort in JS.
     const snapshot = await query
       .orderBy("createdAt", "desc")
       .get();
 
     const orders: CustomerOrder[] = snapshot.docs.map((doc) => {
       const order = doc.data();
-      const timestamp = order.createdAt;
-
-      let createdAt: string | null = null;
-
-      if (
-        timestamp &&
-        typeof timestamp.toDate === "function"
-      ) {
-        createdAt = timestamp.toDate().toISOString();
-      } else if (
-        typeof timestamp === "string" ||
-        typeof timestamp === "number"
-      ) {
-        const parsed = new Date(timestamp);
-
-        if (!Number.isNaN(parsed.getTime())) {
-          createdAt = parsed.toISOString();
-        }
-      }
 
       return {
         id: doc.id,
@@ -160,7 +175,8 @@ export async function getCustomerOrders(
           typeof order.customerName === "string"
             ? order.customerName
             : "",
-        createdAt,
+        createdAt: timestampToISOString(order.createdAt),
+        scheduledAt: timestampToISOString(order.scheduledAt),
       };
     });
 
@@ -181,3 +197,4 @@ export async function getCustomerOrders(
     };
   }
 }
+ 

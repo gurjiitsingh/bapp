@@ -24,6 +24,78 @@ type OrderSummeryProcessProps = {
   // scheduledAt?: string | null;
 };
 
+const RESTAURANT_TIME_ZONE =
+  process.env.NEXT_PUBLIC_DEFAULT_TIMEZONE || "Europe/Madrid";
+
+function isScheduledTimeInFuture(value: string): boolean {
+  // Parse the selected restaurant-local date and time.
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+  );
+
+  if (!match) return false;
+
+  const [, year, month, day, hours, minutes, seconds = "0"] = match;
+
+  // Convert the selected Spain wall-clock time to a real UTC timestamp.
+  const parts = {
+    year: Number(year),
+    month: Number(month),
+    day: Number(day),
+    hours: Number(hours),
+    minutes: Number(minutes),
+    seconds: Number(seconds),
+  };
+
+  const targetAsUTC = Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hours,
+    parts.minutes,
+    parts.seconds
+  );
+
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: RESTAURANT_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  // Start with the UTC guess, then correct it using Spain's timezone offset.
+  const getFormattedParts = (timestamp: number) =>
+    Object.fromEntries(
+      formatter
+        .formatToParts(new Date(timestamp))
+        .filter((part) => part.type !== "literal")
+        .map((part) => [part.type, Number(part.value)])
+    ) as Record<string, number>;
+
+  let candidate = targetAsUTC;
+
+  for (let i = 0; i < 3; i++) {
+    const local = getFormattedParts(candidate);
+
+    const representedAsUTC = Date.UTC(
+      local.year,
+      local.month - 1,
+      local.day,
+      local.hour,
+      local.minute,
+      local.second
+    );
+
+    candidate += targetAsUTC - representedAsUTC;
+  }
+
+  return candidate > Date.now();
+}
+
 export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcessProps) {
   const { TEXT } = useLanguage();
   const {
@@ -293,27 +365,24 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
     deliveryDis?.deliveryFee,
   ]);
 
-  useEffect(() => {
-    if (!scheduledAt) return;
+useEffect(() => {
+  if (!scheduledAt) return;
 
-    const d = new Date(scheduledAt);
-    if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
-      toast.error("Scheduled time must be in the future");
-    }
-  }, [scheduledAt]);
+  if (!isScheduledTimeInFuture(scheduledAt)) {
+    toast.error("Scheduled time must be in the future");
+  }
+}, [scheduledAt]);
 
   async function proceedToOrder() {
     if (isLoading) return;
 
     if (ENABLE_ORDER_SCHEDULE) {
-      if (scheduledAt) {
-        const d = new Date(scheduledAt);
-
-        if (isNaN(d.getTime()) || d.getTime() < Date.now()) {
-          toast.error("Scheduled time must be in the future");
-          return;
-        }
-      }
+if (scheduledAt) {
+  if (!isScheduledTimeInFuture(scheduledAt)) {
+    toast.error("Scheduled time must be in the future");
+    return;
+  }
+}
 
    if (!scheduledAt && !isStoreOpen) {
   toast.error(

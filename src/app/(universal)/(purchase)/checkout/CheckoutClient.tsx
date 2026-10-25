@@ -9,6 +9,7 @@ import OrderSummeryProcess from "./components/Cart/OrderSummeryProcess";
 
 import { DaySchedule } from "@/lib/types/daySchedule";
 import AddressWrapper from "@/custom/address/AddressWrapper";
+import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 const ENABLE_ORDER_SCHEDULE =
   process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
@@ -27,14 +28,14 @@ type Props = {
   weeklySchedule: DaySchedule[];
 };
 
-const CheckoutClient = ({ weeklySchedule }: Props) => {
+const CheckoutClient = ({ weeklySchedule }: Props) => { 
   const [mounted, setMounted] = useState(false);
-  const [isStoreOpen, setIsStoreOpen] = useState(false);
+  
   const [orderType, setOrderType] = useState<"instant" | "schedule" | null>(
     null
   );
-  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-
+ 
+const { isStoreOpen, setIsStoreOpen } = UseSiteContext();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -61,7 +62,7 @@ return (
         </div>
 
         <div className="w-full">
-          <OrderSummeryProcess isStoreOpen={isStoreOpen} />
+          <OrderSummeryProcess isStoreOpen={isStoreOpen ?? undefined} />
         </div>
       </div>
     </div>

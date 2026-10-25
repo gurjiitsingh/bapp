@@ -3,6 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getCustomerOrders } from "@/modules/customer-account/orders/actions";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
+  DEFAULT_TIMEZONE,
+} from "@/lib/localeConfig";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +16,13 @@ type PageProps = {
     date?: string;
   }>;
 };
+
+
+ 
+
+
+//   import { DEFAULT_TIMEZONE } from "@/lib/localeConfig";
+// import { fromZonedTime } from "date-fns-tz";
 
 export default async function MyOrdersPage({
   searchParams,
@@ -158,9 +170,34 @@ export default async function MyOrdersPage({
                     {order.srno}
                   </h3>
 
-                  <p className="mt-1 text-sm text-gray-500">
-                    {formatOrderDate(order.createdAt)}
-                  </p>
+                 
+
+<div className="mt-2 space-y-2">
+  <div>
+    <p className="text-xs text-gray-500">
+      Order time
+    </p>
+    <p className="text-sm font-medium text-gray-800">
+      {formatOrderDate(order.createdAt)}
+    </p>
+  </div>
+
+  {  order.scheduledAt && (
+    <div className="rounded-lg bg-blue-50 px-3 py-2">
+      <p className="text-xs font-medium text-blue-700">
+        Scheduled time
+      </p>
+      <p className="mt-1 text-sm font-semibold text-blue-900">
+        {formatOrderDate(order.scheduledAt)}
+      </p>
+      <p className="text-xs text-blue-700">
+        Spain local time
+      </p>
+    </div>
+  )}
+</div>
+
+
                 </div>
 
                 <StatusBadge status={order.orderStatus} />
@@ -243,6 +280,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+
 function formatOrderDate(value: string | null): string {
   if (!value) return "Date unavailable";
 
@@ -252,34 +290,36 @@ function formatOrderDate(value: string | null): string {
     return "Date unavailable";
   }
 
-  return new Intl.DateTimeFormat("en-IN", {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: "Asia/Kolkata",
+    timeZone: DEFAULT_TIMEZONE,
   }).format(date);
 }
 
 function formatSelectedDate(value: string): string {
   if (value === "all") return "All dates";
 
-  const date = new Date(`${value}T00:00:00+05:30`);
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
 
   if (Number.isNaN(date.getTime())) {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-IN", {
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     dateStyle: "long",
-    timeZone: "Asia/Kolkata",
+    timeZone: DEFAULT_TIMEZONE,
   }).format(date);
 }
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: "currency",
-    currency: "INR",
+    currency: DEFAULT_CURRENCY,
   }).format(Number.isFinite(value) ? value : 0);
 }
+
 
 function formatStatus(value: string): string {
   if (!value) return "Unavailable";

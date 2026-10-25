@@ -1,14 +1,12 @@
 "use client";
 
-import React, { Suspense, useEffect, useState } from "react";
+import   { Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
 import PaymentSelector from "./components/PaymentSelector";
 import OrderTypeSelector from "@/components/OrderTypeSelector";
-import OrderSummeryProcess from "./components/Cart/OrderSummeryProcess";
-
 import { DaySchedule } from "@/lib/types/daySchedule";
-import AddressWrapper from "@/custom/address/AddressWrapper";
+import { UseSiteContext } from "@/SiteContext/SiteContext";
 
 const ENABLE_ORDER_SCHEDULE =
   process.env.NEXT_PUBLIC_ENABLE_ORDER_SCHEDULE === "true";
@@ -30,12 +28,12 @@ type Props = {
 const Scheduler = ({ weeklySchedule }: Props) => {
   const [mounted, setMounted] = useState(false);
   // const [isStoreOpen, setIsStoreOpen] = useState(false);
-  const [isStoreOpen, setIsStoreOpen] = useState<boolean | null>(null);
+ 
   const [orderType, setOrderType] = useState<"instant" | "schedule" | null>(
     null
   );
   const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-
+const { isStoreOpen, setIsStoreOpen } = UseSiteContext();
   useEffect(() => {
     setMounted(true);
   }, []);
