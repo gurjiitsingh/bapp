@@ -8,6 +8,7 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 interface OrderInfoProps {
   srno?: string;
   createdAt?: string;
+   scheduledAt?: string;
 
   subTotal?: string;
   taxTotal?: string;
@@ -26,7 +27,7 @@ interface OrderInfoProps {
 export default function OrderInfo({
   srno,
   createdAt,
-
+ scheduledAt,
   subTotal,
   taxTotal,
   discountTotal,

@@ -5,7 +5,7 @@ import { MdDeleteForever } from "react-icons/md";
 import { Eye } from "lucide-react";
 
 import { deleteOrderMasterRec } from "@/app/(universal)/action/orders/dbOperations";
-
+import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
 import {
   TableCell,
   TableRow,
@@ -19,9 +19,65 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 
-import { formatDateTimeStamp } from "@/utils/formatDateTimestamp";
+ 
 
 import { Timestamp } from "firebase/firestore";
+
+const DEFAULT_LOCALE =
+  process.env.NEXT_PUBLIC_DEFAULT_LOCALE || "es-ES";
+
+const DEFAULT_TIMEZONE =
+  process.env.NEXT_PUBLIC_DEFAULT_TIMEZONE || "Europe/Madrid";
+
+import { fromZonedTime } from "date-fns-tz";
+
+function formatOrderDate(value: unknown): string {
+  if (value == null || value === "") return "—";
+
+  let date: Date | null = null;
+
+  if (value instanceof Date) {
+    date = value;
+  } else if (value instanceof Timestamp) {
+    date = value.toDate();
+  } else if (typeof value === "string") {
+    // A timezone-less string represents Spain's local time.
+    const hasTimezone = /(?:Z|[+-]\d{2}:\d{2})$/i.test(value);
+
+    date = hasTimezone
+      ? new Date(value)
+      : fromZonedTime(value, DEFAULT_TIMEZONE);
+  } else if (typeof value === "number") {
+    date = new Date(value);
+  } else if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+
+    if (typeof obj.toDate === "function") {
+      date = (obj.toDate as () => Date)();
+    } else {
+      // Support serialized Firestore timestamps.
+      const seconds = obj.seconds ?? obj._seconds;
+      const nanoseconds = obj.nanoseconds ?? obj._nanoseconds ?? 0;
+
+      if (typeof seconds === "number") {
+        date = new Date(
+          seconds * 1000 + Number(nanoseconds) / 1_000_000
+        );
+      }
+    }
+  }
+
+  if (!date || Number.isNaN(date.getTime())) {
+    console.warn("Unable to format order date:", value);
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: DEFAULT_TIMEZONE,
+  }).format(date);
+}
 
 function TableRows({
   order,
@@ -46,10 +102,7 @@ function TableRows({
     settings.locale as string
   );
 
-  const data = formatDateTimeStamp(
-            order.createdAt as Timestamp,
-            String(settings.locale)
-          )
+const data = formatOrderDate(order.createdAt);
 
   async function handleDelete(id: string) {
 
@@ -194,10 +247,7 @@ function TableRows({
       <TableCell className="whitespace-nowrap py-4">
 
         <div className="text-xs font-medium text-slate-700">
-          {formatDateTimeStamp(
-            order.createdAt as Timestamp,
-            String(settings.locale)
-          )}
+       {formatOrderDate(order.createdAt)}
         </div>
 
       </TableCell>
@@ -206,22 +256,11 @@ function TableRows({
           SCHEDULED
           ================================================= */}
 
-      <TableCell className="whitespace-nowrap py-4">
-
-        {order.scheduledAt ? (
-          <div className="text-xs font-medium text-slate-700">
-            {formatDateTimeStamp(
-              order.scheduledAt as Timestamp,
-              String(settings.locale)
-            )}
-          </div>
-        ) : (
-          <span className="text-xs text-slate-400">
-            —
-          </span>
-        )}
-
-      </TableCell>
+     <TableCell className="whitespace-nowrap py-4">
+  <div className="text-xs font-medium text-slate-700">
+    {formatOrderDate(order.scheduledAt)}
+  </div>
+</TableCell>
 
       {/* =================================================
           TYPE
@@ -458,6 +497,7 @@ function TableRows({
               srno: order.srno,
 
     createdAt: data,
+ scheduledAt:data,
 
     subTotal: String(order.subTotal),
     taxTotal: String(order.taxTotal),
