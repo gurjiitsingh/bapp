@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { useCartContext } from "@/store/CartContext";
-import { DaySchedule } from "@/lib/types/daySchedule";
+import { DaySchedule, TimeSlot } from "@/lib/types/daySchedule";
 import { toZonedTime } from "date-fns-tz";
 
 const RESTAURANT_TIME_ZONE =
@@ -26,7 +25,7 @@ export default function SchedulePicker({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
 
-  // Get date parts in the restaurant's timezone.
+  // Get current date and time in restaurant timezone.
   const getRestaurantToday = () =>
     toZonedTime(new Date(), RESTAURANT_TIME_ZONE);
 
@@ -48,6 +47,14 @@ export default function SchedulePicker({
       minutes % 60
     ).padStart(2, "0")}`;
 
+  const isValidTime = (time: string) =>
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
+
+  const isValidSlot = (slot: TimeSlot) =>
+    isValidTime(slot.open) &&
+    isValidTime(slot.close) &&
+    slot.open !== slot.close;
+
   // Generate the next 7 calendar dates in restaurant-local time.
   const getNext7Days = () => {
     const today = getRestaurantToday();
@@ -57,9 +64,7 @@ export default function SchedulePicker({
     const day = today.getDate();
 
     return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(
-        Date.UTC(year, month, day + i, 12)
-      );
+      const date = new Date(Date.UTC(year, month, day + i, 12));
 
       const value = [
         date.getUTCFullYear(),
@@ -84,19 +89,13 @@ export default function SchedulePicker({
     });
   };
 
-  // Match the selected calendar date to the restaurant's weekly schedule.
-  const getOpenClose = () => {
-    if (!selectedDate) {
-      return { open: "", close: "" };
-    }
+  // Find all opening periods for the selected day.
+  const getOpenSlots = (): TimeSlot[] => {
+    if (!selectedDate) return [];
 
-    const [year, month, day] = selectedDate
-      .split("-")
-      .map(Number);
+    const [year, month, day] = selectedDate.split("-").map(Number);
 
-    const date = new Date(
-      Date.UTC(year, month - 1, day, 12)
-    );
+    const date = new Date(Date.UTC(year, month - 1, day, 12));
 
     const dayName = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
@@ -110,65 +109,75 @@ export default function SchedulePicker({
     );
 
     if (!daySchedule || !daySchedule.isOpen) {
-      return { open: "", close: "" };
-    }
-
-    return {
-      open: daySchedule.amOpen,
-      close: daySchedule.amClose,
-    };
-  };
-
-  // Generate slots using restaurant-local current time.
-  const getSlots = () => {
-    const { open, close } = getOpenClose();
-
-    if (!open || !close) return [];
-
-    const openMinutes = toMinutes(open);
-    const closeMinutes = toMinutes(close);
-
-    if (
-      !Number.isFinite(openMinutes) ||
-      !Number.isFinite(closeMinutes) ||
-      closeMinutes <= openMinutes
-    ) {
       return [];
     }
 
-    let startMinutes = openMinutes;
+    if (!Array.isArray(daySchedule.slots)) {
+      return [];
+    }
+
+    return daySchedule.slots
+      .filter(isValidSlot)
+      .sort((a, b) => toMinutes(a.open) - toMinutes(b.open));
+  };
+
+  // Generate selectable times across all opening periods.
+  const getAvailableTimes = (): string[] => {
+    const openSlots = getOpenSlots();
+
+    if (openSlots.length === 0) return [];
 
     const now = getRestaurantToday();
     const restaurantToday = formatISO(now);
 
-    if (selectedDate === restaurantToday) {
-      const nowMinutes =
-        now.getHours() * 60 + now.getMinutes();
+    const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
-      const earliestAllowed =
-        nowMinutes + MIN_BUFFER_MINUTES;
+    const earliestAllowed =
+      selectedDate === restaurantToday
+        ? Math.ceil(
+            (nowMinutes + MIN_BUFFER_MINUTES) / SLOT_INTERVAL
+          ) * SLOT_INTERVAL
+        : 0;
 
-      startMinutes = Math.max(
-        openMinutes,
-        Math.ceil(earliestAllowed / SLOT_INTERVAL) *
-          SLOT_INTERVAL
-      );
+    const availableTimes = new Set<string>();
+
+    for (const slot of openSlots) {
+      const openMinutes = toMinutes(slot.open);
+      const closeMinutes = toMinutes(slot.close);
+
+      // Preserve the current same-day interval behavior.
+      // Overnight periods are handled separately below.
+      if (closeMinutes < openMinutes) {
+        for (
+          let minutes = Math.max(openMinutes, earliestAllowed);
+          minutes < 24 * 60;
+          minutes += SLOT_INTERVAL
+        ) {
+          availableTimes.add(toTime(minutes));
+        }
+
+        // After midnight belongs to the following calendar day.
+        // Do not incorrectly offer those times on the selected day.
+        continue;
+      }
+
+      const startMinutes = Math.max(openMinutes, earliestAllowed);
+
+      for (
+        let minutes = startMinutes;
+        minutes < closeMinutes;
+        minutes += SLOT_INTERVAL
+      ) {
+        availableTimes.add(toTime(minutes));
+      }
     }
 
-    const slots: string[] = [];
-
-    for (
-      let minutes = startMinutes;
-      minutes < closeMinutes;
-      minutes += SLOT_INTERVAL
-    ) {
-      slots.push(toTime(minutes));
-    }
-
-    return slots;
+    return Array.from(availableTimes).sort(
+      (a, b) => toMinutes(a) - toMinutes(b)
+    );
   };
 
-  // Save the selected restaurant-local wall-clock time.
+  // Save selected restaurant-local wall-clock time.
   useEffect(() => {
     if (!selectedDate || !selectedTime) {
       onChange("");
@@ -176,19 +185,14 @@ export default function SchedulePicker({
       return;
     }
 
-    const scheduledAt = `${selectedDate}T${selectedTime}:00`;
+    const value = `${selectedDate}T${selectedTime}:00`;
 
-    onChange(scheduledAt);
-    setScheduledAt(scheduledAt);
-  }, [
-    selectedDate,
-    selectedTime,
-    onChange,
-    setScheduledAt,
-  ]);
+    onChange(value);
+    setScheduledAt(value);
+  }, [selectedDate, selectedTime, onChange, setScheduledAt]);
 
   const days = getNext7Days();
-  const slots = selectedDate ? getSlots() : [];
+  const slots = selectedDate ? getAvailableTimes() : [];
 
   return (
     <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4">
@@ -235,7 +239,7 @@ export default function SchedulePicker({
         {slots.map((time) => (
           <option key={time} value={time}>
             {time}
-        </option>
+          </option>
         ))}
       </select>
 

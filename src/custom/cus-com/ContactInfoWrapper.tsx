@@ -4,7 +4,7 @@ import { getSchedule } from "@/app/(universal)/action/schedule/saveDaySchedule";
 import ContactInfo from "@/custom/cus-com/ContactInfo";
 
 export default async function ContactInfoWrapper() {
-  // ✅ use cached outlet (IMPORTANT)
+  // Use cached outlet
   const outlet = await getCachedOutlet();
 
   const schedule = await getSchedule();
@@ -22,40 +22,44 @@ export default async function ContactInfoWrapper() {
   const formattedSchedule =
     !schedule || schedule.length === 0
       ? ["No schedule available"]
-      : schedule
+      : [...schedule]
           .sort(
             (a, b) =>
-              dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)
+              dayOrder.indexOf(a.day.toLowerCase()) -
+              dayOrder.indexOf(b.day.toLowerCase())
           )
           .map((day) => {
-  const formattedDay =
-    day.day.charAt(0).toUpperCase() + day.day.slice(1);
+            const formattedDay =
+              day.day.charAt(0).toUpperCase() +
+              day.day.slice(1).toLowerCase();
 
-  if (!day.isOpen) return `${formattedDay}: Closed`;
+            if (!day.isOpen) {
+              return `${formattedDay}: Closed`;
+            }
 
-  const isFullDay =
-    day.fullDay &&
-    day.amOpen === "00:00" &&
-    day.pmOpen === "00:00";
+            const slots = (day.slots || [])
+              .filter(
+                (slot) =>
+                  slot.open &&
+                  slot.close &&
+                  slot.open !== slot.close
+              )
+              .sort((a, b) => a.open.localeCompare(b.open));
 
-  if (isFullDay) return `${formattedDay}: Open 24h`;
+            if (slots.length === 0) {
+              return `${formattedDay}: Closed`;
+            }
 
-  const am =
-    day.amOpen !== "00:00" && day.amClose !== "00:00"
-      ? `${day.amOpen} - ${day.amClose}`
-      : null;
+            // Display all opening periods for the day.
+            const times = slots
+              .map((slot) => `${slot.open} - ${slot.close}`)
+              .join(", ");
 
-  const pm =
-    day.pmOpen !== "00:00" && day.pmClose !== "00:00"
-      ? `${day.pmOpen} - ${day.pmClose}`
-      : null;
-
-  const time = [am, pm].filter(Boolean).join(", ");
-
-  return `${formattedDay}: ${time || "Closed"}`;
-});
+            return `${formattedDay}: ${times}`;
+          });
 
   return (
     <ContactInfo outlet={outlet} schedule={formattedSchedule} />
   );
 }
+ 

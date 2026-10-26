@@ -63,66 +63,55 @@ export async function editCustomerAddress(formData: FormData) {
 }
 
 //  Search address by email
-export async function searchAddressEmail(email: string): Promise<addressResType | null> {
-  console.log("INSIDE : searchAddressEmail ------------------", email)
-if (!email) return null;
-
-const value = email.trim();
- const field = value.includes("@") ? "email" : "mobNo";
-  const querySnapshot = await adminDb
-    .collection("address")
-     .where(field, "==", value)
-   // .where("email", "==", email)
-    .get();
-
-  if (querySnapshot.empty) return null;
-
-  const doc = querySnapshot.docs[0];
-  const docData = doc.data();
-console.log("data---------------------",docData)
-  return {
-    id: doc.id,
-    addressLine1: docData.addressLine1 || '',
-    addressLine2: docData.addressLine2 || '',
-    city: docData.city || '',
-    state: docData.state || '',
-    zipCode: docData.zipCode || '',
-    email: docData.email || '',
-    firstName: docData.firstName || '',
-    lastName: docData.lastName || '',
-    mobNo: docData.mobNo || '',
-    userId: docData.userId || '',
-
-    // -----------------------------
-    // SPAIN / ADDITIONAL ADDRESS
-    // -----------------------------
-    portal: docData.portal || "",
-    staircase: docData.staircase || "",
-    floor: docData.floor || "",
-    door: docData.door || "",
-    deliveryNotes: docData.deliveryNotes || "",
-
-    createdAt: docData.createdAt?.toDate().toISOString() || '',
-  };
-}
-
-export async function searchAddressByMob(
-  mobNo: string
-): Promise<addressResType | null> {
-
-  console.log("mobNo--------------------",mobNo)
-  const querySnapshot = await adminDb
-    .collection("address")
-    .where("mobNo", "==", mobNo)
-    .limit(1)
-    .get();
-
-  if (querySnapshot.empty) return null;
-
-  const doc = querySnapshot.docs[0];
-  const docData = doc.data();
-
  
+export async function searchAddressEmail(
+  email: string
+): Promise<addressResType | null> {
+  console.log("INSIDE : searchAddressEmail ------------------", email);
+
+  if (!email) return null;
+
+  const value = email.trim();
+  const field = value.includes("@") ? "email" : "mobNo";
+
+  const querySnapshot = await adminDb
+    .collection("address")
+    .where(field, "==", value)
+    .get();
+
+  if (querySnapshot.empty) return null;
+
+  const doc = querySnapshot.docs[0];
+  const docData = doc.data();
+
+  console.log("data---------------------", docData);
+
+  // Support Firestore Timestamp, Date, ISO string, and numeric timestamps.
+  const rawCreatedAt = docData.createdAt;
+
+  let createdAt = "";
+
+  if (rawCreatedAt) {
+    if (typeof rawCreatedAt.toDate === "function") {
+      // Firestore Timestamp
+      createdAt = rawCreatedAt.toDate().toISOString();
+    } else if (rawCreatedAt instanceof Date) {
+      // JavaScript Date
+      createdAt = Number.isNaN(rawCreatedAt.getTime())
+        ? ""
+        : rawCreatedAt.toISOString();
+    } else if (
+      typeof rawCreatedAt === "string" ||
+      typeof rawCreatedAt === "number"
+    ) {
+      // ISO string or Unix timestamp in milliseconds
+      const date = new Date(rawCreatedAt);
+
+      createdAt = Number.isNaN(date.getTime())
+        ? ""
+        : date.toISOString();
+    }
+  }
 
   return {
     id: doc.id,
@@ -136,18 +125,83 @@ export async function searchAddressByMob(
     lastName: docData.lastName || "",
     mobNo: docData.mobNo || "",
     userId: docData.userId || "",
-// -----------------------------
+
     // SPAIN / ADDITIONAL ADDRESS
-    // -----------------------------
     portal: docData.portal || "",
     staircase: docData.staircase || "",
     floor: docData.floor || "",
     door: docData.door || "",
     deliveryNotes: docData.deliveryNotes || "",
 
-    createdAt: docData.createdAt?.toDate().toISOString() || "",
+    createdAt,
   };
 }
+ 
+
+ 
+export async function searchAddressByMob(
+  mobNo: string
+): Promise<addressResType | null> {
+  console.log("mobNo--------------------", mobNo);
+
+  const querySnapshot = await adminDb
+    .collection("address")
+    .where("mobNo", "==", mobNo)
+    .limit(1)
+    .get();
+
+  if (querySnapshot.empty) return null;
+
+  const doc = querySnapshot.docs[0];
+  const docData = doc.data();
+
+  // Handle Firestore Timestamp, Date, ISO string, and numeric timestamps.
+  const rawCreatedAt = docData.createdAt;
+  let createdAt = "";
+
+  if (rawCreatedAt) {
+    if (typeof rawCreatedAt.toDate === "function") {
+      createdAt = rawCreatedAt.toDate().toISOString();
+    } else if (rawCreatedAt instanceof Date) {
+      createdAt = Number.isNaN(rawCreatedAt.getTime())
+        ? ""
+        : rawCreatedAt.toISOString();
+    } else if (
+      typeof rawCreatedAt === "string" ||
+      typeof rawCreatedAt === "number"
+    ) {
+      const date = new Date(rawCreatedAt);
+
+      createdAt = Number.isNaN(date.getTime())
+        ? ""
+        : date.toISOString();
+    }
+  }
+
+  return {
+    id: doc.id,
+    addressLine1: docData.addressLine1 || "",
+    addressLine2: docData.addressLine2 || "",
+    city: docData.city || "",
+    state: docData.state || "",
+    zipCode: docData.zipCode || "",
+    email: docData.email || "",
+    firstName: docData.firstName || "",
+    lastName: docData.lastName || "",
+    mobNo: docData.mobNo || "",
+    userId: docData.userId || "",
+
+    // SPAIN / ADDITIONAL ADDRESS
+    portal: docData.portal || "",
+    staircase: docData.staircase || "",
+    floor: docData.floor || "",
+    door: docData.door || "",
+    deliveryNotes: docData.deliveryNotes || "",
+
+    createdAt,
+  };
+}
+ 
 
 export async function findAddressByMob_old(
   mobNo: string

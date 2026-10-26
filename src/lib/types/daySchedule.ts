@@ -1,46 +1,59 @@
 import { z } from "zod";
 
+export const timeSlotSchema = z.object({
+  open: z.string(),
+  close: z.string(),
+});
+
 export const dayScheduleSchema = z
   .object({
-    day: z.string().optional(),
-    isOpen: z.boolean().optional(),
-    fullDay: z.boolean().optional(),
-
-    amOpen: z.string().optional(),
-    amClose: z.string().optional(),
-
-    pmOpen: z.string().optional(),
-    pmClose: z.string().optional(),
+    day: z.string(),
+    isOpen: z.boolean(),
+    slots: z.array(timeSlotSchema),
+    updatedAt: z.string().nullable().optional(),
   })
-  .refine(
-    (data) => {
-      // If closed → no need for times
-      if (!data.isOpen) return true;
+  .superRefine((data, ctx) => {
+    // Closed days do not require opening hours.
+    if (!data.isOpen) return;
 
-      // Full day → only AM times required
-      if (data.fullDay) {
-        return !!data.amOpen && !!data.amClose;
+    // Every configured slot must have valid times.
+    data.slots.forEach((slot, index) => {
+      const validTime = (value: string) =>
+        /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+
+      if (!validTime(slot.open)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["slots", index, "open"],
+          message: "Invalid opening time",
+        });
       }
 
-      // Split shift → both AM + PM required
-      return (
-        !!data.amOpen &&
-        !!data.amClose &&
-        !!data.pmOpen &&
-        !!data.pmClose
-      );
-    },
-    {
-      message: "Invalid opening hours configuration",
-    }
-  );
+      if (!validTime(slot.close)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["slots", index, "close"],
+          message: "Invalid closing time",
+        });
+      }
+
+      if (slot.open === slot.close) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["slots", index, "close"],
+          message: "Opening and closing times cannot be identical",
+        });
+      }
+    });
+  });
+
+export type TimeSlot = z.infer<typeof timeSlotSchema>;
 
 export type DayScheduleType = z.infer<typeof dayScheduleSchema>;
-
 
 export type DaySchedule = {
   day: string;
   isOpen: boolean;
-  amOpen: string;
-  amClose: string;
+  slots: TimeSlot[];
+  updatedAt: string | null;
 };
