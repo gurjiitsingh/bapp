@@ -40,7 +40,7 @@ export type ProductType = {
    images?: ProductImageType[];
    options?: ProductOptionType[];
   isFeatured: boolean;
-favorite:boolean;
+  favorite:boolean;
   flavors?: boolean;
   publishStatus: 'published' | 'draft';
   stockStatus: 'in_stock' | 'out_of_stock';
@@ -50,6 +50,9 @@ favorite:boolean;
   // NEW FIELDS
   taxRate: number | undefined;
   taxType: 'inclusive' | 'exclusive' | undefined;
+
+   taxRate1: number | undefined;
+  taxType1: 'inclusive' | 'exclusive' | undefined;
 
   parentId?: string;
   hasVariants?: boolean;

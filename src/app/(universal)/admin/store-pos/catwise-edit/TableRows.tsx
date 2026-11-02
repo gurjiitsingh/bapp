@@ -224,10 +224,12 @@ const [showDescription, setShowDescription] = useState(false);
 
         {/* 💰 Prices */}
         <TableCell>{price}</TableCell>
-        <TableCell>{discountedPrice}</TableCell>
+      <TableCell>
+  {product.discountEligible ? "Eligible" : "Not Eligible"}
+</TableCell>
 
-        {/* 📦 Quantity */}
-        {/* <TableCell>{product.currentStock}</TableCell> */}
+        
+         <TableCell>{product.taxCategory}</TableCell>  
 
         {/* 💸 Tax */}
         <TableCell>
@@ -243,6 +245,27 @@ const [showDescription, setShowDescription] = useState(false);
               </span>
               <span className="text-sm font-medium text-gray-800">
                 {product.taxRate}%
+              </span>
+
+            </div>
+          ) : (
+            <span className="text-sm text-gray-400 italic">—</span>
+          )}
+        </TableCell>
+
+            <TableCell>
+          {product.taxRate1 !== undefined && product.taxRate1 !== null ? (
+            <div className="flex flex-col">
+              <span
+                className={`text-[11px] text-[8px] px-1 py-[1px] rounded  w-fit ${product.taxRate1
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                  }`}
+              >
+                {product.taxType1}
+              </span>
+              <span className="text-sm font-medium text-gray-800">
+                {product.taxRate1}%
               </span>
 
             </div>
@@ -324,7 +347,7 @@ const [showDescription, setShowDescription] = useState(false);
   <div className="flex gap-2">
 
     {/* 🖼️ Product Images */}
-    <Link
+    {/* <Link
       href={`/admin/store-pos/products/images/add/${product.id}`}
     >
       <Button
@@ -342,7 +365,7 @@ const [showDescription, setShowDescription] = useState(false);
       >
         Images
       </Button>
-    </Link>
+    </Link> */}
 
     {/* 🧩 Modifiers */}
     <Button

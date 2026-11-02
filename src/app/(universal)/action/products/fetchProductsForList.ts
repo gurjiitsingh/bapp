@@ -39,21 +39,21 @@ export async function fetchProductsForList({
 
 
 
-// =====================================================
-// 3. SEARCH
-// Minimum 3 characters
-// Prefix search on existing product name
-// =====================================================
+    // =====================================================
+    // 3. SEARCH
+    // Minimum 3 characters
+    // Prefix search on existing product name
+    // =====================================================
 
-if (q.length >= 3) {
-  query = query
-    .orderBy("name")
-    .startAt(q)
-    .endAt(q + "\uf8ff")
-    .limit(20);
-} else {
-  query = query.orderBy("sortOrder");
-}
+    if (q.length >= 3) {
+      query = query
+        .orderBy("name")
+        .startAt(q)
+        .endAt(q + "\uf8ff")
+        .limit(20);
+    } else {
+      query = query.orderBy("sortOrder");
+    }
 
 
     const snapshot = await query.get();
@@ -65,6 +65,8 @@ if (q.length >= 3) {
     return snapshot.docs.map((doc) => {
       const data = doc.data();
 
+      console.log("data----------------------",data)
+
       return {
         id: doc.id,
 
@@ -72,7 +74,7 @@ if (q.length >= 3) {
         price: data.price ?? 0,
         currentStock: data.currentStock ?? 0,
         discountPrice: data.discountPrice ?? 0,
-
+discountEligible: data.discountEligible ?? true,
         categoryId: data.categoryId ?? "",
         masterCategoryId: data.masterCategoryId ?? "",
         masterCategoryName: data.masterCategoryName ?? "",
@@ -84,7 +86,9 @@ if (q.length >= 3) {
         type: data.type ?? "parent",
 
         productCat: data.productCat ?? "",
-taxCategory: data.taxCategory ?? "FOOD_GST",
+
+        taxCategory: data.taxCategory ?? "FOOD_GST",
+
         flavors: data.flavors ?? false,
 
         publishStatus:
@@ -125,6 +129,12 @@ taxCategory: data.taxCategory ?? "FOOD_GST",
 
         taxType:
           data.taxType,
+
+           taxRate1:
+          data.taxRate1,
+
+        taxType1:
+          data.taxType1,
 
         sku:
           data.sku,

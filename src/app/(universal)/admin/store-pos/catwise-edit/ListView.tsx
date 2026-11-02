@@ -17,6 +17,9 @@ import { categoryType } from "@/lib/types/categoryType";
 import { ProductType } from "@/lib/types/productType";
 import { fetchProductsForList } from "@/app/(universal)/action/products/fetchProductsForList";
 import { updateDiscountEligibleForCategory } from "@/app/(universal)/action/products/updateDiscountEligibleForCategory";
+import { updateTaxTypeForCategory } from "@/app/(universal)/action/products/updateTaxTypeForCategory";
+import { updateTaxRateForCategory } from "@/app/(universal)/action/products/updateTaxRateForCategory";
+import { updateTaxCategoryForCategory } from "@/app/(universal)/action/products/updateTaxCategoryForCategory";
 import toast from "react-hot-toast";
 
 type ListViewProps = {
@@ -33,10 +36,28 @@ export default function ListView({
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [discountEligible, setDiscountEligible] =
-  useState(true);
+    useState(true);
 
-const [updatingDiscountEligible, setUpdatingDiscountEligible] =
-  useState(false);
+  const [updatingDiscountEligible, setUpdatingDiscountEligible] =
+    useState(false);
+
+  const [taxType, setTaxType] = useState<"inclusive" | "exclusive">("exclusive");
+  const [taxType1, setTaxType1] = useState<"inclusive" | "exclusive">("exclusive");
+
+  const [updatingTaxType, setUpdatingTaxType] =
+    useState(false);
+
+
+
+  const [taxRate, setTaxRate] = useState<number>(5);
+  const [taxRate1, setTaxRate1] = useState<number>(10);
+  const [updatingTaxRate, setUpdatingTaxRate] = useState(false);
+
+  const [taxCategory, setTaxCategory] =
+    useState<"LIQUOR_VAT" | "FOOD_GST">("FOOD_GST");
+
+  const [updatingTaxCategory, setUpdatingTaxCategory] =
+    useState(false);
 
   // =====================================================
   // URL STATE
@@ -83,48 +104,171 @@ const [updatingDiscountEligible, setUpdatingDiscountEligible] =
 
 
 
-async function handleApplyDiscountEligible() {
-  if (!urlCategory) {
-    toast.error("Please select a category first.");
-    return;
-  }
-
-  try {
-    setUpdatingDiscountEligible(true);
-
-    const result =
-      await updateDiscountEligibleForCategory(
-        urlCategory,
-        discountEligible
-      );
-
-    if (!result.success) {
-      toast.error(
-        result.error || "Failed to update products"
-      );
+  async function handleApplyDiscountEligible() {
+    if (!urlCategory) {
+      toast.error("Please select a category first.");
       return;
     }
 
-    toast.success(
-      `${result.updatedCount} products updated`
-    );
+    try {
+      setUpdatingDiscountEligible(true);
 
-    // Refresh current product list
-    const updatedProducts =
-      await fetchProductsForList({
+      const result =
+        await updateDiscountEligibleForCategory(
+          urlCategory,
+          discountEligible
+        );
+
+      if (!result.success) {
+        toast.error(
+          result.error || "Failed to update products"
+        );
+        return;
+      }
+
+      toast.success(
+        `${result.updatedCount} products updated`
+      );
+
+      // Refresh current product list
+      const updatedProducts =
+        await fetchProductsForList({
+          categoryId: urlCategory,
+          search: "",
+        });
+
+      setProducts(updatedProducts);
+
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update products");
+    } finally {
+      setUpdatingDiscountEligible(false);
+    }
+  }
+
+
+  async function handleApplyTaxType() {
+    if (!urlCategory) {
+      toast.error("Please select a category first.");
+      return;
+    }
+
+    try {
+      setUpdatingTaxType(true);
+
+      const result = await updateTaxTypeForCategory(
+        urlCategory,
+        taxType,
+        taxType1
+      );
+
+      if (!result.success) {
+        toast.error(
+          result.error || "Failed to update tax types"
+        );
+        return;
+      }
+
+      toast.success(
+        `Both tax types updated for ${result.updatedCount} products`
+      );
+
+      // Refresh the current category's products
+      const updatedProducts = await fetchProductsForList({
         categoryId: urlCategory,
         search: "",
       });
 
-    setProducts(updatedProducts);
+      setProducts(updatedProducts);
 
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to update products");
-  } finally {
-    setUpdatingDiscountEligible(false);
+    } catch (error) {
+      console.error("Failed to update category tax types:", error);
+      toast.error("Failed to update tax types");
+    } finally {
+      setUpdatingTaxType(false);
+    }
   }
-}
+
+
+  async function handleApplyTaxRate() {
+    if (!urlCategory) {
+      toast.error("Please select a category first.");
+      return;
+    }
+
+    try {
+      setUpdatingTaxRate(true);
+
+      const result = await updateTaxRateForCategory(
+        urlCategory,
+        taxRate,
+        taxRate1
+      );
+
+      if (!result.success) {
+        toast.error(result.error || "Failed to update tax rates");
+        return;
+      }
+
+      toast.success(
+        `Tax rates updated for ${result.updatedCount} products`
+      );
+
+      const updatedProducts = await fetchProductsForList({
+        categoryId: urlCategory,
+        search: "",
+      });
+
+      setProducts(updatedProducts);
+    } catch (error) {
+      console.error("Failed to update category tax rates:", error);
+      toast.error("Failed to update tax rates");
+    } finally {
+      setUpdatingTaxRate(false);
+    }
+  }
+
+
+  async function handleApplyTaxCategory() {
+    if (!urlCategory) {
+      toast.error("Please select a category first.");
+      return;
+    }
+
+    try {
+      setUpdatingTaxCategory(true);
+
+      const result = await updateTaxCategoryForCategory(
+        urlCategory,
+        taxCategory
+      );
+
+      if (!result.success) {
+        toast.error(
+          result.error || "Failed to update tax category"
+        );
+        return;
+      }
+
+      toast.success(
+        `Tax category updated for ${result.updatedCount} products`
+      );
+
+      const updatedProducts = await fetchProductsForList({
+        categoryId: urlCategory,
+        search: "",
+      });
+
+      setProducts(updatedProducts);
+
+    } catch (error) {
+      console.error("Failed to update tax category:", error);
+      toast.error("Failed to update tax category");
+    } finally {
+      setUpdatingTaxCategory(false);
+    }
+  }
 
   // =====================================================
   // SEARCH CHANGE
@@ -252,78 +396,9 @@ async function handleApplyDiscountEligible() {
           </select>
 
 
-          {urlCategory && (
-  <div className="flex items-center gap-2">
 
-    <select
-      value={discountEligible ? "true" : "false"}
-      onChange={(e) =>
-        setDiscountEligible(e.target.value === "true")
-      }
-      className="
-        h-10
-        rounded-xl
-        border border-gray-200
-        bg-white
-        px-3
-        text-sm
-        focus:outline-none
-        focus:ring-2
-        focus:ring-[#00897b]/20
-      "
-    >
-      <option value="true">
-        Discount Eligible
-      </option>
 
-      <option value="false">
-        Discount Not Eligible
-      </option>
-    </select>
 
-    <Button
-      type="button"
-      onClick={handleApplyDiscountEligible}
-      disabled={updatingDiscountEligible}
-      className="
-        h-10
-        rounded-xl
-        bg-[#00897b]
-        text-white
-        shadow-none
-        hover:bg-[#00796b]
-      "
-    >
-      {updatingDiscountEligible
-        ? "Saving..."
-        : "Apply to All"}
-    </Button>
-
-  </div>
-)}
-
-          {/* Search */}
-
-          {/* <input
-            type="text"
-            value={searchText}
-            onChange={(e) =>
-              handleSearchChange(e.target.value)
-            }
-            placeholder="Search products..."
-            className="
-    h-10
-    w-full
-    sm:w-72
-    rounded-xl
-    border border-gray-200
-    px-4
-    text-sm
-    focus:outline-none
-    focus:ring-2
-    focus:ring-[#00897b]/20
-  "
-          /> */}
 
         </div>
 
@@ -367,6 +442,201 @@ async function handleApplyDiscountEligible() {
 
       </div>
 
+      <div className="flex flex-col  gap-5 py-10 pl-5">
+
+                  <div className="flex items-center gap-2">
+
+  <label className="text-sm font-medium whitespace-nowrap">
+    Tax Category
+  </label>
+
+  <select
+    value={taxCategory}
+    onChange={(e) =>
+      setTaxCategory(
+        e.target.value as "LIQUOR_VAT" | "FOOD_GST"
+      )
+    }
+    className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00897b]/20"
+  >
+    <option value="FOOD_GST">Food GST</option>
+    <option value="LIQUOR_VAT">Liquor VAT</option>
+  </select>
+
+  <Button
+    type="button"
+    onClick={handleApplyTaxCategory}
+    disabled={updatingTaxCategory}
+    className="h-10 rounded-xl bg-purple-600 text-white shadow-none hover:bg-purple-700"
+  >
+    {updatingTaxCategory
+      ? "Saving..."
+      : "Apply Tax Category"}
+  </Button>
+
+</div>
+   
+
+        <div className="flex flex-wrap items-center gap-5 border-slate-400">
+
+          {/* First Tax Type */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium whitespace-nowrap">
+              Tax Type
+            </label>
+
+            <select
+              value={taxType}
+              onChange={(e) =>
+                setTaxType(
+                  e.target.value as "inclusive" | "exclusive"
+                )
+              }
+              className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00897b]/20"
+            >
+              <option value="inclusive">Inclusive</option>
+              <option value="exclusive">Exclusive</option>
+            </select>
+          </div>
+
+          {/* Second Tax Type */}
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium whitespace-nowrap">
+              Tax Type Second
+            </label>
+
+            <select
+              value={taxType1}
+              onChange={(e) =>
+                setTaxType1(
+                  e.target.value as "inclusive" | "exclusive"
+                )
+              }
+              className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00897b]/20"
+            >
+              <option value="inclusive">Inclusive</option>
+              <option value="exclusive">Exclusive</option>
+            </select>
+          </div>
+
+          {/* Apply Both */}
+          <Button
+            type="button"
+            onClick={handleApplyTaxType}
+            disabled={updatingTaxType}
+            className="h-10 rounded-xl bg-blue-600 text-white shadow-none hover:bg-blue-700"
+          >
+            {updatingTaxType ? "Saving..." : "Apply Both Tax Types"}
+          </Button>
+
+        </div>
+
+
+        <div className="flex flex-wrap items-center gap-5 border-slate-400">
+          <div className="flex items-center gap-1">
+            <label
+              htmlFor="category-tax-rate"
+              className="text-sm font-medium whitespace-nowrap"
+            >
+              Tax Rate
+            </label>
+
+            <input
+              id="category-tax-rate"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={taxRate}
+              onChange={(e) => setTaxRate(Number(e.target.value))}
+              className="h-10 w-20 rounded-xl border border-gray-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00897b]/20"
+            />
+            <span className="text-sm">%</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <label
+              htmlFor="category-tax-rate1"
+              className="text-sm font-medium whitespace-nowrap"
+            >
+              Tax Rate Second
+            </label>
+
+            <input
+              id="category-tax-rate1"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={taxRate1}
+              onChange={(e) => setTaxRate1(Number(e.target.value))}
+              className="h-10 w-20 rounded-xl border border-gray-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00897b]/20"
+            />
+            <span className="text-sm">%</span>
+          </div>
+
+          <Button
+            type="button"
+            onClick={handleApplyTaxRate}
+            disabled={updatingTaxRate}
+            className="h-10 rounded-xl bg-[#00897b] text-white shadow-none hover:bg-[#00796b]"
+          >
+            {updatingTaxRate ? "Saving..." : "Apply Both Rates"}
+          </Button>
+        </div>
+
+     {urlCategory && (
+          <div className="flex items-center gap-5 border-slate-400">
+            <span>Discount </span>
+            <select
+              value={discountEligible ? "true" : "false"}
+              onChange={(e) =>
+                setDiscountEligible(e.target.value === "true")
+              }
+              className="
+        h-10
+        rounded-xl
+        border border-gray-200
+        bg-white
+        px-3
+        text-sm
+        focus:outline-none
+        focus:ring-2
+        focus:ring-[#00897b]/20
+      "
+            >
+              <option value="true">
+                Eligible
+              </option>
+
+              <option value="false">
+                Not Eligible
+              </option>
+            </select>
+
+            <Button
+              type="button"
+              onClick={handleApplyDiscountEligible}
+              disabled={updatingDiscountEligible}
+              className="
+        h-10
+        rounded-xl
+        bg-[#00897b]
+        text-white
+        shadow-none
+        hover:bg-[#00796b]
+      "
+            >
+              {updatingDiscountEligible
+                ? "Saving..."
+                : "Apply to All"}
+            </Button>
+
+          </div>
+        )}
+
+      </div>
+
       {/* =====================================================
           PRODUCT TABLE
       ===================================================== */}
@@ -406,11 +676,15 @@ async function handleApplyDiscountEligible() {
               <TableHead className="font-semibold text-gray-700">
                 Discount
               </TableHead>
-
+ <TableHead className="font-semibold text-gray-700">
+                Tax Category
+              </TableHead>
               <TableHead className="font-semibold text-gray-700">
                 Tax
               </TableHead>
-
+              <TableHead className="font-semibold text-gray-700">
+                Tax(Second)
+              </TableHead>
               <TableHead className="font-semibold text-gray-700">
                 Status
               </TableHead>
