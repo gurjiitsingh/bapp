@@ -26,6 +26,7 @@ export type ProductType = {
   name: string;
   price: number;
   quantity: number | null;
+  taxCategory: string | null;
    discountEligible?: boolean;
   discountPrice: number | undefined;
   categoryId: string;
@@ -92,6 +93,7 @@ export const newProductSchema = z.object({
 
   name: z.string().min(1, { message: "Product name is required" }),
 
+taxCategory: z.string().optional().default("FOOD_GST"),
   price: z
     .union([z.string(), z.number()])
     .refine((val) => {
@@ -264,6 +266,18 @@ export const editProductSchema = z.object({
     ),
 
   taxType: z
+    .enum(["inclusive", "exclusive"])
+    .optional(),
+
+    taxRate1: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || /^\d*[.,]?\d*$/.test(value),
+      "Invalid tax rate"
+    ),
+
+  taxType1: z
     .enum(["inclusive", "exclusive"])
     .optional(),
 });

@@ -10,8 +10,8 @@ import imageCompression from "browser-image-compression";
 import { addNewProduct } from "@/app/(universal)/action/products/dbOperation";
 import { getMasterCategories } from "@/app/(universal)/action/master-category/getMasterCategories";
 import Link from "next/link";
-const masterCategories =
-  await getMasterCategories();
+
+const masterCategories = await getMasterCategories();
 
 const Page = () => {
   const [categoryData, setCategoryData] = useState<categoryType[]>([]);
@@ -59,9 +59,10 @@ const Page = () => {
       publishStatus: "published",
       discountPrice: 0,
       currentStock: 0,
+      taxCategory: "FOOD_GST", // default taxCategory
       //  sortOrder: 0,
       //  taxRate: 0, //  default tax 0%
-    },
+    } as any,
   });
   const selectedCategoryId = watch("categoryId");
 
@@ -79,12 +80,16 @@ const Page = () => {
         selectedCat.taxRate ? Number(selectedCat.taxRate) : 0
       );
       setValue("taxType", selectedCat.taxType ?? undefined);
+      
+       setValue(
+        "taxRate1",
+        selectedCat.taxRate1 ? Number(selectedCat.taxRate1) : 0
+      );
+      setValue("taxType1", selectedCat.taxType1 ?? undefined);
     }
   }, [selectedCategoryId, categoryData, setValue]);
 
-
-  
-  async function onSubmit(data: TnewProductSchema) {
+  async function onSubmit(data: any) {
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -102,65 +107,66 @@ const Page = () => {
     formData.append("isFeatured", data.isFeatured ? "true" : "false");
     formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
     formData.append("taxType", data.taxType as string);
+       formData.append("taxRate1", String(data.taxRate1 ?? 0)); //  added tax info
+    formData.append("taxType1", data.taxType1 as string);
     formData.append("searchCode", data.searchCode || "");
-   
+ 
+    // --- Added taxCategory to FormData ---
+    formData.append("taxCategory", data.taxCategory || "FOOD_GST");
 
-if (data.image?.[0]) {
-  const imageFile = data.image[0];
+    if (data.image?.[0]) {
+      const imageFile = data.image[0];
 
-  const maxImageSize = Number(
-    process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_SIZE || 500
-  );
+      const maxImageSize = Number(
+        process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_SIZE || 500
+      );
 
-  const maxPixMbSize = Number(
-    process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_PIXMB || 0.2
-  );
+      const maxPixMbSize = Number(
+        process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_PIXMB || 0.2
+      );
 
-  const imageDimensions = await new Promise<{
-    width: number;
-    height: number;
-  }>((resolve, reject) => {
-    const img = new Image();
+      const imageDimensions = await new Promise<{
+        width: number;
+        height: number;
+      }>((resolve, reject) => {
+        const img = new Image();
 
-    img.onload = () => {
-      resolve({
-        width: img.width,
-        height: img.height,
+        img.onload = () => {
+          resolve({
+            width: img.width,
+            height: img.height,
+          });
+        };
+
+        img.onerror = reject;
+
+        img.src = URL.createObjectURL(imageFile);
       });
-    };
 
-    img.onerror = reject;
+      const { width, height } = imageDimensions;
 
-    img.src = URL.createObjectURL(imageFile);
-  });
+      // File size in MB
+      const fileSizeMB = imageFile.size / (1024 * 1024);
 
-  const { width, height } = imageDimensions;
+      let finalImage = imageFile;
 
-  // File size in MB
-  const fileSizeMB = imageFile.size / (1024 * 1024);
+      // Resize/compress if dimensions OR file size exceeds limits
+      if (
+        width > maxImageSize ||
+        height > maxImageSize ||
+        fileSizeMB > maxPixMbSize
+      ) {
+        finalImage = await imageCompression(imageFile, {
+          maxWidthOrHeight: maxImageSize,
+          maxSizeMB: maxPixMbSize,
+          useWebWorker: true,
+        });
+      }
 
-  let finalImage = imageFile;
-
-  // Resize/compress if dimensions OR file size exceeds limits
-  if (
-    width > maxImageSize ||
-    height > maxImageSize ||
-    fileSizeMB > maxPixMbSize
-  ) {
-    finalImage = await imageCompression(imageFile, {
-      maxWidthOrHeight: maxImageSize,
-      maxSizeMB: maxPixMbSize,
-      useWebWorker: true,
-    });
-  }
-
-  formData.append("image", finalImage);
-} else {
-  formData.append("image", "0");
-}
-
-
-
+      formData.append("image", finalImage);
+    } else {
+      formData.append("image", "0");
+    }
 
     const result = await addNewProduct(formData);
     setIsSubmitting(false);
@@ -177,8 +183,9 @@ if (data.image?.[0]) {
         productDesc: "",
         isFeatured: false,
         publishStatus: "published",
+        taxCategory: "FOOD_GST",
         //  taxRate: 0, //  reset tax field
-      });
+      } as any);
     } else {
       console.error("❌ Validation errors:", result.errors);
       alert("Something went wrong. Check console for details.");
@@ -186,21 +193,17 @@ if (data.image?.[0]) {
   }
 
   return (
-  <div>
-    {/* Filters */}
-    <div className="mb-5">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white rounded-2xl p-4 shadow-sm">
+    <div>
+      {/* Filters */}
+      <div className="mb-5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-white rounded-2xl p-4 shadow-sm">
+          {/* Left Side */}
+          <div className="flex flex-col sm:flex-row gap-3"></div>
 
-        {/* Left Side */}
-        <div className="flex flex-col sm:flex-row gap-3">
-
-
-        </div>
-
-        {/* Right Side */}
-        <Link href="/admin/store-pos/products">
-          <Button
-            className="
+          {/* Right Side */}
+          <Link href="/admin/store-pos/products">
+            <Button
+              className="
           h-10
           rounded-xl
           bg-slate-400
@@ -208,322 +211,488 @@ if (data.image?.[0]) {
           text-white
           shadow-none
         "
-          >
-            All Products
-          </Button>
-        </Link>
-
-      </div>
-    </div>
-
-   <form
-  onSubmit={handleSubmit(onSubmit, (errors) => {
-    console.log("FORM ERRORS ❌", errors);
-  })}
-  className="w-full space-y-6 max-w-7xl   p-1"
->
-  {/* Modern Header */}
-  <div className="flex flex-col gap-1">
-    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Create Product</h1>
-    <p className="text-sm text-slate-500">Set up your product details, pricing, stock levels, and media assets.</p>
-  </div>
-
-  <div className="flex flex-col lg:flex-row gap-6">
-    {/* LEFT COLUMN */}
-    <div className="flex-1 flex flex-col gap-6">
-      
-      {/* Product Info Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="font-semibold text-base text-slate-900">Product Details</h2>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-            Product Name<span className="text-rose-500">*</span>
-          </label>
-          <input
-            {...register("name")}
-            type="text"
-            className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-            placeholder="e.g. Wireless Bluetooth Headphones"
-          />
-          {errors.name?.message && (
-            <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.name?.message}</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Master Category */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
-              Master Category
-            </label>
-            <div className="relative">
-              <select
-                {...register("masterCategoryId")}
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
-                style={{ backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundSize: '0.9em', backgroundRepeat: 'no-repeat' }}
-              >
-                <option value="">Select Master Category</option>
-                {masterCategories.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Category */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Category</label>
-            <div className="relative">
-              <select 
-                {...register("categoryId")} 
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
-                style={{ backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundSize: '0.9em', backgroundRepeat: 'no-repeat' }}
-              >
-                <option value="">Select Category</option>
-                {categoryData.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {errors.categoryId?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.categoryId?.message}</p>
-            )}
-          </div>
-
-          {/* Search Code / SKU */}
-          <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Search Code / SKU</label>
-            <input
-              {...register("searchCode")}
-              type="text"
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-              placeholder="e.g. ELEC-HEAD-001"
-            />
-            {errors.searchCode?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.searchCode?.message}</p>
-            )}
-          </div>
+            >
+              All Products
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Price & Stock Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="font-semibold text-base text-slate-900">Price & Stock</h2>
+      <form
+        onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.log("FORM ERRORS ❌", errors);
+        })}
+        className="w-full space-y-6 max-w-7xl   p-1"
+      >
+        {/* Modern Header */}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Create Product
+          </h1>
+          <p className="text-sm text-slate-500">
+            Set up your product details, pricing, stock levels, and media assets.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Regular Price */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Regular Price</label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">$</span>
-              <input
-                {...register("price")}
-                type="text"
-                className="w-full h-11 pl-7 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-                placeholder="0.00"
-              />
-            </div>
-            {errors.price?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.price?.message}</p>
-            )}
-          </div>
-
-          {/* Discount Price */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Discount Price</label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">$</span>
-              <input
-                {...register("discountPrice")}
-                type="text"
-                onFocus={(e) => {
-                  if (e.target.value === "0") e.target.value = "";
-                }}
-                className="w-full h-11 pl-7 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-                placeholder="0.00"
-              />
-            </div>
-            {errors.discountPrice?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.discountPrice?.message}</p>
-            )}
-          </div>
-
-          {/* Stock Quantity */}
-          <div className="flex flex-col gap-1.5 md:col-span-2">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Stock Quantity</label>
-            <input
-              {...register("currentStock")}
-              type="text"
-              onFocus={(e) => {
-                if (e.target.value === "0") e.target.value = "";
-              }}
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-              placeholder="e.g. 50"
-            />
-            {errors.currentStock?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.currentStock?.message}</p>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* RIGHT COLUMN */}
-    <div className="flex-1 flex flex-col gap-6">
-      
-      {/* Image Upload Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="font-semibold text-base text-slate-900">Product Image</h2>
-        </div>
-        
-        <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-center w-full">
-            <label className="flex flex-col items-center justify-center w-full min-h-32 border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/40 rounded-xl cursor-pointer transition p-4 group">
-              <div className="flex flex-col items-center justify-center text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor" className="w-7 h-7 text-slate-400 group-hover:text-slate-500 mb-2 transition">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
-                </svg>
-                <p className="text-xs font-semibold text-slate-700">Click to upload product asset</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">PNG, JPG up to 5MB</p>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* LEFT COLUMN */}
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Product Info Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="font-semibold text-base text-slate-900">
+                  Product Details
+                </h2>
               </div>
-              <input
-                {...register("image")}
-                type="file"
-                className="hidden"
-              />
-            </label>
-          </div>
-          {errors.image && (
-            <p className="text-xs font-medium text-rose-500 mt-0.5">Please select a product image</p>
-          )}
-        </div>
-      </div>
 
-      {/* General Info + Tax Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
-        <div className="border-b border-slate-100 pb-3">
-          <h2 className="font-semibold text-base text-slate-900">General & Tax Details</h2>
-        </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Product Name<span className="text-rose-500">*</span>
+                </label>
+                <input
+                  {...register("name")}
+                  type="text"
+                  className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                  placeholder="e.g. Wireless Bluetooth Headphones"
+                />
+                {errors.name?.message && (
+                  <p className="text-xs font-medium text-rose-500 mt-0.5">
+                    {errors.name?.message}
+                  </p>
+                )}
+              </div>
 
-        {/* Product Description */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Product Description</label>
-          <textarea
-            {...register("productDesc")}
-            rows={3}
-            className="w-full p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none resize-none"
-            placeholder="Describe the main parameters, unique qualities..."
-          />
-          {errors.productDesc?.message && (
-            <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.productDesc?.message}</p>
-          )}
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Master Category */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Master Category
+                  </label>
+                  <div className="relative">
+                    <select
+                      {...register("masterCategoryId" as any)}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "0.9em",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <option value="">Select Master Category</option>
+                      {masterCategories.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Sort Order */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Sort Order</label>
-            <input
-              {...register("sortOrder")}
-              type="text"
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-              placeholder="0"
-            />
-            {errors.sortOrder?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.sortOrder?.message}</p>
-            )}
-          </div>
+                {/* Category */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Category
+                  </label>
+                  <div className="relative">
+                    <select
+                      {...register("categoryId")}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "0.9em",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <option value="">Select Category</option>
+                      {categoryData.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {errors.categoryId?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.categoryId?.message}
+                    </p>
+                  )}
+                </div>
 
-          {/* Status */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Status</label>
-            <div className="relative">
-              <select
-                {...register("publishStatus")}
-                defaultValue="published"
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
-                style={{ backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundSize: '0.9em', backgroundRepeat: 'no-repeat' }}
-              >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-              </select>
+                {/* Search Code / SKU */}
+                <div className="flex flex-col gap-1.5 md:col-span-2">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Search Code / SKU
+                  </label>
+                  <input
+                    {...register("searchCode")}
+                    type="text"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                    placeholder="e.g. ELEC-HEAD-001"
+                  />
+                  {errors.searchCode?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.searchCode?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
-            {errors.publishStatus?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.publishStatus?.message}</p>
-            )}
-          </div>
-        </div>
 
-        {/* Tax Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Tax Rate */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Tax Rate (%)</label>
-            <input
-              {...register("taxRate")}
-              type="text"
-              className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
-              placeholder="e.g. 18"
-            />
-            {errors.taxRate?.message && (
-              <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.taxRate?.message}</p>
-            )}
+            {/* Price & Stock Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="font-semibold text-base text-slate-900">
+                  Price & Stock
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Regular Price */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Regular Price
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
+                      $
+                    </span>
+                    <input
+                      {...register("price")}
+                      type="text"
+                      className="w-full h-11 pl-7 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {errors.price?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.price?.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Discount Price */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Discount Price
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
+                      $
+                    </span>
+                    <input
+                      {...register("discountPrice")}
+                      type="text"
+                      onFocus={(e) => {
+                        if (e.target.value === "0") e.target.value = "";
+                      }}
+                      className="w-full h-11 pl-7 pr-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {errors.discountPrice?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.discountPrice?.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Stock Quantity */}
+                <div className="flex flex-col gap-1.5 md:col-span-2">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Stock Quantity
+                  </label>
+                  <input
+                    {...register("currentStock")}
+                    type="text"
+                    onFocus={(e) => {
+                      if (e.target.value === "0") e.target.value = "";
+                    }}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                    placeholder="e.g. 50"
+                  />
+                  {errors.currentStock?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.currentStock?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Tax Type */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Tax Type</label>
-            <div className="relative">
-              <select 
-                {...register("taxType")} 
-                className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
-                style={{ backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundPosition: 'right 1rem center', backgroundSize: '0.9em', backgroundRepeat: 'no-repeat' }}
+          {/* RIGHT COLUMN */}
+          <div className="flex-1 flex flex-col gap-6">
+            {/* Image Upload Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="font-semibold text-base text-slate-900">
+                  Product Image
+                </h2>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-center w-full">
+                  <label className="flex flex-col items-center justify-center w-full min-h-32 border-2 border-dashed border-slate-200 hover:border-slate-300 bg-slate-50/40 rounded-xl cursor-pointer transition p-4 group">
+                    <div className="flex flex-col items-center justify-center text-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.8"
+                        stroke="currentColor"
+                        className="w-7 h-7 text-slate-400 group-hover:text-slate-500 mb-2 transition"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+                        />
+                      </svg>
+                      <p className="text-xs font-semibold text-slate-700">
+                        Click to upload product asset
+                      </p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        PNG, JPG up to 5MB
+                      </p>
+                    </div>
+                    <input
+                      {...register("image")}
+                      type="file"
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                {errors.image && (
+                  <p className="text-xs font-medium text-rose-500 mt-0.5">
+                    Please select a product image
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* General Info + Tax Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="font-semibold text-base text-slate-900">
+                  General & Tax Details
+                </h2>
+              </div>
+
+              {/* Product Description */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Product Description
+                </label>
+                <textarea
+                  {...register("productDesc")}
+                  rows={3}
+                  className="w-full p-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none resize-none"
+                  placeholder="Describe the main parameters, unique qualities..."
+                />
+                {errors.productDesc?.message && (
+                  <p className="text-xs font-medium text-rose-500 mt-0.5">
+                    {errors.productDesc?.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Sort Order */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Sort Order
+                  </label>
+                  <input
+                    {...register("sortOrder")}
+                    type="text"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                    placeholder="0"
+                  />
+                  {errors.sortOrder?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.sortOrder?.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Status */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Status
+                  </label>
+                  <div className="relative">
+                    <select
+                      {...register("publishStatus")}
+                      defaultValue="published"
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "0.9em",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
+                  </div>
+                  {errors.publishStatus?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.publishStatus?.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Tax Category (Added field) */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Tax Category
+                </label>
+                <div className="relative">
+                  <select
+                    {...register("taxCategory" as any)}
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                      backgroundPosition: "right 1rem center",
+                      backgroundSize: "0.9em",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                  >
+                    <option value="FOOD_GST">Food (GST 5%)</option>
+                    <option value="LIQUOR_VAT">Liquor (Punjab VAT)</option>
+                    <option value="EXEMPT">Exempt / Zero Tax</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Tax Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tax Rate */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tax Rate (%)
+                  </label>
+                  <input
+                    {...register("taxRate")}
+                    type="text"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                    placeholder="e.g. 18"
+                  />
+                  {errors.taxRate?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.taxRate?.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Tax Type */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tax Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      {...register("taxType")}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "0.9em",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <option value="exclusive">
+                        Exclusive (Added on total)
+                      </option>
+                      <option value="inclusive">
+                        Inclusive (Deducted from total)
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+               {/* Tax Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tax Rate */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tax Rate 2 (%)
+                  </label>
+                  <input
+                    {...register("taxRate1")}
+                    type="text"
+                    className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 placeholder-slate-400 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none"
+                    placeholder="e.g. 18"
+                  />
+                  {errors.taxRate1?.message && (
+                    <p className="text-xs font-medium text-rose-500 mt-0.5">
+                      {errors.taxRate1?.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* Tax Type */}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Tax Type 2
+                  </label>
+                  <div className="relative">
+                    <select
+                      {...register("taxType1")}
+                      className="w-full h-11 px-3.5 rounded-xl border border-slate-200 bg-slate-50/30 text-slate-900 text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition outline-none appearance-none"
+                      style={{
+                        backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                        backgroundPosition: "right 1rem center",
+                        backgroundSize: "0.9em",
+                        backgroundRepeat: "no-repeat",
+                      }}
+                    >
+                      <option value="exclusive">
+                        Exclusive (Added on total)
+                      </option>
+                      <option value="inclusive">
+                        Inclusive (Deducted from total)
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Featured Product Checkbox Mod */}
+              <div className="flex items-center gap-3 p-3.5 bg-slate-50/60 rounded-xl border border-slate-100 hover:bg-slate-50 transition cursor-pointer select-none">
+                <input
+                  {...register("isFeatured")}
+                  type="checkbox"
+                  id="isFeatured"
+                  className="h-4.5 w-4.5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500/20 accent-indigo-600 cursor-pointer"
+                />
+                <label
+                  htmlFor="isFeatured"
+                  className="text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer"
+                >
+                  Featured Product
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full h-11 font-semibold text-sm rounded-xl tracking-wide shadow-xs bg-slate-900 hover:bg-slate-800 text-white transition duration-150 flex items-center justify-center ${
+                  isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+                }`}
               >
-                <option value="exclusive">Exclusive (Added on total)</option>
-                <option value="inclusive">Inclusive (Deducted from total)</option>
-              </select>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </div>
         </div>
-
-        {/* Featured Product Checkbox Mod */}
-        <div className="flex items-center gap-3 p-3.5 bg-slate-50/60 rounded-xl border border-slate-100 hover:bg-slate-50 transition cursor-pointer select-none">
-          <input 
-            {...register("isFeatured")} 
-            type="checkbox" 
-            id="isFeatured"
-            className="h-4.5 w-4.5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500/20 accent-indigo-600 cursor-pointer"
-          />
-          <label htmlFor="isFeatured" className="text-xs font-semibold text-slate-700 uppercase tracking-wider cursor-pointer">
-            Featured Product
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className={`w-full h-11 font-semibold text-sm rounded-xl tracking-wide shadow-xs bg-slate-900 hover:bg-slate-800 text-white transition duration-150 flex items-center justify-center ${
-            isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-          }`}
-        >
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+      </form>
     </div>
-  </div>
-</form>
-  </div>
   );
 };
 

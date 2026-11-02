@@ -225,7 +225,7 @@ const [showDescription, setShowDescription] = useState(false);
         {/* 💰 Prices */}
         <TableCell>{price}</TableCell>
         <TableCell>{discountedPrice}</TableCell>
-
+ <TableCell>{product.taxCategory}</TableCell>
         {/* 📦 Quantity */}
         {/* <TableCell>{product.currentStock}</TableCell> */}
 

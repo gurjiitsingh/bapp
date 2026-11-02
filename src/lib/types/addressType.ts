@@ -198,7 +198,7 @@ export type addressResType = {
   door?: string;
   deliveryNotes?: string;
 
-  createdAt?: Timestamp;
+  createdAt?: string;
 };
 
 export type addressResType_old = {

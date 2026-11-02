@@ -84,7 +84,7 @@ if (q.length >= 3) {
         type: data.type ?? "parent",
 
         productCat: data.productCat ?? "",
-
+taxCategory: data.taxCategory ?? "FOOD_GST",
         flavors: data.flavors ?? false,
 
         publishStatus:
