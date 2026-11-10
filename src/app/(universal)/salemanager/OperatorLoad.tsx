@@ -17,7 +17,19 @@ import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getS
 import toast from "react-hot-toast";
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 
+type RouteType = {
+  id: string;
+  routeCode: string;
+  routeName: string;
+  vehicleId?: string;
+  vehicleName?: string;
+  locationCode?: string;
+  salesmanId?: string;
+  salesmanName?: string;
+};
+
 type LoadVehicleFormType = {
+  routeId: string;
   vehicleId: string;
   salemanId: string;
   remarks?: string;
@@ -29,36 +41,70 @@ type LoadVehicleFormType = {
 };
 
 type Props = {
-  vehicles: VehicleType[];
-  factoryStock: StockLocationType[];
+  vehicles?: VehicleType[];
+  factoryStock?: StockLocationType[];
+  routes?: RouteType[];
 };
-
 export default function LoadVehicleFormOeprator({
-  factoryStock,
-  vehicles,
+  factoryStock = [],
+  vehicles = [],
+  routes = [],
 }: Props) {
+
   const [factoryData, setFactoryData] =
     useState<StockLocationType[]>(factoryStock);
 
   const [vanStock, setVanStock] =
     useState<StockLocationType[]>([]);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<LoadVehicleFormType>({
+ 
     defaultValues: {
-      vehicleId: "",
-      items: factoryStock.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-        wholesalePrice: item.wholesalePrice,
-      })),
-    },
+  routeId: "",
+  vehicleId: "",
+  salemanId: "",
+  remarks: "",
+  items: factoryStock.map((item) => ({
+    productId: item.productId,
+    quantity: 0,
+    wholesalePrice: item.wholesalePrice,
+  })),
+},
+
   });
 
-  const vehicleId = form.watch("vehicleId");
+const routeId = form.watch("routeId");
+const vehicleId = form.watch("vehicleId");
 
-  const selectedVehicle = vehicles.find(
-    (v) => v.id === vehicleId
+const selectedRoute = routes.find(
+  (r) => r.id === routeId
+);
+
+const selectedVehicle = vehicles.find(
+  (v) => v.id === vehicleId
+);
+
+
+useEffect(() => {
+  if (!selectedRoute) {
+    form.setValue("vehicleId", "");
+    form.setValue("salemanId", "");
+    return;
+  }
+
+  form.setValue(
+    "vehicleId",
+    selectedRoute.vehicleId || "",
+    { shouldValidate: true }
   );
+
+  form.setValue(
+    "salemanId",
+    selectedRoute.salesmanId || ""
+  );
+}, [selectedRoute, form]);
 
   // =========================
   // Fetch Van Stock
@@ -93,64 +139,97 @@ export default function LoadVehicleFormOeprator({
   // =========================
   // Submit
   // =========================
-  const onSubmit = async (data: LoadVehicleFormType) => {
-    const items = data.items.filter((x) => x.quantity > 0);
+const onSubmit = async (data: LoadVehicleFormType) => {
+  if (isSubmitting) return;
 
-    if (!data.vehicleId) return toast.error("Select vehicle");
-    if (!items.length) return toast.error("Enter quantity");
+  const items = data.items.filter(
+    (x) => Number(x.quantity) > 0
+  );
 
-const result = await loadVehicle({
-  // =========================================
-  // ROUTE
-  // =========================================
+  // ==========================
+  // VALIDATION
+  // ==========================
 
-  routeId: "",
-  routeName: "",
- 
-  // =========================================
-  // VEHICLE
-  // =========================================
+  if (!data.routeId || !selectedRoute) {
+    return toast.error("Please select a route");
+  }
 
-  vehicleId: data.vehicleId,
+  if (!data.vehicleId || !selectedVehicle) {
+    return toast.error("Please select a vehicle");
+  }
 
-  vehicleName:
-    selectedVehicle?.name || "",
+  if (!items.length) {
+    return toast.error("Enter quantity");
+  }
 
-  locationCode:
-    selectedVehicle?.locationCode || "",
+  // ==========================
+  // VALIDATE FACTORY STOCK
+  // ==========================
 
-  // =========================================
-  // SALESMAN
-  // =========================================
+  for (const item of items) {
+    const stock = factoryData.find(
+      (s) => s.productId === item.productId
+    );
 
- salesmanId:
-  data.salemanId || "",
+    if (!stock || item.quantity > stock.quantity) {
+      return toast.error(
+        `Insufficient stock for ${
+          stock?.productName || item.productId
+        }`
+      );
+    }
+  }
 
-  salesmanName:
-    selectedVehicle?.responsiblePersonName || "",
+  setIsSubmitting(true);
 
-  // =========================================
-  // LEGACY / RESPONSIBLE PERSON
-  // =========================================
+  try {
+    console.log("Load Vehicle Submit:", data);
 
-  responsiblePerson:
-    selectedVehicle?.responsiblePersonName || "",
+    // ==========================
+    // SAVE LOADING
+    // ==========================
 
-  // =========================================
-  // ITEMS
-  // =========================================
+    const result = await loadVehicle({
+      routeId: data.routeId,
+      routeName: selectedRoute.routeName,
 
-  items,
-});
+      vehicleId: data.vehicleId,
+      vehicleName: selectedVehicle.name,
+      locationCode: selectedVehicle.locationCode,
 
-    if (!result.success) return toast.error(result.message);
+      salesmanId: selectedRoute.salesmanId || "",
+      salesmanName: selectedRoute.salesmanName || "",
 
-    // ✅ Update Factory
+      driverId: selectedRoute.salesmanId || "",
+      driverName: selectedRoute.salesmanName || "",
+
+      responsiblePerson:
+        selectedRoute.salesmanName || "",
+
+      remarks: data.remarks,
+
+      items,
+    });
+
+    console.log("Load Vehicle Result:", result);
+
+    if (!result?.success) {
+      toast.error(
+        result?.message || "Vehicle loading failed"
+      );
+      return;
+    }
+
+    // ==========================
+    // UPDATE FACTORY STOCK
+    // ==========================
+
     setFactoryData((prev) =>
       prev.map((stock) => {
         const loaded = items.find(
           (i) => i.productId === stock.productId
         );
+
         if (!loaded) return stock;
 
         return {
@@ -160,18 +239,89 @@ const result = await loadVehicle({
       })
     );
 
-    toast.success("Loaded successfully");
+    // ==========================
+    // UPDATE VAN STOCK
+    // ==========================
 
-    // ✅ Reset only quantities (not whole form)
-    form.setValue(
-      "items",
-      factoryData.map((item) => ({
-        productId: item.productId,
-        quantity: 0,
-        wholesalePrice: item.wholesalePrice,
-      }))
-    );
-  };
+    setVanStock((prev) => {
+      const updated = [...prev];
+
+      for (const loaded of items) {
+        const index = updated.findIndex(
+          (x) => x.productId === loaded.productId
+        );
+
+        if (index >= 0) {
+          updated[index] = {
+            ...updated[index],
+            quantity:
+              updated[index].quantity + loaded.quantity,
+          };
+        } else {
+          const product = factoryData.find(
+            (x) => x.productId === loaded.productId
+          );
+
+          if (product) {
+            updated.push({
+              ...product,
+              id: `${product.productId}_VAN_${data.vehicleId}`,
+              locationType: "TRUCK",
+              locationRef: data.vehicleId,
+              quantity: loaded.quantity,
+              wholesalePrice: loaded.wholesalePrice,
+            });
+          }
+        }
+      }
+
+      return updated;
+    });
+
+    toast.success(result.message || "Loaded successfully");
+
+    // ==========================
+    // REFRESH VAN STOCK
+    // ==========================
+
+    const updatedVanStock = await getStockLocationsAll({
+      locationType: "TRUCK",
+      locationRef: data.vehicleId,
+    });
+
+    setVanStock(updatedVanStock);
+
+    // ==========================
+    // RESET QUANTITIES
+    // ==========================
+
+    form.reset({
+      routeId: data.routeId,
+      vehicleId: data.vehicleId,
+      salemanId: selectedRoute.salesmanId || "",
+      remarks: "",
+
+      items: factoryData.map((item) => {
+        const loaded = items.find(
+          (i) => i.productId === item.productId
+        );
+
+        return {
+          productId: item.productId,
+          quantity: 0,
+          wholesalePrice: item.wholesalePrice,
+        };
+      }),
+    });
+
+  } catch (error) {
+    console.error("Load Vehicle Error:", error);
+    toast.error("Something went wrong while loading vehicle");
+
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const selectedItems = form.watch("items");
 
@@ -185,7 +335,15 @@ const result = await loadVehicle({
   );
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
+<form
+  onSubmit={form.handleSubmit(
+    onSubmit,
+    (errors) => {
+      console.log("Form Validation Errors:", errors);
+      toast.error("Please check the form values");
+    }
+  )}
+>
       <div className="flex flex-col h-screen bg-gray-50">
 
         {/* 🔹 Header */}
@@ -197,30 +355,73 @@ const result = await loadVehicle({
 
         {/* 🔹 Vehicle Row */}
         <div className="flex gap-2 p-2 bg-white border-b border-slate-200">
-          <div className="flex-1">
-            <Controller
-              control={form.control}
-              name="vehicleId"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <SelectTrigger className="h-9 text-sm">
-                    <SelectValue placeholder="Vehicle" />
-                  </SelectTrigger>
+          
+{/* Route + Vehicle Row */}
+<div className="flex gap-2 p-2 bg-white border-b border-slate-200">
 
-                  <SelectContent>
-                    {vehicles.map((v) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+  {/* Route */}
+  <div className="flex-1">
+    <Controller
+      control={form.control}
+      name="routeId"
+      render={({ field }) => (
+        <Select
+          value={field.value || ""}
+          onValueChange={field.onChange}
+        >
+          <SelectTrigger className="h-9 text-sm bg-white border border-slate-300">
+            <SelectValue placeholder="Select Route" />
+          </SelectTrigger>
+
+          <SelectContent className="z-[100] bg-white border border-slate-200 shadow-lg">
+            {routes.map((route) => (
+              <SelectItem key={route.id} value={route.id}>
+                {route.routeName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    />
+  </div>
+
+ {/* Vehicle Dropdown */}
+<div className="flex-1">
+  <Controller
+    control={form.control}
+    name="vehicleId"
+    render={({ field }) => (
+      <Select
+        value={field.value || ""}
+        onValueChange={field.onChange}
+      >
+        <SelectTrigger className="h-9 text-sm bg-white border border-slate-300">
+          <SelectValue placeholder="Select Vehicle" />
+        </SelectTrigger>
+
+        <SelectContent className="z-[100] bg-white border border-slate-200 shadow-lg">
+          {vehicles.map((vehicle) => (
+            <SelectItem key={vehicle.id} value={vehicle.id}>
+              {vehicle.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    )}
+  />
+</div>
+
+  {/* Driver */}
+  <div className="flex-1">
+    <Input
+      value={selectedRoute?.salesmanName || ""}
+      placeholder="Driver"
+      disabled
+      className="h-9 text-sm bg-gray-100"
+    />
+  </div>
+
+</div>
 
           <div className="flex-1">
             <Input
@@ -255,18 +456,23 @@ const result = await loadVehicle({
               <div className="flex items-center justify-between mt-1 text-xs gap-2">
                 <span>Van: {item.vanQuantity}</span>
 
-                <Input
-                  type="number"
-                  min={0}
-                  max={item.quantity}
-                  className="h-8 w-26 border border-slate-200 text-center"
-                  {...form.register(
-                    `items.${index}.quantity`,
-                    {
-                      valueAsNumber: true,
-                    }
-                  )}
-                />
+              <Input
+  type="number"
+  min={0}
+  max={item.quantity}
+  className="h-8 w-26 border border-slate-200 text-center"
+  {...form.register(
+    `items.${index}.quantity`,
+    {
+      valueAsNumber: true,
+    }
+  )}
+  onFocus={(e) => {
+    if (e.target.value === "0") {
+      e.target.select();
+    }
+  }}
+/>
 
                 <span className="text-red-500">🗑</span>
               </div>
@@ -281,9 +487,13 @@ const result = await loadVehicle({
             <span>Qty: {totalQuantity}</span>
           </div>
 
-          <Button className="w-full h-10">
-            🚚 Load Vehicle
-          </Button>
+        <Button
+  type="submit"
+  disabled={isSubmitting}
+  className="w-full h-10 bg-slate-200"
+>
+  {isSubmitting ? "Loading..." : "🚚 Load Vehicle"}
+</Button>
         </div>
 
       </div>

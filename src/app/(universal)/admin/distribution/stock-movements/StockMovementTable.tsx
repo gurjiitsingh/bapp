@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { StockMovementType } from "@/lib/types/distribution/StockMovementType";
 
- 
+
 
 type Props = {
   movements: StockMovementType[];
@@ -18,7 +18,7 @@ export default function StockMovementTable({
   movements,
 }: Props) {
 
- 
+
   return (
     <Card className="rounded-3xl  border-0 p-0   shadow-sm bg-white">
       <CardHeader className=" ">
@@ -40,7 +40,7 @@ export default function StockMovementTable({
                   Date
                 </th>
                 <th className="p-3 text-left">
-                 Info
+                  Info
                 </th>
 
                 <th className="p-3 text-left">
@@ -50,7 +50,7 @@ export default function StockMovementTable({
                 <th className="p-3 text-center">
                   Qty
                 </th>
-  
+
                 <th className="p-3 text-left">
                   From
                 </th>
@@ -94,8 +94,8 @@ export default function StockMovementTable({
                       movement.createdAt
                     ).toLocaleString()}
                   </td>
-  <td className="p-3">
-                  {movement.name}-{movement.locationCode}- {movement.responsiblePerson}
+                  <td className="p-3">
+                    {movement.name}-{movement.locationCode}- {movement.responsiblePerson}
                   </td>
                   <td className="p-3">
                     {movement.productName}
@@ -104,7 +104,7 @@ export default function StockMovementTable({
                   <td className="text-center">
                     {movement.quantity}
                   </td>
-                 
+
 
                   <td className="p-3">
                     {movement.fromLocationType}
