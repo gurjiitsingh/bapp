@@ -166,19 +166,19 @@ const onSubmit = async (data: LoadVehicleFormType) => {
   // VALIDATE FACTORY STOCK
   // ==========================
 
-  for (const item of items) {
-    const stock = factoryData.find(
-      (s) => s.productId === item.productId
-    );
+  // for (const item of items) {
+  //   const stock = factoryData.find(
+  //     (s) => s.productId === item.productId
+  //   );
 
-    if (!stock || item.quantity > stock.quantity) {
-      return toast.error(
-        `Insufficient stock for ${
-          stock?.productName || item.productId
-        }`
-      );
-    }
-  }
+  //   if (!stock || item.quantity > stock.quantity) {
+  //     return toast.error(
+  //       `Insufficient stock for ${
+  //         stock?.productName || item.productId
+  //       }`
+  //     );
+  //   }
+  // }
 
   setIsSubmitting(true);
 
@@ -459,7 +459,7 @@ const onSubmit = async (data: LoadVehicleFormType) => {
               <Input
   type="number"
   min={0}
-  max={item.quantity}
+  //max={item.quantity}
   className="h-8 w-26 border border-slate-200 text-center"
   {...form.register(
     `items.${index}.quantity`,

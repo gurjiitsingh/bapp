@@ -349,37 +349,40 @@ if (missingColumns.length > 0) {
       const id = ref.id;
 
       const data: Omit<ProductType, "id"> = {
-        name: product.name,
-        price: product.price,
+  name: product.name,
+  price: product.price,
 
-        quantity: null,
+  quantity: null,
 
-        discountEligible: true,
-        discountPrice: 0,
-        type: "parent",
-        // Actual Firestore category document ID.
-        categoryId: product.categoryId,
+  discountEligible: true,
+  discountPrice: 0,
+  type: "parent",
 
-        // Keep the category name.
-        productCat: product.category,
+  categoryId: product.categoryId,
+  productCat: product.category,
 
-        baseProductId: id,
-        productDesc: "",
-        sortOrder: start + index,
+  baseProductId: id,
+  productDesc: "",
+  sortOrder: start + index,
 
-        image: "/com.jpg",
+  image: "/com.jpg",
 
-        isFeatured: false,
-        favorite: false,
+  isFeatured: false,
+  favorite: false,
 
-        publishStatus: "published",
-        stockStatus: "in_stock",
+  publishStatus: "published",
+  stockStatus: "in_stock",
 
-        taxRate: 0,
-        taxType: "exclusive",
+  taxRate: 0,
+  taxType: "exclusive",
 
-        purchaseSession: null,
-      };
+  // Newly required tax fields
+  taxCategory: "FOOD_GST",
+  taxRate1: 0,
+  taxType1: "exclusive",
+
+  purchaseSession: null,
+};
 
       batch.set(ref, data);
     });
@@ -500,36 +503,39 @@ if (missingColumns.length > 0) {
       const ref = collection.doc();
       const id = ref.id;
 
-      const data: Omit<ProductType, "id"> = {
-        name: product.name,
-        price: product.price,
+    const data: Omit<ProductType, "id"> = {
+  name: product.name,
+  price: product.price,
 
-        quantity: null,
-         type: "parent",
-        discountEligible: true,
-        discountPrice: 0,
+  quantity: null,
+  type: "parent",
+  discountEligible: true,
+  discountPrice: 0,
 
-        categoryId: "",
-        productCat: product.category,
+  categoryId: "",
+  productCat: product.category,
 
-        baseProductId: id,
-        productDesc: "",
-        sortOrder: start + chunk.indexOf(product),
+  baseProductId: id,
+  productDesc: "",
+  sortOrder: start + chunk.indexOf(product),
 
-        image: "/com.jpg",
+  image: "/com.jpg",
 
-        isFeatured: false,
-        favorite: false,
+  isFeatured: false,
+  favorite: false,
 
-        publishStatus: "published",
-        stockStatus: "in_stock",
+  publishStatus: "published",
+  stockStatus: "in_stock",
 
-        // Defaults for the required tax fields.
-        taxRate: 0,
-        taxType: "exclusive",
+  taxCategory: "STANDARD",
+  taxRate: 0,
+  taxType: "exclusive",
 
-        purchaseSession: null,
-      };
+  taxRate1: 0,
+  taxType1: "exclusive",
+
+  purchaseSession: null,
+};
 
       batch.set(ref, data);
     }
