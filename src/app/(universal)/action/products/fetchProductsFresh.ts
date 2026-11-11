@@ -101,6 +101,14 @@ export async function fetchProductsFresh(): Promise<ProductType[]> {
           data.taxRate ?? undefined,
 
         taxType: data.taxType,
+        taxCategory:
+  data.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data.taxRate1 ?? 0,
+
+taxType1:
+  data.taxType1 ?? "exclusive",
       };
     });
   } catch (error) {

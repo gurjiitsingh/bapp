@@ -635,6 +635,7 @@ export async function uploadCategoriesCSV(formData: FormData) {
         desc: "",
         image: "/com.jpg",
         taxType: "exclusive",
+         taxType1: "exclusive",
         sortOrder: start + i,
       };
 

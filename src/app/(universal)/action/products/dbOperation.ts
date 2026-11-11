@@ -163,6 +163,15 @@ export const fetchProducts = unstable_cache(
 
           taxType:
             data.taxType,
+
+            taxCategory:
+  data.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data.taxRate1 ?? 0,
+
+taxType1:
+  data.taxType1 ?? "exclusive",
         };
       });
     } catch (error) {
@@ -780,6 +789,14 @@ export async function fetchProductById(
       //  New GST / Tax Fields (safe fallbacks)
       taxRate: data?.taxRate ?? null,
       taxType: data?.taxType ?? null,
+      taxCategory:
+  data?.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data?.taxRate1 ?? 0,
+
+taxType1:
+  data?.taxType1 ?? "exclusive",
     };
 
     return product;
@@ -837,6 +854,14 @@ export async function fetchProductByCategoryId(
 
         taxRate: data.taxRate,
         taxType: data.taxType,
+        taxCategory:
+  data.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data.taxRate1 ?? 0,
+
+taxType1:
+  data.taxType1 ?? "exclusive",
 
         purchaseSession: data.purchaseSession ?? null,
 
@@ -973,6 +998,14 @@ export async function uploadProductFromCSV(data: Partial<ProductType>) {
     //     : undefined,
     taxRate: data.taxRate ?? 0,
     taxType: data.taxType ?? "inclusive",
+    taxCategory:
+  data.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data.taxRate1 ?? 0,
+
+taxType1:
+  data.taxType1 ?? "exclusive",
   };
 
   await adminDb.collection("products").add(productData);
@@ -1096,6 +1129,14 @@ export const fetchLatestProducts = unstable_cache(
           taxRate: data.taxRate ?? undefined,
 
           taxType: data.taxType,
+          taxCategory:
+  data.taxCategory ?? "FOOD_GST",
+
+taxRate1:
+  data.taxRate1 ?? 0,
+
+taxType1:
+  data.taxType1 ?? "exclusive",
 
           sku: data.sku ?? "",
           barcode: data.barcode ?? "",

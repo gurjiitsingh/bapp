@@ -14,6 +14,8 @@ export type categoryType = {
   disablePickupDiscount?: boolean | undefined;
   taxRate?: string | number;
   taxType: "inclusive" | "exclusive" | undefined;
+   taxRate1?: string | number;
+  taxType1: "inclusive" | "exclusive" | undefined;
 };
 
 
@@ -75,6 +77,7 @@ export const editCategorySchema = z.object({
   oldImageUrl: z.any().optional(),
   isFeatured: z.string().optional(), 
   disablePickupDiscount: z.boolean().optional(),
+
     taxRate: z
     .string()
     .optional()
@@ -85,6 +88,19 @@ export const editCategorySchema = z.object({
     ),
 
   taxType: z
+    .enum(["inclusive", "exclusive"])
+    .optional(),
+
+        taxRate1: z
+    .string()
+    .optional()
+    .refine(
+      (value) =>
+        !value || /^\d*[.,]?\d*$/.test(value),
+      "Invalid tax rate"
+    ),
+
+  taxType1: z
     .enum(["inclusive", "exclusive"])
     .optional(),
 });

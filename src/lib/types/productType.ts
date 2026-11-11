@@ -179,6 +179,21 @@ masterCategoryId: z.string().optional(),
     ),
 
   taxType: z.enum(["inclusive", "exclusive"]).optional(),
+
+  taxRate1: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform((val) =>
+      val === undefined || val === ""
+        ? undefined
+        : Number(val.toString().replace(",", "."))
+    )
+    .refine(
+      (val) => val === undefined || (!isNaN(val) && val >= 0),
+      { message: "Invalid tax rate" }
+    ),
+
+  taxType1: z.enum(["inclusive", "exclusive"]).optional(),
 });
 
 
