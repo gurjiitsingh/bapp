@@ -99,8 +99,161 @@ conversionFactor:data.conversionFactor || 1 ,
 
 
 
+export async function deleteInventoryItem(id: string) {
+  try {
+    // ==========================
+    // CHECK TRANSACTIONS
+    // ==========================
 
-export async function deleteInventoryItem(
+    // const transactionSnapshot = await adminDb
+    //   .collection("inventoryTransactions")
+    //   .where("inventoryItemId", "==", id)
+    //   .limit(1)
+    //   .get();
+
+    // if (!transactionSnapshot.empty) {
+    //   return {
+    //     success: false,
+    //     message:
+    //       "Inventory item has transaction history and cannot be deleted.",
+    //   };
+    // }
+
+    // ==========================
+    // FIND RELATED RECIPES
+    // ==========================
+
+    const recipeSnapshot = await adminDb
+      .collection("productRecipes")
+      .where("inventoryItemId", "==", id)
+      .get();
+
+    // ==========================
+    // DELETE RECIPES + INVENTORY
+    // ==========================
+
+    const batch = adminDb.batch();
+
+    // Remove all recipe entries using this inventory item
+    recipeSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete inventory item
+    const inventoryRef = adminDb
+      .collection("inventoryItems")
+      .doc(id);
+
+    batch.delete(inventoryRef);
+
+    await batch.commit();
+
+    // ==========================
+    // REVALIDATE
+    // ==========================
+
+    revalidateTag("inventory-items", "max");
+
+    revalidatePath("/admin/stock-finished/");
+    revalidatePath("/admin/stock-finished/form");
+    revalidatePath("/admin/stock-finished/editform");
+
+    return {
+      success: true,
+      message: recipeSnapshot.empty
+        ? "Inventory item deleted successfully."
+        : `Inventory item deleted successfully. ${recipeSnapshot.size} recipe entries were also removed.`,
+    };
+  } catch (error) {
+    console.error("❌ Error deleting inventory item:", error);
+
+    return {
+      success: false,
+      message: "Failed to delete inventory item.",
+    };
+  }
+}
+
+
+
+
+export async function deleteInventoryItem_delete_item_even_in_recipies(id: string) {
+  try {
+    // ==========================
+    // CHECK TRANSACTIONS
+    // ==========================
+
+    const transactionSnapshot = await adminDb
+      .collection("inventoryTransactions")
+      .where("inventoryItemId", "==", id)
+      .limit(1)
+      .get();
+
+    if (!transactionSnapshot.empty) {
+      return {
+        success: false,
+        message:
+          "Inventory item has transaction history and cannot be deleted.",
+      };
+    }
+
+    // ==========================
+    // FIND RELATED RECIPES
+    // ==========================
+
+    const recipeSnapshot = await adminDb
+      .collection("productRecipes")
+      .where("inventoryItemId", "==", id)
+      .get();
+
+    // ==========================
+    // DELETE RECIPES + INVENTORY
+    // ==========================
+
+    const batch = adminDb.batch();
+
+    // Remove all recipe entries using this inventory item
+    recipeSnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    // Delete inventory item
+    const inventoryRef = adminDb
+      .collection("inventoryItems")
+      .doc(id);
+
+    batch.delete(inventoryRef);
+
+    await batch.commit();
+
+    // ==========================
+    // REVALIDATE
+    // ==========================
+
+    revalidateTag("inventory-items", "max");
+
+    revalidatePath("/admin/stock-finished/");
+    revalidatePath("/admin/stock-finished/form");
+    revalidatePath("/admin/stock-finished/editform");
+
+    return {
+      success: true,
+      message: recipeSnapshot.empty
+        ? "Inventory item deleted successfully."
+        : `Inventory item deleted successfully. ${recipeSnapshot.size} recipe entries were also removed.`,
+    };
+  } catch (error) {
+    console.error("❌ Error deleting inventory item:", error);
+
+    return {
+      success: false,
+      message: "Failed to delete inventory item.",
+    };
+  }
+}
+
+
+export async function deleteInventoryItem_OLD(
   id: string
 ) {
   try {

@@ -2,8 +2,8 @@
 "use server";
 
 import { adminDb } from "@/lib/firebaseAdmin";
-import { getStockLocation } from "../getStockLocationTx";
-import { updateStockLocation } from "../updateStockLocation";
+import { getStockLocation } from "./getStockLocation";
+import { updateStockLocation } from "./updateStockLocation";
 
 import { StockLocationType } from "@/lib/types/distribution/StockLocationType";
 
