@@ -20,6 +20,12 @@ export default function Page() {
         'View complete stock movement history across all locations.',
       href: '/admin/distribution/sales/reports/stock-transactions',
     },
+     {
+      title: 'Loads',
+      description:
+        'View complete stock movement history across all locations.',
+      href: '/admin/distribution/loads/vehicle-loads',
+    },
   ];
 
   return (

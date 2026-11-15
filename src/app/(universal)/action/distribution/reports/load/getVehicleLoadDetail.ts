@@ -2,6 +2,7 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 
+
 export async function getVehicleLoadDetail(loadId: string) {
   try {
     if (!loadId) {
@@ -44,24 +45,56 @@ export async function getVehicleLoadDetail(loadId: string) {
 
       return {
         id: doc.id,
-
-        loadId: d.loadId,
-        tripId: d.tripId,
-
-        productId: d.productId,
-        productName: d.productName,
-
+        loadId: d.loadId ?? "",
+        tripId: d.tripId ?? "",
+        productId: d.productId ?? "",
+        productName: d.productName ?? "",
         quantity: Number(d.quantity || 0),
-
         costPerUnit: Number(d.costPerUnit || 0),
-
         lineValue: Number(d.lineValue || 0),
-
         sellingPrice: Number(d.sellingPrice || 0),
-
         wholesalePrice: Number(d.wholesalePrice || 0),
       };
     });
+
+    // ============================================
+    // CONVERT FIRESTORE VALUES
+    // ============================================
+
+    const serialize = (value: any): any => {
+      if (value === null || value === undefined) {
+        return null;
+      }
+
+      if (
+        value &&
+        typeof value.toDate === "function"
+      ) {
+        return value.toDate().toISOString();
+      }
+
+      if (value instanceof Date) {
+        return value.toISOString();
+      }
+
+      if (Array.isArray(value)) {
+        return value.map(serialize);
+      }
+
+      if (
+        typeof value === "object" &&
+        Object.getPrototypeOf(value) === Object.prototype
+      ) {
+        return Object.fromEntries(
+          Object.entries(value).map(([key, val]) => [
+            key,
+            serialize(val),
+          ])
+        );
+      }
+
+      return value;
+    };
 
     // ============================================
     // RETURN
@@ -70,20 +103,15 @@ export async function getVehicleLoadDetail(loadId: string) {
     return {
       success: true,
 
-      data: {
+      data: serialize({
         load: {
           id: loadSnap.id,
-
           ...loadData,
-
-          createdAt: loadData.createdAt?.toDate
-            ? loadData.createdAt.toDate()
-            : loadData.createdAt,
         },
-
         items,
-      },
+      }),
     };
+
   } catch (error: any) {
     console.error(
       "❌ getVehicleLoadDetail:",
@@ -92,7 +120,6 @@ export async function getVehicleLoadDetail(loadId: string) {
 
     return {
       success: false,
-
       message:
         error?.message ||
         "Failed to get load details.",

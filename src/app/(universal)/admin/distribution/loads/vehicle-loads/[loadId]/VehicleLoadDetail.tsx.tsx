@@ -11,6 +11,7 @@ import {
   CalendarDays,
   FileText,
 } from "lucide-react";
+import PrintLoadButton from "./PrintLoadButton";
 
 type LoadItem = {
   id: string;
@@ -67,11 +68,12 @@ type Props = {
   data: {
     load: LoadData;
     items: LoadItem[];
-  };
+  },
+  loadId:String;
 };
 
 export default function VehicleLoadDetail({
-  data,
+  data,loadId
 }: Props) {
   const { load, items } = data;
 
@@ -132,14 +134,19 @@ export default function VehicleLoadDetail({
         return "bg-gray-100 text-gray-700";
     }
   }
-
+console.log("CREATED AT:", load.createdAt);
+console.log("CREATED AT TYPE:", typeof load.createdAt);
+console.log(
+  "CREATED AT DATE:",
+  new Date(load.createdAt as any)
+);
   return (
     <div className="mx-auto w-full max-w-[1600px] space-y-6">
 
       {/* ================================================= */}
       {/* BACK */}
       {/* ================================================= */}
-
+<div className="flex justify-between">
       <Link
         href="/admin/distribution/loads/vehicle-loads"
         className="
@@ -154,7 +161,8 @@ export default function VehicleLoadDetail({
         <ArrowLeft className="h-4 w-4" />
         Back to Vehicle Loads
       </Link>
-
+  <PrintLoadButton loadId={loadId} />
+</div>
       {/* ================================================= */}
       {/* HEADER */}
       {/* ================================================= */}
@@ -253,7 +261,7 @@ export default function VehicleLoadDetail({
           <InfoCard
             icon={<CalendarDays className="h-4 w-4" />}
             label="Loaded At"
-            value={formatDate(load.createdAt)}
+            value={formatDate( load.createdAt ? new Date(load.createdAt) : undefined)}
           />
 
           {/* Business Date */}

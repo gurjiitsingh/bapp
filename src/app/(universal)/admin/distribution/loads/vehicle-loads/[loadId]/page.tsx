@@ -25,7 +25,7 @@ export default async function VehicleLoadDetailPage({
 
   return (
     <div className="w-full p-6">
-      <VehicleLoadDetail data={result.data} />
+      <VehicleLoadDetail data={result.data} loadId={loadId} />
     </div>
   );
 }

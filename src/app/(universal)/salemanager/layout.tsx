@@ -10,7 +10,7 @@ export default function SaleManagerLayout({
       {/* 📱 Mobile Container */}
       <div className="
         w-full 
-        max-w-md 
+       
         bg-white 
         min-h-screen 
         shadow-md 

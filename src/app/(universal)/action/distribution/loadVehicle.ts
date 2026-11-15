@@ -12,7 +12,7 @@ import { addVehicleLoadItem } from "../production/distribution/vehicleLoad/addVe
 import { createVehicleLoadMaster } from "../production/distribution/vehicleLoad/createVehicleLoadMaster";
 
 import { getActiveVehicleTrip } from "./getActiveVehicleTrip";
-import {   createSalesmanSettlement } from "./saleman/createDriverSettlement";
+import { createSalesmanSettlement } from "./saleman/createDriverSettlement";
 
 // =====================================================
 // TYPES
@@ -156,10 +156,31 @@ export async function loadVehicle({
     }
 
     // Remove zero / invalid quantities
-    const validItems = items.filter(
-      (item) =>
-        item.productId &&
-        Number(item.quantity) > 0
+    // const validItems = items.filter(
+    //   (item) =>
+    //     item.productId &&
+    //     Number(item.quantity) > 0
+    // );
+
+    const validItems = Object.values(
+      items.reduce<Record<string, LoadVehicleItem>>((acc, item) => {
+        const quantity = Number(item.quantity);
+
+        if (!item.productId || !Number.isFinite(quantity) || quantity <= 0) {
+          return acc;
+        }
+
+        if (!acc[item.productId]) {
+          acc[item.productId] = {
+            productId: item.productId,
+            quantity: 0,
+          };
+        }
+
+        acc[item.productId].quantity += quantity;
+
+        return acc;
+      }, {})
     );
 
     if (validItems.length === 0) {
@@ -184,15 +205,17 @@ export async function loadVehicle({
     // =================================================
     // TRANSACTION
     // =================================================
-  const now = new Date();
-       const day = String(now.getDate()).padStart(2, "0");
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const year = now.getFullYear();
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = now.getFullYear();
+    
     let createdTripId = "";
     let tripNo = `TRIP-${year}${month}-${day}-${vehicleName}`;
+
     await db.runTransaction(async (tx) => {
 
-    
+
 
       let totalQuantity = 0;
       let totalValue = 0;
@@ -212,7 +235,7 @@ export async function loadVehicle({
       // =================================================
 
       let tripId: string;
-     
+
       let isNewTrip = false;
 
       if (activeTrip) {
@@ -235,7 +258,7 @@ export async function loadVehicle({
           .doc();
 
         tripId = tripRef.id;
-      
+
         isNewTrip = true;
       }
       console.log("tripId------------------", tripId)
@@ -331,6 +354,39 @@ export async function loadVehicle({
         //   );
         // }
       }
+
+
+      // =================================================
+      // 4A. READ EXISTING TRIP PRODUCT SUMMARIES
+      // Must happen before the first transaction write.
+      // =================================================
+
+      const summaryRows: Array<{
+        ref: FirebaseFirestore.DocumentReference;
+        data: FirebaseFirestore.DocumentData | undefined;
+        productId: string;
+      }> = [];
+
+      for (const row of factoryStocks) {
+        const productId = row.item.productId;
+
+        const summaryId = encodeURIComponent(
+          `${tripId}_${productId}`
+        );
+
+        const summaryRef = db
+          .collection("tripProductSummary")
+          .doc(summaryId);
+
+        const summarySnap = await tx.get(summaryRef);
+
+        summaryRows.push({
+          ref: summaryRef,
+          data: summarySnap.exists ? summarySnap.data() : undefined,
+          productId,
+        });
+      }
+
 
       // =================================================
       // 5. MOVE STOCK MAIN → VEHICLE
@@ -446,7 +502,7 @@ export async function loadVehicle({
             vehicleId,
 
           remarks,
- saleDate: "",
+          saleDate: "",
           createdBy,
         });
 
@@ -497,6 +553,79 @@ export async function loadVehicle({
           wholesalePrice:
             row.factory.wholesalePrice,
         });
+
+      }
+
+
+
+      // =================================================
+      // 5A. UPDATE TRIP PRODUCT SUMMARY
+      // =================================================
+
+      for (const row of factoryStocks) {
+
+        const productId = row.factory.productId;
+
+        const summary = summaryRows.find(
+          (item) => item.productId === productId
+        );
+
+        if (!summary) {
+          throw new Error(
+            `Trip product summary not found for ${productId}`
+          );
+        }
+
+        const quantity = Number(row.item.quantity);
+
+        const existing = summary.data;
+
+        const totalLoadedQuantity =
+          Number(existing?.totalLoadedQuantity || 0) +
+          quantity;
+
+        const totalUnloadedQuantity =
+          Number(existing?.totalUnloadedQuantity || 0);
+
+        const totalSoldQuantity =
+          Number(existing?.totalSoldQuantity || 0);
+
+        const balanceQuantity =
+          totalLoadedQuantity -
+          totalUnloadedQuantity -
+          totalSoldQuantity;
+
+        tx.set(
+          summary.ref,
+          {
+            tripId,
+            tripNo,
+
+            vehicleId,
+            vehicleName,
+            locationCode,
+
+            productId,
+            productName: row.factory.productName,
+
+            totalLoadedQuantity,
+            totalUnloadedQuantity,
+            totalSoldQuantity,
+            balanceQuantity,
+
+            wholesalePrice:
+              row.factory.wholesalePrice || 0,
+
+            sellingPrice:
+              row.factory.sellingPrice || 0,
+
+            createdAt:
+              existing?.createdAt || now,
+
+            updatedAt: now,
+          },
+          { merge: true }
+        );
       }
 
       // =================================================
@@ -511,14 +640,6 @@ export async function loadVehicle({
               "distributionTrips"
             )
             .doc(tripId);
-
-
-        
-
-
-        
-
-
 
         tx.set(tripRef, {
 
@@ -660,11 +781,11 @@ export async function loadVehicle({
 
           salemanId: salesmanId ||
             driverId,
-           
 
-          salemanName:  salesmanName ||
+
+          salemanName: salesmanName ||
             driverName,
-         
+
 
           openingCash:
             0,

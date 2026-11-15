@@ -68,6 +68,34 @@ export async function addStockMovement({
   saleDate,
   createdBy,
 }: AddStockMovementProps) {
+
+  console.log("data for movent------------",movementType,
+
+  productId,
+  batchId,
+  tripId,
+  tripNo,
+  productName,
+
+  customerName,
+  customerId,
+  vehicleId,
+  locationCode,
+  responsiblePerson,
+  quantity,
+  name,
+  wholesalePrice,
+
+  fromLocationType,
+  fromLocationRef,
+
+  toLocationType,
+  toLocationRef,
+
+  remarks,
+  saleDate,
+  createdBy)
+
   const ref = adminDb
     .collection('stockMovements')
     .doc();

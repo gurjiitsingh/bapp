@@ -150,36 +150,34 @@ export async function unloadVehicle({
           quantity: row.item.quantity,
         });
         // Movement history
-        await addStockMovement({
-          tx,
-          batchId: "ABC",
-          movementType: "TRANSFER",
+// await addStockMovement({
+//   tx,
+//   batchId: "ABC",
+//   movementType: "TRANSFER",
 
-          productId: row.van.productId,
-          productName: row.van.productName,
+//   productId: row.van.productId,
+//   productName: row.van.productName,
 
-           // =========================================
-  // TRIP
-  // =========================================
+//   tripId: "dummy",
+//   tripNo: "dummy",
 
-  tripId:"dummy",
-  tripNo:"dummy",
-          //productMode: row.van.productMode,
-          name: vehicleName,
-          locationCode,
-          responsiblePerson: responsiblePerson,
-          quantity: row.item.quantity,
+//   vehicleId: vehicleId, // ADD THIS
 
-          fromLocationType: "TRUCK",
-          fromLocationRef: vehicleId,
+//   name: vehicleName,
+//   locationCode,
+//   responsiblePerson,
+//   quantity: row.item.quantity,
 
-          toLocationType: "STORE",
-          toLocationRef: "MAIN",
+//   fromLocationType: "TRUCK",
+//   fromLocationRef: vehicleId,
 
-          remarks,
-           saleDate: "",
-          createdBy,
-        });
+//   toLocationType: "STORE",
+//   toLocationRef: "MAIN",
+
+//   remarks: remarks ?? "",
+//   saleDate: "",
+//   createdBy: createdBy ?? "",
+// });
       }
     });
 
@@ -196,3 +194,5 @@ export async function unloadVehicle({
     };
   }
 }
+
+

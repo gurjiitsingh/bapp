@@ -457,93 +457,193 @@ export default function LoadVehicleFormOeprator({
           </div>
         </div>
 
-        {/* 🔹 Product List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      {/* PRODUCT LIST */}
 
-          {rows.map((item, index) => (
+{/* MOBILE PRODUCT LIST - below md (less than 768px) */}
+<div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 md:hidden">
 
-            <div
-              key={item.id}
-              className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+  {rows.map((item, index) => (
+    <div
+      key={item.id}
+      className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+    >
+      <div className="font-semibold text-sm text-slate-800">
+        {item.productName}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs">
+
+        <span className="text-slate-500">
+          Price:
+          <span className="ml-1 font-semibold text-slate-700">
+            ₹{item.wholesalePrice}
+          </span>
+        </span>
+
+        <span className="text-slate-500">
+          Factory:
+          <span className="ml-1 font-semibold text-slate-700">
+            {item.quantity}
+          </span>
+        </span>
+
+        <span className="text-blue-600">
+          Van:
+          <span className="ml-1 font-semibold">
+            {item.vanQuantity}
+          </span>
+        </span>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 px-2"
+          disabled={item.vanQuantity <= 0}
+          onClick={() => {
+            console.log("EDIT CLICKED:", item.productName);
+            setEditingItem(item);
+          }}
+        >
+          <Pencil size={14} className="mr-1" />
+          Edit
+        </Button>
+
+      </div>
+
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
+        <span className="text-xs font-medium text-slate-500">
+          Load Quantity
+        </span>
+
+        <Input
+          type="number"
+          min={0}
+          className="h-10 w-28 text-center text-base font-semibold border-slate-300 bg-slate-50"
+          {...form.register(`items.${index}.quantity`, {
+            valueAsNumber: true,
+          })}
+          onFocus={(e) => {
+            if (e.target.value === "0") {
+              e.target.select();
+            }
+          }}
+        />
+      </div>
+    </div>
+  ))}
+
+</div>
+
+
+{/* TABLET / DESKTOP PRODUCT LIST - 768px and above */}
+<div className="hidden md:block flex-1 min-h-0 overflow-y-auto p-4">
+
+  <div className="w-full rounded-xl border border-slate-200 bg-white shadow-sm overflow-x-auto">
+
+    <div className="min-w-[850px]">
+
+      {/* TABLE HEADER */}
+      <div className="grid grid-cols-[minmax(200px,2fr)_1fr_1fr_1fr_140px_160px] items-center gap-3 bg-slate-100 border-b border-slate-200 px-5 py-3">
+
+        <div className="text-sm font-bold text-slate-600">
+          Product Name
+        </div>
+
+        <div className="text-sm font-bold text-slate-600 text-center">
+          Price
+        </div>
+
+        <div className="text-sm font-bold text-slate-600 text-center">
+          Factory Stock
+        </div>
+
+        <div className="text-sm font-bold text-blue-700 text-center">
+          Van Stock
+        </div>
+
+        <div className="text-sm font-bold text-slate-600 text-center">
+          Action
+        </div>
+
+        <div className="text-sm font-bold text-slate-600 text-center">
+          Load Quantity
+        </div>
+
+      </div>
+
+      {/* TABLE BODY */}
+      {rows.map((item, index) => (
+        <div
+          key={item.id}
+          className="grid grid-cols-[minmax(200px,2fr)_1fr_1fr_1fr_140px_160px] items-center gap-3 px-5 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors last:border-b-0"
+        >
+
+          <div className="font-semibold text-sm text-slate-800">
+            {item.productName}
+          </div>
+
+          <div className="text-center text-sm font-semibold text-slate-700">
+            ₹{item.wholesalePrice}
+          </div>
+
+          <div className="text-center">
+            <span className="inline-flex items-center justify-center min-w-12 rounded-md bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              {item.quantity}
+            </span>
+          </div>
+
+          <div className="text-center">
+            <span className="inline-flex items-center justify-center min-w-12 rounded-md bg-blue-50 px-3 py-2 text-sm font-bold text-blue-700">
+              {item.vanQuantity}
+            </span>
+          </div>
+
+          <div className="flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-10 w-24 border-blue-200 text-blue-700 hover:bg-blue-50"
+              disabled={item.vanQuantity <= 0}
+              onClick={() => {
+                console.log("EDIT CLICKED:", item.productName);
+                setEditingItem(item);
+              }}
             >
+              <Pencil size={15} className="mr-2" />
+              Edit
+            </Button>
+          </div>
 
-              {/* Product name */}
-              <div className="font-semibold text-sm text-slate-800">
-                {item.productName}
-              </div>
-
-              {/* Stock information */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs">
-
-                <span className="text-slate-500">
-                  Price:
-                  <span className="ml-1 font-semibold text-slate-700">
-                    ₹{item.wholesalePrice}
-                  </span>
-                </span>
-
-                <span className="text-slate-500">
-                  Factory:
-                  <span className="ml-1 font-semibold text-slate-700">
-                    {item.quantity}
-                  </span>
-                </span>
-
-                <span className="text-blue-600">
-                  Van:
-                  <span className="ml-1 font-semibold">
-                    {item.vanQuantity}
-                  </span>
-                </span>
-
-                  <Button
-    type="button"
-    variant="outline"
-    size="sm"
-    className="h-8 px-2"
-    disabled={item.vanQuantity <= 0}
- onClick={() => {
-  console.log("EDIT CLICKED:", item.productName);
-  setEditingItem(item);
-}}
-  >
-    <Pencil size={14} className="mr-1" />
-    Edit
-  </Button>
-
-              </div>
-
-              {/* Quantity */}
-              <div className="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
-
-                <span className="text-xs font-medium text-slate-500">
-                  Load Quantity
-                </span>
-
-                <Input
-                  type="number"
-                  min={0}
-                  className="h-10 w-28 text-center text-base font-semibold border-slate-300 bg-slate-50"
-                  {...form.register(
-                    `items.${index}.quantity`,
-                    {
-                      valueAsNumber: true,
-                    }
-                  )}
-                  onFocus={(e) => {
-                    if (e.target.value === "0") {
-                      e.target.select();
-                    }
-                  }}
-                />
-
-              </div>
-
-            </div>
-
-          ))}
+          <div className="flex justify-center">
+            <Input
+              type="number"
+              min={0}
+              className="h-11 w-32 text-center text-base font-bold border-slate-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              {...form.register(`items.${index}.quantity`, {
+                valueAsNumber: true,
+              })}
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.select();
+                }
+              }}
+            />
+          </div>
 
         </div>
+      ))}
+
+      {rows.length === 0 && (
+        <div className="py-12 text-center text-sm text-slate-500">
+          No products available
+        </div>
+      )}
+
+    </div>
+  </div>
+</div>
 
         {/* 🔹 Bottom Bar */}
        <div className="sticky bottom-0 z-20 bg-white border-t border-slate-200 p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
