@@ -55,7 +55,7 @@ let containerClass = "flex flex-col md:flex-row md:flex-wrap gap-3 md:gap-5";
   return (
     <section className="bg-white py-6  ">
       {/* Sticky Category Bar */}
-      <div className="sticky top-13 z-50 bg-white border-b border-gray-200 shadow-sm overflow-x-auto">
+      <div className="sticky top-13 z-40 bg-white border-b border-gray-200 shadow-sm overflow-x-auto">
         <div className="flex gap-4 px-4 py-3 max-w-6xl mx-auto whitespace-nowrap">
           {Object.keys(groupedProducts).map((category) => (
             <button
