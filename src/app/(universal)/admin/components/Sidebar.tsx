@@ -167,7 +167,7 @@ const Sidebar = () => {
 {
   key: "SHOW_INVENTORY_RAW",
   name: "Products Stock",
-  link: "/admin/stock-finished/sale/add",
+  link: "/admin/stock-finished/sale/bulk-sale",
   icon: <MdInventory />,
 },
     {
