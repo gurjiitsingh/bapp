@@ -83,12 +83,62 @@ export default function ListView({
     ).length;
   }, [products]);
 
+  const totalStockValue = useMemo(() => {
+    return products.reduce((total, item) => {
+      const avgCost = Number(item.avgCost ?? 0);
+      const costPrice = Number(item.costPrice ?? 0);
+      const quantity = Number(item.currentStock ?? 0);
+
+      const unitCost =
+        avgCost > 0 ? avgCost : costPrice;
+
+      return total + quantity * unitCost;
+    }, 0);
+  }, [products]);
+
   return (
     <div className="flex flex-col gap-5">
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
 
-        <div className="flex items-center gap-3">
+        {/* FILTER BAR */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+            {/* SEARCH */}
+            <div className="flex gap-2 relative w-full lg:max-w-md">
+              {/* <Search
+                size={18}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              /> */}
+
+              <div className="flex flex-col gap-2">
+                      <div className="flex gap-1 text-sm text-gray-500">
+                  Showing{" "}
+                  <span className="font-semibold text-gray-700">
+                    {filtered.length}
+                  </span>{" "}
+
+                  items
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search inventory items..."
+                  value={search}
+                  onChange={(e) =>
+                    setSearch(e.target.value)
+                  }
+                  className="input-style-4 pl-10"
+                />
+          
+              </div>
+            </div>
+
+         
+          </div>
+        </div>
+
+
+       <div className="flex items-center gap-3 bg-red-500 p-1  rounded-2xl">
           <div className="h-11 w-11 rounded-2xl bg-rose-100 flex items-center justify-center">
             <Package2
               size={22}
@@ -97,7 +147,7 @@ export default function ListView({
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-2xl font-bold text-white">
               Prodcut Stock Management
             </h1>
 
@@ -105,7 +155,7 @@ export default function ListView({
               Manage finished items stock
             </p>
           </div>
-        </div>
+        </div> 
         {/* TOTAL */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
@@ -150,6 +200,32 @@ export default function ListView({
           </div>
         </div>
 
+        {/* TOTAL STOCK VALUE */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-500">
+                Total Stock Value
+              </p>
+
+              <h3 className="text-2xl font-bold text-gray-800 mt-2">
+                {totalStockValue.toLocaleString("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                  maximumFractionDigits: 2,
+                })}
+              </h3>
+            </div>
+
+            <div className="h-12 w-12 rounded-2xl bg-amber-100 flex items-center justify-center">
+              <Boxes
+                className="text-amber-600"
+                size={24}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* LOW STOCK */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex items-center justify-between">
@@ -171,57 +247,27 @@ export default function ListView({
             </div>
           </div>
         </div>
-      </div>
 
-      {/* FILTER BAR */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          {/* SEARCH */}
-          <div className="flex gap-2 relative w-full lg:max-w-md">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-
-            <input
-              type="text"
-              placeholder="Search inventory items..."
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="input-style-4 pl-10"
-            />
-             <div className="flex gap-2 text-sm text-gray-500">
-              Showing{" "}
-              <span className="font-semibold text-gray-700">
-                {filtered.length}
-              </span>{" "}
-              
-                items
-            </div>
-
-          </div>
-
-          {/* INFO */}
-          <div className="flex gap-3 items-center">
-            <Link
-              href="/admin/stock-finished/products/add"
-              className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
-            >
-              + Products
-            </Link>
+           {/* INFO */}
+            <div className="flex flex-col gap-3 items-center p-2">
+              <Link
+                href="/admin/stock-finished/products/add"
+                className="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+              >
+                + Products
+              </Link>
 
               <Link href="/admin/stock-finished/repair">
-                  <button className="btn-save-4 flex items-center gap-2">
-                    <Wrench size={18} />
-                    Repair
-                  </button>
-                </Link>
-           
-          </div>
-        </div>
+                <button className="btn-save-4 flex items-center gap-2">
+                  <Wrench size={18} />
+                  Repair
+                </button>
+              </Link>
+
+            </div>
       </div>
+
+
 
       {/* TABLE */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

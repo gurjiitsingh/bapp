@@ -4,7 +4,7 @@ import { BUSINESS_FINANCIAL_DOC } from "@/lib/constant/businessFinancial";
 import { adminDb } from "@/lib/firebaseAdmin";
  
 
-export async function getBusinessFinancialSummary() {
+export async function getBusinessFinancialSummary() { 
   try {
     const doc = await adminDb
       .collection("businessFinancials")

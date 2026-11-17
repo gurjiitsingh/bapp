@@ -58,11 +58,11 @@ inventorySnapshot.forEach((doc) => {
 
       const currentStock = Number(product.currentStock ?? 0);
 
-      const unitValue =
-       // Number(product.avgCost ?? 0) ||
-        Number(product.wholesalePrice ?? 0) 
-        //||
-      //  Number(product.costPrice ?? 0);
+     const unitValue =
+  Number(product.avgCost > 0 ? product.avgCost : product.costPrice ?? 0);
+      
+
+      console.log("urrentStock-----------------------", currentStock, )
 
       finishedProductValue += currentStock * unitValue;
     });

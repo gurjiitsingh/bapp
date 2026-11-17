@@ -1,5 +1,8 @@
-
-import { getFinishedProductsProfitLoss } from "@/app/(universal)/action/distribution/sale/bulkSale/profitLoss";
+import { getFinishedProductsProfitLoss } from "@/app/(universal)/action/stock-finished/sale/profitLoss";
+import {  getFinishedProductsProfitLossSingle } from "@/app/(universal)/action/stock-finished/sale/profitLossSingle";
+ 
+ 
+ 
 
 const formatPrice = (value: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -14,7 +17,7 @@ const formatNumber = (value: number) =>
   }).format(value);
 
 export default async function FinishedProductsProfitLossPage() {
-  const result = await getFinishedProductsProfitLoss();
+  const result = await getFinishedProductsProfitLossSingle();
 
   const summary = result.summary;
 

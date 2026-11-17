@@ -23,7 +23,7 @@ type ProfitLossSource = {
   saleLines: number;
 };
 
-export async function getFinishedProductsProfitLoss() {
+export async function getFinishedProductsProfitLossSingle() {
   try {
     const snapshot = await adminDb
       .collection("salesLedger")

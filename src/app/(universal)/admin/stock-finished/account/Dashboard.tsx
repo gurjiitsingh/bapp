@@ -4,6 +4,7 @@ import FinanceCard from "./FinanceCard";
 import { useState } from "react";
 import { BusinessFinancialField } from "@/lib/types/businessdata/BusinessFinancialField";
 import EditBusinessFinancialDialog from "./EditBusinessFinancialDialog";
+import Link from "next/link";
 
 
 type BusinessSummary = {
@@ -74,9 +75,25 @@ export default function Dashboard({
       />
 
       <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-gray-800">
-          Business Summary
-        </h2>
+      
+            <div className="m-1 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                    Business Summary
+                </h1>
+
+
+              </div>
+              <div className="flex gap-4">
+                <Link
+                  href="/admin/stock-finished/profit-loss"
+                  className="inline-flex items-center justify-center rounded-xl bg-red-500 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#00796b]"
+                >
+                  Profit Report
+                </Link>
+           
+              </div>
+            </div>
 
         <div className="mt-6 grid gap-6 md:grid-cols-3">
 
