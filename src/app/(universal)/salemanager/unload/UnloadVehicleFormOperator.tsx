@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Truck, Pencil } from "lucide-react";
-
-import { unloadVehicle, unloadVehicleSaleManager } from "@/app/(universal)/action/distribution/unloadVehicle";
+ 
+import { unloadVehicle  } from "@/app/(universal)/action/distribution/unloadVehicle";
 import { getStockLocationsAll } from "@/app/(universal)/action/distribution/getStockLocationsAll";
 
 import { VehicleType } from "@/lib/types/distribution/VehicleType";
@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import EditVanStockDialog from "../EditVanStockDialog";
+import { DistributionRoute } from "../../action/distribution/sale-route/getRoutes";
 
  
 
@@ -36,9 +37,11 @@ type UnloadVehicleFormType = {
   }[];
 };
 
+ 
 type Props = {
   vehicles?: VehicleType[];
   factoryStock?: StockLocationType[];
+  routes?: DistributionRoute[];
 };
 
 type EditingItemType = StockLocationType & {
@@ -48,6 +51,7 @@ type EditingItemType = StockLocationType & {
 export default function UnloadVehicleFormOperator({
   vehicles = [],
   factoryStock = [],
+  routes = [],
 }: Props) {
   const [factoryData, setFactoryData] =
     useState<StockLocationType[]>(factoryStock);

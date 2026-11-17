@@ -46,7 +46,9 @@ type BulkSaleType = {
   items: {
     productId: string;
     quantity: number;
+    amount: number;
     wholesalePrice: number;
+    
   }[];
 };
 

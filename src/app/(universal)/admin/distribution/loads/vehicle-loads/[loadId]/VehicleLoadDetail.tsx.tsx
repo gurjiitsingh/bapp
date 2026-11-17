@@ -69,7 +69,7 @@ type Props = {
     load: LoadData;
     items: LoadItem[];
   },
-  loadId:String;
+  loadId:string;
 };
 
 export default function VehicleLoadDetail({
