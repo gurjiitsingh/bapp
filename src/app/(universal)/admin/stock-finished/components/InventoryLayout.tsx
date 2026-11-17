@@ -37,9 +37,9 @@ const tabs = [
   { name: "Dashboard", href: "/admin/stock-finished/" },
   { name: "Items", href: "/admin/stock-finished/" },
   { name: "New Item", href: "/admin/stock-finished/new" },
-  { name: "Sale", href: "/admin/stock-finished/sale/add" },
+  { name: "Sale", href: "/admin/stock-finished/sale/bulk-sale" },
   { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
-  { name: "Transactions", href: "/admin/stock-finished/transactions" },
+  { name: "Transactions", href: "/admin/stock-finished/profit-loss" },
   { name: "Categories", href: "/admin/stock-finished/categories" },
   { name: "wholesaleCustomer", href: "/admin/stock-finished/customer/all" },
 ];
@@ -69,8 +69,8 @@ export default function InventoryTabs() {
     pathname === "/admin/stock-finished/" ||
     pathname === "/admin/stock-finished";
 
-  const isTransactions = pathname.startsWith(
-    "/admin/stock-finished/transactions"
+  const isProfitReport = pathname.startsWith(
+    "/admin/stock-finished/profit-loss"
   );
 
   const isAdjustStock = pathname.startsWith(
@@ -126,7 +126,7 @@ export default function InventoryTabs() {
   />
 
   <ActionCard
-    href="/admin/stock-finished/sale/add"
+    href="/admin/stock-finished/sale/bulk-sale"
     active={isSale}
     activeBg="bg-orange-50 border-orange-300 shadow-md"
     inactiveHover="hover:border-orange-300 hover:shadow-md"
@@ -138,7 +138,7 @@ export default function InventoryTabs() {
         className={isSale ? "text-white" : "text-orange-600"}
       />
     }
-    title="Sell Products"
+    title="Sale"
     description="Sale Finished Products"
     titleColor="text-gray-800"
     activeTitleColor="text-orange-700"
@@ -164,8 +164,8 @@ export default function InventoryTabs() {
   />
 
   <ActionCard
-    href="/admin/stock-finished/transactions"
-    active={isTransactions}
+    href="/admin/stock-finished/profit-loss"
+    active={isProfitReport}
     activeBg="bg-amber-50 border-amber-300 shadow-md"
     inactiveHover="hover:border-amber-300 hover:shadow-md"
     iconBg="bg-amber-100"
@@ -173,10 +173,10 @@ export default function InventoryTabs() {
     icon={
       <BookOpen
         size={22}
-        className={isTransactions ? "text-white" : "text-amber-600"}
+        className={isProfitReport ? "text-white" : "text-amber-600"}
       />
     }
-    title="Transactions"
+    title="Report"
     description="View all stock movements"
     titleColor="text-gray-800"
     activeTitleColor="text-amber-700"

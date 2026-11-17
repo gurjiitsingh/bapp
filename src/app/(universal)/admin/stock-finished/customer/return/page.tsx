@@ -4,7 +4,7 @@
 
 
 import { fetchCustomer } from "@/app/(universal)/action/stock-finished/inventorySupplier/fetchCustomer";
-import ItemSaleForm from "../../components/ItemSaleForm";
+import ItemSaleForm from "../../sale/add/ItemSaleForm";
 
 
  

@@ -1,4 +1,3 @@
- 
 
 "use server";
 
@@ -12,27 +11,32 @@ export async function readFinishedProductData({
   tx: FirebaseFirestore.Transaction;
   productId: string;
 }) {
+  console.log("========== readFinishedProductData ==========");
+  console.log("Product ID:", productId);
 
-  
   const productRef = adminDb
     .collection("productStock")
     .doc(productId);
 
   const snap = await tx.get(productRef);
 
+  console.log("Document exists:", snap.exists);
+
   if (!snap.exists) {
-    throw new Error("Product not found");
+    throw new Error(
+      `Product not found in productStock. Document ID: ${productId}`
+    );
   }
 
   const product = snap.data() as ProductStockType;
 
+  console.log("Product data:", product);
+  console.log("currentStock:", product.currentStock);
+  console.log("Product name:", product.name);
+
   return {
     ref: productRef,
-
-    // Flatten all product fields
     ...product,
-
-    // Optional convenience values
     beforeStock: Number(product.currentStock) || 0,
     productPrice: Number(product.sellingPrice) || 0,
     productName: product.name || "",

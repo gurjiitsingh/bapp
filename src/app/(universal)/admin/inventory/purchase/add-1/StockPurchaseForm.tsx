@@ -481,7 +481,7 @@ console.log(selectedInventory);
         {/* ===================================================== */}
         {/* FORM */}
         {/* ===================================================== */}
-
+<div className="flex ga-3"> 
         <form
           onSubmit={handleSubmit(
             onSubmit
@@ -943,6 +943,8 @@ console.log(selectedInventory);
 
           </div>
         </form>
+ 
+</div>
       </div >
     </div >
   );

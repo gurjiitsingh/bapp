@@ -67,6 +67,7 @@ export default function InventoryTransactionTable({
             <TableHead>Amount/Value</TableHead>
             <TableHead>Before</TableHead>
             <TableHead>After</TableHead>
+            <TableHead>Total Profit</TableHead>
             <TableHead>User</TableHead>
             <TableHead>Date</TableHead>
           </TableRow>
@@ -76,7 +77,9 @@ export default function InventoryTransactionTable({
   {transactions.map((tx) => {
     const showFinancial =
       financialTypes.includes(tx.type);
-
+const totalProfit =
+  Number(tx.totalAmount || 0) -
+  Number(tx.quantity || 0) * Number(tx.unitPrice || 0);
     return (
       <TableRow
         key={tx.id}
@@ -168,6 +171,23 @@ export default function InventoryTransactionTable({
           </span>
         </TableCell>
 
+{/* TOTAL PROFIT */}
+
+<TableCell>
+  {tx.type === "SALE" ? (
+    <span
+      className={`font-semibold ${
+        totalProfit >= 0
+          ? "text-green-700"
+          : "text-red-600"
+      }`}
+    >
+      {formatPrice(totalProfit)}
+    </span>
+  ) : (
+    "-"
+  )}
+</TableCell>
         {/* USER */}
 
         <TableCell>

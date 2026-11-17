@@ -46,7 +46,7 @@ function TableRows({
 }) {
   const { settings } = UseSiteContext();
 
-
+console.log("item----------------------",item)
 
   const formattedCostPrice =
     formatCurrencyNumber(

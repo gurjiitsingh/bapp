@@ -22,7 +22,7 @@ export default async function Page() {
  
   return (
     <BulkSaleForm
-      vehicles={vehicles}
+    
       productStock={productStock}
       customers ={customers}
     />

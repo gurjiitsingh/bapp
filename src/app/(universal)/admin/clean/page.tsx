@@ -389,7 +389,7 @@ export default function ClearERPDataPage() {
 
 
 
-          <div className="flex items-center justify-between border rounded-xl p-4">
+          <div className="flex items-center justify-between border bg-red-500 text-white rounded-xl p-4">
             <div>
               <h2 className="font-semibold">
                 Reset Inventory Items(disabled)
@@ -400,7 +400,7 @@ export default function ClearERPDataPage() {
               </p>
             </div>
 
-            {/* <Button
+            <Button
               variant="destructive"
               disabled={loading !== null}
               onClick={() =>
@@ -413,7 +413,7 @@ export default function ClearERPDataPage() {
               {loading === "Reset Inventory Items"
                 ? "Resetting..."
                 : "Reset"}
-            </Button> */}
+            </Button>
           </div>
 
 
