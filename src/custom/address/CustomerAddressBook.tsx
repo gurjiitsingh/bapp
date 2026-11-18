@@ -102,6 +102,8 @@ export default function CustomerAddressBook({
         userId,
       };
 
+      console.log("cusotmer address-----------------", customerAddress)
+
       localStorage.setItem(
         "customer_address",
         JSON.stringify(customerAddress)
