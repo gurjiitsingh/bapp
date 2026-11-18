@@ -14,6 +14,7 @@ import {
   MapPinned,
 } from "lucide-react";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
+import { fetchdeliveryByZip } from "@/app/(universal)/action/delivery/dbOperation";
 
 type CustomerAddress = {
   id: string;
@@ -43,12 +44,13 @@ export default function CustomerAddressBook({
   userId,
   addresses,
 }: Props) {
-  const { setCustomerAddressIsComplete } = UseSiteContext();
+  const { setCustomerAddressIsComplete, setdeliveryDis } = UseSiteContext();
   const router = useRouter();
 
   const [selectedId, setSelectedId] = useState(
     addresses[0]?.id ?? ""
   );
+  const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
   const [error, setError] = useState("");
   const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
   function addAddress() {
@@ -63,7 +65,7 @@ export default function CustomerAddressBook({
     );
   }
 
-  function handleUseAddress() {
+  async function handleUseAddress() {
     const selectedAddress = addresses.find(
       (address) => address.id === selectedId
     );
@@ -73,32 +75,62 @@ export default function CustomerAddressBook({
       return;
     }
 
-    const customerAddress = {
-      ...selectedAddress,
-      userId,
-    };
+    if (!selectedAddress.zipCode) {
+      setError("The selected address does not have a ZIP code.");
+      return;
+    }
 
-    localStorage.setItem(
-      "customer_address",
-      JSON.stringify(customerAddress)
-    );
-
-    localStorage.setItem(
-      "customer_address_Id",
-      selectedAddress.id
-    );
-
-    localStorage.setItem("order_user_Id", userId);
-
-    localStorage.setItem(
-      "customer_name",
-      `${selectedAddress.firstName ?? ""} ${selectedAddress.lastName ?? ""
-        }`.trim()
-    );
-
-    setCustomerAddressIsComplete(true);
-    setIsAddressConfirmed(true);
+    setIsCheckingDelivery(true);
     setError("");
+    setIsAddressConfirmed(false);
+
+    // Prevent using the previous address's delivery fee.
+    setdeliveryDis(null);
+    setCustomerAddressIsComplete(false);
+
+    try {
+      // Check delivery availability and fee using ZIP code.
+      const zipInfo = await fetchdeliveryByZip(
+        selectedAddress.zipCode
+      );
+
+      // Store delivery information in SiteContext.
+      setdeliveryDis(zipInfo);
+
+      const customerAddress = {
+        ...selectedAddress,
+        userId,
+      };
+
+      localStorage.setItem(
+        "customer_address",
+        JSON.stringify(customerAddress)
+      );
+
+      localStorage.setItem(
+        "customer_address_Id",
+        selectedAddress.id
+      );
+
+      localStorage.setItem("order_user_Id", userId);
+
+      localStorage.setItem(
+        "customer_name",
+        `${selectedAddress.firstName ?? ""} ${selectedAddress.lastName ?? ""
+          }`.trim()
+      );
+
+      setCustomerAddressIsComplete(true);
+      setIsAddressConfirmed(true);
+
+    } catch (error) {
+      console.error("Delivery ZIP lookup failed:", error);
+      setdeliveryDis(null);
+      setCustomerAddressIsComplete(false);
+      setError("Unable to check delivery availability. Please try again.");
+    } finally {
+      setIsCheckingDelivery(false);
+    }
   }
 
   return (
@@ -182,20 +214,26 @@ export default function CustomerAddressBook({
                     setSelectedId(address.id);
                     setIsAddressConfirmed(false);
                     setCustomerAddressIsComplete(false);
+                    setdeliveryDis(null);
                     setError("");
+
+
                   }
+
+
+
                   }
                   className={`group relative cursor-pointer rounded-xl border p-3 transition-all duration-200 sm:p-4 ${selected
-                      ? "border-orange-300 bg-orange-50/50 shadow-sm shadow-orange-100/50"
-                      : "border-gray-200/90 bg-white/70 hover:border-orange-200 hover:bg-orange-50/20"
+                    ? "border-orange-300 bg-orange-50/50 shadow-sm shadow-orange-100/50"
+                    : "border-gray-200/90 bg-white/70 hover:border-orange-200 hover:bg-orange-50/20"
                     }`}
                 >
                   <div className="flex items-start gap-3">
                     {/* Custom selection indicator */}
                     <span
                       className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${selected
-                          ? "border-orange-500 bg-orange-500 text-white"
-                          : "border-gray-300 bg-white group-hover:border-orange-300"
+                        ? "border-orange-500 bg-orange-500 text-white"
+                        : "border-gray-300 bg-white group-hover:border-orange-300"
                         }`}
                     >
                       {selected && (
@@ -306,34 +344,33 @@ export default function CustomerAddressBook({
         )}
 
         {/* Confirm selected address */}
-       
-<button
-  type="button"
-  onClick={handleUseAddress}
-  disabled={addresses.length === 0 || !selectedId}
-  className={`group flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-semibold shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none sm:h-12 sm:text-sm ${
-    isAddressConfirmed
-      ? "bg-green-600 text-white shadow-green-200/50 hover:bg-green-700 focus-visible:ring-green-400"
-      : "bg-orange-500 text-white shadow-orange-200/50 hover:bg-orange-600 focus-visible:ring-orange-400"
-  }`}
->
-  {isAddressConfirmed ? (
-    <>
-      <CheckCircle2 size={16} strokeWidth={2.2} />
-      Address confirmed
-      <Check size={15} strokeWidth={2.5} />
-    </>
-  ) : (
-    <>
-      <MapPin size={14} />
-      Confirm delivery address
-      <ArrowRight
-        size={14}
-        className="transition-transform group-hover:translate-x-0.5"
-      />
-    </>
-  )}
-</button>
+
+        <button
+          type="button"
+          onClick={handleUseAddress}
+          disabled={addresses.length === 0 || !selectedId}
+          className={`group flex h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-xs font-semibold shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none sm:h-12 sm:text-sm ${isAddressConfirmed
+              ? "bg-green-600 text-white shadow-green-200/50 hover:bg-green-700 focus-visible:ring-green-400"
+              : "bg-orange-500 text-white shadow-orange-200/50 hover:bg-orange-600 focus-visible:ring-orange-400"
+            }`}
+        >
+          {isAddressConfirmed ? (
+            <>
+              <CheckCircle2 size={16} strokeWidth={2.2} />
+              Address confirmed
+              <Check size={15} strokeWidth={2.5} />
+            </>
+          ) : (
+            <>
+              <MapPin size={14} />
+              Confirm delivery address
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
+            </>
+          )}
+        </button>
 
       </div>
     </section>

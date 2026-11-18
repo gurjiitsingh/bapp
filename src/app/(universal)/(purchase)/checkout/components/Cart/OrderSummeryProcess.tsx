@@ -724,7 +724,7 @@ const orderScheduledAt = scheduledAt || null;
 
         {/* Delivery / pickup options */}
         <div className="space-y-4 border-b border-slate-100 py-4">
-          <SetDeliveryType />
+          {/* <SetDeliveryType /> */}
           <DeliveryFee />
 
           <Pickup

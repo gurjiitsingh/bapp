@@ -97,21 +97,49 @@ const [isStoreOpen, setIsStoreOpen] = useState<boolean | null>(null);
     }
   }, []);
 
-  useEffect(() => {
-    const deliveryType = window.localStorage.getItem("delivery_type") as string;
-    if (deliveryType !== undefined) {
-      const deliveryTypeS = JSON.parse(deliveryType) as string;
-      setDeliveryType(deliveryTypeS);
-    }
-    const customerEmail = window.localStorage.getItem(
-      "customer_email"
-    ) as string;
-    if (customerEmail !== undefined) {
-      const customerEmailS = JSON.parse(customerEmail) as string;
-      setCustomerEmailL(customerEmailS);
-    }
-  }, []);
+  // useEffect(() => {
+  //   const deliveryType = window.localStorage.getItem("delivery_type") as string;
+  //   if (deliveryType !== undefined) {
+  //     const deliveryTypeS = JSON.parse(deliveryType) as string;
+  //     setDeliveryType(deliveryTypeS);
+  //   }
+  //   const customerEmail = window.localStorage.getItem(
+  //     "customer_email"
+  //   ) as string;
+  //   if (customerEmail !== undefined) {
+  //     const customerEmailS = JSON.parse(customerEmail) as string;
+  //     setCustomerEmailL(customerEmailS);
+  //   }
+  // }, []);
 
+  
+  
+  useEffect(() => {
+  const storedDeliveryType = localStorage.getItem("delivery_type");
+
+  if (storedDeliveryType) {
+    try {
+      const value = JSON.parse(storedDeliveryType);
+
+      if (value === "pickup" || value === "delivery") {
+        setDeliveryType(value);
+      }
+    } catch {
+      setDeliveryType("pickup");
+    }
+  }
+
+  const storedEmail = localStorage.getItem("customer_email");
+
+  if (storedEmail) {
+    try {
+      setCustomerEmailL(JSON.parse(storedEmail));
+    } catch {
+      setCustomerEmailL("");
+    }
+  }
+}, []);
+  
   function togleMenu() {
     setIsOpen(!open);
   }
