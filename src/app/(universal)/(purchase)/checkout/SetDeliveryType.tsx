@@ -1,13 +1,21 @@
 
 "use client";
 
+import { useSession } from "next-auth/react";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { useLanguage } from "@/store/LanguageContext";
 import { Check, ShoppingBag, Truck } from "lucide-react";
 
 export default function SetDeliveryType() {
   const { TEXT } = useLanguage();
-  const { chageDeliveryType, deliveryType } = UseSiteContext();
+  const { data: session } = useSession();
+
+  const {
+    chageDeliveryType,
+    deliveryType,
+    setdeliveryDis,
+    setCustomerAddressIsComplete,
+  } = UseSiteContext();
 
   const options = [
     {
@@ -24,9 +32,65 @@ export default function SetDeliveryType() {
     },
   ];
 
+  function handleDeliveryTypeChange(type: "pickup" | "delivery") {
+    if (deliveryType === type) return;
+
+    if (type === "pickup") {
+      const user = session?.user;
+
+      if (!user?.id) {
+        console.error("Logged-in customer information is missing.");
+        return;
+      }
+console.log("pickupCustomer user-----------------------------", user)
+      // Only registered customer details for pickup.
+    const pickupCustomer = {
+  id: user.id,
+  userId: user.id,
+
+  firstName: user.name?.split(" ")[0] ?? "",
+  lastName: user.name?.split(" ").slice(1).join(" ") ?? "",
+  mobNo: user.mobile ?? "",
+  email: user.email ?? "",
+
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  zipCode: "",
+  portal: "",
+  staircase: "",
+  floor: "",
+  door: "",
+  deliveryNotes: "",
+};
+
+      localStorage.setItem(
+        "customer_address",
+        JSON.stringify(pickupCustomer)
+      );
+
+      localStorage.setItem("customer_address_Id", user.id);
+      localStorage.setItem("order_user_Id", user.id);
+
+      localStorage.setItem(
+        "customer_name",
+        user.name ?? ""
+      );
+
+
+
+      // Pickup does not require delivery information.
+      setdeliveryDis(null);
+      setCustomerAddressIsComplete(false);
+    }
+
+    chageDeliveryType(type);
+  }
+
   return (
-    <div className="w-full mt-5 mb-1">
-      <h3 className="text-base font-semibold text-slate-800">
+    <div className="w-full mt-5 mb-1 mx-2">
+      <h3 className="text-base font-semibold text-slate-800 mb-1">
         How would you like to receive your order?
       </h3>
 
@@ -38,7 +102,7 @@ export default function SetDeliveryType() {
             <button
               key={type}
               type="button"
-              onClick={() => chageDeliveryType(type)}
+              onClick={() => handleDeliveryTypeChange(type)}
               aria-pressed={selected}
               className={`relative flex flex-col items-start gap-3 rounded-xl border-2 p-4 text-left transition-all
                 ${
@@ -60,10 +124,7 @@ export default function SetDeliveryType() {
                 </div>
 
                 {selected && (
-                  <Check
-                    size={20}
-                    className="text-green-600"
-                  />
+                  <Check size={20} className="text-green-600" />
                 )}
               </div>
 

@@ -8,7 +8,7 @@ import { formatCurrencyNumber } from "@/utils/formatCurrency";
 interface OrderInfoProps {
   srno?: string;
   createdAt?: string;
-   scheduledAt?: string;
+  scheduledAt?: string;
 
   subTotal?: string;
   taxTotal?: string;
@@ -19,7 +19,8 @@ interface OrderInfoProps {
   paymentMode?: string;
   paymentStatus?: string;
   orderStatus?: string;
-
+  customerName?: string;
+  customerPhone?: string;
   email?: string;
   notes?: string;
 }
@@ -27,7 +28,7 @@ interface OrderInfoProps {
 export default function OrderInfo({
   srno,
   createdAt,
- scheduledAt,
+  scheduledAt,
   subTotal,
   taxTotal,
   discountTotal,
@@ -37,7 +38,8 @@ export default function OrderInfo({
   paymentMode,
   paymentStatus,
   orderStatus,
-
+customerName,
+          customerPhone,
   email,
   notes,
 }: OrderInfoProps) {
@@ -181,7 +183,7 @@ export default function OrderInfo({
       </div>
 
       {/* ORDER DETAILS */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
 
         {/* CREATED */}
         {createdAt && (
@@ -192,6 +194,31 @@ export default function OrderInfo({
 
             <div className="mt-1 text-sm font-semibold text-slate-700">
               {createdAt}
+            </div>
+          </div>
+        )}
+       
+
+            {/* EMAIL */}
+        { customerName && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Name
+            </div>
+
+            <div className="mt-1 truncate text-sm font-medium text-slate-700">
+              {customerName}
+            </div>
+          </div>
+        )}
+              { customerPhone && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Mob
+            </div>
+
+            <div className="mt-1 truncate text-sm font-medium text-slate-700">
+              {customerPhone}
             </div>
           </div>
         )}

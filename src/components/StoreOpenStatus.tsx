@@ -135,13 +135,13 @@ export default function StoreOpenStatus({
 
         const currentlyActiveSlot = activeSlot ?? overnightSlot;
 
-        console.group("[STORE STATUS DEBUG]");
-        console.log("Restaurant weekday:", today);
-        console.log("Restaurant time:", currentTime);
-        console.log("Today's schedule:", todaySchedule);
-        console.log("Today's slots:", todaySlots);
-        console.log("Active slot:", currentlyActiveSlot);
-        console.groupEnd();
+        // console.group("[STORE STATUS DEBUG]");
+        // console.log("Restaurant weekday:", today);
+        // console.log("Restaurant time:", currentTime);
+        // console.log("Today's schedule:", todaySchedule);
+        // console.log("Today's slots:", todaySlots);
+        // console.log("Active slot:", currentlyActiveSlot);
+        // console.groupEnd();
 
         if (cancelled) return;
 

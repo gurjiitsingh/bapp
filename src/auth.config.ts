@@ -65,12 +65,16 @@ export const authConfig = {
           }
 
           // Preserve the existing role for staff and customers.
-          return {
-            id: doc.id,
-            name: user.fullName ?? user.username ?? "",
-            email: user.email,
-            role: user.role,
-          };
+
+           console.log("userdata------------------------------",user)
+
+      return {
+  id: doc.id,
+  name: user.fullName ?? user.username ?? "",
+  email: user.email,
+  role: user.role,
+  mobile: user.mobile ?? "",
+};
         } catch (error) {
           console.error("[Auth] Credentials authorization failed:", error);
           return null;

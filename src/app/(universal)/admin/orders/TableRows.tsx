@@ -510,6 +510,8 @@ const data = formatOrderDate(order.createdAt);
     orderStatus: order.orderStatus,
 
     email: order.email,
+    customerName: order.customerName,
+    customerPhone:order.customerPhone,
     notes: order.notes,
 
     addressId: order.addressId,

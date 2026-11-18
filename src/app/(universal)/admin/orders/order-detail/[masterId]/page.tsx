@@ -30,7 +30,8 @@ interface PageProps {
     paymentMode?: string;
     paymentStatus?: string;
     orderStatus?: string;
-
+    customerName?: string;
+    customerPhone?: string;
     email?: string;
     notes?: string;
 
@@ -57,7 +58,8 @@ export default async function OrderDetailPage({
     paymentMode,
     paymentStatus,
     orderStatus,
-
+    customerName,
+    customerPhone,
     email,
     notes,
 
@@ -274,27 +276,28 @@ export default async function OrderDetailPage({
             ORDER MASTER SUMMARY
         ===================================================== */}
 
-  {/* =====================================================
+        {/* =====================================================
     ORDER MASTER SUMMARY
 ===================================================== */}
 
-<OrderInfo
-  srno={srno}
-  createdAt={createdAt}
+        <OrderInfo
+          srno={srno}
+          createdAt={createdAt}
 
-  subTotal={subTotal}
-  taxTotal={taxTotal}
-  discountTotal={discountTotal}
-  deliveryFee={deliveryFee}
-  grandTotal={grandTotal}
+          subTotal={subTotal}
+          taxTotal={taxTotal}
+          discountTotal={discountTotal}
+          deliveryFee={deliveryFee}
+          grandTotal={grandTotal}
 
-  paymentMode={paymentMode}
-  paymentStatus={paymentStatus}
-  orderStatus={orderStatus}
-
-  email={email}
-  notes={notes}
-/>
+          paymentMode={paymentMode}
+          paymentStatus={paymentStatus}
+          orderStatus={orderStatus}
+          customerName={customerName}
+          customerPhone={customerPhone}
+          email={email}
+          notes={notes}
+        />
 
         {/* =====================================================
             CUSTOMER ADDRESS

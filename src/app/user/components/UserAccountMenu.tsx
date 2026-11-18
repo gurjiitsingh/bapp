@@ -55,6 +55,7 @@ export default function UserAccountMenu() {
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
+ // console.log("user---------------------------session", session)
 
   async function handleLogout() {
     if (loggingOut) return;

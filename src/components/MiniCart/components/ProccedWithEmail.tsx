@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { UseSiteContext } from "@/SiteContext/SiteContext";
 import { registerCustomer } from "@/app/(universal)/action/customer/customer-register";
+ 
 
 type AuthMode = "login" | "register";
 
@@ -64,15 +65,33 @@ export default function ProccedWithEmail() {
     setMessage("");
   }
 
+// async function continueToCheckout(identifier: string) {
+//   // Prevent checkout when the cart is empty.
+//   // if (!cartItems || cartItems.length === 0) {
+//   //   setError("Your cart is empty. Please add items before checkout.");
+//   //   return;
+//   // }
+
+//   setCustomerEmailG(identifier);
+//   setCustomerAddressIsComplete(false);
+//   emailFormToggle(false);
+//   router.push("/checkout");
+// }
+
+
 async function continueToCheckout(identifier: string) {
-  // Prevent checkout when the cart is empty.
-  // if (!cartItems || cartItems.length === 0) {
-  //   setError("Your cart is empty. Please add items before checkout.");
+  // const result = await getLoggedInCustomer();
+
+  // if (!result.success || !result.customer) {
+  //   setError(result.message || "Unable to load customer information.");
   //   return;
   // }
 
   setCustomerEmailG(identifier);
+  //setCustomerData(result.customer);
+
   setCustomerAddressIsComplete(false);
+
   emailFormToggle(false);
   router.push("/checkout");
 }

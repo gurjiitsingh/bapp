@@ -114,11 +114,11 @@ useEffect(() => {
 
   async function finalizeOrder() {
     try {
-      console.log("[OrderComplete] Starting finalization", {
-        orderId,
-        paymentType,
-        paymentStatus,
-      });
+      // console.log("[OrderComplete] Starting finalization", {
+      //   orderId,
+      //   paymentType,
+      //   paymentStatus,
+      // });
 
       await createOrder();
 

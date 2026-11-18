@@ -374,6 +374,7 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
   }, [scheduledAt]);
 
   async function proceedToOrder() {
+    console.log("in proceedToOrder------------------")
     if (isLoading) return;
 
     if (ENABLE_ORDER_SCHEDULE) {
@@ -479,6 +480,7 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
 
       const customerAddress = getLS("customer_address", undefined);
 
+      console.log("customer address process---------------------------------", customerAddress)
       if (!customerAddress) {
         toast.error(TEXT.error_select_address);
         return;
@@ -590,7 +592,7 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
         // ===============================
         scheduledAt,
       };
-
+console.log("purchaseData---------------------------", purchaseData)
       // =====================================================
       // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
       // =====================================================
