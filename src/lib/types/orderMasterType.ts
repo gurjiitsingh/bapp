@@ -41,7 +41,14 @@ export type orderMasterDataT = {
   //  ORDER TYPE
   // =====================================================
 
-  orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
+  orderType:
+  | "DELIVERY"
+  | "PICKUP"
+  | "DINE_IN"
+  | "TAKEAWAY"
+  | "ONLINE"
+  | "ONLINE-PICKUP"
+  | "ONLINE-DELIVERY";
   tableNo: string | null; // Only for DINE_IN
 
   // =====================================================

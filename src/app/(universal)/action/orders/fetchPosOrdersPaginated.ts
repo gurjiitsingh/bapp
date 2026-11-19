@@ -43,6 +43,7 @@ export async function fetchPosOrdersPaginated({
         id: doc.id,
 
         customerName: data.customerName || "",
+        customerPhone: data.customerPhone || "",
         email: data.email || "",
         customerId: data.userId || "",
         addressId: data.addressId || "",

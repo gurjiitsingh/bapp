@@ -42,28 +42,28 @@ export default function SetDeliveryType() {
         console.error("Logged-in customer information is missing.");
         return;
       }
-console.log("pickupCustomer user-----------------------------", user)
+
       // Only registered customer details for pickup.
-    const pickupCustomer = {
-  id: user.id,
-  userId: user.id,
+      const pickupCustomer = {
+        id: user.id,
+        userId: user.id,
 
-  firstName: user.name?.split(" ")[0] ?? "",
-  lastName: user.name?.split(" ").slice(1).join(" ") ?? "",
-  mobNo: user.mobile ?? "",
-  email: user.email ?? "",
+        firstName: user.name?.split(" ")[0] ?? "",
+        lastName: user.name?.split(" ").slice(1).join(" ") ?? "",
+        mobNo: user.mobile ?? "",
+        email: user.email ?? "",
 
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  state: "",
-  zipCode: "",
-  portal: "",
-  staircase: "",
-  floor: "",
-  door: "",
-  deliveryNotes: "",
-};
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        portal: "",
+        staircase: "",
+        floor: "",
+        door: "",
+        deliveryNotes: "",
+      };
 
       localStorage.setItem(
         "customer_address",
@@ -84,7 +84,7 @@ console.log("pickupCustomer user-----------------------------", user)
       setdeliveryDis(null);
       setCustomerAddressIsComplete(false);
     }
-
+    localStorage.setItem("orderType", deliveryType);
     chageDeliveryType(type);
   }
 
@@ -105,19 +105,17 @@ console.log("pickupCustomer user-----------------------------", user)
               onClick={() => handleDeliveryTypeChange(type)}
               aria-pressed={selected}
               className={`relative flex flex-col items-start gap-3 rounded-xl border-2 p-4 text-left transition-all
-                ${
-                  selected
-                    ? "border-green-500 bg-green-50 shadow-sm"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                ${selected
+                  ? "border-green-500 bg-green-50 shadow-sm"
+                  : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
                 }`}
             >
               <div className="flex w-full items-center justify-between">
                 <div
                   className={`flex h-11 w-11 items-center justify-center rounded-lg
-                    ${
-                      selected
-                        ? "bg-green-100 text-green-700"
-                        : "bg-slate-100 text-slate-600"
+                    ${selected
+                      ? "bg-green-100 text-green-700"
+                      : "bg-slate-100 text-slate-600"
                     }`}
                 >
                   <Icon size={23} />

@@ -66,7 +66,7 @@ export const authConfig = {
 
           // Preserve the existing role for staff and customers.
 
-           console.log("userdata------------------------------",user)
+          //  console.log("userdata------------------------------",user)
 
       return {
   id: doc.id,

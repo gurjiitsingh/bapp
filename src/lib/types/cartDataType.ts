@@ -158,7 +158,14 @@ export type orderDataType = {
   email: string;
 
   tableNo: string | null;          // Only for DINE_IN
-  orderType: "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE";
+ orderType:
+  | "DELIVERY"
+  | "PICKUP"
+  | "DINE_IN"
+  | "TAKEAWAY"
+  | "ONLINE"
+  | "ONLINE-PICKUP"
+  | "ONLINE-DELIVERY";
 
   // -----------------------------
   // CART SNAPSHOT (REQUIRED)

@@ -477,10 +477,10 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
 
       const addressId = readStoredString("customer_address_Id");
       const userId = readStoredString("order_user_Id");
-
+ 
       const customerAddress = getLS("customer_address", undefined);
 
-      console.log("customer address process---------------------------------", customerAddress)
+      console.log("customer address process---------------------------------", deliveryType )
       if (!customerAddress) {
         toast.error(TEXT.error_select_address);
         return;
@@ -527,6 +527,20 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
       // =====================================================
       // 6️⃣ BUILD ORDER (INTENT ONLY – SERVER DECIDES STATE)
       // =====================================================
+// let ORDERTYPE: "ONLINE-PICKUP" | "ONLINE-DELIVERY" =
+//   "ONLINE-DELIVERY";
+
+// if (deliveryType === "pickup") {
+//   ORDERTYPE = "ONLINE-PICKUP";
+// }
+
+let ORDERTYPE: "PICKUP" | "DELIVERY" =
+  "DELIVERY";
+
+if (deliveryType === "pickup") {
+  ORDERTYPE = "PICKUP";
+}
+
 
       const purchaseData: orderDataType = {
         // ===============================
@@ -537,7 +551,7 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
         customerPhone, //  ADDED
         email: customerEmail,
 
-        orderType: "ONLINE", // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE"
+        orderType: ORDERTYPE, // "DINE_IN" | "TAKEAWAY" | "DELIVERY" | "ONLINE"
         tableNo: orderType === "DINE_IN" ? tableNo : null,
         source: "WEB" as const,
 
@@ -592,7 +606,7 @@ export default function OrderSummeryProcess({ isStoreOpen }: OrderSummeryProcess
         // ===============================
         scheduledAt,
       };
-console.log("purchaseData---------------------------", purchaseData)
+// console.log("purchaseData---------------------------", purchaseData)
       // =====================================================
       // 7️⃣ CREATE ORDER (SERVER IS SOURCE OF TRUTH)
       // =====================================================
