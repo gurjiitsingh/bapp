@@ -183,10 +183,10 @@ async function continueToCheckout(identifier: string) {
         return;
       }
 
-      if (!/^\d{10}$/.test(mobile)) {
-        setError("Enter a valid 10-digit Indian mobile number.");
-        return;
-      }
+      // if (!/^\d{10}$/.test(mobile)) {
+      //   setError("Enter a valid 10-digit Indian mobile number.");
+      //   return;
+      // }
 
       if (password.length < 8 || password.length > 128) {
         setError("Password must contain 8 to 128 characters.");
