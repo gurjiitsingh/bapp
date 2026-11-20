@@ -105,7 +105,13 @@ export default function CustomerAddressesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const returnTo = searchParams.get("returnTo") || "/checkout";
+  const requestedReturnTo = searchParams.get("returnTo");
+
+  const returnTo =
+    requestedReturnTo?.startsWith("/") &&
+      !requestedReturnTo.startsWith("//")
+      ? requestedReturnTo
+      : null;
 
   async function loadAddresses() {
     setLoading(true);
@@ -162,8 +168,8 @@ export default function CustomerAddressesPage() {
             : "Address added successfully."
         );
 
-        if (returnTo === "/checkout") {
-          router.replace("/checkout");
+        if (returnTo) {
+          router.replace(returnTo);
           router.refresh();
           return;
         }
@@ -260,12 +266,22 @@ export default function CustomerAddressesPage() {
   return (
     <main className="mx-auto w-full max-w-5xl space-y-8 px-4 py-8 sm:px-6">
       <header>
+
         <h1 className="text-2xl font-bold text-gray-900">
           My Addresses
         </h1>
         <p className="mt-2 text-sm text-gray-600">
           Manage your delivery addresses for faster checkout.
         </p>
+        {returnTo && (
+          <button
+            type="button"
+            onClick={() => router.push(returnTo)}
+            className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-800"
+          >
+            ← Back
+          </button>
+        )}
       </header>
 
       {message && (
