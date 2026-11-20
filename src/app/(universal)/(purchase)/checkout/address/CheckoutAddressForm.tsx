@@ -17,7 +17,7 @@ import type {
 const emptyAddress: CreateCustomerAddressInput = {
   firstName: "",
   lastName: "",
-  email: "",
+  email: "", // Do not collect email in this form
   mobNo: "",
   addressLine1: "",
   addressLine2: "",
@@ -79,25 +79,28 @@ export default function CheckoutAddressForm({
             return;
           }
 
-          setForm({
-            ...emptyAddress,
-            firstName: address.firstName ?? "",
-            lastName: address.lastName ?? "",
-            email: address.email ?? "",
-            mobNo: address.mobNo ?? "",
-            addressLine1: address.addressLine1 ?? "",
-            addressLine2: address.addressLine2 ?? "",
-            city: address.city ?? "",
-            state: address.state ?? "",
-            zipCode: address.zipCode ?? "",
-            country: address.country ?? "India",
-            portal: address.portal ?? "",
-            staircase: address.staircase ?? "",
-            floor: address.floor ?? "",
-            door: address.door ?? "",
-            deliveryNotes: address.deliveryNotes ?? "",
-            isDefault: address.isDefault ?? false,
-          });
+        setForm({
+  ...emptyAddress,
+  firstName: address.firstName ?? "",
+  lastName: address.lastName ?? "",
+  email: "",
+  mobNo: address.mobNo ?? "",
+  addressLine1: address.addressLine1 ?? "",
+  addressLine2: address.addressLine2 ?? "",
+  city: address.city ?? "",
+  state: address.state ?? "",
+  zipCode: address.zipCode ?? "",
+  country: "India",
+
+  // Not required for Indian addresses
+  portal: "",
+  staircase: "",
+  floor: "",
+  door: "",
+
+  deliveryNotes: address.deliveryNotes ?? "",
+  isDefault: address.isDefault ?? false,
+});
         }
       } catch {
         if (!cancelled) {
@@ -226,14 +229,15 @@ async function save(event: React.FormEvent<HTMLFormElement>) {
       required: true,
     },
     { name: "addressLine2", label: "Address line 2" },
+    { name: "zipCode", label: "Postal code", required: true },
     { name: "city", label: "City", required: true },
     { name: "state", label: "State / Province" },
-    { name: "zipCode", label: "Postal code", required: true },
-    { name: "country", label: "Country", required: true },
-    { name: "portal", label: "Portal / Entrance" },
-    { name: "staircase", label: "Staircase" },
-    { name: "floor", label: "Floor" },
-    { name: "door", label: "Door / Apartment" },
+    
+   // { name: "country", label: "Country", required: true },
+    // { name: "portal", label: "Portal / Entrance" },
+    // { name: "staircase", label: "Staircase" },
+    // { name: "floor", label: "Floor" },
+    // { name: "door", label: "Door / Apartment" },
   ] as const;
 
   return (
