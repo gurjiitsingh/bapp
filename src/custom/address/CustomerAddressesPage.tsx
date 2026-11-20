@@ -76,10 +76,11 @@ const fields: {
       full: true,
       placeholder: "Apartment, building, etc.",
     },
+     { name: "zipCode", label: "Postal code", required: true },
     { name: "city", label: "City", required: true },
     { name: "state", label: "State / Province" },
-    { name: "zipCode", label: "Postal code", required: true },
-    { name: "country", label: "Country", required: true },
+   
+    // { name: "country", label: "Country", required: true },
   ];
 
 const deliveryFields: {
@@ -196,10 +197,14 @@ export default function CustomerAddressesPage() {
       state: address.state ?? "",
       zipCode: address.zipCode ?? "",
       country: address.country ?? "India",
-      portal: address.portal ?? "",
-      staircase: address.staircase ?? "",
-      floor: address.floor ?? "",
-      door: address.door ?? "",
+      // portal: address.portal ?? "",
+      // staircase: address.staircase ?? "",
+      // floor: address.floor ?? "",
+      // door: address.door ?? "",
+      portal: "",
+staircase: "",
+floor: "",
+door: "",
       deliveryNotes: address.deliveryNotes ?? "",
       isDefault: address.isDefault ?? false,
     });
@@ -321,7 +326,9 @@ export default function CustomerAddressesPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {fields.map((field) => (
+           {fields
+  .filter((field) => field.name !== "email")
+  .map((field) => (
               <div
                 key={field.name}
                 className={field.full ? "sm:col-span-2" : ""}
@@ -376,34 +383,7 @@ export default function CustomerAddressesPage() {
             ))}
           </div>
 
-          <div>
-            <h3 className="mb-3 text-sm font-semibold text-gray-800">
-              Additional delivery details
-            </h3>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {deliveryFields.map((field) => (
-                <div key={field.name}>
-                  <label
-                    htmlFor={field.name}
-                    className="mb-1.5 block text-sm font-medium text-gray-700"
-                  >
-                    {field.label}
-                  </label>
-
-                  <input
-                    id={field.name}
-                    name={field.name}
-                    value={String(form[field.name] ?? "")}
-                    onChange={(event) =>
-                      updateField(field.name, event.target.value)
-                    }
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+     
 
           <div>
             <label
