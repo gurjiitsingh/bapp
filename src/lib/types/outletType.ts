@@ -97,6 +97,21 @@ upiTitle: z.preprocess(
   (v) => (v === "" ? undefined : v),
   z.string().optional()
 ),
+
+
+  // LOYALTY REDEMPTION
+  loyaltyValuePer100Points: z.coerce
+    .number()
+    .int()
+    .min(1, "Minimum redemption value is ₹1")
+    .default(1),
+
+  loyaltyMinimumRedemptionPoints: z.coerce
+    .number()
+    .int()
+    .min(100, "Minimum redemption must be 100 points")
+    .default(100),
+
 });
 
 export type ToutletSchema = z.infer<typeof outletSchema>;
@@ -152,7 +167,8 @@ export type OutletType = {
   upiName?: string;
   upiTitle?: string;
 
-
+ loyaltyPointValuePaise?: number;
+  loyaltyMinimumRedemptionPoints?: number;
   posType: "RESTAU" | "RETAIL" | "FAST_FOOD" 
   // STATUS
   isActive: boolean;

@@ -10,7 +10,7 @@ import { cache } from "react";
 
 
 // =====================================================// SAVE OUTLET// =====================================================
-export async function saveOutlet(input: any) {
+export async function saveOutlet_old(input: any) {
   console.log("in----------------", input)
   
   const parsed = outletSchema.safeParse(input);
@@ -198,6 +198,197 @@ export async function saveOutlet(input: any) {
   }
 }
 
+
+export async function saveOutlet(input: any) {
+  console.log("in----------------", input);
+
+  const parsed = outletSchema.safeParse(input);
+
+  // Validation failed
+  if (!parsed.success) {
+    console.log(
+      "ZOD VALIDATION FAILED",
+      parsed.error.flatten()
+    );
+
+    const fieldErrors =
+      parsed.error.flatten().fieldErrors;
+
+    return {
+      success: false,
+      errors: fieldErrors,
+      message: "Please fill all required fields.",
+    };
+  }
+
+  const data = parsed.data;
+
+  console.log(
+    "PARSED DATA ----------------",
+    JSON.stringify(data, null, 2)
+  );
+
+  // Country config
+  const config = countryConfig[data.countryCode];
+
+  if (!config) {
+    return {
+      success: false,
+      errors: {
+        countryCode: ["Invalid country selected"],
+      },
+      message: "Invalid country selected.",
+    };
+  }
+
+  // Update mode?
+  const outletId = data.outletId;
+
+  // Base payload
+  const payload: any = {
+    outletName: data.outletName,
+
+    addressLine1: data.addressLine1,
+    city: data.city,
+
+    printerWidth: Number(data.printerWidth),
+
+    isActive: data.isActive,
+
+    // QR
+    qrEnabled: data.qrEnabled ?? false,
+    qrText: data.qrText ?? "",
+    qrTitle: data.qrTitle ?? "",
+
+    // Country
+    countryCode: data.countryCode,
+    countryName: config.name,
+    currencyCode: config.code,
+    localeTag: config.locale,
+
+    // Tax
+    taxMode: data.taxMode,
+
+    // LOYALTY
+    loyaltyPointValuePaise:
+      data.loyaltyValuePer100Points ?? 1,
+
+    loyaltyMinimumRedemptionPoints:
+      data.loyaltyMinimumRedemptionPoints ?? 100,
+
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  console.log(
+    "PAYLOAD BEFORE OPTIONALS ----",
+    payload
+  );
+
+  // Helper
+  function setOrDelete(
+    key: string,
+    value: any
+  ) {
+    const isEmpty =
+      value === "" ||
+      value === undefined ||
+      value === null;
+
+    console.log(
+      "setOrDelete",
+      key,
+      value,
+      "isEmpty=",
+      isEmpty
+    );
+
+    if (outletId) {
+      payload[key] = isEmpty
+        ? FieldValue.delete()
+        : value;
+      return;
+    }
+
+    if (!isEmpty) {
+      payload[key] = value;
+    }
+  }
+
+  // Optional fields
+  setOrDelete("ownerId", data.ownerId);
+
+  setOrDelete("addressLine2", data.addressLine2);
+  setOrDelete("addressLine3", data.addressLine3);
+
+  setOrDelete("state", data.state);
+  setOrDelete("zipcode", data.zipcode);
+
+  setOrDelete("phone", data.phone);
+  setOrDelete("phone2", data.phone2);
+
+  setOrDelete("email", data.email);
+  setOrDelete("web", data.web);
+
+  setOrDelete("taxType", data.taxType);
+  setOrDelete("gstVatNumber", data.gstVatNumber);
+
+  setOrDelete("footerNote", data.footerNote);
+
+  setOrDelete("upiId", data.upiId);
+  setOrDelete("upiName", data.upiName);
+  setOrDelete("upiTitle", data.upiTitle);
+
+  console.log(
+    "FINAL PAYLOAD ---------------",
+    payload
+  );
+
+  try {
+    // UPDATE
+    if (outletId) {
+      await adminDb
+        .collection("outlets")
+        .doc(outletId)
+        .update(payload);
+
+      return {
+        success: true,
+        outletId,
+        message: "Outlet updated successfully.",
+      };
+    }
+
+    // CREATE
+    const docRef = await adminDb
+      .collection("outlets")
+      .add({
+        ...payload,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+
+    return {
+      success: true,
+      outletId: docRef.id,
+      message: "Outlet created successfully.",
+    };
+  } catch (error: any) {
+    console.error(
+      "FIRESTORE ERROR ------------",
+      error
+    );
+
+    return {
+      success: false,
+      errors: {
+        general: [
+          error.message || "Firestore error",
+        ],
+      },
+      message:
+        error.message || "Failed to save outlet.",
+    };
+  }
+}
 
 
 

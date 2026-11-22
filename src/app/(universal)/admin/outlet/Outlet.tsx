@@ -32,6 +32,9 @@ defaultValues: {
   qrEnabled: false,
   qrText: "",
   qrTitle: "",
+
+   loyaltyValuePer100Points: 1,
+  loyaltyMinimumRedemptionPoints: 100,
 },
   });
 
@@ -61,6 +64,11 @@ defaultValues: {
           upiId: data.upiId ?? "",
           upiName: data.upiName ?? "",
           upiTitle: data.upiTitle ?? "",
+          loyaltyValuePer100Points:
+  data.loyaltyPointValuePaise ?? 1,
+
+loyaltyMinimumRedemptionPoints:
+  data.loyaltyMinimumRedemptionPoints ?? 100,
         });
       }
     }
@@ -331,11 +339,67 @@ defaultValues: {
 
 
 
+
+
+        {/* LOYALTY SETTINGS */}
+<div className="space-y-4 rounded-2xl border p-4">
+  <h2 className="text-lg font-semibold">
+    Loyalty Redemption Settings
+  </h2>
+
+  <div className="space-y-1">
+    <label className="text-sm font-medium">
+      Redemption Value (₹ per 100 points)
+    </label>
+
+    <input
+      type="number"
+      min="1"
+      step="1"
+      {...register("loyaltyValuePer100Points", {
+        valueAsNumber: true,
+      })}
+      className="input-style"
+    />
+
+    <p className="text-xs text-gray-500">
+      Example: Enter 1 for 100 points = ₹1,
+      or 10 for 100 points = ₹10.
+    </p>
+
+    <p className="text-xs text-red-500">
+      {errors.loyaltyValuePer100Points?.message}
+    </p>
+  </div>
+
+  <div className="space-y-1">
+    <label className="text-sm font-medium">
+      Minimum Redemption Points
+    </label>
+
+    <input
+      type="number"
+      min="100"
+      step="100"
+      {...register("loyaltyMinimumRedemptionPoints", {
+        valueAsNumber: true,
+      })}
+      className="input-style"
+    />
+
+    <p className="text-xs text-gray-500">
+      Minimum points a customer must have before redeeming.
+    </p>
+
+    <p className="text-xs text-red-500">
+      {errors.loyaltyMinimumRedemptionPoints?.message}
+    </p>
+  </div>
+</div>
         <label className="flex items-center gap-2">
           <input type="checkbox" {...register("isActive")} />
           Active Outlet
         </label>
-
    
         <p className="text-xs text-red-500">
           {errors.countryCode?.message}
