@@ -239,7 +239,7 @@ export default function InventoryTabs() {
     activeTitleColor="text-red-700"
   /> */}
 
-  {/* <ActionCard
+  <ActionCard
   href="/admin/store-pos/pos-users"
   active={isAccount}
   activeBg="bg-emerald-50 border-emerald-300 shadow-md"
@@ -256,7 +256,7 @@ export default function InventoryTabs() {
   description="Manage POS users"
   titleColor="text-gray-800"
   activeTitleColor="text-emerald-700"
-/> */}
+/>
 
   <ActionCard
     href="/admin/store-pos/carousel/add"
