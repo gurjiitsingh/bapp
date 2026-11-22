@@ -37,7 +37,7 @@ export async function fetchProductsStock(): Promise<ProductStock[]> {
 
         // PRICING
         sellingPrice: data.sellingPrice ?? 0,
-       wholesalePrice: data.wholesalePrice ?? undefined,
+        wholesalePrice: data.wholesalePrice ?? undefined,
         costPrice: data.costPrice ?? 0,
         avgCost: data.avgCost ??  0,
 

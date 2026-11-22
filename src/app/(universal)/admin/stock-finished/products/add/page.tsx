@@ -81,7 +81,114 @@ const Page = () => {
       setValue("taxType", selectedCat.taxType ?? undefined);
     }
   }, [selectedCategoryId, categoryData, setValue]);
-  async function onSubmit(data: TnewProductSchema) {
+ 
+ 
+
+    async function onSubmit(data: any) {
+      setIsSubmitting(true);
+      const formData = new FormData();
+  
+      formData.append("name", data.name);
+      formData.append("price", String(data.price ?? 0));
+      formData.append("hasVariants", "false");
+      formData.append("type", "parent");
+      formData.append("discountPrice", String(data.discountPrice ?? 0));
+      formData.append("currentStock", String(data.currentStock ?? -1));
+      formData.append("sortOrder", String(data.sortOrder ?? 0));
+      formData.append("categoryId", data.categoryId || "");
+      formData.append("masterCategoryId", data.masterCategoryId || "");
+      formData.append("productDesc", data.productDesc || "");
+      formData.append("status", data.publishStatus || "published");
+      formData.append("isFeatured", data.isFeatured ? "true" : "false");
+      formData.append("taxRate", String(data.taxRate ?? 0)); //  added tax info
+      formData.append("taxType", data.taxType as string);
+         formData.append("taxRate1", String(data.taxRate1 ?? 0)); //  added tax info
+      formData.append("taxType1", String(data.taxType1 ?? "inclusive")) ;
+      formData.append("searchCode", data.searchCode || "");
+   
+      // --- Added taxCategory to FormData ---
+      formData.append("taxCategory", data.taxCategory || "FOOD_GST");
+  
+      if (data.image?.[0]) {
+        const imageFile = data.image[0];
+  
+        const maxImageSize = Number(
+          process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_SIZE || 500
+        );
+  
+        const maxPixMbSize = Number(
+          process.env.NEXT_PUBLIC_PRODUCT_IMAGE_MAX_PIXMB || 0.2
+        );
+  
+        const imageDimensions = await new Promise<{
+          width: number;
+          height: number;
+        }>((resolve, reject) => {
+          const img = new Image();
+  
+          img.onload = () => {
+            resolve({
+              width: img.width,
+              height: img.height,
+            });
+          };
+  
+          img.onerror = reject;
+  
+          img.src = URL.createObjectURL(imageFile);
+        });
+  
+        const { width, height } = imageDimensions;
+  
+        // File size in MB
+        const fileSizeMB = imageFile.size / (1024 * 1024);
+  
+        let finalImage = imageFile;
+  
+        // Resize/compress if dimensions OR file size exceeds limits
+        if (
+          width > maxImageSize ||
+          height > maxImageSize ||
+          fileSizeMB > maxPixMbSize
+        ) {
+          finalImage = await imageCompression(imageFile, {
+            maxWidthOrHeight: maxImageSize,
+            maxSizeMB: maxPixMbSize,
+            useWebWorker: true,
+          });
+        }
+  
+        formData.append("image", finalImage);
+      } else {
+        formData.append("image", "0");
+      }
+  
+      const result = await addNewProduct(formData);
+      setIsSubmitting(false);
+  
+      if (!result?.errors) {
+        //  alert(" Product added successfully!");
+        reset({
+          name: "",
+          //  price: 0,
+          // discountPrice: 0,
+          currentStock: 0,
+          sortOrder: Number(data.sortOrder) + 1 || 1,
+          //  categoryId: "",
+          productDesc: "",
+          isFeatured: false,
+          publishStatus: "published",
+          taxCategory: "FOOD_GST",
+          //  taxRate: 0, //  reset tax field
+        } as any);
+      } else {
+        console.error("❌ Validation errors:", result.errors);
+        alert("Something went wrong. Check console for details.");
+      }
+    }
+ 
+ 
+  async function onSubmit_old(data: TnewProductSchema) {
     setIsSubmitting(true);
     const formData = new FormData();
 
@@ -177,7 +284,7 @@ const Page = () => {
   onSubmit={handleSubmit(onSubmit, (errors) => {
     console.log("FORM ERRORS ❌", errors);
   })}
-  className="w-full space-y-6 max-w-7xl   p-1"
+  className="w-full space-y-6 max-w-7xl   py-1 px-2"
 >
   {/* Modern Header */}
   <div className="flex flex-col gap-1">
@@ -281,7 +388,7 @@ const Page = () => {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Regular Price</label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">$</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium"></span>
               <input
                 {...register("price")}
                 type="text"
@@ -298,7 +405,7 @@ const Page = () => {
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Discount Price</label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">$</span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium"></span>
               <input
                 {...register("discountPrice")}
                 type="text"
@@ -315,7 +422,7 @@ const Page = () => {
           </div>
 
           {/* Stock Quantity */}
-          <div className="flex flex-col gap-1.5 md:col-span-2">
+          {/* <div className="flex flex-col gap-1.5 md:col-span-2">
             <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">Stock Quantity</label>
             <input
               {...register("currentStock")}
@@ -329,7 +436,7 @@ const Page = () => {
             {errors.currentStock?.message && (
               <p className="text-xs font-medium text-rose-500 mt-0.5">{errors.currentStock?.message}</p>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

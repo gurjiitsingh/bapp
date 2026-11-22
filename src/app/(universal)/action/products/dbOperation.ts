@@ -253,7 +253,7 @@ export async function addNewProduct(formData: FormData) {
       masterCategoryName =
         masterCategoryDoc.data()?.name || "";
     }
-    console.log("te------------------------", taxCategory)
+ 
     const receivedData = {
       name,
       searchCode,
@@ -273,7 +273,7 @@ export async function addNewProduct(formData: FormData) {
       taxRate1,
       taxType1,
     };
-
+   console.log("receivedData------------------------", receivedData) 
     const result = newProductSchema.safeParse(receivedData);
     if (!result.success) {
       const zodErrors: Record<string, string> = {};
@@ -352,7 +352,7 @@ export async function addNewProduct(formData: FormData) {
         | "simple",
 
       sellingPrice: priceF,
-      costPrice: priceF, // default
+      costPrice: 0.0, // default
 
       sellingUnit,
 

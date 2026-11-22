@@ -222,7 +222,7 @@ const Page = () => {
         onSubmit={handleSubmit(onSubmit, (errors) => {
           console.log("FORM ERRORS ❌", errors);
         })}
-        className="w-full space-y-6 max-w-7xl   p-1"
+        className="w-full space-y-6 max-w-7xl   p-2"
       >
         {/* Modern Header */}
         <div className="flex flex-col gap-1">
@@ -356,7 +356,7 @@ const Page = () => {
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                      $
+                     
                     </span>
                     <input
                       {...register("price")}
@@ -379,7 +379,7 @@ const Page = () => {
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                      $
+                     
                     </span>
                     <input
                       {...register("discountPrice")}
