@@ -1,11 +1,12 @@
 "use client";
 
-import { deleteUser } from "@/app/(universal)/action/user/dbOperation";
+ 
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { MdDeleteForever } from "react-icons/md";
 import { useLanguage } from "@/store/LanguageContext";
 import {   userDashboardType } from "@/lib/types/userDashboardType";
+import { deletePosUser } from "@/app/(universal)/action/user/deletePosUsers";
 
 function TableRows({ user }: { user: userDashboardType }) {
   const { TEXT } = useLanguage();
@@ -17,7 +18,7 @@ function TableRows({ user }: { user: userDashboardType }) {
     );
     if (!confirmDelete) return;
 
-    const result = await deleteUser(user.id);
+    const result = await deletePosUser(user.id);
 
     if (result.message.success === "ok") {
       location.reload();

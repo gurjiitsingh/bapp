@@ -62,7 +62,7 @@ export async function addPosUser(formData: FormData) {
     // =====================================================
 
     const existingMobile = await adminDb
-      .collection("users")
+      .collection("posUsers")
       .where("mobile", "==", mobile)
       .limit(1)
       .get();
@@ -79,7 +79,7 @@ export async function addPosUser(formData: FormData) {
     // =====================================================
 
     const existingUsername = await adminDb
-      .collection("users")
+      .collection("posUsers")
       .where("username", "==", username)
       .limit(1)
       .get();
@@ -117,7 +117,7 @@ export async function addPosUser(formData: FormData) {
     // CREATE POS USER
     // =====================================================
 
- const docRef = await adminDb.collection("users").add({
+ const docRef = await adminDb.collection("posUsers").add({
   fullName,
   username,
   mobile,

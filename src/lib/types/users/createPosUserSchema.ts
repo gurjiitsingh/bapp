@@ -19,8 +19,36 @@ pin: z
 .max(6, "PIN cannot be more than 6 digits")
 .regex(/^\d+$/, "PIN must contain only numbers"),
 
-role: z
-.enum(["user", "admin"]),
+role: z.enum([
+  "accountant",
+  "admin",
+  "captain",
+  "cashier",
+  "chef",
+  "confectioner",
+  "customer",
+  "delivery",
+  "dispatch_operator",
+  "driver",
+  "employee",
+  "head_chef",
+  "host",
+  "manager",
+  "production_manager",
+  "production_supervisor",
+  "purchase_manager",
+  "quality_control",
+  "restaurant_manager",
+  "sales_executive",
+  "sales_manager",
+  "shopkeeper",
+  "steward",
+  "storekeeper",
+  "supplier",
+  "user",
+  "waiter",
+  "warehouse_assistant",
+]),
 
 status: z
 .enum(["active", "inactive"]),

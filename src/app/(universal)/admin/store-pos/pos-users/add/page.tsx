@@ -197,7 +197,7 @@ return ( <div className="p-4 md:p-6"> <div className="max-w-3xl">
                     : "border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
                 }`}
             >
-              <option value="user">User</option>
+              <option value="captain">Captain</option>
               <option value="admin">Admin</option>
             </select>
 

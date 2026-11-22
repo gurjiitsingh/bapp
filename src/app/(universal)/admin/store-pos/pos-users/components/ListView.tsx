@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/table";
 
 import TableRows from "./TableRows";
-import { fetchAllUsers } from "@/app/(universal)/action/user/fetchAllUsersDashboard";
+ 
 import { userDashboardType } from "@/lib/types/userDashboardType";
+import { fetchPosUsers } from "@/app/(universal)/action/user/fetchPosUsersDashboard";
 
 type productTableProps = {
   limit?: number;
@@ -24,7 +25,7 @@ const ListView = ({ title }: productTableProps) => {
   useEffect(() => {
     async function fetchUsers() {
       try {
-        const result = await fetchAllUsers();
+        const result = await fetchPosUsers();
  
         // Only show POS users
         const posUsers = result.filter(
