@@ -599,7 +599,7 @@ export default function FormView({
               <div className="flex flex-col gap-2">
 
                 <label className="label-style-4">
-                  Inventory Item
+                  Expanses
                 </label>
 
                 <div

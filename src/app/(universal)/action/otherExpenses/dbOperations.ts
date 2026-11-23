@@ -9,6 +9,7 @@ import { newOtherExpenseSchema, OtherExpenseType } from "./OtherExpenseType";
 
 
 import { cache } from "react";
+import { newProductExpenseRecipeSchema, ProductExpenseRecipeType } from "@/lib/types/expense/ProductExpenseRecipeType";
  
 
 // FETCH ALL INVENTORY ITEMS
@@ -392,5 +393,224 @@ export async function fetchOtherExpenses(): Promise<OtherExpenseType[]> {
   } catch (error) {
     console.error("❌ Failed to fetch other expenses:", error);
     return [];
+  }
+}
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 
+
+export async function addProductExpenseRecipe(
+  formData: FormData
+) {
+  try {
+    // FORM VALUES
+
+    const productId = formData.get(
+      "productId"
+    ) as string;
+
+    const expenseMasterId = formData.get(
+      "expenseMasterId"
+    ) as string;
+
+    const quantityRaw = formData.get(
+      "quantity"
+    ) as string | null;
+
+    const unit = formData.get(
+      "unit"
+    ) as string;
+
+    // SAFE NUMBER
+
+    const quantity = quantityRaw
+      ? parseFloat(quantityRaw)
+      : 0;
+
+    // VALIDATION OBJECT
+
+    const receivedData = {
+      productId,
+      expenseMasterId,
+      quantity,
+      unit,
+    };
+
+    // ZOD VALIDATION
+
+    const result =
+      newProductExpenseRecipeSchema.safeParse(
+        receivedData
+      );
+
+    if (!result.success) {
+      const zodErrors: Record<string, string> = {};
+
+      result.error.issues.forEach((issue) => {
+        zodErrors[String(issue.path[0])] =
+          issue.message;
+      });
+
+      return {
+        errors: zodErrors,
+      };
+    }
+
+    // FETCH PRODUCT
+
+    const productSnap = await adminDb
+      .collection("productStock")
+      .doc(productId)
+      .get();
+
+    if (!productSnap.exists) {
+      return {
+        errors: {
+          product: "Product not found",
+        },
+      };
+    }
+
+    const productData = productSnap.data();
+
+    // FETCH EXPENSE MASTER
+
+    const expenseSnap = await adminDb
+      .collection("expenseMaster")
+      .doc(expenseMasterId)
+      .get();
+
+    if (!expenseSnap.exists) {
+      return {
+        errors: {
+          expense: "Expense master item not found",
+        },
+      };
+    }
+
+    const expenseData = expenseSnap.data();
+
+    // CHECK ACTIVE EXPENSE
+
+    if (expenseData?.isActive === false) {
+      return {
+        errors: {
+          expense: "This expense is inactive",
+        },
+      };
+    }
+
+    // PREVENT DUPLICATE EXPENSE RECIPE
+
+    const existingRecipe = await adminDb
+      .collection("productExpenseRecipes")
+      .where("productId", "==", productId)
+      .where("expenseMasterId", "==", expenseMasterId)
+      .limit(1)
+      .get();
+
+    if (!existingRecipe.empty) {
+      return {
+        errors: {
+          duplicate: "Expense already added to product",
+        },
+      };
+    }
+
+    // EXPENSE COST
+
+    const cost = Number(expenseData?.cost ?? 0);
+
+    if (!Number.isFinite(cost) || cost < 0) {
+      return {
+        errors: {
+          cost: "Invalid expense cost",
+        },
+      };
+    }
+
+    const totalCost = quantity * cost;
+
+    // FIRESTORE DATA
+
+    const data: Omit<
+      ProductExpenseRecipeType,
+      "id"
+    > = {
+      productId,
+
+      productName: productData?.name || "",
+
+      expenseMasterId,
+
+      expenseName: expenseData?.name || "",
+
+      quantity,
+
+      unit,
+
+      cost,
+
+      totalCost,
+
+      createdAt:
+        admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    console.log(
+      "product expense recipe data-------------",
+      data
+    );
+
+    // SAVE
+
+    const docRef = await adminDb
+      .collection("productExpenseRecipes")
+      .add(data);
+
+    // REVALIDATE
+
+    revalidateTag(
+      "product-expense-recipes",
+      "max"
+    );
+
+    revalidatePath(
+      "/admin/product-recipes"
+    );
+
+    revalidatePath(
+      "/admin/product-recipes/form"
+    );
+
+    return {
+      success: true,
+
+      message: "Product expense added successfully",
+
+      id: docRef.id,
+    };
+
+  } catch (error) {
+    console.error(
+      "❌ Product expense recipe save failed:",
+      error
+    );
+
+    return {
+      errors: {
+        general: "Could not save product expense",
+      },
+    };
   }
 }
