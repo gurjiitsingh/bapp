@@ -36,6 +36,8 @@ import { MdDeleteForever } from "react-icons/md";
 import { ProductStockType } from "@/lib/types/productStockType";
 import { addProductExpenseRecipe } from "@/app/(universal)/action/otherExpenses/dbOperations";
 import ExpenseRecipe from "./ExpenseRecipe";
+import ProductSearch from "./ProductSearch";
+import AddComponentForm from "./AddComponentForm";
 
 
 type ExpenseMasterType = {
@@ -83,34 +85,9 @@ export default function FormView({
   // PRODUCT SEARCH
   // =====================================================
 
-  const [productSearch, setProductSearch] =
-    useState("");
-
-  const [showProducts, setShowProducts] =
-    useState(false);
-
   const [selectedProduct, setSelectedProduct] =
     useState<ProductStockType | null>(null);
 
-  const searchRef =
-    useRef<HTMLDivElement>(null);
-
-
-  // =====================================================
-  // EXPENSE MASTER SEARCH
-  // =====================================================
-
-  const [expenseSearch, setExpenseSearch] = useState("");
-
- 
-
-  const expenseRef = useRef<HTMLDivElement>(null);
-
-  const [expenseQuantities, setExpenseQuantities] = useState<
-    Record<string, number>
-  >({});
-
- 
 
   // =====================================================
   // INVENTORY SEARCH
@@ -126,37 +103,10 @@ export default function FormView({
     setShowInventory,
   ] = useState(false);
 
-  const [
-    selectedInventory,
-    setSelectedInventory,
-  ] =
-    useState<InventoryItemType | null>(
-      null
-    );
+
 
   const inventoryRef =
     useRef<HTMLDivElement>(null);
-
-
-
-  // =====================================================
-  // FILTERED EXPENSE MASTER
-  // =====================================================
-
-  const filteredExpenses = useMemo(() => {
-    if (!expenseSearch.trim()) return [];
-
-    return expenseMaster
-      .filter((expense) =>
-        expense.name
-          ?.toLowerCase()
-          .includes(expenseSearch.trim().toLowerCase())
-      )
-      .slice(0, 30);
-  }, [expenseSearch, expenseMaster]);
-
-
- 
 
   // =====================================================
   // FORM
@@ -212,12 +162,7 @@ export default function FormView({
     ) => {
       const target = event.target as Node;
 
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(target)
-      ) {
-        setShowProducts(false);
-      }
+
 
       if (
         inventoryRef.current &&
@@ -226,7 +171,7 @@ export default function FormView({
         setShowInventory(false);
       }
 
-     
+
     };
 
     document.addEventListener(
@@ -242,50 +187,9 @@ export default function FormView({
     };
   }, []);
 
-  // =====================================================
-  // FILTERED PRODUCTS
-  // =====================================================
 
-  const filteredProducts = useMemo(() => {
-    if (!productSearch.trim())
-      return [];
 
-    return products
-      .filter((product) =>
-        product.name
-          ?.toLowerCase()
-          .includes(
-            productSearch
-              .trim()
-              .toLowerCase()
-          )
-      )
-      .slice(0, 20);
-  }, [productSearch, products]);
 
-  // =====================================================
-  // FILTERED INVENTORY
-  // =====================================================
-
-  const filteredInventory = useMemo(() => {
-    if (!inventorySearch.trim())
-      return [];
-
-    return inventoryItems
-      .filter((item) =>
-        item.name
-          ?.toLowerCase()
-          .includes(
-            inventorySearch
-              .trim()
-              .toLowerCase()
-          )
-      )
-      .slice(0, 30);
-  }, [
-    inventorySearch,
-    inventoryItems,
-  ]);
 
   // =====================================================
   // CURRENT PRODUCT RECIPES
@@ -309,14 +213,7 @@ export default function FormView({
     function handleClickOutside(
       event: MouseEvent
     ) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(
-          event.target as Node
-        )
-      ) {
-        setShowProducts(false);
-      }
+
 
       if (
         inventoryRef.current &&
@@ -332,7 +229,7 @@ export default function FormView({
       event: KeyboardEvent
     ) {
       if (event.key === "Escape") {
-        setShowProducts(false);
+
         setShowInventory(false);
       }
     }
@@ -418,439 +315,169 @@ export default function FormView({
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
+    <div className="min-h-screen bg-[#f6f8fb] p-1 1">
       <div className="w-full flex flex-col gap-6">
         {/* ALLREADY ADDED  */}
 
-   
+{/* grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] */}
 
-        <div className="grid grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)] gap-0 w-full items-start">
+        <div className="flex flex-row  gap-0 w-full items-start">
 
-          <div
-            className="relative "
-            ref={searchRef}
-          >
-            {!productSearch.trim() && (
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                size={18}
-              />
-            )}
 
-            <input
-              type="text"
-              value={productSearch}
-              onChange={(e) => {
-                setProductSearch(
-                  e.target.value
-                );
-
-                setShowProducts(true);
-              }}
-              onFocus={() => {
-                if (
-                  productSearch.trim()
-                    .length > 0
-                ) {
-                  setShowProducts(true);
-                }
-              }}
-              placeholder="Search product..."
-              className={`input-style-4 pr-4 ${!productSearch.trim()
-                ? "pl-12"
-                : "pl-4"
-                }`}
-            />
-
-            {showProducts &&
-              productSearch.trim()
-                .length > 0 && (
-                <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
-
-                  {filteredProducts.length >
-                    0 ? (
-                    filteredProducts.map(
-                      (product) => (
-                        <button
-                          type="button"
-                          key={product.id}
-                          onClick={() => {
-                            setSelectedProduct(
-                              product
-                            );
-
-                            setValue(
-                              "productId",
-                              product.id
-                            );
-
-                            setProductSearch(
-                              product.name
-                            );
-
-                            setShowProducts(
-                              false
-                            );
-                          }}
-                          className="w-full text-left px-4 py-3 hover:bg-rose-50 transition border-b border-gray-100 last:border-0"
-                        >
-                          <div className="font-medium text-gray-800">
-                            {product.name}
-                          </div>
-
-                          <div className="text-xs text-gray-400">
-                            {
-                              product.categoryName
-                            }
-                          </div>
-                        </button>
-                      )
-                    )
-                  ) : (
-                    <div className="p-4 text-sm text-gray-400">
-                      No products found
-                    </div>
-                  )}
-                </div>
-              )}
-          </div>
-
+          <ProductSearch
+            products={products}
+            selectedProductId={selectedProduct?.id}
+            onSelect={(product) => {
+              setSelectedProduct(product);
+              setValue("productId", product.id);
+            }}
+          />
 
           {/* RAW METIRAL */}
 
-          <div className="bg-white   border border-gray-100 shadow-sm overflow-hidden h-fit">
-
-            <div className="border-b border-gray-100 px-6 py-5">
-              <h2 className="text-xl font-bold text-gray-800">
-                Add Component
-              </h2>
-
-              <p className="text-sm text-gray-500">
-                {selectedProduct
-                  ? selectedProduct.name
-                  : "Select product first"}
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit(
-                onSubmit
-              )}
-              className="p-6 flex flex-col gap-5"
-            >
-              <input
-                type="hidden"
-                {...register(
-                  "productId"
-                )}
-              />
-
-              {/* INVENTORY SEARCH */}
-
-              <div className="flex flex-col gap-2">
-
-                <label className="label-style-4">
-                  Inventory Item
-                </label>
-
-                <div
-                  className="relative"
-                  ref={inventoryRef}
-                >
-                  {!inventorySearch.trim() && (
-                    <Search
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                      size={18}
-                    />
-                  )}
-
-                  <input
-                    type="text"
-                    disabled={!selectedProduct}
-                    value={inventorySearch}
-                    onChange={(e) => {
-                      setInventorySearch(
-                        e.target.value
-                      );
-
-                      setShowInventory(true);
-                    }}
-                    onFocus={() => {
-                      if (
-                        inventorySearch.trim()
-                          .length > 0
-                      ) {
-                        setShowInventory(
-                          true
-                        );
-                      }
-                    }}
-                    placeholder="Search inventory item..."
-                    className={`input-style-4 pr-4 ${!inventorySearch.trim()
-                      ? "pl-12"
-                      : "pl-4"
-                      } ${!selectedProduct
-                        ? "opacity-60 cursor-not-allowed"
-                        : ""
-                      }`}
-                  />
-
-                  <input
-                    type="hidden"
-                    {...register(
-                      "inventoryItemId"
-                    )}
-                  />
-
-                  {showInventory &&
-                    inventorySearch.trim()
-                      .length > 0 && (
-                      <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
-
-                        {filteredInventory.length >
-                          0 ? (
-                          filteredInventory.map(
-                            (item) => (
-                              <button
-                                type="button"
-                                key={item.id}
-                                onClick={() => {
-                                  setSelectedInventory(
-                                    item
-                                  );
-
-                                  setValue(
-                                    "inventoryItemId",
-                                    item.id
-                                  );
-
-                                  setValue(
-                                    "unit",
-                                    item.consumptionUnit
-                                  );
-
-                                  setInventorySearch(
-                                    item.name
-                                  );
-
-                                  setShowInventory(
-                                    false
-                                  );
-                                }}
-                                className="w-full text-left px-4 py-3 hover:bg-blue-50 transition border-b border-gray-100 last:border-0"
-                              >
-                                <div className="font-medium text-gray-800">
-                                  {item.name}
-                                </div>
-
-                                <div className="text-xs text-gray-400">
-                                  {item.consumptionUnit}
-                                </div>
-                              </button>
-                            )
-                          )
-                        ) : (
-                          <div className="p-4 text-sm text-gray-400">
-                            No inventory items found
-                          </div>
-                        )}
-                      </div>
-                    )}
-                </div>
-              </div>
-
-              {/* QTY */}
-
-              <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Quantity
-                </label>
-
-                <input
-                  type="number"
-                  step="0.001"
-                  disabled={!selectedProduct}
-                  {...register("quantity")}
-                  onFocus={(e) => {
-                    if (e.target.value === "0") {
-                      e.target.value = "";
-                    }
-                  }}
-                  onBlur={(e) => {
-                    if (e.target.value === "") {
-                      e.target.value = "0";
-                    }
-                  }}
-                  className="input-style-4"
-                  placeholder="0.25"
-                />
-              </div>
-
-              {/* UNIT */}
-
-              <div className="flex flex-col gap-2">
-                <label className="label-style-4">
-                  Unit
-                </label>
-
-                <input
-                  {...register("unit")}
-                  readOnly
-                  className="input-style-4 bg-gray-50"
-                />
-              </div>
-
-              {/* BUTTON */}
-
-              <Button
-                type="submit"
-                disabled={
-                  isSubmitting ||
-                  !selectedProduct
-                }
-                className="btn-save-4 h-11 flex items-center gap-2"
-              >
-                <Plus size={18} />
-
-                {isSubmitting
-                  ? "Saving..."
-                  : " Add Component"}
-              </Button>
-            </form>
-          </div>
+          <AddComponentForm
+            selectedProduct={selectedProduct}
+            inventoryItems={inventoryItems}
+            isSubmitting={isSubmitting}
+            onSubmit={onSubmit}
+          />
 
           {/* EXPENSE LIST */}
           {/* =====================================================
-    FOURTH COLUMN - EXPENSE MASTER
-===================================================== */}
+              FOURTH COLUMN - EXPENSE MASTER
+              ===================================================== */}
 
-         <ExpenseRecipe
-  selectedProduct={selectedProduct}
-  expenseMaster={expenseMaster}
-  productExpenseRecipes={productExpenseRecipes}
-/>
-        </div>
+          <ExpenseRecipe
+            selectedProduct={selectedProduct}
+            expenseMaster={expenseMaster}
+            productExpenseRecipes={productExpenseRecipes}
+          />
 
-     <div className="xl:col-span-2 bg-white   border border-gray-100 shadow-sm overflow-hidden">
+          <div className="xl:col-span-2 bg-white w-[340px] h-[85dvh]  border border-gray-100 shadow-sm overflow-hidden">
 
-          <div className="border-b border-gray-100 px-6 py-5">
-            <div className="flex items-center justify-between">
+            <div className="border-b border-gray-100 px-1 py-1">
+              <div className="flex items-center justify-between">
 
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">
-                  Recipe Components
-                </h2>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Recipe Components
+                  </h2>
 
-                <p className="text-sm text-gray-500">
-                  {selectedProduct
-                    ? selectedProduct.name
-                    : " Select product to view Recipe"}
-                </p>
+                  <p className="text-sm text-gray-500">
+                    {selectedProduct
+                      ? selectedProduct.name
+                      : " Select product to view Recipe"}
+                  </p>
+                </div>
+
+                {selectedProduct && (
+                  <div className="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-xl">
+                    {
+                      currentRecipes.length
+                    }{" "}
+                    Component
+                  </div>
+                )}
               </div>
+            </div>
 
-              {selectedProduct && (
-                <div className="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-xl">
-                  {
-                    currentRecipes.length
-                  }{" "}
-                  Component
+            <div className="p-6">
+
+              {!selectedProduct ? (
+                <div className="h-[350px] flex flex-col items-center justify-center text-center">
+
+                  <Package2
+                    size={50}
+                    className="text-gray-300 mb-4"
+                  />
+
+                  <h3 className="text-lg font-semibold text-gray-600">
+                    No Product Selected
+                  </h3>
+
+                  <p className="text-sm text-gray-400 mt-1">
+                    Search and select product from top search bar
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
+                          Ingredient
+                        </th>
+
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
+                          Quantity
+                        </th>
+
+                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
+                          Unit
+                        </th>
+                        <th className="text-right py-3 text-sm font-semibold text-gray-600">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {currentRecipes.map((recipe) => (
+                        <tr
+                          key={recipe.id}
+                          className="border-b border-gray-50 hover:bg-gray-50"
+                        >
+                          <td className="py-4 font-medium text-gray-800">
+                            {recipe.inventoryItemName}
+                          </td>
+
+                          <td className="py-4 text-gray-600">
+                            {recipe.quantity}
+                          </td>
+
+                          <td className="py-4 text-gray-600">
+                            {recipe.unit}
+                          </td>
+
+                          {/* ✅ NEW DELETE BUTTON */}
+                          <td className="py-4 text-right">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!confirm("Delete this item?")) return;
+
+                                const res = await deleteProductRecipe(recipe.id);
+
+                                if (!res?.errors) {
+                                  // ✅ remove locally (no refresh needed)
+                                  const updated = currentRecipes.filter(
+                                    (r) => r.id !== recipe.id
+                                  );
+
+                                  // hack: force refresh via state
+                                  setSelectedProduct({ ...selectedProduct! });
+                                }
+                              }}
+                              className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
+                            >
+                              <MdDeleteForever size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
                 </div>
               )}
             </div>
           </div>
 
-          <div className="p-6">
 
-            {!selectedProduct ? (
-              <div className="h-[350px] flex flex-col items-center justify-center text-center">
-
-                <Package2
-                  size={50}
-                  className="text-gray-300 mb-4"
-                />
-
-                <h3 className="text-lg font-semibold text-gray-600">
-                  No Product Selected
-                </h3>
-
-                <p className="text-sm text-gray-400 mt-1">
-                  Search and select product from top search bar
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-100">
-                      <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                        Ingredient
-                      </th>
-
-                      <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                        Quantity
-                      </th>
-
-                      <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                        Unit
-                      </th>
-                      <th className="text-right py-3 text-sm font-semibold text-gray-600">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {currentRecipes.map((recipe) => (
-                      <tr
-                        key={recipe.id}
-                        className="border-b border-gray-50 hover:bg-gray-50"
-                      >
-                        <td className="py-4 font-medium text-gray-800">
-                          {recipe.inventoryItemName}
-                        </td>
-
-                        <td className="py-4 text-gray-600">
-                          {recipe.quantity}
-                        </td>
-
-                        <td className="py-4 text-gray-600">
-                          {recipe.unit}
-                        </td>
-
-                        {/* ✅ NEW DELETE BUTTON */}
-                        <td className="py-4 text-right">
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              if (!confirm("Delete this item?")) return;
-
-                              const res = await deleteProductRecipe(recipe.id);
-
-                              if (!res?.errors) {
-                                // ✅ remove locally (no refresh needed)
-                                const updated = currentRecipes.filter(
-                                  (r) => r.id !== recipe.id
-                                );
-
-                                // hack: force refresh via state
-                                setSelectedProduct({ ...selectedProduct! });
-                              }
-                            }}
-                            className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
-                          >
-                            <MdDeleteForever size={18} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-              </div>
-            )}
-          </div>
         </div>
+
+
 
       </div>
     </div>
