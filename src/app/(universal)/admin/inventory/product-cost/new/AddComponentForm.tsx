@@ -198,9 +198,9 @@ export default function AddComponentForm({
                     onClick={() => handleAdd(item)}
                     className="btn-save-4 h-10 w-full flex items-center justify-center gap-1"
                   >
-                    <Plus size={16} />
+                    
 
-                    {isSaving ? "Saving..." : "Add"}
+                    {isSaving ? "Saving..." : <Plus size={16} />}
                   </Button>
                 </div>
 

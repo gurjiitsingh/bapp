@@ -14,7 +14,7 @@ export async function addProductExpances(
   formData: FormData
 ) {
    
-console.log("data--------------",formData)
+ 
   try {
     // FORM VALUES
     const productId = formData.get(

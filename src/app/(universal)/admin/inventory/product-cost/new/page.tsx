@@ -4,7 +4,7 @@ import FormView from "./FormView";
 
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/dbOperation";
 
-import { fetchProductRecipes } from "@/app/(universal)/action/productRecipes/dbOperations";
+import { fetchProductRecipes, fetchProductRecipesFast } from "@/app/(universal)/action/productRecipes/dbOperations";
 
  
 
@@ -24,7 +24,7 @@ export default async function Page() {
   ] = await Promise.all([
     fetchProductsStock(),
     fetchInventoryItems(),
-    fetchProductRecipes(),
+    fetchProductRecipesFast(),
     getExpenseMasterAll(),
     fetchProductExpense(),
   ]);

@@ -30,7 +30,7 @@ import {
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
-import { addProductRecipe } from "@/app/(universal)/action/productRecipes/dbOperations";
+import { addProductRecipe, addProductRecipeFast } from "@/app/(universal)/action/productRecipes/dbOperations";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
 import { ProductStockType } from "@/lib/types/productStockType";
@@ -291,7 +291,7 @@ export default function FormView({
       );
 
       const result =
-        await addProductRecipe(
+        await addProductRecipeFast(
           formData
         );
 

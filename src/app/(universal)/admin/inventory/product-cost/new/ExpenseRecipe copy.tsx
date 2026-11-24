@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ProductStockType } from "@/lib/types/productStockType";
 
 import { addProductExpenseRecipe } from "@/app/(universal)/action/otherExpenses/dbOperations";
+import { addProductExpenseForCost } from "@/app/(universal)/action/otherExpenses/addProductExpenseForCost";
 
 // =====================================================
 // TYPES
@@ -208,7 +209,7 @@ export default function ExpenseRecipe({
                 expense.unit
             );
 
-            const result = await addProductExpenseRecipe(formData);
+            const result = await addProductExpenseForCost(formData);
 
             if (result?.errors) {
 
