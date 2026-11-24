@@ -199,9 +199,9 @@ export default function InventoryTabs() {
       {/* =====================================================
           RECIPES
       ===================================================== */}
-
+ {/* href="/admin/inventory/product-recipes/recipes" */}
       <ActionCard
-        href="/admin/inventory/product-recipes/recipes"
+        href="/admin/inventory/product-cost/new"
         active={isRecipes}
         activeBg="bg-indigo-50 border-indigo-300 shadow-md"
         inactiveHover="hover:border-indigo-300 hover:shadow-md"

@@ -83,10 +83,14 @@ export default function ListView({
             </p>
           </div>
 
-          <Link
-            href="/admin/inventory/product-recipes/new/recipes"
+          {/* <Link
+            href="/admin/inventory/product-cost/new"
             className="btn-save-4"
-          >
+          > */}
+             <Link
+            href="/admin/inventory/product-cost/new"
+            className="btn-save-4"
+          > 
             Add Recipe
           </Link>
         </div>

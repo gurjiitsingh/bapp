@@ -1,8 +1,9 @@
-import React from "react";
-export default async function Page() {
  
+import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
+import CostEstimate from "./EstimateCost";
 
-  return (
-   <div>IN PORDUCT COST</div>
-  );
+export default async function Page() {
+  const products = await fetchProductsStock();
+
+  return <CostEstimate products={products} />;
 }

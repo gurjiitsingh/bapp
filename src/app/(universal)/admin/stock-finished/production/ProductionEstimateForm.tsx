@@ -9,6 +9,7 @@ import { ProductStockType } from "@/lib/types/productStockType";
 import { estimateProductionDpt } from "@/app/(universal)/action/production/departments/estimate/estimateProductionDpt";
 import { displayStock_1 } from "@/utils/inventory/displayStock_1";
 import Link from "next/link";
+import { estimateProductionDptFast } from "@/app/(universal)/action/production/departments/estimate/estimateProductionDptFast";
 
 type Props = {
   selectedProduct: ProductStockType | null;
@@ -20,11 +21,17 @@ type Props = {
 
 type EstimateType = {
   items: any[];
+  expenses: any[];
+
+  rawMaterialCost: number;
+  expenseCostPerUnit: number;
+  additionalExpenseCost: number;
+
   totalEstimatedCost: number;
   hasShortage: boolean;
 };
 
-export default function ProductionEstimateForm({
+export default function ProductionEstimateFormFast({
   selectedProduct,
   quantity,
   transactionUnit,
@@ -58,7 +65,7 @@ export default function ProductionEstimateForm({
       setIsSubmitting(true);
 
       try {
-        const result = await estimateProductionDpt({
+        const result = await estimateProductionDptFast({
           id: selectedProduct.id,
           quantity: Number(quantity),
           transactionUnit,
@@ -69,36 +76,43 @@ export default function ProductionEstimateForm({
 
         if (!mounted) return;
 
-        if (result.success) {
-          const itemsWithCost = result.items.map((item: any) => {
-            const itemCost =
-              (Number(item.requiredQty) /
-                Number(item.conversionFactor)) *
-              Number(item.averageCostDptItem || 0);
+     if (result.success) {
+  const itemsWithCost = result.items.map((item: any) => {
+    const itemCost =
+      (Number(item.requiredQty) /
+        Number(item.conversionFactor)) *
+      Number(item.averageCostDptItem || 0);
 
-            return {
-              ...item,
-              itemCost,
-            };
-          });
+    return {
+      ...item,
+      itemCost,
+    };
+  });
 
-          const totalCost = itemsWithCost.reduce(
-            (sum: number, i: any) => sum + i.itemCost,
-            0
-          );
+  setEstimate({
+    items: itemsWithCost,
+    expenses: result.expenses ?? [],
 
-          setEstimate({
-            items: itemsWithCost,
-            totalEstimatedCost: totalCost, // 🔥 override backend if needed
-            hasShortage: result.hasShortage,
-          });
-        } else {
-          setEstimate(null);
-          console.error(
-            "Production estimate failed:",
-            result.message
-          );
-        }
+    rawMaterialCost: Number(result.rawMaterialCost) || 0,
+    expenseCostPerUnit:
+      Number(result.expenseCostPerUnit) || 0,
+    additionalExpenseCost:
+      Number(result.additionalExpenseCost) || 0,
+
+    totalEstimatedCost:
+      Number(result.totalEstimatedCost) || 0,
+
+    hasShortage: result.hasShortage,
+  });
+} else {
+  setEstimate(null);
+  console.error(
+    "Production estimate failed:",
+    result.message
+  );
+}
+
+
       } catch (error) {
         if (!mounted) return;
 
@@ -306,6 +320,104 @@ export default function ProductionEstimateForm({
               </div>
 
             </div>
+
+
+
+{/* COST BREAKDOWN */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border-b bg-white">
+
+  <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-4">
+    <p className="text-sm text-gray-600">
+      Recipe / Raw Material Cost
+    </p>
+    <p className="mt-2 text-xl font-bold text-cyan-700">
+      ₹ {estimate.rawMaterialCost.toFixed(2)}
+    </p>
+  </div>
+
+  <div className="rounded-2xl border border-orange-100 bg-orange-50 p-4">
+    <p className="text-sm text-gray-600">
+      Additional Expense Cost
+    </p>
+    <p className="mt-2 text-xl font-bold text-orange-700">
+      ₹ {estimate.additionalExpenseCost.toFixed(2)}
+    </p>
+    <p className="mt-1 text-xs text-gray-500">
+      ₹ {estimate.expenseCostPerUnit.toFixed(2)} per unit
+    </p>
+  </div>
+
+  <div className="rounded-2xl border border-green-100 bg-green-50 p-4">
+    <p className="text-sm text-gray-600">
+      Total Estimated Production Cost
+    </p>
+    <p className="mt-2 text-xl font-bold text-green-700">
+      ₹ {estimate.totalEstimatedCost.toFixed(2)}
+    </p>
+  </div>
+
+</div>
+
+{/* INDIVIDUAL ADDITIONAL EXPENSES */}
+{estimate.expenses.length > 0 && (
+  <div className="border-b p-6">
+
+    <h3 className="mb-4 font-bold text-gray-800">
+      Additional Expense Details
+    </h3>
+
+    <div className="overflow-x-auto">
+      <table className="min-w-full">
+
+        <thead className="bg-orange-50">
+          <tr className="text-sm text-gray-600">
+            <th className="px-4 py-3 text-left">
+              Expense
+            </th>
+            <th className="px-4 py-3 text-right">
+              Qty / Unit
+            </th>
+            <th className="px-4 py-3 text-right">
+              Cost / Unit
+            </th>
+            <th className="px-4 py-3 text-right">
+              Total Cost
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {estimate.expenses.map((expense: any) => (
+            <tr
+              key={expense.expenseMasterId}
+              className="border-b border-slate-100"
+            >
+              <td className="px-4 py-3 font-medium">
+                {expense.expenseName}
+              </td>
+
+              <td className="px-4 py-3 text-right">
+                {expense.estimatedQuantity.toFixed(3)}{" "}
+                {expense.unit}
+              </td>
+
+              <td className="px-4 py-3 text-right">
+                ₹ {expense.cost.toFixed(2)}
+              </td>
+
+              <td className="px-4 py-3 text-right font-semibold text-orange-700">
+                ₹ {expense.estimatedTotalCost.toFixed(2)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+
+      </table>
+    </div>
+
+  </div>
+)}
+
 
             {/* TABLE */}
             <div className="overflow-x-auto">

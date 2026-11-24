@@ -25,35 +25,32 @@ export default function ProductSearch({
 
   // ALWAYS SHOW ALL PRODUCTS.
   // Matching products appear first when searching.
-  const filteredProducts = useMemo(() => {
-    const query = search.trim().toLowerCase();
+ const filteredProducts = useMemo(() => {
+  const query = search.trim().toLowerCase();
 
-    if (!query) {
-      return products;
-    }
+  return [...products].sort((a, b) => {
+    const nameA = (a.name || "").toLowerCase();
+    const nameB = (b.name || "").toLowerCase();
 
-    return [...products].sort((a, b) => {
-      const nameA = (a.name || "").toLowerCase();
-      const nameB = (b.name || "").toLowerCase();
-
+    // Matching products appear first when searching
+    if (query) {
       const aStarts = nameA.startsWith(query);
       const bStarts = nameB.startsWith(query);
+
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
 
       const aContains = nameA.includes(query);
       const bContains = nameB.includes(query);
 
-      // Exact beginning matches first
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-
-      // Other matching products next
       if (aContains && !bContains) return -1;
       if (!aContains && bContains) return 1;
+    }
 
-      // Keep remaining products alphabetically sorted
-      return nameA.localeCompare(nameB);
-    });
-  }, [search, products]);
+    // Always alphabetical A-Z
+    return nameA.localeCompare(nameB);
+  });
+}, [search, products]);
 
   // CLOSE ONLY WHEN CLICKING OUTSIDE
   useEffect(() => {
@@ -116,16 +113,17 @@ export default function ProductSearch({
         />
       )}
 
-      <input
-        type="text"
-        value={search}
-        disabled={disabled}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={placeholder}
-        className={`input-style-4 pr-10 ${
-          !search.trim() ? "pl-12" : "pl-4"
-        }`}
-      />
+<input
+  type="text"
+  value={search}
+  disabled={disabled}
+  onFocus={() => setSearch("")}
+  onChange={(e) => setSearch(e.target.value)}
+  placeholder={placeholder}
+  className={`input-style-4 pr-10 ${
+    !search.trim() ? "pl-12" : "pl-4"
+  }`}
+/>
 
       {search && (
         <button

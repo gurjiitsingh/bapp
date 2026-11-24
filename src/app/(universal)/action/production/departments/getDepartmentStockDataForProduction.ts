@@ -61,22 +61,22 @@ export async function getDepartmentStockDataForProduction(
     const doc = exists ? snap.docs[0] : null;
     const data = doc?.data();
 
-    // console.log("========== DEPARTMENT STOCK ==========");
-    // console.log("Department ID:", departmentId);
-    // console.log("Direction:", dirction);
+    console.log("========== DEPARTMENT STOCK ==========");
+    console.log("Department ID:", departmentId);
+    console.log("Direction:", dirction);
 
-    // console.log("Department Stock Exists:", exists);
-    // console.log("Department Doc ID:", doc?.id);
+    console.log("Department Stock Exists:", exists);
+    console.log("Department Doc ID:", doc?.id);
 
-    // console.log("Inventory Item:", item.inventoryItemName);
-    // console.log("Inventory Item ID:", item.inventoryItemId);
+    console.log("Inventory Item:", item.inventoryItemName);
+    console.log("Inventory Item ID:", item.inventoryItemId);
 
-    // console.log("Department Quantity:", data?.quantity);
-    // console.log("Department Avg Cost:", data?.averageCost);
-    // console.log("Department Purchase Unit:", data?.purchaseUnit);
-    // console.log("Department Consumption Unit:", data?.consumptionUnit);
+    console.log("Department Quantity:", data?.quantity);
+    console.log("Department Avg Cost:", data?.averageCost);
+    console.log("Department Purchase Unit:", data?.purchaseUnit);
+    console.log("Department Consumption Unit:", data?.consumptionUnit);
 
-    // console.log("======================================");
+    console.log("======================================");
 
 
     const currentStock = Number(data?.currentStock ?? 0);

@@ -11,6 +11,7 @@ import { validateRawStockProduction } from "../inventory/rawInventory/validateRa
 import { departmentStockTransaction } from "../production/departments/departmentStockTransaction";
 import { addStockLocationTx } from "../distribution/addStockLocation";
 import { updateDepartmentStockAutoProduction } from "../production/departments/production/updateDepartmentStockAutoProduction";
+import { readRawInventoryRecipesFast } from "../inventory/rawInventory/readRawInventoryRecipesFast";
 
 
 
@@ -101,13 +102,13 @@ export async function autoStockProduction({
       // ✅ 1. READ
       // =========================
       let rawInventoryReads: any[] = [];
-
+ console.log("income----------------------1")
       if (direction === "IN") {
-        rawInventoryReads = await readRawInventoryRecipes(tx, [
+        rawInventoryReads = await readRawInventoryRecipesFast(tx, [
           { productId: id, quantity }
         ]);
-      }
-
+      }   
+ console.log("income----------------------2")
       //=============================
       // DEPARTMENT STOCK
       //=============================
@@ -122,7 +123,7 @@ export async function autoStockProduction({
           rawInventoryReads
         );
 
-
+console.log("income----------------------3")
 
       //=============================
       // READ STOCK 
@@ -133,7 +134,7 @@ export async function autoStockProduction({
       //=============================
       // READ STOCK LOCATION
       //=============================
-
+console.log("income----------------------4")
       const storeLocation = await getStockLocation({
         tx,
         productId: id,
@@ -141,7 +142,41 @@ export async function autoStockProduction({
         locationRef: "MAIN",
       });
 
+ 
 
+
+      // =========================
+// READ PRODUCT EXPENSE RECIPE
+// =========================
+
+const productExpenseRef = db
+  .collection("productExpenseRecipes")
+  .doc(id);
+
+const productExpenseSnap = await tx.get(
+  productExpenseRef
+);
+
+const productExpenseData = productExpenseSnap.exists
+  ? productExpenseSnap.data()
+  : null;
+
+const productExpenses = Array.isArray(
+  productExpenseData?.expenses
+)
+  ? productExpenseData.expenses
+  : [];
+
+// EXPENSE COST PER FINISHED PRODUCT UNIT
+
+const expenseCostPerUnit = Number(
+  productExpenseData?.totalExpenseCost ??
+  productExpenses.reduce(
+    (total: number, expense: any) =>
+      total + Number(expense.totalCost || 0),
+    0
+  )
+);
 
       // =========================
       // ✅ 2. VALIDATE
@@ -174,36 +209,119 @@ export async function autoStockProduction({
       );
 
 
-      let batchCost = 0;
+   // =========================
+// CALCULATE RAW MATERIAL COST
+// =========================
+
+let rawMaterialCost = 0;
+
+for (const update of departmentRecord) {
+
+  rawMaterialCost +=
+    (Number(update.quantityChange) || 0) *
+    (Number(update.newAverageCost) || 0) /
+    (Number(update.conversionFactor) || 1);
+
+}
+
+// =========================
+// CALCULATE PRODUCT EXPENSE
+// =========================
+
+// Expenses apply when producing finished stock.
+
+const batchExpenseCost =
+  direction === "IN"
+    ? expenseCostPerUnit * quantity
+    : 0;
+
+// =========================
+// FINAL BATCH COST
+// =========================
+
+const batchCost =
+  rawMaterialCost + batchExpenseCost;
+
+// AVERAGE COST PER FINISHED UNIT
+
+const avgCostPerUnitProduction =
+  batchCost / quantity;
+
+console.log("PRODUCTION COST BREAKDOWN", {
+  rawMaterialCost,
+  expenseCostPerUnit,
+  batchExpenseCost,
+  batchCost,
+  quantity,
+  avgCostPerUnitProduction,
+});
+
+      // tx.set(batchRef, {
+      //   id: batchId,
+      //   departmentId,
+      //   departmentName,
+      //   productName,
+      //   productUnit: transactionUnit,
+      //   outputQty: quantity,
+
+      //   batchCost,       // Total cost of producing the batch
+      //   avgCostPerUnit: avgCostPerUnitProduction,   // Cost of one finished unit
 
 
-      for (const update of departmentRecord) {
-        batchCost +=
-          (Number(update.quantityChange) || 0) *
-          (Number(update.newAverageCost) || 0) /
-          (Number(update.conversionFactor) || 1);
-      }
-
-      const avgCostPerUnitProduction = batchCost / quantity;
+      //   createdAt: now,
+      //   note: note || "",
+      //   startTime: now,
+      //   employeeCount,
+      //   isClosed: false,
+      // });
 
       tx.set(batchRef, {
-        id: batchId,
-        departmentId,
-        departmentName,
-        productName,
-        productUnit: transactionUnit,
-        outputQty: quantity,
+  id: batchId,
+  departmentId,
+  departmentName,
+  productName,
+  productUnit: transactionUnit,
+  outputQty: quantity,
 
-        batchCost,       // Total cost of producing the batch
-        avgCostPerUnit: avgCostPerUnitProduction,   // Cost of one finished unit
+  // COST BREAKDOWN
 
+  rawMaterialCost,
 
-        createdAt: now,
-        note: note || "",
-        startTime: now,
-        employeeCount,
-        isClosed: false,
-      });
+  expenseCostPerUnit,
+
+  batchExpenseCost,
+
+  // FINAL COST
+
+  batchCost,
+
+  avgCostPerUnit: avgCostPerUnitProduction,
+
+  // EXPENSE SNAPSHOT FOR BATCH HISTORY
+
+  expenses: direction === "IN"
+    ? productExpenses.map((expense: any) => ({
+        expenseMasterId: expense.expenseMasterId,
+        expenseName: expense.expenseName,
+
+        quantity:
+          Number(expense.quantity || 0) * quantity,
+
+        unit: expense.unit,
+
+        cost: Number(expense.cost || 0),
+
+        totalCost:
+          Number(expense.totalCost || 0) * quantity,
+      }))
+    : [],
+
+  createdAt: now,
+  note: note || "",
+  startTime: now,
+  employeeCount,
+  isClosed: false,
+});
 
       for (const item of rawInventoryReads) {
 
@@ -410,33 +528,3 @@ export async function autoStockProduction({
   }
 }
 
-
-
-
-
-
-
-
-
-// console.log("========== Department Production Ledger ==========");
-// console.log("Item Name          :", item.inventoryItemName);
-
-// console.log("Entered Quantity   :", item.quantity / item.conversionFactor);
-// console.log("Average Cost       :", averageCost);
-// console.log("Conversion Factor  :", item.conversionFactor);
-
-// console.log(
-//   "Final Quantity     :",
-//   item.quantity / update.conversionFactor
-// );
-
-// console.log("Cost Per Unit      :", averageCost);
-
-// console.log("Total Cost     :", Number(update.quantityChange) * averageCost / update.conversionFactor)
-
-// console.log("Purchase Unit      :", update.purchaseUnit);
-// console.log("Consumption Unit   :", update.consumptionUnit);
-// console.log("Conversion Factor  :", update.conversionFactor);
-
-// console.log("quantityChange  :", update.quantityChange);
-// console.log("===============================================");

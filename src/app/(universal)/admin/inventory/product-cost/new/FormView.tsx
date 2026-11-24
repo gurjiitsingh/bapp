@@ -338,6 +338,7 @@ export default function FormView({
           <AddComponentForm
             selectedProduct={selectedProduct}
             inventoryItems={inventoryItems}
+            
             isSubmitting={isSubmitting}
             onSubmit={onSubmit}
           />
@@ -353,126 +354,7 @@ export default function FormView({
             productExpenseRecipes={productExpenseRecipes}
           />
 
-          <div className="xl:col-span-2 bg-white w-[340px] h-[85dvh]  border border-gray-100 shadow-sm overflow-hidden">
-
-            <div className="border-b border-gray-100 px-1 py-1">
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h2 className="text-xl font-bold text-gray-800">
-                    Recipe Components
-                  </h2>
-
-                  <p className="text-sm text-gray-500">
-                    {selectedProduct
-                      ? selectedProduct.name
-                      : " Select product to view Recipe"}
-                  </p>
-                </div>
-
-                {selectedProduct && (
-                  <div className="text-sm bg-blue-50 text-blue-700 px-4 py-2 rounded-xl">
-                    {
-                      currentRecipes.length
-                    }{" "}
-                    Component
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="p-6">
-
-              {!selectedProduct ? (
-                <div className="h-[350px] flex flex-col items-center justify-center text-center">
-
-                  <Package2
-                    size={50}
-                    className="text-gray-300 mb-4"
-                  />
-
-                  <h3 className="text-lg font-semibold text-gray-600">
-                    No Product Selected
-                  </h3>
-
-                  <p className="text-sm text-gray-400 mt-1">
-                    Search and select product from top search bar
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                          Ingredient
-                        </th>
-
-                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                          Quantity
-                        </th>
-
-                        <th className="text-left py-3 text-sm font-semibold text-gray-600">
-                          Unit
-                        </th>
-                        <th className="text-right py-3 text-sm font-semibold text-gray-600">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {currentRecipes.map((recipe) => (
-                        <tr
-                          key={recipe.id}
-                          className="border-b border-gray-50 hover:bg-gray-50"
-                        >
-                          <td className="py-4 font-medium text-gray-800">
-                            {recipe.inventoryItemName}
-                          </td>
-
-                          <td className="py-4 text-gray-600">
-                            {recipe.quantity}
-                          </td>
-
-                          <td className="py-4 text-gray-600">
-                            {recipe.unit}
-                          </td>
-
-                          {/* ✅ NEW DELETE BUTTON */}
-                          <td className="py-4 text-right">
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!confirm("Delete this item?")) return;
-
-                                const res = await deleteProductRecipe(recipe.id);
-
-                                if (!res?.errors) {
-                                  // ✅ remove locally (no refresh needed)
-                                  const updated = currentRecipes.filter(
-                                    (r) => r.id !== recipe.id
-                                  );
-
-                                  // hack: force refresh via state
-                                  setSelectedProduct({ ...selectedProduct! });
-                                }
-                              }}
-                              className="px-3 py-3  rounded-xl bg-rose-300 hover:bg-rose-700 text-white shadow-sm"
-                            >
-                              <MdDeleteForever size={18} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-                </div>
-              )}
-            </div>
-          </div>
+     
 
 
         </div>

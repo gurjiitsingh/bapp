@@ -17,9 +17,10 @@ import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { newExpenseMasterSchema, TnewExpenseMasterSchema } from "@/app/(universal)/action/otherExpenses/OtherExpenseType";
 import { addExpenseMaster } from "@/app/(universal)/action/otherExpenses/addExpenseMaster";
- 
+import Link from "next/link";
 
- 
+
+
 
 export default function NewExpenseForm() {
 
@@ -132,7 +133,7 @@ export default function NewExpenseForm() {
 
       {/* HEADER */}
 
-      <div className="mb-2">
+      <div className="mb-2 w-full">
 
         <div className="flex items-center gap-3">
 
@@ -145,19 +146,42 @@ export default function NewExpenseForm() {
 
           </div>
 
-          <div>
 
-            <h1 className="text-2xl font-bold text-gray-800">
-              New Expense
-            </h1>
 
-            <p className="text-sm text-gray-500 mt-1">
-              Create and manage expense rates
-            </p>
 
-          </div>
+
+    
+
+
+
 
         </div>
+              <div className="flex items-center justify-between">
+            <div>
+
+              <h1 className="text-2xl font-bold text-gray-800">
+                New Expense
+              </h1>
+
+              <p className="text-sm text-gray-500 mt-1">
+                Create and manage expense rates
+              </p>
+
+            </div>
+
+            {/* <Link
+            href="/admin/inventory/product-cost/new"
+            className="btn-save-4"
+          > */}
+            <div>
+              <Link
+                href="/admin/inventory/product-cost/new"
+                className="btn-save-4"
+              >
+                Add Recipe
+              </Link>
+            </div>
+          </div>
 
       </div>
 

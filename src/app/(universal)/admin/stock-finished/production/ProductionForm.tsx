@@ -19,6 +19,7 @@ import Link from "next/link";
 import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 import DepartmentStockTable from "./DepartmentStockTable";
 import ProductionEstimateForm from "./ProductionEstimateForm";
+import ProductionEstimateFormFast from "./ProductionEstimateForm";
 
 type Props = {
   products: ProductStockType[];
@@ -175,7 +176,7 @@ export default function ProductionForm({
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
-      <ProductionEstimateForm
+      <ProductionEstimateFormFast
         selectedProduct={selectedProduct}
         quantity={productionQuantity}
         transactionUnit={transactionUnit}
