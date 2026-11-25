@@ -42,13 +42,13 @@ type Props = {
   onClick?: () => void;
 };
 
-  function TableRows({
+function TableRows({
   item,
   onClick,
 }: Props) {
   const { settings } = UseSiteContext();
 
-console.log("item----------------------",item)
+  //console.log("item----------------------",item)
 
   const formattedCostPrice =
     formatCurrencyNumber(
@@ -105,13 +105,13 @@ console.log("item----------------------",item)
               </span>
             )} */}
           </div>
-                                <button
-    type="button"
-    onClick={onClick}
-    className="text-left font-semibold text-gray-800 p-1 bg-slate-200 rounded-md hover:text-cyan-700 hover:underline"
-  >
-    Cost
-  </button>
+          <button
+            type="button"
+            onClick={onClick}
+            className="text-left font-semibold text-gray-800 p-1 bg-slate-200 rounded-md hover:text-cyan-700 hover:underline"
+          >
+            Cost
+          </button>
         </div>
       </TableCell>
 
@@ -144,7 +144,7 @@ console.log("item----------------------",item)
         />
       </TableCell>
 
-    
+
 
       {/* SKU */}
       {/* <TableCell>
@@ -282,25 +282,25 @@ console.log("item----------------------",item)
     </option> */}
         </select>
       </TableCell>
-        <TableCell>
+      <TableCell>
         <span className="capitalize text-sm font-medium text-gray-700">
           {item.categoryName}
         </span>
       </TableCell>
 
       {/* ACTIONS */}
-                     <td>
+      <td>
 
-        <Link
+        {/* <Link
           href={{
             pathname: "/admin/stock-finished/estimate-by-name",
             query: {
               productId: item.id,
               currentStock: item.currentStock,
-               consumptionUnit: 'kg',//item.consumptionUnit,
+              consumptionUnit: 'kg',//item.consumptionUnit,
             },
           }}
-        >
+        > */}
           <Button
             size="icon"
             variant="outline"
@@ -308,10 +308,8 @@ console.log("item----------------------",item)
             className="border-violet-300 text-violet-700 hover:bg-violet-50"
           >
             <Sparkles size={18} />
-          </Button><TableCell>
-  
-</TableCell>
-        </Link>
+          </Button> 
+        {/* </Link> */}
       </td>
     </TableRow>
   );

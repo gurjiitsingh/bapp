@@ -73,7 +73,7 @@ export default function InventoryTabs() {
   pathname === "/admin/stock-finished/department";
 
   return (
-  <div className="grid grid-cols-2 mt-3  xl:grid-cols-9 gap-3">
+  <div className="grid grid-cols-2 mt-3  xl:grid-cols-10 gap-3">
 
   <ActionCard
     href="/admin/stock-finished/batchs"
