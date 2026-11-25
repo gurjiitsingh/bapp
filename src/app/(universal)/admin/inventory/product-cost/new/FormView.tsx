@@ -34,11 +34,12 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
 import { ProductStockType } from "@/lib/types/productStockType";
-import { addProductExpenseRecipe } from "@/app/(universal)/action/otherExpenses/dbOperations";
+ 
 import ExpenseRecipe from "./ExpenseRecipe";
 import ProductSearch from "./ProductSearch";
 import AddComponentForm from "./AddComponentForm";
 import { addProductRecipeFast } from "@/app/(universal)/action/productRecipesF/addProductRecipeFast";
+import { ProductExpenseRecipeGroupType, ProductExpenseRecipeType } from "@/lib/types/expense/ProductExpenseRecipeType";
 
 
 type ExpenseMasterType = {
@@ -52,24 +53,21 @@ type ExpenseMasterType = {
   createdAt: string | null;
   modifiedAt: string | null;
 };
-type ProductExpenseRecipeType = {
-  id: string;
-  productId: string;
-  expenseMasterId: string;
-  quantity: number;
-  unit: string;
-  cost: number;
-  totalCost: number;
-};
+ 
 
 type Props = {
   products: ProductStockType[];
   inventoryItems: InventoryItemType[];
   recipes: ProductRecipeType[];
-  initialProductId?: string | null; // ✅ NEW
+  initialProductId?: string | null;
   expenseMaster: ExpenseMasterType[];
   productExpenseRecipes: ProductExpenseRecipeType[];
 };
+
+
+
+
+
 
 export default function FormView({
   products,
@@ -205,6 +203,41 @@ export default function FormView({
         selectedProduct.id
     );
   }, [recipes, selectedProduct]);
+
+
+  // =====================================================
+// GROUP PRODUCT EXPENSE RECIPES BY PRODUCT
+// =====================================================
+
+const groupedProductExpenseRecipes = useMemo(() => {
+  const grouped: Record<string, ProductExpenseRecipeGroupType> = {};
+
+  productExpenseRecipes.forEach((item) => {
+    if (!grouped[item.productId]) {
+      grouped[item.productId] = {
+        id: item.productId,
+        productId: item.productId,
+        productName: item.productName,
+        expenses: [],
+        totalExpenseCost: 0,
+      };
+    }
+
+    grouped[item.productId].expenses.push({
+      expenseMasterId: item.expenseMasterId,
+      expenseName: item.expenseName,
+      quantity: Number(item.quantity ?? 0),
+      unit: item.unit,
+      cost: Number(item.cost ?? 0),
+      totalCost: Number(item.totalCost ?? 0),
+    });
+
+    grouped[item.productId].totalExpenseCost +=
+      Number(item.totalCost ?? 0);
+  });
+
+  return Object.values(grouped);
+}, [productExpenseRecipes]);
 
   // =====================================================
   // CLOSE DROPDOWNS
@@ -349,11 +382,11 @@ export default function FormView({
               FOURTH COLUMN - EXPENSE MASTER
               ===================================================== */}
 
-          <ExpenseRecipe
-            selectedProduct={selectedProduct}
-            expenseMaster={expenseMaster}
-            productExpenseRecipes={productExpenseRecipes}
-          />
+       <ExpenseRecipe
+  selectedProduct={selectedProduct}
+  expenseMaster={expenseMaster}
+  productExpenseRecipes={groupedProductExpenseRecipes}
+/>
 
      
 

@@ -21,50 +21,29 @@ import { fetchProductExpenseByProductId } from "@/app/(universal)/action/otherEx
 import Link from "next/link";
 import { deleteProductExpenseForCost } from "@/app/(universal)/action/otherExpenses/deleteProductExpenseForCost";
 import { updateProductExpenseForCost } from "@/app/(universal)/action/otherExpenses/updateProductExpenseForCost";
+ 
+import { ExpenseMasterType } from "../expenses/NewExpenseForm";
+import { ProductExpenseItemType, ProductExpenseRecipeGroupType } from "@/lib/types/expense/ProductExpenseRecipeType";
 
 // =====================================================
 // TYPES
 // =====================================================
 
-export type ExpenseMasterType = {
-    id: string;
-    name: string;
-    cost: number;
-    unit: string;
-    description: string;
-    isFavourite: boolean;
-    isActive: boolean;
-    createdAt: string | null;
-    modifiedAt: string | null;
-};
 
-export type ProductExpenseItemType = {
-    expenseMasterId: string;
-    expenseName: string;
-    quantity: number;
-    unit: string;
-    cost: number;
-    totalCost: number;
-};
+ 
 
-export type ProductExpenseRecipeType = {
-    id: string;
-    productId: string;
-    productName: string;
-    expenses: ProductExpenseItemType[];
-    totalExpenseCost: number;
-    createdAt?: string | null;
-    updatedAt?: string | null;
-};
+ 
+
+ 
 
 // =====================================================
 // PROPS
 // =====================================================
 
 type Props = {
-    selectedProduct: ProductStockType | null;
-    expenseMaster: ExpenseMasterType[];
-    productExpenseRecipes: ProductExpenseRecipeType[];
+  selectedProduct: ProductStockType | null;
+  expenseMaster: ExpenseMasterType[];
+  productExpenseRecipes: ProductExpenseRecipeGroupType[];
 };
 
 // =====================================================
