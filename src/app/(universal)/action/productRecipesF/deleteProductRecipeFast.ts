@@ -22,7 +22,7 @@ export async function deleteProductRecipeFast(
     }
 
     const recipeRef = adminDb
-      .collection("productRecipes")
+      .collection("productRecipesF")
       .doc(productId);
 
     const result = await adminDb.runTransaction(async (tx) => {

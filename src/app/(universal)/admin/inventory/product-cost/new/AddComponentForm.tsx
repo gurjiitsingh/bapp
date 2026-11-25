@@ -12,12 +12,13 @@ import {
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
-import { fetchProductRecipesByProductId } from "@/app/(universal)/action/productRecipes/fetchProductRecipesByProductId";
+import { fetchProductRecipesByProductId } from "@/app/(universal)/action/productRecipesF/fetchProductRecipesByProductId";
 import { MdDeleteForever } from "react-icons/md";
 import { Pencil, Save, X } from "lucide-react";
-import { deleteProductRecipeFast } from "@/app/(universal)/action/productRecipes/deleteProductRecipeFast";
-import { updateProductRecipe } from "@/app/(universal)/action/productRecipes/updateProductRecipe";
-// Import your actual server action here
+import { deleteProductRecipeFast } from "@/app/(universal)/action/productRecipesF/deleteProductRecipeFast";
+ 
+import { updateProductRecipeFast } from "@/app/(universal)/action/productRecipesF/updateProductRecipeFast";
+ 
 
 
 type Props = {
@@ -176,7 +177,7 @@ const [editQuantity, setEditQuantity] = useState("");
   setSavingItemId(recipe.inventoryItemId);
 
   try {
-    const result = await updateProductRecipe({
+    const result = await updateProductRecipeFast({
       productId: selectedProduct.id,
       inventoryItemId: recipe.inventoryItemId,
       quantity,

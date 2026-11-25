@@ -14,7 +14,7 @@ export async function fetchProductRecipesByProductId(
 
     // Fetch only the selected product's recipe document
     const doc = await adminDb
-      .collection("productRecipes")
+      .collection("productRecipesF")
       .doc(productId)
       .get();
 

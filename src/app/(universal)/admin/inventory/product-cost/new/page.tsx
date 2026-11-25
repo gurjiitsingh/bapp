@@ -2,10 +2,11 @@
 
 import FormView from "./FormView";
 import { fetchInventoryItems } from "@/app/(universal)/action/inventory/dbOperation";
-import {   fetchProductRecipesFast } from "@/app/(universal)/action/productRecipes/dbOperations";
+ 
 import { fetchProductsStock } from "@/app/(universal)/action/products/fetchProductsStock";
 import { getExpenseMasterAll } from "@/app/(universal)/action/otherExpenses/getExpenseMasterAll";
 import { fetchProductExpense } from "@/app/(universal)/action/otherExpenses/fetchProductExpenseRecipes";
+import { fetchProductRecipesFast } from "@/app/(universal)/action/productRecipesF/fetchProductRecipesFast";
  
 
 export default async function Page() {

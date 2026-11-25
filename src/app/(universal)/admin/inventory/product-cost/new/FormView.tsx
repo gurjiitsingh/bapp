@@ -30,7 +30,7 @@ import {
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
-import { addProductRecipe, addProductRecipeFast } from "@/app/(universal)/action/productRecipes/dbOperations";
+ 
 import { deleteProductRecipe } from "@/app/(universal)/action/productRecipes/deleteProductRecipe";
 import { MdDeleteForever } from "react-icons/md";
 import { ProductStockType } from "@/lib/types/productStockType";
@@ -38,6 +38,7 @@ import { addProductExpenseRecipe } from "@/app/(universal)/action/otherExpenses/
 import ExpenseRecipe from "./ExpenseRecipe";
 import ProductSearch from "./ProductSearch";
 import AddComponentForm from "./AddComponentForm";
+import { addProductRecipeFast } from "@/app/(universal)/action/productRecipesF/addProductRecipeFast";
 
 
 type ExpenseMasterType = {
