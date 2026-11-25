@@ -73,7 +73,7 @@ export default function InventoryTabs() {
   pathname === "/admin/stock-finished/department";
 
   return (
-  <div className="grid grid-cols-2 mt-3  xl:grid-cols-10 gap-3">
+  <div className="grid grid-cols-2 mt-3  px-2 xl:grid-cols-9 gap-3">
 
   <ActionCard
     href="/admin/stock-finished/batchs"
@@ -131,7 +131,7 @@ export default function InventoryTabs() {
     titleColor="text-gray-800"
     activeTitleColor="text-orange-700"
   />
-   <ActionCard
+   {/* <ActionCard
     href="/admin/stock-finished/product-cost"
     active={isSale}
     activeBg="bg-orange-50 border-orange-300 shadow-md"
@@ -148,7 +148,7 @@ export default function InventoryTabs() {
     description="Find Cost"
     titleColor="text-gray-800"
     activeTitleColor="text-orange-700"
-  />
+  /> */}
 
   <ActionCard
     href="/admin/stock-finished/"

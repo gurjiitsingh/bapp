@@ -38,7 +38,7 @@ export default function ListView({
   inventoryItems,
   categories
 }: Props) {
-console.log("inventory------------------------",inventoryItems)
+
 
   const [filtered, setFiltered] =
     useState<InventoryItemType[]>([]);
@@ -109,11 +109,42 @@ console.log("inventory------------------------",inventoryItems)
   }, [inventoryItems]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-2">
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-sm text-gray-500">
+                Showing{" "}
+                <span className="font-semibold text-gray-700">
+                  {filtered.length}
+                </span>{" "}
+                inventory items
+              </p>
+
+              {/* SEARCH */}
+              <div className="relative w-full lg:max-w-md mt-2">
+                <Search
+                  size={18}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Search inventory items..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="input-style-4 pl-10"
+                />
+              </div>
+            </div>
+
+
+          </div>
+        </div>
         {/* TOTAL */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">
@@ -135,7 +166,7 @@ console.log("inventory------------------------",inventoryItems)
         </div>
 
         {/* ACTIVE */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">
@@ -157,7 +188,7 @@ console.log("inventory------------------------",inventoryItems)
         </div>
 
         {/* LOW STOCK */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">
@@ -178,10 +209,10 @@ console.log("inventory------------------------",inventoryItems)
           </div>
         </div>
 
-     
 
-   {/* STOCK VALUE */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+
+        {/* STOCK VALUE */}
+        <div className="bg-red-100 rounded-2xl border border-gray-100 shadow-sm p-2">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex gap-3 items-center">
@@ -209,42 +240,13 @@ console.log("inventory------------------------",inventoryItems)
 
 
 
-        
+
 
 
       </div>
 
       {/* FILTER BAR */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-        <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          {/* SEARCH */}
-          <div className="relative w-full lg:max-w-md">
-            <Search
-              size={18}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
 
-            <input
-              type="text"
-              placeholder="Search inventory items..."
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="input-style-4 pl-10"
-            />
-          </div>
-
-          {/* INFO */}
-          <div className="text-sm text-gray-500">
-            Showing{" "}
-            <span className="font-semibold text-gray-700">
-              {filtered.length}
-            </span>{" "}
-            inventory items
-          </div>
-        </div>
-      </div>
 
       {/* TABLE */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -265,7 +267,7 @@ console.log("inventory------------------------",inventoryItems)
                 {/* <TableHead>
                   Unit
                 </TableHead> */}
- <TableHead className="py-4">
+                <TableHead className="py-4">
                   Item Name
                 </TableHead>
                 <TableHead>

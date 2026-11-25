@@ -87,7 +87,8 @@ export default function StockPurchaseForm({
     "unitCost" | "totalAmount"
   >("unitCost");
 
-
+ 
+const [inventoryFilter, setInventoryFilter] = useState("");
 
   const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];
   const inventorySearchRef = useRef<HTMLInputElement>(null);
@@ -227,21 +228,28 @@ export default function StockPurchaseForm({
     setValue,
   ]);
 
-  const selectInventoryItem = (item: typeof inventoryItems[number]) => {
-    setSelectedInventory(item);
+const selectInventoryItem = (
+  item: typeof inventoryItems[number]
+) => {
+  setSelectedInventory(item);
 
-    setValue("inventoryItemId", item.id);
+  setValue("inventoryItemId", item.id);
 
-    setValue(
-      "transactionUnit",
-      item.purchaseMappings?.[0]?.purchaseUnit ??
+  setValue(
+    "transactionUnit",
+    item.purchaseMappings?.[0]?.purchaseUnit ??
       item.consumptionUnit
-    );
+  );
 
-    setSearch(item.name);
-    setShowDropdown(false);
-    setActiveIndex(0);
-  };
+  // Show selected item name in search box
+  setSearch(item.name);
+
+  // Clear filter so the complete list remains visible
+  setInventoryFilter("");
+
+  setActiveIndex(0);
+};
+ 
 
 
   // =================================================
@@ -267,28 +275,23 @@ export default function StockPurchaseForm({
   // FILTER INVENTORY
   // =====================================================
 
-// const filteredInventory = useMemo(() => {
-//   const query = search.trim().toLowerCase();
-
-//   if (!query) return inventoryItems;
-
-//   return inventoryItems.filter((item) =>
-//     item.name
-//       ?.toLowerCase()
-//       .split(/\s+/)
-//       .some((word) => word.startsWith(query))
-//   );
-// }, [search, inventoryItems]);
-
+ 
 const filteredInventory = useMemo(() => {
-  const query = search.trim().toLowerCase();
+  const query = inventoryFilter.trim().toLowerCase();
 
-  if (!query) return inventoryItems;
-
-  return inventoryItems.filter((item) =>
-    item.name?.toLowerCase().startsWith(query)
-  );
-}, [search, inventoryItems]);
+  return [...inventoryItems]
+    .filter((item) => {
+      if (!query) return true;
+      return item.name?.toLowerCase().startsWith(query);
+    })
+    .sort((a, b) =>
+      (a.name || "").localeCompare(
+        b.name || "",
+        undefined,
+        { sensitivity: "base" }
+      )
+    );
+}, [inventoryFilter, inventoryItems]);
 
   // =====================================================
   // SUBMIT
@@ -546,12 +549,9 @@ const filteredInventory = useMemo(() => {
     }
 
     // Do not interfere with inventory dropdown navigation
-    if (
-      target === inventorySearchRef.current &&
-      showDropdown
-    ) {
-      return;
-    }
+if (target === inventorySearchRef.current) {
+  return;
+}
 
     if (
       !["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)
@@ -646,11 +646,11 @@ const filteredInventory = useMemo(() => {
 
         <div className="mb-1  ">
           <div className="flex justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Purchase
-          </h1>
-<Link href={"/admin/inventory/purchase/add-1"}>Classic</Link>
-</div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              Purchase
+            </h1>
+            <Link href={"/admin/inventory/purchase/add-1"}>Classic</Link>
+          </div>
         </div>
 
         {/* ===================================================== */}
@@ -672,90 +672,108 @@ const filteredInventory = useMemo(() => {
 
               <div className="flex flex-col gap-2 w-[270px]">
                 <label className="label-style-4">
-                  Inventory Item 
-                     <span className="ml-1 font-bold text-red-500">
-                       (F1)</span>
+                  Inventory Item
+                  <span className="ml-1 font-bold text-red-500">
+                    (F1)</span>
                 </label>
 
                 <div className="relative">
 
-                  {!search.trim() && (
+                  {/* {!search.trim() && (
                     <Search
                       size={28}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                     />
-                  )}
+                  )} */}
 
-                  <input
-                    ref={inventorySearchRef}
-                    type="text"
-                    value={search}
-                    onFocus={() => {
-                      setSearch("");
-                      setShowDropdown(true);
-                      setActiveIndex(0);
-                    }}
-                    onClick={() => {
-                      setShowDropdown(true);
-                    }}
-                    onChange={(e) => {
-                      setSearch(e.target.value);
-                      setShowDropdown(true);
-                      setActiveIndex(0);
-                    }}
-                    onKeyDown={(e) => {
-                      if (!showDropdown || filteredInventory.length === 0) return;
+<input
+  ref={inventorySearchRef}
+  type="text"
+  value={search}
+  spellCheck={false}
+  autoCorrect="off"
+  autoCapitalize="off"
+  onFocus={() => {
+    setActiveIndex(0);
+  }}
+  onClick={() => {
+    // Clear selected item name on second click
+    if (selectedInventory && search === selectedInventory.name) {
+      setSearch("");
+      setInventoryFilter("");
+      setSelectedInventory(null);
+      setValue("inventoryItemId", "");
+      setActiveIndex(0);
+    }
+  }}
+  onChange={(e) => {
+    const value = e.target.value;
 
-                      if (e.key === "ArrowDown") {
-                        e.preventDefault();
-                        setActiveIndex((prev) =>
-                          Math.min(prev + 1, filteredInventory.length - 1)
-                        );
-                      }
+    setSearch(value);
+    setInventoryFilter(value);
+    setSelectedInventory(null);
+    setValue("inventoryItemId", "");
+    setActiveIndex(0);
+  }}
+  onKeyDown={(e) => {
+    if (filteredInventory.length === 0) return;
 
-                      if (e.key === "ArrowUp") {
-                        e.preventDefault();
-                        setActiveIndex((prev) => Math.max(prev - 1, 0));
-                      }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveIndex((prev) =>
+        Math.min(prev + 1, filteredInventory.length - 1)
+      );
+    }
 
-                      if (e.key === "Enter") {
-                        e.preventDefault();
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      e.stopPropagation();
+      setActiveIndex((prev) => Math.max(prev - 1, 0));
+    }
 
-                        const item = filteredInventory[activeIndex];
+    if (e.key === "Enter") {
+      e.preventDefault();
+      e.stopPropagation();
 
-                        if (item) {
-                          selectInventoryItem(item);
-                        }
-                      }
-                    }}
-                    placeholder="Select or search inventory item..."
-                    className={`input-style-4 pr-4 ${!search.trim() ? "pl-12" : "pl-4"
-                      }`}
-                  />
+      const item = filteredInventory[activeIndex];
+      if (item) selectInventoryItem(item);
+    }
+  }}
+  placeholder="Select or search inventory item..."
+  className={`input-style-4 pr-4 ${
+    !search.trim() ? "pl-12" : "pl-4"
+  }`}
+/>
 
                   {/* DROPDOWN */}
 
-                  {showDropdown && filteredInventory.length > 0 && (
-                    <div className="absolute z-50 mt-2 w-full max-h-[64vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
-
-                      {filteredInventory.map((item, index) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onMouseEnter={() => setActiveIndex(index)}
-                          onClick={() => selectInventoryItem(item)}
-                          className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 transition-colors ${activeIndex === index
-                            ? "bg-red-50 border-l-4 border-l-red-600"
-                            : "hover:bg-gray-50"
-                            }`}
-                        >
-                          <div className="font-medium text-gray-800">
-                            {item.name}
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+{/* ALWAYS VISIBLE INVENTORY LIST */}
+<div className="mt-2 w-full h-[64vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+  {filteredInventory.length > 0 ? (
+    filteredInventory.map((item, index) => (
+      <button
+        key={item.id}
+        type="button"
+        onMouseEnter={() => setActiveIndex(index)}
+        onClick={() => selectInventoryItem(item)}
+        className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 ${
+          activeIndex === index
+            ? "bg-red-50 border-l-4 border-l-red-600"
+            : "hover:bg-gray-50"
+        }`}
+      >
+        <div className="font-medium text-gray-800">
+          {item.name}
+        </div>
+      </button>
+    ))
+  ) : (
+    <div className="px-4 py-3 text-sm text-gray-500">
+      No inventory items found.
+    </div>
+  )}
+</div>
                 </div>
 
 
@@ -878,8 +896,8 @@ const filteredInventory = useMemo(() => {
                                     setShowSupplierDropdown(false);
                                   }}
                                   className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 transition-colors ${activeSupplierIndex === index
-                                      ? "bg-red-50 border-l-4 border-l-red-600"
-                                      : "hover:bg-gray-50"
+                                    ? "bg-red-50 border-l-4 border-l-red-600"
+                                    : "hover:bg-gray-50"
                                     }`}
                                 >
                                   <div className="font-medium text-gray-800">
@@ -1051,9 +1069,7 @@ const filteredInventory = useMemo(() => {
                   {/* PAYMENT */}
                   {/* ====================================================== */}
 
-                  <h3 className="font-semibold text-lg pt-2">
-                    Payment
-                  </h3>
+                
 
                   <div className="grid md:grid-cols-2 gap-4">
 
