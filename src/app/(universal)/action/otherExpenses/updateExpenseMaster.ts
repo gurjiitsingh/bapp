@@ -2,7 +2,7 @@
 
 import { adminDb } from "@/lib/firebaseAdmin";
 import { newExpenseMasterSchema } from "@/app/(universal)/action/otherExpenses/OtherExpenseType";
-
+import { revalidatePath, revalidateTag } from "next/cache";
 // =====================================
 // UPDATE EXPENSE MASTER
 // =====================================
@@ -52,7 +52,8 @@ export async function updateExpenseMaster(
       ...validation.data,
       modifiedAt: new Date(),
     });
-
+revalidateTag("expense-master", "max");
+revalidatePath("/admin/expense-master");
     return {
       success: true,
       message: "Expense updated successfully",

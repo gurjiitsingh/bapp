@@ -1,10 +1,15 @@
 
-import NewExpenseForm from "./NewExpenseForm";
+import { getExpenseMasterAll } from "@/app/(universal)/action/otherExpenses/getExpenseMasterAll";
+import ExpenseMasterManager from "./ExpenseMasterManager";
 
-export default function NewExpensePage() {
+export default async function Page() {
+  const result = await getExpenseMasterAll();
+
   return (
-    <div className="p-4 md:p-6">
-      <NewExpenseForm />
+    <div className="w-full">
+      <ExpenseMasterManager
+        initialExpenses={result.success ? result.data : []}
+      />
     </div>
   );
 }

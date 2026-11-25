@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,11 +18,30 @@ import { Button } from "@/components/ui/button";
 import { newExpenseMasterSchema, TnewExpenseMasterSchema } from "@/app/(universal)/action/otherExpenses/OtherExpenseType";
 import { addExpenseMaster } from "@/app/(universal)/action/otherExpenses/addExpenseMaster";
 import Link from "next/link";
+import { updateExpenseMaster } from "@/app/(universal)/action/otherExpenses/updateExpenseMaster";
 
 
+export type ExpenseMasterType = {
+  id: string;
+  name: string;
+  cost: number;
+  unit: string;
+  description: string;
+  isFavourite: boolean;
+  isActive: boolean;
+  createdAt: string | null;
+  modifiedAt: string | null;
+};
 
+type Props = {
+  expense?: ExpenseMasterType | null;
+  onSaved?: () => void;
+};
 
-export default function NewExpenseForm() {
+export default function NewExpenseForm({
+  expense = null,
+  onSaved,
+}: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,77 +67,78 @@ export default function NewExpenseForm() {
   const isActive = watch("isActive");
   const isFavourite = watch("isFavourite");
 
+
+  useEffect(() => {
+    reset({
+      name: expense?.name ?? "",
+      cost: expense?.cost ?? 0,
+      unit: expense?.unit ?? "minute",
+      description: expense?.description ?? "",
+      isFavourite: expense?.isFavourite ?? false,
+      isActive: expense?.isActive ?? true,
+    });
+  }, [expense, reset]);
   // =====================================
   // SUBMIT
   // =====================================
 
-  async function onSubmit(data: TnewExpenseMasterSchema) {
 
+  async function onSubmit(data: TnewExpenseMasterSchema) {
     setIsSubmitting(true);
 
     try {
-
       const formData = new FormData();
 
       formData.append("name", data.name.trim());
-
       formData.append("cost", String(data.cost));
-
       formData.append("unit", data.unit);
+      formData.append("description", data.description || "");
+      formData.append("isFavourite", String(data.isFavourite));
+      formData.append("isActive", String(data.isActive));
 
-      formData.append(
-        "description",
-        data.description || ""
-      );
-
-      formData.append(
-        "isFavourite",
-        String(data.isFavourite)
-      );
-
-      formData.append(
-        "isActive",
-        String(data.isActive)
-      );
-
-      const result = await addExpenseMaster(formData);
+      const result = expense
+        ? await updateExpenseMaster(expense.id, formData)
+        : await addExpenseMaster(formData);
 
       if (result?.errors) {
+        const message =
+          result.errors.general?.[0] ||
+          result.errors.name?.[0] ||
+          result.errors.cost?.[0] ||
+          result.errors.unit?.[0] ||
+          result.errors.general ||
+          "Failed to save expense";
 
-        // toast.error(
-        //   result.errors.general?.[0] ||
-        //   result.errors.name?.[0] ||
-        //   result.errors.cost?.[0] ||
-        //   result.errors.unit?.[0] ||
-        //   "Failed to save expense"
-        // );
-
+        toast.error(message);
         return;
       }
 
-      toast.success("Expense saved successfully");
+      toast.success(
+        expense
+          ? "Expense updated successfully"
+          : "Expense saved successfully"
+      );
 
-      reset({
-        name: "",
-        cost: 0,
-        unit: "minute",
-        description: "",
-        isFavourite: false,
-        isActive: true,
-      });
+      if (!expense) {
+        reset({
+          name: "",
+          cost: 0,
+          unit: "minute",
+          description: "",
+          isFavourite: false,
+          isActive: true,
+        });
+      }
 
     } catch (error) {
-
       console.error(error);
-
       toast.error("Something went wrong");
 
     } finally {
-
       setIsSubmitting(false);
-
     }
   }
+
 
   // =====================================
   // UI
@@ -133,9 +153,9 @@ export default function NewExpenseForm() {
 
       {/* HEADER */}
 
-      <div className="mb-2 w-full">
+      {/* <div className="mb-2 w-full"> */}
 
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3">
 
           <div className="h-12 w-12 rounded-xl bg-rose-100 flex items-center justify-center">
 
@@ -150,40 +170,36 @@ export default function NewExpenseForm() {
 
 
 
-    
 
 
 
 
-        </div>
-              <div className="flex items-center justify-between">
-            <div>
 
-              <h1 className="text-2xl font-bold text-gray-800">
-                New Expense
-              </h1>
+        </div> */}
+        {/* <div className="flex items-center justify-between">
+          <div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                Create and manage expense rates
-              </p>
+            <h1 className="text-2xl font-bold text-gray-800">
+              {expense ? "Edit Expense" : "New Expense"}
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Create and manage expense rates
+            </p>
 
-            </div>
-
-            {/* <Link
-            href="/admin/inventory/product-cost/new"
-            className="btn-save-4"
-          > */}
-            <div>
-              <Link
-                href="/admin/inventory/product-cost/new"
-                className="btn-save-4"
-              >
-                Add Recipe
-              </Link>
-            </div>
           </div>
 
-      </div>
+          
+          <div>
+            <Link
+              href="/admin/inventory/product-cost/new"
+              className="btn-save-4"
+            >
+              Add Recipe
+            </Link>
+          </div>
+        </div> */}
+
+      {/* </div> */}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
@@ -233,19 +249,15 @@ export default function NewExpenseForm() {
 
                 <div className="relative mt-1">
 
-                  <IndianRupee
-                    size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                  />
+
 
                   <input
                     {...register("cost", {
                       valueAsNumber: true,
                     })}
                     type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
+
+
                     className="input-style-4 pl-9"
                   />
 
@@ -482,13 +494,15 @@ export default function NewExpenseForm() {
               disabled={isSubmitting}
               className="btn-save-4 w-full"
             >
-
               <Plus size={18} className="mr-2" />
 
               {isSubmitting
-                ? "Saving Expense..."
-                : "Save Expense"}
-
+                ? expense
+                  ? "Updating Expense..."
+                  : "Saving Expense..."
+                : expense
+                  ? "Update Expense"
+                  : "Save Expense"}
             </Button>
 
           </div>
