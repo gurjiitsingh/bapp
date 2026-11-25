@@ -12,7 +12,7 @@ export async function estimateProductionCost({
   quantity,
 }: EstimateProductionType) {
 
-  console.log("id---------------------",id, quantity)
+  
 
   const emptyResult = {
     success: false,
@@ -48,7 +48,7 @@ export async function estimateProductionCost({
       // ==========================================
 
       const recipeRef = adminDb
-        .collection("productRecipes")
+        .collection("productRecipesF")
         .doc(id);
 
       const recipeSnap = await tx.get(recipeRef);
@@ -152,7 +152,7 @@ export async function estimateProductionCost({
 
           const totalCost =
             (requiredQty * averageCost) / conversionFactor;
- console.log("recipe--------------------------",recipe)
+ 
           return {
             inventoryItemId: recipe.inventoryItemId,
 

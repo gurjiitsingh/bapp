@@ -36,7 +36,7 @@ export async function readRawInventoryRecipesFast(
     // FETCH RECIPE DOCUMENT DIRECTLY
     // DOCUMENT ID = PRODUCT ID
     const recipeRef = adminDb
-      .collection("productRecipes")
+      .collection("productRecipesF")
       .doc(item.productId);
 
     const recipeSnap = await tx.get(recipeRef);

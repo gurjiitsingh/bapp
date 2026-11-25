@@ -3,10 +3,12 @@
 import { useState } from "react";
 
 
-import ProductSearch from "./new/ProductSearch";
+ 
 
 import { ProductStockType } from "@/lib/types/productStockType";
 import ProductionEstimateFormFast from "./ProductionEstimateFormFast";
+import ProductSearch from "../../components/ProductSearch";
+ 
 
 
 type Props = {

@@ -6,26 +6,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChartColumn, PackageMinus, Undo2 } from "lucide-react";
 import {
-  AlertTriangle,
-  Boxes,
+ 
   IndianRupee,
-  TrendingDown,
-  Clock3,
-  Tags,
+ 
   Truck,
   
 } from "lucide-react";
 
-import {
-  ShoppingCart,
-  Receipt,
-  BadgeDollarSign,
-  HandCoins,
-  Store,
-  CreditCard,
-  PackageCheck,
-  CircleDollarSign,
-} from "lucide-react";
+ 
 import {
   Plus,
   ClipboardList,
@@ -37,7 +25,7 @@ const tabs = [
   { name: "Dashboard", href: "/admin/stock-finished/" },
   { name: "Items", href: "/admin/stock-finished/" },
   { name: "New Item", href: "/admin/stock-finished/new" },
-  { name: "Sale", href: "/admin/stock-finished/sale/bulk-sale" },
+  { name: "Cost", href: "/admin/stock-finished/product-cost" },
   { name: "Adjust", href: "/admin/stock-finished/adjust-stock" },
   { name: "Transactions", href: "/admin/stock-finished/profit-loss" },
   { name: "Categories", href: "/admin/stock-finished/categories" },
@@ -140,6 +128,24 @@ export default function InventoryTabs() {
     }
     title="Sale"
     description="Sale Finished Products"
+    titleColor="text-gray-800"
+    activeTitleColor="text-orange-700"
+  />
+   <ActionCard
+    href="/admin/stock-finished/product-cost"
+    active={isSale}
+    activeBg="bg-orange-50 border-orange-300 shadow-md"
+    inactiveHover="hover:border-orange-300 hover:shadow-md"
+    iconBg="bg-orange-100"
+    activeIconBg="bg-orange-500"
+    icon={
+      <PackageMinus
+        size={22}
+        className={isSale ? "text-white" : "text-orange-600"}
+      />
+    }
+    title="Cost Est"
+    description="Find Cost"
     titleColor="text-gray-800"
     activeTitleColor="text-orange-700"
   />

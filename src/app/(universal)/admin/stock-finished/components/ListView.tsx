@@ -14,6 +14,7 @@ import {
   Boxes,
   Package2,
   Wrench,
+   X, Calculator
 } from "lucide-react";
 
 import {
@@ -29,6 +30,7 @@ import { InventoryItemType } from "@/lib/types/InventoryItemType";
 import TableRows from "./TableRows";
 import { ProductStockType } from "@/lib/types/productStockType";
 import Link from "next/link";
+import ProductionEstimateFormFast from "../product-cost/ProductionEstimateFormFast";
 
 
 type Props = {
@@ -46,7 +48,8 @@ export default function ListView({
   const [search, setSearch] =
     useState("");
 
-
+const [selectedProduct, setSelectedProduct] =
+  useState<ProductStockType | null>(null);
 
   // FILTER
   useEffect(() => {
@@ -270,86 +273,100 @@ export default function ListView({
 
 
       {/* TABLE */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-gray-50">
-              <TableRow>
-                <TableHead className="py-4">
-                  Item
-                </TableHead>
+    
+{/* TABLE */}
+<div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+  <div className="overflow-x-auto">
+    <Table>
+      <TableHeader className="bg-gray-50">
+        <TableRow>
+          <TableHead className="py-4">Item</TableHead>
+          <TableHead>W Sale Price</TableHead>
+          <TableHead>Stock</TableHead>
+          <TableHead>Avg Cost</TableHead>
+          <TableHead>Value</TableHead>
+          <TableHead>Min Stock</TableHead>
+          <TableHead>Maintain Live</TableHead>
+          <TableHead>Category</TableHead>
+          <TableHead className="text-right pr-5">
+            Actions
+          </TableHead>
+        </TableRow>
+      </TableHeader>
 
-                <TableHead>
-                  W Sale Price
-                </TableHead>
+      <TableBody>
+        {filtered.length > 0 ? (
+          filtered.map((item) => (
+            <TableRows
+              key={item.id}
+              item={item}
+              onClick={() => setSelectedProduct(item)}
+            />
+          ))
+        ) : (
+          <TableRow>
+            <td
+              colSpan={9}
+              className="text-center py-16 text-gray-400"
+            >
+              No inventory items found
+            </td>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
+  </div>
+</div>
 
+{/* PRODUCTION ESTIMATE POPUP */}
+{selectedProduct && (
+  <div
+    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-3 md:p-6"
+    onClick={() => setSelectedProduct(null)}
+  >
+    <div
+      className="relative w-full max-w-7xl max-h-[92vh] overflow-y-auto rounded-2xl bg-white shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* POPUP HEADER */}
+      <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b bg-white px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-100">
+            <Calculator className="text-cyan-700" size={21} />
+          </div>
 
-                {/* <TableHead>
-                  SKU
-                </TableHead> */}
+          <div>
+            <h2 className="text-lg font-bold text-gray-800">
+              Product Cost Estimation
+            </h2>
 
-                {/* <TableHead>
-                  Unit
-                </TableHead> */}
-
-                <TableHead>
-                  Stock
-                </TableHead>
-                <TableHead>
-                  Avg Cost
-                </TableHead>
-                <TableHead>
-                  Value
-                </TableHead>
-                <TableHead>
-                  Min Stock
-                </TableHead>
-
-                {/* <TableHead>
-                  Cost Price
-                </TableHead> */}
-
-                {/* <TableHead>
-                  Status
-                </TableHead> */}
-                <TableHead>
-                  Maintain Live
-                </TableHead>
-                <TableHead>
-                  Category
-                </TableHead>
-
-                <TableHead className="text-right pr-5">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {filtered.length > 0 ? (
-
-                filtered.map(
-                  (item) => (
-                    <TableRows
-                      key={item.id}
-                      item={item}
-                    />
-                  )
-                )
-              ) : (
-                <TableRow>
-                  <td
-                    colSpan={8}
-                    className="text-center py-16 text-gray-400"
-                  >
-                    No inventory items found
-                  </td>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+            <p className="text-sm text-gray-500">
+              {selectedProduct.name}
+            </p>
+          </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setSelectedProduct(null)}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600"
+        >
+          <X size={20} />
+        </button>
       </div>
+
+      {/* ESTIMATION CONTENT */}
+      <div className="p-4 md:p-6">
+        <ProductionEstimateFormFast
+          selectedProduct={selectedProduct}
+          quantity={1}
+          transactionUnit="kg"
+        />
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

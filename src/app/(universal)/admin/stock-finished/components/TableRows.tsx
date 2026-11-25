@@ -37,13 +37,15 @@ import toast from "react-hot-toast";
 import { updateWholesalePrice } from "@/app/(universal)/action/stock-finished/finshed-products/updateWholesalePrice";
 
 
-
-
-function TableRows({
-  item,
-}: {
+type Props = {
   item: ProductStockType;
-}) {
+  onClick?: () => void;
+};
+
+  function TableRows({
+  item,
+  onClick,
+}: Props) {
   const { settings } = UseSiteContext();
 
 console.log("item----------------------",item)
@@ -103,6 +105,13 @@ console.log("item----------------------",item)
               </span>
             )} */}
           </div>
+                                <button
+    type="button"
+    onClick={onClick}
+    className="text-left font-semibold text-gray-800 p-1 bg-slate-200 rounded-md hover:text-cyan-700 hover:underline"
+  >
+    Cost
+  </button>
         </div>
       </TableCell>
 
@@ -281,6 +290,7 @@ console.log("item----------------------",item)
 
       {/* ACTIONS */}
                      <td>
+
         <Link
           href={{
             pathname: "/admin/stock-finished/estimate-by-name",
@@ -298,7 +308,9 @@ console.log("item----------------------",item)
             className="border-violet-300 text-violet-700 hover:bg-violet-50"
           >
             <Sparkles size={18} />
-          </Button>
+          </Button><TableCell>
+  
+</TableCell>
         </Link>
       </td>
     </TableRow>

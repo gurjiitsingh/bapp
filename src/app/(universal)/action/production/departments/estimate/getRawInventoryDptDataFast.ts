@@ -73,7 +73,7 @@ export async function getRawInventoryDptDataFast({
   console.log("🔎 Fetching recipe document:", productId);
 
   const recipeRef = adminDb
-    .collection("productRecipes")
+    .collection("productRecipesF")
     .doc(productId);
 
   const recipeSnap = await tx.get(recipeRef);

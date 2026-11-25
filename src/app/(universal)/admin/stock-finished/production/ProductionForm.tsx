@@ -15,10 +15,10 @@ import { autoStockProduction } from "@/app/(universal)/action/stock-finished/aut
 import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
 import { ProductStockType } from "@/lib/types/productStockType";
 import toast from "react-hot-toast";
-import Link from "next/link";
+ 
 import { DepartmentStockType } from "@/lib/types/department/DepartmentStockType";
 import DepartmentStockTable from "./DepartmentStockTable";
-import ProductionEstimateForm from "./ProductionEstimateForm";
+ 
 import ProductionEstimateFormFast from "./ProductionEstimateForm";
 
 type Props = {

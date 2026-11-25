@@ -16,9 +16,12 @@ import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { newExpenseMasterSchema, TnewExpenseMasterSchema } from "@/app/(universal)/action/otherExpenses/OtherExpenseType";
-import { addExpenseMaster } from "@/app/(universal)/action/otherExpenses/addExpenseMaster";
+ 
 import Link from "next/link";
 import { updateExpenseMaster } from "@/app/(universal)/action/otherExpenses/updateExpenseMaster";
+import { addExpenseMaster } from "@/app/(universal)/action/otherExpenses/addExpenseMaster";
+
+
 
 
 export type ExpenseMasterType = {
@@ -100,18 +103,18 @@ export default function NewExpenseForm({
         ? await updateExpenseMaster(expense.id, formData)
         : await addExpenseMaster(formData);
 
-      if (result?.errors) {
-        const message =
-          result.errors.general?.[0] ||
-          result.errors.name?.[0] ||
-          result.errors.cost?.[0] ||
-          result.errors.unit?.[0] ||
-          result.errors.general ||
-          "Failed to save expense";
+      // if (result?.errors) {
+      //   const message =
+      //     result.errors.general?.[0] ||
+      //     result.errors.name?.[0] ||
+      //     result.errors.cost?.[0] ||
+      //     result.errors.unit?.[0] ||
+      //     result.errors.general ||
+      //     "Failed to save expense";
 
-        toast.error(message);
-        return;
-      }
+      //   toast.error(message);
+      //   return;
+      // }
 
       toast.success(
         expense

@@ -7,6 +7,34 @@ import { newExpenseMasterSchema } from "./OtherExpenseType";
 
  
 
+// export interface ExpenseMasterErrors {
+//   general?: string[];
+//   name?: string[];
+//   cost?: string[];
+//   unit?: string[];
+//   description?: string[];
+//   isFavourite?: string[];
+//   isActive?: string[];
+// }
+
+// export type ExpenseMasterResult =
+//   | {
+//       success: true;
+//       id?: string;
+//       message?: string;
+//     }
+//   | {
+//       errors: ExpenseMasterErrors;
+//     }; 
+
+
+// export async function addExpenseMaster(
+//   formData: FormData
+// ): Promise<ExpenseMasterResult> {
+
+
+
+
 
 export async function addExpenseMaster(formData: FormData) {
   try {
