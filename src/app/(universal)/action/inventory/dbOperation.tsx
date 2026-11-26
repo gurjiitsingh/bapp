@@ -422,7 +422,7 @@ export async function getInventoryItemById(
     }
 
     const data = docRef.data();
-console.log("data-------------------------")
+console.log("data by id first-------------------------",data)
     return {
       id: docRef.id,
 

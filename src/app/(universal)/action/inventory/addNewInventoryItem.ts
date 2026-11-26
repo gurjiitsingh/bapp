@@ -11,14 +11,14 @@ import { newInventoryItemAndTransaction } from "./newInvetoryItemTransactions";
 export async function addNewInventoryItem(
   formData: FormData
 ) {
- 
 
+  console.log("recieved data----------------------------", formData)
   try {
     // FORM VALUES
 
-const purchaseMappings = JSON.parse(
-  formData.get("purchaseMappings") as string
-);
+    const purchaseMappings = JSON.parse(
+      formData.get("purchaseMappings") as string
+    );
 
     const name =
       (formData.get("name") as string)?.trim() ||
@@ -76,10 +76,10 @@ const purchaseMappings = JSON.parse(
         ) as string | null
       ) || "";
 
-   const supplierIds =
-  formData.getAll(
-    "supplierIds"
-  ) as string[];
+    const supplierIds =
+      formData.getAll(
+        "supplierIds"
+      ) as string[];
 
 
     const isActive =
@@ -100,36 +100,36 @@ const purchaseMappings = JSON.parse(
 
 
     // VALIDATION OBJECT
- const receivedData = {
-  name,
-  sku: cleanedSku,
-  barcode: cleanedBarcode,
+    const receivedData = {
+      name,
+      sku: cleanedSku,
+      barcode: cleanedBarcode,
 
-  //purchaseUnit,
-  consumptionUnit,
- // conversionFactor,
-purchaseMappings,
-  currentStock,
-  minStock,
+      //purchaseUnit,
+      consumptionUnit,
+      // conversionFactor,
+      purchaseMappings,
+      currentStock,
+      minStock,
 
-  costPrice,
-  sellingPrice,
+      costPrice,
+      sellingPrice,
 
-  categoryId,
+      categoryId,
 
-  supplierIds,
+      supplierIds,
 
-  isActive,
-};
+      isActive,
+    };
     // ZOD VALIDATION
     const result =
       newInventorySchema.safeParse(
         receivedData
       );
 
-      if (!result.success) {
-  console.log(result.error.issues);
-}
+    if (!result.success) {
+      console.log(result.error.issues);
+    }
 
     // if (!result.success) {
     //   const zodErrors: Record<
@@ -225,7 +225,7 @@ purchaseMappings,
     }
 
     // FIRESTORE DATA
-    const data = {
+ const data = {
   name,
   nameLower: normalizedName,
 
@@ -244,6 +244,9 @@ purchaseMappings,
 
   categoryId,
 
+  // SAVE SUPPLIER IDS
+  supplierIds,
+
   isActive,
 
   createdAt:
@@ -253,106 +256,106 @@ purchaseMappings,
     admin.firestore.FieldValue.serverTimestamp(),
 };
 
- 
 
- // SAVE TO FIRESTORE
-const docRef = await adminDb
-  .collection("inventoryItems")
-  .add(data);
 
-const inventoryItemId = docRef.id;
+    // SAVE TO FIRESTORE
+    const docRef = await adminDb
+      .collection("inventoryItems")
+      .add(data);
 
-// =====================================
-// CREATE SUPPLIER MAPPINGS
-// =====================================
+    const inventoryItemId = docRef.id;
 
-for (const supplierId of supplierIds) {
-  const supplierFormData = new FormData();
+    // =====================================
+    // CREATE SUPPLIER MAPPINGS
+    // =====================================
 
-  supplierFormData.append(
-    "inventoryItemId",
-    inventoryItemId
-  );
+    for (const supplierId of supplierIds) {
+      const supplierFormData = new FormData();
 
-  supplierFormData.append(
-    "supplierId",
-    supplierId
-  );
+      supplierFormData.append(
+        "inventoryItemId",
+        inventoryItemId
+      );
 
-  supplierFormData.append(
-    "preferred",
-    "false"
-  );
+      supplierFormData.append(
+        "supplierId",
+        supplierId
+      );
 
-  supplierFormData.append(
-    "isActive",
-    "true"
-  );
+      supplierFormData.append(
+        "preferred",
+        "false"
+      );
 
-  await addInventoryItemSupplier(
-    supplierFormData
-  );
-}
+      supplierFormData.append(
+        "isActive",
+        "true"
+      );
 
-// =====================================
-// OPENING STOCK TRANSACTION
-// =====================================
+      await addInventoryItemSupplier(
+        supplierFormData
+      );
+    }
 
-if (currentStock > 0) {
-  await newInventoryItemAndTransaction({
-    inventoryItemId,
+    // =====================================
+    // OPENING STOCK TRANSACTION
+    // =====================================
 
-    type: "OPENING_STOCK",
+    if (currentStock > 0) {
+      await newInventoryItemAndTransaction({
+        inventoryItemId,
 
-    direction: "IN",
+        type: "OPENING_STOCK",
 
-    // Internal stock (already converted to consumption unit)
-    quantity: currentStock,
+        direction: "IN",
 
-    // Cost per consumption unit
-    unitCost: 0,
-      // conversionFactor > 0
-      //   ? costPrice / conversionFactor
-      //   : costPrice,
+        // Internal stock (already converted to consumption unit)
+        quantity: currentStock,
 
-    // Original values entered by user
-    purchaseQuantity:
-      Number(
-        formData.get("currentStock")
-      ) || 0,
+        // Cost per consumption unit
+        unitCost: 0,
+        // conversionFactor > 0
+        //   ? costPrice / conversionFactor
+        //   : costPrice,
 
-    //purchaseUnit,
+        // Original values entered by user
+        purchaseQuantity:
+          Number(
+            formData.get("currentStock")
+          ) || 0,
 
-    // Cost per purchase unit
-    purchaseUnitCost:
-      costPrice,
+        //purchaseUnit,
 
-    //conversionFactor,
+        // Cost per purchase unit
+        purchaseUnitCost:
+          costPrice,
 
-    paymentStatus: "PAID",
+        //conversionFactor,
 
-    paidAmount:
-      (Number(
-        formData.get("currentStock")
-      ) || 0) * costPrice,
+        paymentStatus: "PAID",
 
-    note:
-      "Opening stock during inventory creation",
+        paidAmount:
+          (Number(
+            formData.get("currentStock")
+          ) || 0) * costPrice,
 
-    createdBy: "admin",
+        note:
+          "Opening stock during inventory creation",
 
-    referenceId:
-      inventoryItemId,
+        createdBy: "admin",
 
-    referenceType: "MANUAL",
-  });
-}
+        referenceId:
+          inventoryItemId,
 
-// REVALIDATE
-revalidateTag(
-  "inventory-items",
-  "max"
-);
+        referenceType: "MANUAL",
+      });
+    }
+
+    // REVALIDATE
+    revalidateTag(
+      "inventory-items",
+      "max"
+    );
 
     revalidatePath(
       "/admin/inventory"

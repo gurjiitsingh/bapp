@@ -51,22 +51,28 @@ export default function ListView({
 const [selectedProduct, setSelectedProduct] =
   useState<ProductStockType | null>(null);
 
-  // FILTER
-  useEffect(() => {
-    let list = [...products];
+  
+// FILTER + ALPHABETICAL SORT
+useEffect(() => {
+  let list = [...products];
 
-    if (search) {
-      const q = search.toLowerCase();
+  if (search.trim()) {
+    const q = search.trim().toLowerCase();
 
-      list = list.filter((item) =>
-        item.name
-          ?.toLowerCase()
-          .includes(q)
-      );
-    }
+    list = list.filter((item) =>
+      item.name?.toLowerCase().startsWith(q)
+    );
+  }
 
-    setFiltered(list);
-  }, [search, products]);
+  list.sort((a, b) =>
+    (a.name || "").localeCompare(b.name || "", undefined, {
+      sensitivity: "base",
+      numeric: true,
+    })
+  );
+
+  setFiltered(list);
+}, [search, products]);
 
   // STATS
   const totalItems = useMemo(() => {

@@ -24,10 +24,10 @@ import {
 
 import { InventoryItemType } from "@/lib/types/InventoryItemType";
 
-import TableRows from "./TableRows";
+import TableRows from "./components/TableRows";
 import { InventoryCategory } from "@/lib/types/InventoryCategory";
 import { formatCurrencyNumber } from "@/utils/formatCurrency";
-import RepairInventoryStockValueButton from "../repair/all-inv-item-stockvalue/RepairInventoryStovkValueButton";
+import RepairInventoryStockValueButton from "./repair/all-inv-item-stockvalue/RepairInventoryStovkValueButton";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -55,16 +55,20 @@ export default function ListView({
     );
   }, [categories]);
 
-  const inventoryWithCategory =
-    useMemo(() => {
-      return filtered.map((item) => ({
-        ...item,
-        categoryName:
-          categoryMap.get(
-            item.categoryId || ""
-          ) || "-",
-      }));
-    }, [filtered, categories]);
+const inventoryWithCategory = useMemo(() => {
+  return filtered
+    .map((item) => ({
+      ...item,
+      categoryName:
+        categoryMap.get(item.categoryId || "") || "-",
+    }))
+    .sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "", undefined, {
+        sensitivity: "base",
+        numeric: true,
+      })
+    );
+}, [filtered, categoryMap]);
 
   // FILTER
   useEffect(() => {
@@ -73,11 +77,11 @@ export default function ListView({
     if (search) {
       const q = search.toLowerCase();
 
-      list = list.filter((item) =>
-        item.name
-          ?.toLowerCase()
-          .includes(q)
-      );
+  list = list.filter((item) =>
+  item.name
+    ?.toLowerCase()
+    .startsWith(q)
+);
     }
 
     setFiltered(list);

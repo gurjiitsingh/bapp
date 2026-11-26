@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import ListView from "./components/ListView";
+import ListView from "./ListView";
 
 import Link from "next/link";
 import { Wrench } from 'lucide-react';

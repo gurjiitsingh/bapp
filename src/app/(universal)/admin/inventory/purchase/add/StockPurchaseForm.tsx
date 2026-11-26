@@ -87,8 +87,8 @@ export default function StockPurchaseForm({
     "unitCost" | "totalAmount"
   >("unitCost");
 
- 
-const [inventoryFilter, setInventoryFilter] = useState("");
+
+  const [inventoryFilter, setInventoryFilter] = useState("");
 
   const linkedSuppliers = supplierMap[selectedInventory?.id || ""] || [];
   const inventorySearchRef = useRef<HTMLInputElement>(null);
@@ -228,70 +228,73 @@ const [inventoryFilter, setInventoryFilter] = useState("");
     setValue,
   ]);
 
-const selectInventoryItem = (
-  item: typeof inventoryItems[number]
-) => {
-  setSelectedInventory(item);
+  const selectInventoryItem = (
+    item: typeof inventoryItems[number]
+  ) => {
+    setSelectedInventory(item);
 
-  setValue("inventoryItemId", item.id);
+    setValue("inventoryItemId", item.id);
 
-  setValue(
-    "transactionUnit",
-    item.purchaseMappings?.[0]?.purchaseUnit ??
+    setValue(
+      "transactionUnit",
+      item.purchaseMappings?.[0]?.purchaseUnit ??
       item.consumptionUnit
-  );
+    );
 
-  // Show selected item name in search box
-  setSearch(item.name);
+    // Inventory search
+    setSearch(item.name);
+    setInventoryFilter("");
+    setActiveIndex(0);
 
-  // Clear filter so the complete list remains visible
-  setInventoryFilter("");
+    // CLEAR PREVIOUS SUPPLIER
+    setValue("supplierId", "", {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
 
-  setActiveIndex(0);
-};
- 
+    setSupplierSearch("");
+    setActiveSupplierIndex(0);
+  };
 
-
-  // =================================================
-  // SUPPLIER SEARCH
-  // =================================================
+  // =====================================
+  // SUPPLIER SELECTION
+  // =====================================
 
   const supplierSearchRef = useRef<HTMLInputElement>(null);
 
   const [supplierSearch, setSupplierSearch] = useState("");
 
-  const [showSupplierDropdown, setShowSupplierDropdown] =
-    useState(false);
-
   const [activeSupplierIndex, setActiveSupplierIndex] =
     useState(0);
+
+  const selectedSupplierId = watch("supplierId");
 
   const filteredSuppliers = linkedSuppliers.filter((supplier) =>
     supplier.companyName
       ?.toLowerCase()
-      .includes(supplierSearch.toLowerCase())
+      .includes(supplierSearch.toLowerCase().trim())
   );
   // =====================================================
   // FILTER INVENTORY
   // =====================================================
 
- 
-const filteredInventory = useMemo(() => {
-  const query = inventoryFilter.trim().toLowerCase();
 
-  return [...inventoryItems]
-    .filter((item) => {
-      if (!query) return true;
-      return item.name?.toLowerCase().startsWith(query);
-    })
-    .sort((a, b) =>
-      (a.name || "").localeCompare(
-        b.name || "",
-        undefined,
-        { sensitivity: "base" }
-      )
-    );
-}, [inventoryFilter, inventoryItems]);
+  const filteredInventory = useMemo(() => {
+    const query = inventoryFilter.trim().toLowerCase();
+
+    return [...inventoryItems]
+      .filter((item) => {
+        if (!query) return true;
+        return item.name?.toLowerCase().startsWith(query);
+      })
+      .sort((a, b) =>
+        (a.name || "").localeCompare(
+          b.name || "",
+          undefined,
+          { sensitivity: "base" }
+        )
+      );
+  }, [inventoryFilter, inventoryItems]);
 
   // =====================================================
   // SUBMIT
@@ -465,7 +468,11 @@ const filteredInventory = useMemo(() => {
 
           inventoryItemId: selectedInventory.id,
 
+          // Clear supplier after successful purchase
+          supplierId: "",
+
           quantity: 0,
+
           transactionUnit:
             selectedInventory.purchaseMappings?.[0]?.purchaseUnit ??
             selectedInventory.consumptionUnit,
@@ -479,6 +486,10 @@ const filteredInventory = useMemo(() => {
 
           note: "",
         });
+
+        // Clear supplier search after submission
+        setSupplierSearch("");
+        setActiveSupplierIndex(0);
       } else {
         alert(result.message);
       }
@@ -549,9 +560,9 @@ const filteredInventory = useMemo(() => {
     }
 
     // Do not interfere with inventory dropdown navigation
-if (target === inventorySearchRef.current) {
-  return;
-}
+    if (target === inventorySearchRef.current) {
+      return;
+    }
 
     if (
       !["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp", "Enter"].includes(e.key)
@@ -665,258 +676,268 @@ if (target === inventorySearchRef.current) {
         >
 
           <div className="flex flex-col xl:flex-row gap-1 w-full">
-            <div>
-              {/* ===================================================== */}
-              {/* INVENTORY SEARCH */}
-              {/* ===================================================== */}
 
-              <div className="flex flex-col gap-2 w-[270px]">
-                <label className="label-style-4">
-                  Inventory Item
-                  <span className="ml-1 font-bold text-red-500">
-                    (F1)</span>
-                </label>
+            {/* ===================================================== */}
+            {/* INVENTORY SEARCH */}
+            {/* ===================================================== */}
 
-                <div className="relative">
+            <div className="flex flex-col gap-2 w-[270px]">
+              <label className="label-style-4">
+                Inventory Item
+                <span className="ml-1 font-bold text-red-500">
+                  (F1)</span>
+              </label>
 
-                  {/* {!search.trim() && (
+              <div className="relative">
+
+                {/* {!search.trim() && (
                     <Search
                       size={28}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
                     />
                   )} */}
 
-<input
-  ref={inventorySearchRef}
-  type="text"
-  value={search}
-  spellCheck={false}
-  autoCorrect="off"
-  autoCapitalize="off"
-  onFocus={() => {
-    setActiveIndex(0);
-  }}
-  onClick={() => {
-    // Clear selected item name on second click
-    if (selectedInventory && search === selectedInventory.name) {
-      setSearch("");
-      setInventoryFilter("");
-      setSelectedInventory(null);
-      setValue("inventoryItemId", "");
-      setActiveIndex(0);
-    }
-  }}
-  onChange={(e) => {
-    const value = e.target.value;
+                <input
+                  ref={inventorySearchRef}
+                  type="text"
+                  value={search}
+                  spellCheck={false}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  onFocus={() => {
+                    setActiveIndex(0);
+                  }}
+                  onClick={() => {
+                    // Clear selected item name on second click
+                    if (selectedInventory && search === selectedInventory.name) {
+                      setSearch("");
+                      setInventoryFilter("");
+                      setSelectedInventory(null);
+                      setValue("inventoryItemId", "");
+                      setActiveIndex(0);
+                    }
+                  }}
+                  onChange={(e) => {
+                    const value = e.target.value;
 
-    setSearch(value);
-    setInventoryFilter(value);
-    setSelectedInventory(null);
-    setValue("inventoryItemId", "");
-    setActiveIndex(0);
-  }}
-  onKeyDown={(e) => {
-    if (filteredInventory.length === 0) return;
+                    setSearch(value);
+                    setInventoryFilter(value);
+                    setSelectedInventory(null);
+                    setValue("inventoryItemId", "");
+                    setActiveIndex(0);
+                  }}
+                  onKeyDown={(e) => {
+                    if (filteredInventory.length === 0) return;
 
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      e.stopPropagation();
-      setActiveIndex((prev) =>
-        Math.min(prev + 1, filteredInventory.length - 1)
-      );
-    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveIndex((prev) =>
+                        Math.min(prev + 1, filteredInventory.length - 1)
+                      );
+                    }
 
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
-      e.stopPropagation();
-      setActiveIndex((prev) => Math.max(prev - 1, 0));
-    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveIndex((prev) => Math.max(prev - 1, 0));
+                    }
 
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.stopPropagation();
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      e.stopPropagation();
 
-      const item = filteredInventory[activeIndex];
-      if (item) selectInventoryItem(item);
-    }
-  }}
-  placeholder="Select or search inventory item..."
-  className={`input-style-4 pr-4 ${
-    !search.trim() ? "pl-12" : "pl-4"
-  }`}
-/>
+                      const item = filteredInventory[activeIndex];
+                      if (item) selectInventoryItem(item);
+                    }
+                  }}
+                  placeholder="Select or search inventory item..."
+                  className={`input-style-4 pr-4 ${!search.trim() ? "pl-12" : "pl-4"
+                    }`}
+                />
 
-                  {/* DROPDOWN */}
+                {/* DROPDOWN */}
 
-{/* ALWAYS VISIBLE INVENTORY LIST */}
-<div className="mt-2 w-full h-[64vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
-  {filteredInventory.length > 0 ? (
-    filteredInventory.map((item, index) => (
-      <button
-        key={item.id}
-        type="button"
-        onMouseEnter={() => setActiveIndex(index)}
-        onClick={() => selectInventoryItem(item)}
-        className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 ${
-          activeIndex === index
-            ? "bg-red-50 border-l-4 border-l-red-600"
-            : "hover:bg-gray-50"
-        }`}
-      >
-        <div className="font-medium text-gray-800">
-          {item.name}
-        </div>
-      </button>
-    ))
-  ) : (
-    <div className="px-4 py-3 text-sm text-gray-500">
-      No inventory items found.
-    </div>
-  )}
-</div>
+                {/* ALWAYS VISIBLE INVENTORY LIST */}
+                <div className="mt-2 w-full h-[64vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+                  {filteredInventory.length > 0 ? (
+                    filteredInventory.map((item, index) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onMouseEnter={() => setActiveIndex(index)}
+                        onClick={() => selectInventoryItem(item)}
+                        className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 ${activeIndex === index
+                          ? "bg-red-50 border-l-4 border-l-red-600"
+                          : "hover:bg-gray-50"
+                          }`}
+                      >
+                        <div className="font-medium text-gray-800">
+                          {item.name}
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      No inventory items found.
+                    </div>
+                  )}
                 </div>
-
-
               </div>
 
+
+            </div>
+
+            {/* ===================================== */}
+            {/* SUPPLIER SELECTION */}
+            {/* ===================================== */}
+            <div>
+              {type === "PURCHASE" && (
+                <div className="flex flex-col gap-2 w-[200px]">
+
+                  <label className="label-style-4">
+                    Supplier
+                  </label>
+
+                  {/* SEARCH INPUT */}
+
+                  <input
+                    ref={supplierSearchRef}
+                    type="text"
+                    value={supplierSearch}
+                    spellCheck={false}
+                    placeholder="Search supplier..."
+                    className="input-style-4 px-3"
+                    onChange={(e) => {
+                      setSupplierSearch(e.target.value);
+                      setActiveSupplierIndex(0);
+
+                      // A new search requires a new selection
+                      setValue("supplierId", "", {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                    onKeyDown={(e) => {
+                      if (filteredSuppliers.length === 0) return;
+
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+
+                        setActiveSupplierIndex((prev) =>
+                          Math.min(
+                            prev + 1,
+                            filteredSuppliers.length - 1
+                          )
+                        );
+                      }
+
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+
+                        setActiveSupplierIndex((prev) =>
+                          Math.max(prev - 1, 0)
+                        );
+                      }
+
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+
+                        const supplier =
+                          filteredSuppliers[activeSupplierIndex];
+
+                        if (supplier) {
+                          setValue("supplierId", supplier.id, {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                          setSupplierSearch("");
+                          //    setSupplierSearch(supplier.companyName);
+                        }
+                      }
+                    }}
+                  />
+
+                  {/* ALWAYS VISIBLE SUPPLIER LIST */}
+
+                  <div className="w-full h-[64vh] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+
+                    {!selectedInventory ? (
+                      <div className="px-4 py-3 text-sm text-gray-500">
+                        Select an inventory item first.
+                      </div>
+                    ) : filteredSuppliers.length > 0 ? (
+                      filteredSuppliers.map((supplier, index) => {
+
+                        const isSelected =
+                          selectedSupplierId === supplier.id;
+
+                        return (
+                          <button
+                            key={supplier.id}
+                            type="button"
+                            onMouseEnter={() =>
+                              setActiveSupplierIndex(index)
+                            }
+                            onClick={() => {
+                              setValue("supplierId", supplier.id, {
+                                shouldDirty: true,
+                                shouldValidate: true,
+
+                              });
+
+
+
+
+
+                              setSupplierSearch(supplier.companyName);
+                            }}
+                            className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 transition-colors ${isSelected
+                              ? "bg-green-50 border-l-4 border-l-green-600"
+                              : activeSupplierIndex === index
+                                ? "bg-red-50 border-l-4 border-l-red-600"
+                                : "hover:bg-gray-50"
+                              }`}
+                          >
+                            <div className="flex items-center justify-between">
+
+                              <span className="font-medium text-gray-800">
+                                {supplier.companyName}
+                              </span>
+
+                              {isSelected && (
+                                <span className="text-xs font-semibold text-green-700">
+                                  Selected
+                                </span>
+                              )}
+
+                            </div>
+                          </button>
+                        );
+                      })
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-gray-500">
+                        No suppliers found for this inventory item.
+                      </div>
+                    )}
+
+                  </div>
+
+                </div>
+              )}
             </div>
             <div className="flex flex-col">
-              <div className=" flex-full    flex flex-col gap-5">
+              <div className=" flex-full    flex flex-col gap-2">
 
 
                 {/* ===================================================== */}
                 {/* TYPE */}
                 {/* ===================================================== */}
 
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-5">
 
 
-                  {type === "PURCHASE" && (
-                    <div className="flex flex-col gap-2">
-                      <label className="label-style-4">
-                        Supplier
-                      </label>
 
-                      <div className="relative">
-
-                        {!supplierSearch.trim() && (
-                          <Search
-                            size={28}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
-                          />
-                        )}
-
-                        <input
-                          ref={supplierSearchRef}
-                          type="text"
-                          value={supplierSearch}
-                          onFocus={() => {
-                            setSupplierSearch("");
-                            setShowSupplierDropdown(true);
-                            setActiveSupplierIndex(0);
-                          }}
-                          onClick={() => {
-                            setShowSupplierDropdown(true);
-                          }}
-                          onChange={(e) => {
-                            setSupplierSearch(e.target.value);
-                            setShowSupplierDropdown(true);
-                            setActiveSupplierIndex(0);
-
-                            // Clear previous selection when searching
-                            setValue("supplierId", "", {
-                              shouldDirty: true,
-                              shouldValidate: true,
-                            });
-                          }}
-                          onKeyDown={(e) => {
-                            if (
-                              !showSupplierDropdown ||
-                              filteredSuppliers.length === 0
-                            ) return;
-
-                            if (e.key === "ArrowDown") {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              setActiveSupplierIndex((prev) =>
-                                Math.min(prev + 1, filteredSuppliers.length - 1)
-                              );
-                            }
-
-                            if (e.key === "ArrowUp") {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              setActiveSupplierIndex((prev) =>
-                                Math.max(prev - 1, 0)
-                              );
-                            }
-
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              e.stopPropagation();
-
-                              const supplier = filteredSuppliers[activeSupplierIndex];
-
-                              if (supplier) {
-                                setValue("supplierId", supplier.id, {
-                                  shouldDirty: true,
-                                  shouldValidate: true,
-                                });
-
-                                setSupplierSearch(supplier.companyName);
-                                setShowSupplierDropdown(false);
-                              }
-                            }
-                          }}
-                          placeholder="Select or search supplier..."
-                          className={`input-style-4 pr-4 ${!supplierSearch.trim() ? "pl-12" : "pl-4"
-                            }`}
-                        />
-
-                        {/* SUPPLIER DROPDOWN */}
-
-                        {showSupplierDropdown && (
-                          <div className="absolute z-50 mt-2 w-full max-h-[64vh] overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
-
-                            {filteredSuppliers.length > 0 ? (
-                              filteredSuppliers.map((supplier, index) => (
-                                <button
-                                  key={supplier.id}
-                                  type="button"
-                                  onMouseEnter={() => setActiveSupplierIndex(index)}
-                                  onClick={() => {
-                                    setValue("supplierId", supplier.id, {
-                                      shouldDirty: true,
-                                      shouldValidate: true,
-                                    });
-
-                                    setSupplierSearch(supplier.companyName);
-                                    setShowSupplierDropdown(false);
-                                  }}
-                                  className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-0 transition-colors ${activeSupplierIndex === index
-                                    ? "bg-red-50 border-l-4 border-l-red-600"
-                                    : "hover:bg-gray-50"
-                                    }`}
-                                >
-                                  <div className="font-medium text-gray-800">
-                                    {supplier.companyName}
-                                  </div>
-                                </button>
-                              ))
-                            ) : (
-                              <div className="px-4 py-3 text-sm text-gray-500">
-                                No suppliers found.
-                              </div>
-                            )}
-
-                          </div>
-                        )}
-
-                      </div>
-                    </div>
-                  )}
 
 
                   {/* Quantity */}
@@ -1051,7 +1072,7 @@ if (target === inventorySearchRef.current) {
                 {/* QUANTITY */}
                 {/* ===================================================== */}
 
-                <div className="rounded-2xl border border-gray-200 p-5 space-y-4">
+                <div className="rounded-2xl border border-gray-200 p-3 space-y-0">
 
 
 
@@ -1069,7 +1090,7 @@ if (target === inventorySearchRef.current) {
                   {/* PAYMENT */}
                   {/* ====================================================== */}
 
-                
+
 
                   <div className="grid md:grid-cols-2 gap-4">
 

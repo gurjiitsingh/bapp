@@ -108,17 +108,29 @@ const [editQuantity, setEditQuantity] = useState("");
   }, [selectedProduct?.id]);
 
   // FILTER INVENTORY
-  const filteredInventory = useMemo(() => {
-    const query = search.trim().toLowerCase();
+const filteredInventory = useMemo(() => {
+  const query = search.trim().toLowerCase();
 
-    if (!query) return inventoryItems;
+  return [...inventoryItems]
+    .filter((item) => {
+      if (!query) return true;
 
-    return inventoryItems
-      .filter((item) =>
-        (item.name || "").toLowerCase().startsWith(query)
+      return (item.name || "")
+        .toLowerCase()
+        .startsWith(query);
+    })
+    .sort((a, b) =>
+      (a.name || "").localeCompare(
+        b.name || "",
+        "en",
+        {
+          sensitivity: "base",
+          numeric: false,
+          ignorePunctuation: false,
+        }
       )
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [search, inventoryItems]);
+    );
+}, [search, inventoryItems]);
 
   // UPDATE QUANTITY
   function handleQuantityChange(
