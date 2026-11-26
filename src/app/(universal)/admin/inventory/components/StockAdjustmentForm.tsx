@@ -1,25 +1,23 @@
 
 "use client";
 
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Search, Package2 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 
-import { InventoryItemType, InventoryUnit } from "@/lib/types/InventoryItemType";
+import {
+  InventoryItemType,
+  InventoryUnit,
+} from "@/lib/types/InventoryItemType";
 
 import { adjustInventoryStock } from "@/app/(universal)/action/inventory/adjustInventoryStock";
-import { displayStock } from "@/utils/inventory/displayStock";
 import { getPrimaryPurchaseMapping } from "@/utils/getPrimaryPurchaseMapping";
+
 import toast from "react-hot-toast";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
+import { adjustInventoryStockNew } from "@/app/(universal)/action/inventory/adjustInventoryStockNew";
 
 type Props = {
   inventoryItems: InventoryItemType[];
@@ -27,46 +25,23 @@ type Props = {
 
 type FormType = {
   inventoryItemId: string;
-
-  type: InventoryTransactionNameType,
-
+  type: InventoryTransactionNameType;
   direction: "IN" | "OUT";
-
   quantity: number;
-
   transactionUnit: InventoryUnit;
-
   averageCost: number;
-
-  stockValue: number;
-
   note: string;
 };
+
 export default function StockAdjustmentForm({
   inventoryItems,
 }: Props) {
-  const [isSubmitting, setIsSubmitting] =
-    useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
-
-
-  const [search, setSearch] =
-    useState("");
-
-  const [showDropdown, setShowDropdown] =
-    useState(false);
-
-  const [lastEdited, setLastEdited] = useState<
-    "averageCost" | "stockValue"
-  >("averageCost");
-
-  const [
-    selectedInventory,
-    setSelectedInventory,
-  ] =
-    useState<InventoryItemType | null>(
-      null
-    );
+  const [selectedInventory, setSelectedInventory] =
+    useState<InventoryItemType | null>(null);
 
   const {
     register,
@@ -76,313 +51,236 @@ export default function StockAdjustmentForm({
     reset,
   } = useForm<FormType>({
     defaultValues: {
+      inventoryItemId: "",
       type: "OPENING_STOCK",
       direction: "IN",
       quantity: 0,
+      averageCost: 0,
       transactionUnit: "gm",
       note: "",
     },
   });
 
   const type = watch("type");
-  const quantity = watch("quantity");
-  const averageCost = watch("averageCost");
-  const stockValue = watch("stockValue");
-
+  const direction = watch("direction");
   const transactionUnit = watch("transactionUnit");
-
-
-  useEffect(() => {
-    if (!selectedInventory) return;
-
-    const mapping =
-      selectedInventory.purchaseMappings?.find(
-        (m) => m.purchaseUnit === transactionUnit
-      ) ?? {
-        purchaseUnit: selectedInventory.consumptionUnit,
-        factor: 1,
-      };
-
-    if (type === "WASTAGE") return;
-
-    setValue(
-      "quantity",
-      Number(
-        (
-          (selectedInventory.currentStock ?? 0) /
-          mapping.factor
-        ).toFixed(3)
-      )
-    );
-
-    setValue(
-      "averageCost",
-      Number(
-        (
-          (selectedInventory.averageCost ?? 0) 
-         
-        ).toFixed(2)
-      )
-    );
-
-    setValue(
-      "stockValue",
-      Number(
-        (selectedInventory.stockValue ?? 0).toFixed(2)
-      )
-    );
-  }, [
-    transactionUnit,
-    selectedInventory,
-    type,
-    setValue,
-  ]);
+const showPriceInput = type === "OPENING_STOCK";
   // =====================================================
-  // AUTO SET STOCK DIRECTION
+  // SELECTED PURCHASE MAPPING
   // =====================================================
 
-  useEffect(() => {
-    if (!selectedInventory) return;
-
-    const mapping =
-      getPrimaryPurchaseMapping(selectedInventory);
-
-    setValue(
-      "transactionUnit",
-      mapping.purchaseUnit
-    );
-  }, [selectedInventory, setValue]);
-
-  useEffect(() => {
-    switch (type) {
-      case "OPENING_STOCK":
-
-
-        break;
-
-      case "WASTAGE":
-
-        break;
-
-      // ADJUSTMENT = manual selection
-    }
-  }, [type, setValue]);
-
-  useEffect(() => {
-    switch (type) {
-      case "OPENING_STOCK":
-        setValue("direction", "IN");
-        break;
-
-      case "WASTAGE":
-        setValue("direction", "OUT");
-        break;
-    }
-  }, [type, setValue]);
-
-  useEffect(() => {
-    if (type === "WASTAGE") {
-      setValue("averageCost", 0);
-      setValue("stockValue", 0);
-    }
-  }, [type, setValue]);
-
-  useEffect(() => {
-    const qty = Number(quantity || 0);
-
-    if (qty <= 0) return;
-
-    if (lastEdited === "averageCost") {
-      setValue(
-        "stockValue",
-        Number((qty * Number(averageCost || 0)).toFixed(2))
-      );
-    }
-
-    if (lastEdited === "stockValue") {
-      setValue(
-        "averageCost",
-        Number((Number(stockValue || 0) / qty).toFixed(4))
-      );
-    }
-  }, [
-    quantity,
-    averageCost,
-    stockValue,
-    lastEdited,
-    setValue,
-  ]);
   const selectedMapping =
     selectedInventory?.purchaseMappings?.find(
-      (m) => m.purchaseUnit === transactionUnit
-    ) ??
-    (selectedInventory && {
-      purchaseUnit: selectedInventory.consumptionUnit,
-      consumptionUnit: selectedInventory.consumptionUnit,
-      factor: 1,
-    });
+      (mapping) => mapping.purchaseUnit === transactionUnit
+    ) ?? (selectedInventory
+      ? {
+          purchaseUnit: selectedInventory.consumptionUnit,
+          consumptionUnit: selectedInventory.consumptionUnit,
+          factor: 1,
+        }
+      : null);
 
   // =====================================================
   // FILTER INVENTORY
   // =====================================================
 
-  const filteredInventory =
-    useMemo(() => {
-      if (!search.trim()) return [];
+  const filteredInventory = useMemo(() => {
+    if (!search.trim()) return [];
 
-      return inventoryItems
-        .filter((item) =>
-          item.name
-            ?.toLowerCase()
-            .includes(
-              search
-                .trim()
-                .toLowerCase()
-            )
-        )
-        .slice(0, 20);
-    }, [search, inventoryItems]);
+    return inventoryItems
+      .filter((item) =>
+        item.name?.toLowerCase().includes(search.trim().toLowerCase())
+      )
+      .slice(0, 20);
+  }, [search, inventoryItems]);
+
+  // =====================================================
+  // SELECT INVENTORY
+  // =====================================================
+
+function handleSelectInventory(item: InventoryItemType) {
+  const mapping = getPrimaryPurchaseMapping(item);
+
+  setSelectedInventory(item);
+
+  setValue("inventoryItemId", item.id);
+  setValue("transactionUnit", mapping.purchaseUnit);
+
+  // Start new inputs empty.
+  setValue("quantity", undefined as unknown as number);
+  setValue("averageCost", undefined as unknown as number);
+
+  setSearch(item.name);
+  setShowDropdown(false);
+}
+
+  // =====================================================
+  // TRANSACTION TYPE
+  // =====================================================
+
+function handleTypeChange(value: InventoryTransactionNameType) {
+  setValue("type", value);
+
+  if (value === "OPENING_STOCK") {
+    setValue("direction", "IN");
+  }
+
+  if (value === "ADJUSTMENT" || value === "WASTAGE" || value === "CLEAR") {
+    setValue("direction", "OUT");
+  }
+
+  // Clear new input fields when transaction type changes.
+  setValue("quantity", undefined as unknown as number);
+  setValue("averageCost", undefined as unknown as number);
+}
 
   // =====================================================
   // SUBMIT
   // =====================================================
 
   async function onSubmit(data: FormType) {
-  if (isSubmitting) return;
+    if (isSubmitting) return;
 
-  if (!selectedInventory) {
-    toast.error("Please select inventory item.");
-    return;
-  }
-
-  const decimalAllowedUnits = [
-    "kg",
-    "gm",
-    "ltr",
-    "ml",
-  ];
-
-  let quantity = Number(data.quantity);
-
-    quantity =
-  data.type === "CLEAR"
-    ? 0
-    : Number(data.quantity);
-
-  // prevent decimal in pcs
-  if (
-    !decimalAllowedUnits.includes(data.transactionUnit) &&
-    !Number.isInteger(quantity)
-  ) {
-    toast.error(
-      `Decimal quantity not allowed for ${data.transactionUnit}`
-    );
-    return;
-  }
-
-  // =====================================
-  // ORIGINAL VALUES
-  // =====================================
-
-  const originalQuantity = Number(data.quantity);
-
-  // =====================================
-  // INTERNAL VALUES
-  // =====================================
-
-  let finalQuantity = Number(data.quantity);
-
-  const mapping =
-    selectedInventory.purchaseMappings?.find(
-      (m) => m.purchaseUnit === data.transactionUnit
-    ) ?? {
-      purchaseUnit: selectedInventory.consumptionUnit,
-      factor: 1,
-    };
-
-  if (mapping) {
-    finalQuantity = finalQuantity * mapping.factor;
-  }
-
-  setIsSubmitting(true);
-
-  let averageCost = Number(data.averageCost);
-
- 
-
-  try {
- const result = await adjustInventoryStock({
-  inventoryItemId: data.inventoryItemId,
-  type: data.type,
-  direction: data.direction,
-
-  // INTERNAL VALUES (consumption unit)
-  quantity: finalQuantity,
-  averageCost: averageCost,
-  stockValue: Number(data.stockValue),
-
-  // DISPLAY / PURCHASE UNIT VALUES
-  purchaseQuantity: originalQuantity,
-  purchaseUnit: data.transactionUnit,
-  purchaseUnitCost: Number(data.averageCost),
-  conversionFactor: mapping?.factor ?? 1,
-
-  paymentStatus: "PAID",
-  note: data.note,
-  createdBy: "admin",
-});
-
-    if (!result.success) {
-      toast.error(result.message);
+    if (!selectedInventory) {
+      toast.error("Please select inventory item.");
       return;
     }
 
-    toast.success(result.message);
+    const mapping =
+      selectedInventory.purchaseMappings?.find(
+        (item) => item.purchaseUnit === data.transactionUnit
+      ) ?? {
+        purchaseUnit: selectedInventory.consumptionUnit,
+        factor: 1,
+      };
 
-    let updatedStock: number;
+    const inputQuantity = Number(data.quantity || 0);
+ 
+    const currentAverageCost = Number(
+  selectedInventory.averageCost ?? 0
+);
 
-    if (data.type === "OPENING_STOCK") {
-      updatedStock = finalQuantity;
-    } else if (data.direction === "IN") {
-      updatedStock =
-        (selectedInventory.currentStock ?? 0) +
-        finalQuantity;
-    } else {
-      updatedStock =
-        (selectedInventory.currentStock ?? 0) -
-        finalQuantity;
+const inputPrice =
+  data.type === "OPENING_STOCK"
+    ? Number(data.averageCost || 0)
+    : currentAverageCost;
+
+    if (
+      data.type !== "CLEAR" &&
+      (!Number.isFinite(inputQuantity) || inputQuantity <= 0)
+    ) {
+      toast.error("Please enter a valid quantity.");
+      return;
     }
 
-    setSelectedInventory({
-      ...selectedInventory,
-      currentStock: updatedStock,
-    });
+    if (
+      data.type !== "WASTAGE" &&
+      data.type !== "CLEAR" &&
+      data.direction === "IN" &&
+      (!Number.isFinite(inputPrice) || inputPrice <= 0)
+    ) {
+      toast.error("Please enter a valid purchase price.");
+      return;
+    }
 
-    reset({
-      type: "OPENING_STOCK",
-      direction: "IN",
-      quantity: 0,
-      note: "",
-      inventoryItemId: selectedInventory.id,
-      transactionUnit:
-        getPrimaryPurchaseMapping(selectedInventory)
+    const decimalAllowedUnits = ["kg", "gm", "ltr", "ml"];
+
+    if (
+      data.type !== "CLEAR" &&
+      !decimalAllowedUnits.includes(data.transactionUnit) &&
+      !Number.isInteger(inputQuantity)
+    ) {
+      toast.error(
+        `Decimal quantity not allowed for ${data.transactionUnit}`
+      );
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const showPriceInput =
+  type === "OPENING_STOCK" ||
+  (type === "ADJUSTMENT" && direction === "IN");
+
+    try {
+      console.log("Inventory Item ID:", selectedInventory.id);
+      console.log("Type:", data.type);
+      console.log("Direction:", data.direction);
+
+      console.log(
+        "Current Quantity:",
+        selectedInventory.currentStock ?? 0
+      );
+
+      console.log(
+        "Current Average Price:",
+        selectedInventory.averageCost ?? 0
+      );
+
+      console.log("New Input Quantity:", inputQuantity);
+      console.log("New Input Price:", inputPrice);
+      console.log("Purchase Unit:", data.transactionUnit);
+      console.log("Conversion Factor:", mapping.factor);
+
+      const result = await adjustInventoryStockNew({
+        inventoryItemId: selectedInventory.id,
+
+        type: data.type,
+        direction: data.direction,
+
+        // Current values: reference only.
+        // Server must fetch the authoritative values from Firestore.
+        currentStock: selectedInventory.currentStock ?? 0,
+        currentAverageCost: selectedInventory.averageCost ?? 0,
+
+        // Raw values entered by the user.
+        inputQuantity,
+        inputPrice,
+
+        purchaseUnit: data.transactionUnit,
+        conversionFactor: mapping.factor,
+
+        paymentStatus: "PAID",
+        note: data.note,
+        createdBy: "admin",
+      });
+
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+
+      toast.success(result.message);
+
+      // Reset only the new inputs.
+      reset({
+        inventoryItemId: selectedInventory.id,
+        type: "OPENING_STOCK",
+        direction: "IN",
+        quantity: 0,
+        averageCost: 0,
+        transactionUnit: getPrimaryPurchaseMapping(selectedInventory)
           .purchaseUnit,
-    });
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong.");
-  } finally {
-    setIsSubmitting(false);
+        note: "",
+      });
+
+      // Do not calculate updated stock on the client.
+      // Refresh inventory data from the server when needed.
+    } catch (error) {
+      console.error("Stock adjustment error:", error);
+      toast.error("Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
-}
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
       <div className="max-w-3xl">
-
-        {/* ===================================================== */}
-        {/* HEADER */}
-        {/* ===================================================== */}
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
@@ -394,20 +292,12 @@ export default function StockAdjustmentForm({
           </p>
         </div>
 
-        {/* ===================================================== */}
-        {/* FORM */}
-        {/* ===================================================== */}
-
         <form
-          onSubmit={handleSubmit(
-            onSubmit
-          )}
+          onSubmit={handleSubmit(onSubmit)}
           className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col gap-5"
         >
 
-          {/* ===================================================== */}
           {/* INVENTORY SEARCH */}
-          {/* ===================================================== */}
 
           <div className="flex flex-col gap-2">
             <label className="label-style-4">
@@ -415,7 +305,6 @@ export default function StockAdjustmentForm({
             </label>
 
             <div className="relative">
-
               {!search.trim() && (
                 <Search
                   size={18}
@@ -427,148 +316,101 @@ export default function StockAdjustmentForm({
                 type="text"
                 value={search}
                 onChange={(e) => {
-                  setSearch(
-                    e.target.value
-                  );
-
-                  setShowDropdown(
-                    true
-                  );
+                  setSearch(e.target.value);
+                  setShowDropdown(true);
                 }}
                 placeholder="Search inventory item..."
-                className={`input-style-4 pr-4 ${!search.trim()
-                  ? "pl-12"
-                  : "pl-4"
-                  }`}
+                className={`input-style-4 pr-4 ${
+                  !search.trim() ? "pl-12" : "pl-4"
+                }`}
               />
 
-              {/* DROPDOWN */}
+              {showDropdown && filteredInventory.length > 0 && (
+                <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
 
-              {showDropdown &&
-                filteredInventory.length >
-                0 && (
-                  <div className="absolute z-50 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl">
+                  {filteredInventory.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => handleSelectInventory(item)}
+                      className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
+                    >
+                      <div className="font-medium text-gray-800">
+                        {item.name}
+                      </div>
 
-                    {filteredInventory.map((item) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedInventory(item);
+                      <div className="text-xs text-gray-400">
+                        Current: {item.currentStock ?? 0}{" "}
+                        {item.consumptionUnit}
+                      </div>
+                    </button>
+                  ))}
 
-                          setValue("inventoryItemId", item.id);
-
-                          const mapping =
-                            getPrimaryPurchaseMapping(item);
-
-                          setValue(
-                            "transactionUnit",
-                            mapping.purchaseUnit
-                          );
-
-
-                          const displayQuantity =
-                            (item.currentStock ?? 0) /
-                            mapping.factor;
-
-                          const displayaverageCost =
-                            (item.averageCost ?? 0) *
-                            mapping.factor;
-
-
-                          if (type === "WASTAGE") {
-                            setValue("averageCost", 0);
-                            setValue("stockValue", 0);
-                            setValue("quantity", 0);
-                          } else {
-                            setValue("averageCost", Number(displayaverageCost.toFixed(2)));
-                            setValue("stockValue", Number((item.stockValue ?? 0).toFixed(2)));
-                            setValue("quantity", Number(displayQuantity.toFixed(3)));
-                          }
-
-                          setSearch(item.name);
-                          setShowDropdown(false);
-                        }}
-                        className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-0"
-                      >
-                        <div className="font-medium text-gray-800">
-                          {item.name}
-                        </div>
-
-
-
-                     <div className="text-xs text-gray-400">
-  Current{" "}
-  {(() => {
-    const mapping =
-      getPrimaryPurchaseMapping(item);
-
-    return displayStock(
-      item.currentStock ?? 0,
-      mapping.purchaseUnit,
-      item.consumptionUnit,
-      mapping.factor
-    );
-  })()}
-</div>
-                      </button>
-                    ))}
-                  </div>
-                )}
+                </div>
+              )}
             </div>
 
             <input
               type="hidden"
-              {...register(
-                "inventoryItemId"
-              )}
+              {...register("inventoryItemId")}
             />
           </div>
 
-          {/* ===================================================== */}
-          {/* CURRENT STOCK */}
-          {/* ===================================================== */}
+          {/* CURRENT VALUES */}
 
-          {selectedInventory && (
-            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 flex items-center justify-between">
+        
+{selectedInventory && (() => {
+  const mapping = getPrimaryPurchaseMapping(selectedInventory);
 
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Package2
-                    className="text-blue-600"
-                    size={22}
-                  />
-                </div>
+  const purchaseQuantity =
+    (selectedInventory.currentStock ?? 0) / mapping.factor;
 
-                <div>
-                  <h3 className="font-semibold text-gray-800">
-                    {
-                      selectedInventory.name
-                    }
-                  </h3>
+  const purchaseUnitPrice =
+    (selectedInventory.averageCost ?? 0) ;
 
-                  <p className="text-sm text-gray-500">
-                    Current Stock
-                  </p>
-                </div>
-              </div>
+  return (
+    <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
 
-              <div className="text-2xl font-bold text-blue-700">
-                {
-                  displayStock(
-                    selectedInventory.currentStock!,
-                    selectedMapping!.purchaseUnit,
-                    selectedInventory.consumptionUnit,
-                    selectedMapping!.factor
-                  )
-                }
-              </div>
-            </div>
-          )}
+      <div className="flex items-center gap-2 mb-3">
+        <Package2 className="text-blue-600" size={22} />
 
-          {/* ===================================================== */}
-          {/* TYPE */}
-          {/* ===================================================== */}
+        <h3 className="font-semibold text-gray-800">
+          Current Inventory Values
+        </h3>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+
+        <div>
+          <p className="text-xs text-gray-500">
+            Current Quantity
+          </p>
+
+          <p className="text-lg font-bold text-blue-700">
+            {purchaseQuantity.toFixed(3)} {mapping.purchaseUnit}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-xs text-gray-500">
+            Current Average Price
+          </p>
+
+          <p className="text-lg font-bold text-blue-700">
+            ₹{purchaseUnitPrice.toFixed(2)}
+            <span className="text-xs font-normal text-gray-500">
+              {" "}/ {mapping.purchaseUnit}
+            </span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+})()}
+
+
+          {/* TRANSACTION TYPE */}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
@@ -578,28 +420,18 @@ export default function StockAdjustmentForm({
               </label>
 
               <select
-                {...register("type")}
+                value={type}
+                onChange={(e) =>
+                  handleTypeChange(
+                    e.target.value as InventoryTransactionNameType
+                  )
+                }
                 className="input-style-4"
               >
-                {/* <option value="PURCHASE">
-                  Purchase
-                </option> */}
-
-                <option value="OPENING_STOCK">
-                  Opening Stock
-                </option>
-
-
-                <option value="WASTAGE">
-                  Wastage
-                </option>
-
-                <option value="ADJUSTMENT">
-                  Adjustment
-                </option>
-                 <option value="CLEAR">
-                  CLEAR
-                </option>
+                <option value="OPENING_STOCK">Opening Stock</option>
+                <option value="WASTAGE">Wastage</option>
+                <option value="ADJUSTMENT">Adjustment</option>
+                <option value="CLEAR">CLEAR</option>
               </select>
             </div>
 
@@ -609,134 +441,102 @@ export default function StockAdjustmentForm({
                   Stock Direction
                 </label>
 
-                <select
-                  {...register("direction")}
-                  className="input-style-4"
-                >
-                  <option value="IN">
-                    Add Stock
-                  </option>
+            <select
+  value={direction}
+  onChange={(e) => {
+    const value = e.target.value as "IN" | "OUT";
 
-                  <option value="OUT">
-                    Remove Stock
-                  </option>
-                </select>
+    setValue("direction", value);
+
+    if (value === "OUT") {
+      setValue("averageCost", 0);
+    }
+  }}
+  className="input-style-4"
+>
+  <option value="IN">Add Stock</option>
+  <option value="OUT">Remove Stock</option>
+</select>
               </div>
             )}
+
           </div>
 
-          {/* ===================================================== */}
-          {/* QUANTITY */}
-          {/* ===================================================== */}
+          {/* NEW QUANTITY AND UNIT */}
 
+          {type !== "CLEAR" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  New Quantity
+                </label>
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Quantity
-              </label>
+                <input
+                  type="number"
+                  step="0.001"
+                  {...register("quantity", {
+                    valueAsNumber: true,
+                  })}
+                  className="input-style-4"
+                  placeholder="Enter new quantity"
+                />
+              </div>
 
-              <input
-                type="number"
-                step="0.001"
-                {...register("quantity")}
-                className="input-style-4"
-                placeholder="Enter quantity"
-                onFocus={(e) => {
-                  if (e.target.value === "0") {
-                    e.target.value = "";
-                  }
-                }}
-              />
-            </div>
+              <div className="flex flex-col gap-2">
+                <label className="label-style-4">
+                  Unit
+                </label>
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Unit
-              </label>
-
-              <select
-                {...register("transactionUnit")}
-                className="input-style-4"
-              >
-                {selectedInventory &&
-                  selectedInventory.purchaseMappings?.map(
-                    (mapping) => (
-                      <option
-                        key={mapping.purchaseUnit}
-                        value={mapping.purchaseUnit}
-                      >
-                        {mapping.purchaseUnit}
-                      </option>
-                    )
-                  )}
-
-                {selectedInventory &&
-                  (!selectedInventory.purchaseMappings ||
-                    selectedInventory.purchaseMappings.length ===
-                    0) && (
+                <select
+                  {...register("transactionUnit")}
+                  className="input-style-4"
+                >
+                  {selectedInventory?.purchaseMappings?.map((mapping) => (
                     <option
-                      value={
-                        selectedInventory.consumptionUnit
-                      }
+                      key={mapping.purchaseUnit}
+                      value={mapping.purchaseUnit}
                     >
-                      {selectedInventory.consumptionUnit}
+                      {mapping.purchaseUnit}
                     </option>
-                  )}
-              </select>
+                  ))}
+
+                  {selectedInventory &&
+                    (!selectedInventory.purchaseMappings ||
+                      selectedInventory.purchaseMappings.length === 0) && (
+                      <option value={selectedInventory.consumptionUnit}>
+                        {selectedInventory.consumptionUnit}
+                      </option>
+                    )}
+                </select>
+              </div>
+
             </div>
+          )}
 
-          </div>
+          {/* NEW PRICE */}
 
+{/* NEW PRICE */}
 
-          {/* ===================================================== */}
-          {/* VALUATION */}
-          {/* ===================================================== */}
+{showPriceInput && (
+  <div className="flex flex-col gap-2">
+    <label className="label-style-4">
+      New Purchase Price
+    </label>
 
-          {type !== "WASTAGE" && <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input
+      type="number"
+      step="0.01"
+      {...register("averageCost", {
+        valueAsNumber: true,
+      })}
+      className="input-style-4"
+      placeholder="Enter price per selected unit"
+    />
+  </div>
+)}
 
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Avg Price 
-              </label>
-
-              <input
-                type="number"
-                step="0.01"
-                value={averageCost || ""}
-                onChange={(e) => {
-                  setLastEdited("averageCost");
-                  setValue("averageCost", Number(e.target.value || 0));
-                }}
-                className="input-style-4"
-                placeholder="0.00"
-              />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="label-style-4">
-                Total Stock Value
-              </label>
-
-              <input
-                type="number"
-                step="0.01"
-                value={stockValue || ""}
-                onChange={(e) => {
-                  setLastEdited("stockValue");
-                  setValue("stockValue", Number(e.target.value || 0));
-                }}
-                className="input-style-4"
-                placeholder="0.00"
-              />
-            </div>
-
-          </div>
-          }
-          {/* ===================================================== */}
           {/* NOTE */}
-          {/* ===================================================== */}
 
           <div className="flex flex-col gap-2">
             <label className="label-style-4">
@@ -751,23 +551,18 @@ export default function StockAdjustmentForm({
             />
           </div>
 
-          {/* ===================================================== */}
           {/* SAVE */}
-          {/* ===================================================== */}
 
           <Button
             type="submit"
-            disabled={
-              isSubmitting
-            }
+            disabled={isSubmitting}
             className="btn-save-4 h-11"
           >
-            {isSubmitting
-              ? "Saving..."
-              : "Save Stock Adjustment"}
+            {isSubmitting ? "Saving..." : "Save Stock Adjustment"}
           </Button>
+
         </form>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

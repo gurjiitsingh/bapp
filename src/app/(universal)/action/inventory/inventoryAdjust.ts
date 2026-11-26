@@ -1,493 +1,167 @@
+
 "use server";
 
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebaseAdmin";
+
 import { ApplyInventoryTransactionType } from "@/lib/types/ApplyInventoryTransactionType";
 import { InventoryLedgerType } from "@/lib/types/inventory/InventoryLedgerType";
 
-
-
-const COST_TYPES = new Set([
-    "PURCHASE",
-    "OPENING_STOCK",
-    "CUSTOMER_RETURN",
-    "CLEAR",
-]);
+type InventoryAdjustInput = ApplyInventoryTransactionType & {
+  inventoryItemName: string;
+  consumptionUnit: string;
+};
 
 export async function inventoryAdjust(
-    tx: FirebaseFirestore.Transaction,
-    {
-        inventoryItemId,
+  tx: FirebaseFirestore.Transaction,
+  {
+    inventoryItemId,
+    inventoryItemName,
 
-        type,
-        direction,
+    type,
+    direction,
 
-        quantity,
-        stockValue,
-        averageCost,
- 
-        purchaseQuantity,
-        purchaseUnit,
-        purchaseUnitCost,
-        conversionFactor,
+    quantity,
+    stockValue,
+    averageCost,
 
-        supplierId,
-        supplierName,
+    purchaseQuantity,
+    purchaseUnit,
+    purchaseUnitCost,
+    conversionFactor,
 
-        totalAmount = 0,
-        paidAmount = 0,
-        dueAmount = 0,
-        paymentStatus = "PAID",
-        paymentMethod = null,
+    consumptionUnit,
 
-        referenceType = "MANUAL",
-        referenceId = "",
+    supplierId,
+    supplierName,
 
-        note = "",
-        createdBy = "system",
+    totalAmount = 0,
+    paidAmount = 0,
+    dueAmount = 0,
+    paymentStatus = "PAID",
+    paymentMethod = null,
 
-        source = "SYSTEM",
-    }: ApplyInventoryTransactionType) {
+    beforeStock,
+    afterStock,
+    transactionQuantity,
+    transactionUnitCost,
 
+    referenceType = "MANUAL",
+    referenceId = "",
 
-          console.log("========== adjustInventoryStock DB==========");
+    note = "",
+    createdBy = "system",
 
-  console.log("inventoryItemId:", inventoryItemId);
-  console.log("type:", type);
-  console.log("direction:", direction);
-
-  console.log("quantity:", quantity);
-  console.log("averageCost:", averageCost);
-
-  console.log("purchaseQuantity:", purchaseQuantity);
-  console.log("purchaseUnit:", purchaseUnit);
-  console.log("purchaseUnitCost:", purchaseUnitCost);
-  console.log("conversionFactor:", conversionFactor);
-
-  console.log("paymentStatus:", paymentStatus);
-
-  console.log("note:", note);
-  console.log("createdBy:", createdBy);
-
-  console.log("referenceId:", referenceId);
-  console.log("referenceType:", referenceType);
-
-  console.log("stockValue:", stockValue);
-
-  console.log("==========================================");
-
-
-    const now = admin.firestore.FieldValue.serverTimestamp();
-
-    if (quantity <= 0) {
-        throw new Error("Quantity must be greater than zero");
-    }
-
-    const inventoryRef =
-        adminDb.collection("inventoryItems").doc(inventoryItemId);
-
-
-    const snap = await tx.get(inventoryRef);
-
-    if (!snap.exists) {
-        throw new Error("Inventory item not found");
-    }
-
-    const inventory = snap.data()!;
-
-    // =====================================================
-    // UPDATE INVENTORY ITEM (MASTER STOCK)
-    // =====================================================
-
-  // =====================================================
-// CURRENT INVENTORY VALUES
-// =====================================================
-
-const beforeStock =
-  Number(inventory.currentStock ?? 0);
-
-const beforeAverageCost =
-  Number(inventory.averageCost ?? 0);
-
-const beforeStockValue =
-  Number(inventory.stockValue ?? 0);
-
-const beforePurchaseUnitCost =
-  Number(inventory.purchaseUnitCost ?? 0);
-
- 
-
-const purchaseUnitCostN =
-  Number(purchaseUnitCost ?? 0);
-
-// =====================================================
-// LEDGER VALUES
-// =====================================================
-
-const isCostMovement =
-  COST_TYPES.has(type);
-
-// Cost per consumption unit for ledger
-const finalUnitCost =
-  Number(averageCost ?? beforeAverageCost);
-
-// =====================================================
-// VALUES AFTER TRANSACTION
-// =====================================================
-
-let afterStock =
-  beforeStock;
-
-let afterStockValue =
-  beforeStockValue;
-
-let afterAverageCost =
-  beforeAverageCost;
-
-let afterPurchaseUnitCost =
-  beforePurchaseUnitCost;
-
-switch (type) {
-  // =====================================================
-  // OPENING STOCK
-  // Replace entire inventory
-  // =====================================================
-  case "OPENING_STOCK": {
-    afterStock = quantity;
-    afterStockValue = totalAmount;
-    afterAverageCost =
-      afterStock > 0
-        ? afterStockValue / afterStock
-        : 0;
-
-    break;
+    source = "SYSTEM",
+  }: InventoryAdjustInput
+) {
+  // VALIDATION
+  if (!inventoryItemId) {
+    throw new Error("Inventory item required");
   }
 
-  // =====================================================
-  // MANUAL ADJUSTMENT
-  // =====================================================
-  case "ADJUSTMENT": {
-    if (direction === "IN") {
-      // Add stock
-      afterStock =
-        beforeStock + quantity;
-
-      afterStockValue =
-        beforeStockValue + totalAmount;
-
-      // Recalculate weighted average
-      afterAverageCost =
-        afterStock > 0
-          ? afterStockValue / afterStock
-          : 0;
-    } else {
-      // Remove stock
-
-      if (quantity > beforeStock) {
-        throw new Error(
-          "Insufficient stock"
-        );
-      }
-
-      afterStock =
-        beforeStock - quantity;
-
-      afterStockValue =
-        beforeStockValue -
-        quantity * beforeAverageCost;
-
-      // Average cost DOES NOT change
-      afterAverageCost =
-        beforeAverageCost;
-    }
-
-    break;
+  if (!inventoryItemName) {
+    throw new Error("Inventory item name required");
   }
 
-  // =====================================================
-  // WASTAGE
-  // =====================================================
-  case "WASTAGE": {
-    if (quantity > beforeStock) {
-      throw new Error(
-        "Insufficient stock"
-      );
-    }
-
-    afterStock =
-      beforeStock - quantity;
-
-    afterStockValue =
-      beforeStockValue -
-      quantity * beforeAverageCost;
-
-    // Average cost stays same
-    afterAverageCost =
-      beforeAverageCost;
-
-    break;
+  if (!Number.isFinite(beforeStock) || beforeStock < 0) {
+    throw new Error("Invalid before stock quantity");
   }
-}
 
-   // =====================================================
-// FINAL SAFETY
-// =====================================================
+  if (!Number.isFinite(afterStock) || afterStock < 0) {
+    throw new Error("Invalid after stock quantity");
+  }
 
-afterStockValue = Number(
-  Math.max(0, afterStockValue).toFixed(2)
-);
+  if (
+    !Number.isFinite(transactionQuantity) ||
+    transactionQuantity < 0
+  ) {
+    throw new Error("Invalid transaction quantity");
+  }
 
-afterAverageCost = Number(
-  afterAverageCost.toFixed(8)
-);
+  if (
+    !Number.isFinite(conversionFactor) ||
+    conversionFactor <= 0
+  ) {
+    throw new Error("Invalid conversion factor");
+  }
 
-// =====================================================
-// PURCHASE UNIT COST
-// =====================================================
+  // PURCHASE QUANTITY
+  const purchaseQty =
+    purchaseQuantity ??
+    transactionQuantity / conversionFactor;
 
-let newPurchaseUnitCost =
-  Number(inventory.purchaseUnitCost ?? 0);
+  // CREATE LEDGER DOCUMENT
+  const ledgerRef = adminDb
+    .collection("stockLedgerInventory")
+    .doc();
 
-let newPurchaseUnitCostStockValue =
-  Number(inventory.stockValue ?? 0);
+  const now = admin.firestore.FieldValue.serverTimestamp();
 
-const factor =
-  Number(conversionFactor || 1);
+  const ledger: InventoryLedgerType = {
+    transactionId: ledgerRef.id,
 
-const stockQtyInPurchaseUnit =
-  beforeStock / factor;
+    // INVENTORY
+    inventoryItemId,
+    inventoryItemName,
 
-const transactionQtyInPurchaseUnit =
-  quantity / factor;
+    // PARTY
+    partyId: supplierId || "",
+    partyName: supplierName || "",
+    partyType: supplierId ? "SUPPLIER" : "SYSTEM",
 
-switch (type) {
-  // -----------------------------------
-  // Opening Stock
-  // -----------------------------------
-  case "OPENING_STOCK":
-    newPurchaseUnitCost =
-      purchaseUnitCostN;
+    // PURCHASE DETAILS
+    purchaseQuantity: purchaseQty,
+    purchaseUnit: purchaseUnit || "",
 
-    newPurchaseUnitCostStockValue =
-      Number(
-        (
-          purchaseUnitCostN *
-          transactionQtyInPurchaseUnit
-        ).toFixed(2)
-      );
+    purchaseUnitCost: Number(purchaseUnitCost ?? 0),
 
-    break;
+    // TRANSACTION DETAILS
+    conversionFactor,
 
-  // -----------------------------------
-  // Adjustment IN
-  // -----------------------------------
-  case "ADJUSTMENT":
-    if (direction === "IN") {
-      const existingValue =
-        newPurchaseUnitCost *
-        stockQtyInPurchaseUnit;
+    transactionQuantity,
 
-      const incomingValue =
-        purchaseUnitCostN *
-        transactionQtyInPurchaseUnit;
+    transactionUnit: consumptionUnit || "gm",
 
-      newPurchaseUnitCostStockValue =
-        Number(
-          (
-            existingValue +
-            incomingValue
-          ).toFixed(2)
-        );
+    transactionUnitCost: Number(transactionUnitCost ?? 0),
 
-      const totalPurchaseQty =
-        stockQtyInPurchaseUnit +
-        transactionQtyInPurchaseUnit;
+    // STOCK
+    beforeStock,
+    afterStock,
 
-      newPurchaseUnitCost =
-        totalPurchaseQty > 0
-          ? Number(
-              (
-                newPurchaseUnitCostStockValue /
-                totalPurchaseQty
-              ).toFixed(2)
-            )
-          : 0;
-    } else {
-      // Removing stock
-      // Keep purchase unit cost unchanged
+    // VALUE
+    totalAmount: Number(totalAmount ?? 0),
 
-      newPurchaseUnitCostStockValue =
-        Number(
-          (
-            newPurchaseUnitCost *
-            (afterStock / factor)
-          ).toFixed(2)
-        );
-    }
+    // PAYMENT
+    paidAmount: Number(paidAmount ?? 0),
+    dueAmount: Number(dueAmount ?? 0),
+    paymentStatus,
+    paymentMethod,
 
-    break;
+    // TRANSACTION INFO
+    referenceType,
+    referenceId,
 
-  // -----------------------------------
-  // Wastage
-  // -----------------------------------
-  case "WASTAGE":
-    // Same as removing stock
+    type,
+    direction,
 
-    newPurchaseUnitCostStockValue =
-      Number(
-        (
-          newPurchaseUnitCost *
-          (afterStock / factor)
-        ).toFixed(2)
-      );
+    note,
 
-    break;
-}
-// console.log("stockQtyInPurchaseUnit -----------------",stockQtyInPurchaseUnit)
-// console.log("stocke qty -----------------",stockQtyInPurchaseUnit)
-// console.log("purchase qty -----------------",purchaseQtyInPurchaseUnit)
-// console.log("newPurchaseUnitCostStockValue -----------------",newPurchaseUnitCostStockValue)
-// console.log("newpruchage -----------------",newPurchaseUnitCost)
+    // SOURCE
+    sourceModule: source,
 
+    // AUDIT
+    createdById: createdBy,
+    createdAt: now,
+  };
 
+  // SAVE ONLY LEDGER RECORD
+  tx.set(ledgerRef, ledger);
 
-tx.update(inventoryRef, {
-  currentStock: afterStock,
-  stockValue: afterStockValue,
-
-  averageCost: afterAverageCost,
-  costPrice: afterAverageCost,
-
-  purchaseUnit,
-  purchaseUnitCost: newPurchaseUnitCost,
-
-  updatedAt: now,
-});
-
-  
-
-    // =====================================================
-    // CREATE INVENTORY LEDGER TRANSACTION
-    // Stores immutable history of every inventory movement.
-    // This NEVER updates inventory totals.
-    // =====================================================
-
-    const purchaseQty =
-        purchaseQuantity ??
-        quantity /
-        Number(
-            conversionFactor ??
-            inventory.conversionFactor ??
-            1
-        );
-
-
-
-    const ledgerRef =
-        adminDb.collection("stockLedgerInventory").doc();
-
-
-        const ledger: InventoryLedgerType = {
-          // =====================================================
-          // DOCUMENT
-          // =====================================================
-          transactionId: ledgerRef.id,
-        
-          // =====================================================
-          // INVENTORY ITEM
-          // =====================================================
-          inventoryItemId,
-          inventoryItemName: inventory.name || "",
-        
-          // =====================================================
-          // PARTY
-          // =====================================================
-          partyId: supplierId || "",
-          partyName: supplierName || "",
-          partyType: supplierId ? "SUPPLIER" : "SYSTEM",
-        
-          // =====================================================
-          // PURCHASE DETAILS
-          // =====================================================
-          purchaseQuantity: purchaseQty,
-        
-          purchaseUnit:  purchaseUnit || inventory.purchaseUnit || inventory.consumptionUnit,
-        
-          purchaseUnitCost: newPurchaseUnitCost,
-        
-          // =====================================================
-          // TRANSACTION DETAILS
-          // =====================================================
-          conversionFactor:
-            conversionFactor ??
-            inventory.conversionFactor ??
-            1,
-        
-          transactionQuantity: quantity,
-        
-          transactionUnit:
-            inventory.consumptionUnit || "gm",
-        
-          transactionUnitCost: finalUnitCost,
-        
-          // =====================================================
-          // STOCK
-          // =====================================================
-          beforeStock,
-          afterStock,
-        
-          // =====================================================
-          // VALUE
-          // =====================================================
-          totalAmount: isCostMovement ? totalAmount : 0,
-        
-          // =====================================================
-          // PAYMENT
-          // =====================================================
-          paidAmount: isCostMovement ? paidAmount : 0,
-          dueAmount: isCostMovement ? dueAmount : 0,
-        
-          paymentStatus: isCostMovement
-            ? paymentStatus
-            : null,
-        
-          paymentMethod: isCostMovement
-            ? paymentMethod
-            : null,
-        
-          // =====================================================
-          // TRANSACTION INFO
-          // =====================================================
-          referenceType,
-          referenceId,
-        
-          type,
-          direction,
-        
-          note, 
-        
-          // =====================================================
-          // SOURCE
-          // =====================================================
-          sourceModule: source,
-        
-          // =====================================================
-          // AUDIT
-          // =====================================================
-          createdById: createdBy,
-        
-          createdAt: now,
-        };
-        
-        tx.set(ledgerRef, ledger);
-
-    
-    return {
-        beforeStock,
-        afterStock,
-        unitCost: finalUnitCost,
-    };
-
-
-
+  return {
+    transactionId: ledgerRef.id,
+    beforeStock,
+    afterStock,
+    transactionQuantity,
+  };
 }

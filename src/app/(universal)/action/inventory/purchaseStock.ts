@@ -10,7 +10,7 @@ import {
 
 import { PaymentStatus } from "@/lib/types/PaymentStatus";
 import { InventoryTransactionNameType } from "@/lib/types/InventoryTransactionType";
-import { inventoryAdjust } from "./inventoryAdjust";
+ 
 import { inventoryPurchase } from "./inventoryPurchase";
 import { applySupplierTransaction } from "../inventorySupplier/applySupplierTransaction";
 import { updateSupplierAccount } from "../inventorySupplier/updateSupplierAccount";

@@ -50,6 +50,12 @@ stockValue?: number;
     paymentStatus?: string;
     paymentMethod?: string | null;
 
+    beforeStock?: number;
+afterStock?: number;
+transactionQuantity?: number;
+transactionUnitCost?: number;
+inventoryItemName?: string;
+
     referenceType?: string;
     referenceId?: string;
 
