@@ -245,12 +245,12 @@ const inputPrice =
         createdBy: "admin",
       });
 
-      if (!result.success) {
-        toast.error(result.message);
-        return;
-      }
+     if (!result.success) {
+  toast.error(result.message);
+  return;
+}
 
-      toast.success(result.message);
+toast.success("Stock adjustment saved successfully.");
 
       // Reset only the new inputs.
       reset({

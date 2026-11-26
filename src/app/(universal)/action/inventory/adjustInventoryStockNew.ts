@@ -20,21 +20,20 @@ import { handleWastage } from "./handleWastage";
 import { handleClearStock } from "./handleClearStock";
 import { inventoryAdjust } from "./inventoryAdjust";
 
+
+
+
 type AdjustInventoryStockType = {
   inventoryItemId: string;
-
   type: InventoryTransactionNameType;
   direction: "IN" | "OUT";
 
-  // Client reference only
   currentStock: number;
   currentAverageCost: number;
 
-  // Raw user input
   inputQuantity: number;
   inputPrice: number;
 
-  // Selected purchase unit
   purchaseUnit: string;
   conversionFactor: number;
 
@@ -47,6 +46,24 @@ type AdjustInventoryStockType = {
   referenceId?: string;
   referenceType?: "MANUAL";
 };
+
+type AdjustInventoryStockResult =
+  | {
+      success: true;
+      data: {
+        transactionId: string;
+        quantity: number;
+        totalAmount: number;
+        averageCost: number;
+        purchaseUnitCost: number;
+      };
+    }
+  | {
+      success: false;
+      message: string;
+    };
+
+
 
 export async function adjustInventoryStockNew({
   inventoryItemId,
@@ -64,7 +81,7 @@ export async function adjustInventoryStockNew({
   createdBy,
   referenceId,
   referenceType = "MANUAL",
-}: AdjustInventoryStockType) {
+}: AdjustInventoryStockType): Promise<AdjustInventoryStockResult> {
   try {
     console.log("========== INVENTORY ADJUSTMENT DEBUG ==========");
     console.log("Inventory Item ID:", inventoryItemId);
