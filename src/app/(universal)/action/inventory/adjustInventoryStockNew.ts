@@ -19,6 +19,7 @@ import { handleOpeningStock } from "./handleOpeningStock";
 import { handleWastage } from "./handleWastage";
 import { handleClearStock } from "./handleClearStock";
 import { inventoryAdjust } from "./inventoryAdjust";
+import { inventoryAdjustNew } from "./inventoryAdjustNew";
 
 
 
@@ -205,7 +206,7 @@ export async function adjustInventoryStockNew({
       // 9. SAVE LEDGER RECORD
       // This function only creates a ledger document.
       // It does not read or update the inventory master.
-      const ledgerResult = await inventoryAdjust(tx, {
+      const ledgerResult = await inventoryAdjustNew(tx, {
         inventoryItemId,
 
         inventoryItemName: inventoryData.name || "",
