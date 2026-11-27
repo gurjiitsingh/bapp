@@ -61,38 +61,42 @@ export default function ListView({
   // INVENTORY WITH CATEGORY NAME
   // ==========================================
 
-  const inventoryWithCategory =
-    useMemo(() => {
-      return filtered.map((item) => ({
-        ...item,
-        categoryName:
-          categoryMap.get(
-            item.categoryId || ""
-          ) || "-",
-      }));
-    }, [filtered, categoryMap]);
+const inventoryWithCategory = useMemo(() => {
+  return filtered
+    .map((item) => ({ 
+      ...item,
+      categoryName:
+        categoryMap.get(item.categoryId || "") || "-",
+    }))
+    .sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "", undefined, {
+        sensitivity: "base",
+        numeric: true,
+      })
+    );
+}, [filtered, categoryMap]);
 
   // ==========================================
   // FILTER
   // ==========================================
 
-  useEffect(() => {
-    let list = [...inventoryItems];
+ // ==========================================
+// FILTER
+// ==========================================
 
-    if (search.trim()) {
-      const q = search
-        .trim()
-        .toLowerCase();
+useEffect(() => {
+  let list = [...inventoryItems];
 
-      list = list.filter((item) =>
-        item.name
-          ?.toLowerCase()
-          .includes(q)
-      );
-    }
+  if (search.trim()) {
+    const q = search.trim().toLowerCase();
 
-    setFiltered(list);
-  }, [search, inventoryItems]);
+    list = list.filter((item) =>
+      item.name?.toLowerCase().startsWith(q)
+    );
+  }
+
+  setFiltered(list);
+}, [search, inventoryItems]);
 
   // ==========================================
   // STATS
