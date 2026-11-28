@@ -195,11 +195,54 @@ export async function writeProductSaleBulkTransactions(
     ? saleId || stockLedgerRef.id
     : "";
 
-  tx.update(productRef, {
-    currentStock: afterStock,
-    stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
-    updatedAt: now,
-  });
+  // tx.update(productRef, {
+  //   currentStock: afterStock,
+  //   stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
+  //   updatedAt: now,
+  // });
+
+// ==========================================
+// UPDATE FINISHED PRODUCT STOCK VALUE
+// ==========================================
+
+const currentStockValue = Number(product.stockValue) || 0;
+const currentAvgCost = Number(product.avgCost) || 0;
+const currentCostPrice = Number(product.costPrice) || 0;
+
+let afterStockValue = currentStockValue;
+let afterAvgCost = currentAvgCost;
+let afterCostPrice = currentCostPrice;
+
+if (direction === "OUT") {
+  const removedStockValue = quantity * currentAvgCost;
+
+  afterStockValue = Math.max(
+    0,
+    currentStockValue - removedStockValue
+  );
+}
+
+// Reset cost values when all stock is sold
+if (afterStock <= 0) {
+  afterStockValue = 0;
+  afterAvgCost = 0;
+  afterCostPrice = 0;
+} else if (direction === "OUT") {
+  afterAvgCost = afterStockValue / afterStock;
+}
+
+tx.update(productRef, {
+  currentStock: afterStock,
+
+  stockValue: Number(afterStockValue.toFixed(2)),
+  avgCost: Number(afterAvgCost.toFixed(2)),
+  costPrice: Number(afterCostPrice.toFixed(2)),
+
+  stockStatus: afterStock > 0 ? "in_stock" : "out_of_stock",
+  updatedAt: now,
+});
+
+
 
   tx.set(stockLedgerRef, {
     transactionId: stockLedgerRef.id,

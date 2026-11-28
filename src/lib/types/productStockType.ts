@@ -7,7 +7,7 @@ export type ProductStock = {
   name: string;
   categoryId?: string;
   categoryName?: string;
-
+stockValue:number;
   // INVENTORY CORE
   productMode: "raw_stock" | "finished_stock" | "simple";
 
@@ -36,7 +36,7 @@ export type ProductStock = {
 };
 export type ProductStockType = {
   id: string; // SAME as productId
-
+stockValue: number;
   // SNAPSHOT (avoid joins)
   name: string;
   categoryId?: string;

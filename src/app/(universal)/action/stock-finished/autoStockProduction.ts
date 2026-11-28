@@ -134,7 +134,7 @@ console.log("income----------------------3")
       //=============================
       // READ STOCK LOCATION
       //=============================
-console.log("income----------------------4")
+console.log("income----------------------", finishedData)
       const storeLocation = await getStockLocation({
         tx,
         productId: id,
