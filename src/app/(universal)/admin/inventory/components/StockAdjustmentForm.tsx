@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { Search, Package2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import { displayStock } from "@/utils/inventory/displayStock";
 import {
   InventoryItemType,
   InventoryUnit,
@@ -386,9 +386,16 @@ toast.success("Stock adjustment saved successfully.");
             Current Quantity
           </p>
 
-          <p className="text-lg font-bold text-blue-700">
-            {purchaseQuantity.toFixed(3)} {mapping.purchaseUnit}
-          </p>
+         <div className="text-2xl font-bold text-blue-700">
+                {
+                  displayStock(
+                    selectedInventory.currentStock!,
+                    selectedInventory.purchaseUnit,
+                    selectedInventory.consumptionUnit,
+                    selectedMapping!.factor
+                  )
+                }
+        </div>
         </div>
 
         <div>
