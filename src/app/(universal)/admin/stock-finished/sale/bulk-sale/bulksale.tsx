@@ -135,7 +135,17 @@ export default function BulkSaleForm({
 
 
   // Products displayed in table
-  const rows = products;
+  //const rows = products;
+
+  // Products displayed in alphabetical order
+const rows = useMemo(() => {
+  return [...products].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
+      sensitivity: "base",
+      numeric: true,
+    })
+  );
+}, [products]);
 
 
   const onSubmit = async (data: BulkSaleType) => {
@@ -510,115 +520,103 @@ export default function BulkSaleForm({
 
                 <tbody>
 
-                  {rows.map((item, index) => {
-                    console.log("product data--------------------", item.name, item.avgCost)
+            
+{rows.map((item, index) => {
+  // Match the product with its original form array index
+  const formIndex = form.getValues("items").findIndex(
+    (formItem) => formItem.productId === item.id
+  );
 
-                    const qty =
-                      form.watch(`items.${index}.quantity`) || 0;
+  if (formIndex === -1) return null;
 
-                    const saleAmount =
-                      form.watch(`items.${index}.amount`) || 0;
+  const qty =
+    form.watch(`items.${formIndex}.quantity`) || 0;
 
-                    const calculatedPrice =
-                      qty > 0 ? saleAmount / qty : 0;
+  const saleAmount =
+    form.watch(`items.${formIndex}.amount`) || 0;
 
-                    return (
-                      <tr
-                        key={item.id}
-                        className={`
+  const calculatedPrice =
+    qty > 0 ? saleAmount / qty : 0;
+
+  return (
+    <tr
+      key={item.id}
+      className={`
         ${qty > 0
-                            ? "bg-green-50"
-                            : index % 2 === 0
-                              ? "bg-zinc-50"
-                              : "bg-zinc-100"
-                          }
+          ? "bg-green-50"
+          : index % 2 === 0
+            ? "bg-zinc-50"
+            : "bg-zinc-100"
+        }
         hover:bg-blue-50
       `}
-                      >
-                        <td className="p-3 font-medium">
-                          {item.name}
-                        </td>
+    >
+      <td className="p-3 font-medium">
+        {item.name}
+      </td>
 
-                        <td className="text-center font-semibold">
-                          {item.currentStock}
-                        </td>
+      <td className="text-center font-semibold">
+        {item.currentStock}
+      </td>
 
-                        {/* <td className="text-center p-3">
-                            ₹{item.wholesalePrice ?? item.sellingPrice}
-                          </td> */}
+      {/* SALE QUANTITY */}
+      <td className="p-2">
+        <Input
+          type="number"
+          min={0}
+          max={item.currentStock}
+          {...form.register(`items.${formIndex}.quantity`, {
+            valueAsNumber: true,
+            setValueAs: (value) =>
+              value === "" || value == null
+                ? 0
+                : Number(value),
+          })}
+          onFocus={(e) => {
+            if (e.target.value === "0") {
+              e.target.value = "";
+            }
+          }}
+          onBlur={(e) => {
+            if (e.target.value === "") {
+              form.setValue(
+                `items.${formIndex}.quantity`,
+                0,
+                { shouldDirty: true }
+              );
+            }
+          }}
+        />
+      </td>
 
-                        {/* <td className="p-2 w-36">
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min={0}
-                              value={wholesalePrice ?? 0}
-                              onChange={(e) =>
-                                form.setValue(
-                                  `items.${index}.wholesalePrice`,
-                                  Number(e.target.value)
-                                )
-                              }
-                            />
-                          </td> */}
+      {/* SALE AMOUNT */}
+      <td className="p-2">
+        <Input
+          type="number"
+          step="0.01"
+          min={0}
+          value={saleAmount || ""}
+          onChange={(e) =>
+            form.setValue(
+              `items.${formIndex}.amount`,
+              e.target.value === ""
+                ? 0
+                : Number(e.target.value),
+              { shouldDirty: true }
+            )
+          }
+          placeholder="Enter amount"
+        />
+      </td>
 
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            min={0}
-                            max={item.currentStock}
-                            {...form.register(`items.${index}.quantity`, {
-                              valueAsNumber: true,
-                              setValueAs: (value) =>
-                                value === "" || value == null
-                                  ? 0
-                                  : Number(value),
-                            })}
-                            onFocus={(e) => {
-                              if (e.target.value === "0") {
-                                e.target.value = "";
-                              }
-                            }}
-                            onBlur={(e) => {
-                              if (e.target.value === "") {
-                                form.setValue(
-                                  `items.${index}.quantity`,
-                                  0,
-                                  { shouldDirty: true }
-                                );
-                              }
-                            }}
-                          />
-                        </td>
-                        {/* <td className="text-center font-semibold text-green-700">
-                            {item.quantity - qty}
-                          </td> */}
+      {/* CALCULATED UNIT PRICE */}
+      <td className="text-center font-semibold text-blue-700">
+        ₹{calculatedPrice.toFixed(2)}
+      </td>
+    </tr>
+  );
+})}
 
-                        {/* SALE AMOUNT */}
-                        <td className="p-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min={0}
-                            value={saleAmount || ""}
-                            onChange={(e) =>
-                              form.setValue(
-                                `items.${index}.amount`,
-                                e.target.value === "" ? 0 : Number(e.target.value),
-                                { shouldDirty: true }
-                              )
-                            }
-                            placeholder="Enter amount"
-                          />
-                        </td>
-
-                        {/* CALCULATED UNIT PRICE */}
-                        <td className="text-center font-semibold text-blue-700">
-                          ₹{calculatedPrice.toFixed(2)}
-                        </td>
-                      </tr>
-                    )
-                  })}
 
                   {rows.length === 0 && (
                     <tr>
