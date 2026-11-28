@@ -366,8 +366,8 @@ export default function ClearERPDataPage() {
                 Reset Product Stock(disabled)
               </h2>
 
-              <p className="text-sm text-gray-500">
-                Resets stock quantities, prices, and stock value to zero.
+              <p className="text-sm text-amber-500">
+                Resets Finished Stock quantities, prices, and stock value to zero.
               </p>
             </div>
 
@@ -400,7 +400,7 @@ export default function ClearERPDataPage() {
               </p>
             </div>
 
-            <Button
+            {/* <Button
               variant="destructive"
               disabled={loading !== null}
               onClick={() =>
@@ -413,7 +413,7 @@ export default function ClearERPDataPage() {
               {loading === "Reset Inventory Items"
                 ? "Resetting..."
                 : "Reset"}
-            </Button>
+            </Button> */}
           </div>
 
 
@@ -489,7 +489,7 @@ export default function ClearERPDataPage() {
       </h2>
 
       <p className="text-xs text-gray-500">
-        Test-only cleanup for vehicle loads, trips and truck sales.
+        Test-only cleanup for  "stockLocation","customerAccounts","customerLedger","driverSettlements","distributionTrips","vehicleLoadItems" .
       </p>
     </div>
 

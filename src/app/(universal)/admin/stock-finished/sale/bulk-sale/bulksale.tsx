@@ -138,14 +138,14 @@ export default function BulkSaleForm({
   //const rows = products;
 
   // Products displayed in alphabetical order
-const rows = useMemo(() => {
-  return [...products].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, {
-      sensitivity: "base",
-      numeric: true,
-    })
-  );
-}, [products]);
+  const rows = useMemo(() => {
+    return [...products].sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, {
+        sensitivity: "base",
+        numeric: true,
+      })
+    );
+  }, [products]);
 
 
   const onSubmit = async (data: BulkSaleType) => {
@@ -280,95 +280,97 @@ const rows = useMemo(() => {
 
             <CardContent className="p-6 space-y-6">
 
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5">
 
 
 
                 <div className="bg-white">
-
-                  <div className="flex   justify-between">
+                  <div className="flex justify-between">
                     <div className="flex items-center justify-between mb-1">
-                      {customerId && selectedCustomer && (
+                      {customerId && selectedCustomer ? (
                         <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">
                           {selectedCustomer.companyName}
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500 px-3 py-1">
+                          Search Customer
                         </div>
                       )}
                     </div>
                   </div>
 
-             
-{/* CUSTOMER SEARCH */}
 
-<div className="relative">
+                  {/* CUSTOMER SEARCH */}
 
-  <Search
-    size={18}
-    className="absolute right-2 top-3 text-gray-400"
-  />
+                  <div className="relative">
 
-  <input
-    type="text"
-    value={customerSearch}
-    onChange={(e) => {
-      setCustomerSearch(e.target.value);
-      setShowDropdown(true);
-    }}
-    onFocus={() => {
-      setShowDropdown(true);
-    }}
-    onClick={() => {
-      setShowDropdown(true);
-    }}
-    placeholder="Search customer..."
-    className="input-style-4 pl-4 pr-10"
-  />
+                    <Search
+                      size={18}
+                      className="absolute right-2 top-3 text-gray-400"
+                    />
 
-  {/* CUSTOMER DROPDOWN */}
+                    <input
+                      type="text"
+                      value={customerSearch}
+                      onChange={(e) => {
+                        setCustomerSearch(e.target.value);
+                        setShowDropdown(true);
+                      }}
+                      onFocus={() => {
+                        setShowDropdown(true);
+                      }}
+                      onClick={() => {
+                        setShowDropdown(true);
+                      }}
+                      placeholder="Search customer..."
+                      className="input-style-4 pl-4 pr-10"
+                    />
 
-  {showDropdown && (
-    <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+                    {/* CUSTOMER DROPDOWN */}
 
-      {filteredCustomers.length > 0 ? (
-        filteredCustomers.map((customer) => (
-          <button
-            key={customer.id}
-            type="button"
-            onClick={() => {
-              form.setValue(
-                "wholeSaleCutomerId",
-                customer.id
-              );
+                    {showDropdown && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
 
-              form.setValue(
-                "wholeSaleCutomerName",
-                customer.companyName
-              );
+                        {filteredCustomers.length > 0 ? (
+                          filteredCustomers.map((customer) => (
+                            <button
+                              key={customer.id}
+                              type="button"
+                              onClick={() => {
+                                form.setValue(
+                                  "wholeSaleCutomerId",
+                                  customer.id
+                                );
 
-              setCustomerSearch(customer.companyName);
+                                form.setValue(
+                                  "wholeSaleCutomerName",
+                                  customer.companyName
+                                );
 
-              setShowDropdown(false);
-            }}
-            className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-slate-50 transition ${
-              selectedCustomer?.id === customer.id
-                ? "bg-blue-50"
-                : ""
-            }`}
-          >
-            <div className="font-medium text-sm text-gray-800">
-              {customer.companyName}
-            </div>
-          </button>
-        ))
-      ) : (
-        <div className="p-4 text-sm text-gray-400 text-center">
-          No customer found
-        </div>
-      )}
+                                setCustomerSearch(customer.companyName);
 
-    </div>
-  )}
+                                setShowDropdown(false);
+                              }}
+                              className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-slate-50 transition ${selectedCustomer?.id === customer.id
+                                ? "bg-blue-50"
+                                : ""
+                                }`}
+                            >
+                              <div className="font-medium text-sm text-gray-800">
+                                {customer.companyName}
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-4 text-sm text-gray-400 text-center">
+                            No customer found
+                          </div>
+                        )}
 
-</div>
+                      </div>
+                    )}
+
+                  </div>
 
 
                 </div>
@@ -466,6 +468,23 @@ const rows = useMemo(() => {
 
                 </div>
 
+                <div className="flex flex-col gap-2">
+
+                  <label className="label-style-4">
+                    Save
+                  </label>
+
+
+                  <Button className="bg-red-600 text-white" type="submit" size="lg">
+                    {/* <Truck className="mr-2 h-5 w-5" /> */}
+                    Record Sale
+                  </Button>
+
+                </div>
+
+
+
+
 
               </div>
 
@@ -520,102 +539,102 @@ const rows = useMemo(() => {
 
                 <tbody>
 
-            
-{rows.map((item, index) => {
-  // Match the product with its original form array index
-  const formIndex = form.getValues("items").findIndex(
-    (formItem) => formItem.productId === item.id
-  );
 
-  if (formIndex === -1) return null;
+                  {rows.map((item, index) => {
+                    // Match the product with its original form array index
+                    const formIndex = form.getValues("items").findIndex(
+                      (formItem) => formItem.productId === item.id
+                    );
 
-  const qty =
-    form.watch(`items.${formIndex}.quantity`) || 0;
+                    if (formIndex === -1) return null;
 
-  const saleAmount =
-    form.watch(`items.${formIndex}.amount`) || 0;
+                    const qty =
+                      form.watch(`items.${formIndex}.quantity`) || 0;
 
-  const calculatedPrice =
-    qty > 0 ? saleAmount / qty : 0;
+                    const saleAmount =
+                      form.watch(`items.${formIndex}.amount`) || 0;
 
-  return (
-    <tr
-      key={item.id}
-      className={`
+                    const calculatedPrice =
+                      qty > 0 ? saleAmount / qty : 0;
+
+                    return (
+                      <tr
+                        key={item.id}
+                        className={`
         ${qty > 0
-          ? "bg-green-50"
-          : index % 2 === 0
-            ? "bg-zinc-50"
-            : "bg-zinc-100"
-        }
+                            ? "bg-green-50"
+                            : index % 2 === 0
+                              ? "bg-zinc-50"
+                              : "bg-zinc-100"
+                          }
         hover:bg-blue-50
       `}
-    >
-      <td className="p-3 font-medium">
-        {item.name}
-      </td>
+                      >
+                        <td className="p-3 font-medium">
+                          {item.name}
+                        </td>
 
-      <td className="text-center font-semibold">
-        {item.currentStock}
-      </td>
+                        <td className="text-center font-semibold">
+                          {item.currentStock}
+                        </td>
 
-      {/* SALE QUANTITY */}
-      <td className="p-2">
-        <Input
-          type="number"
-          min={0}
-          max={item.currentStock}
-          {...form.register(`items.${formIndex}.quantity`, {
-            valueAsNumber: true,
-            setValueAs: (value) =>
-              value === "" || value == null
-                ? 0
-                : Number(value),
-          })}
-          onFocus={(e) => {
-            if (e.target.value === "0") {
-              e.target.value = "";
-            }
-          }}
-          onBlur={(e) => {
-            if (e.target.value === "") {
-              form.setValue(
-                `items.${formIndex}.quantity`,
-                0,
-                { shouldDirty: true }
-              );
-            }
-          }}
-        />
-      </td>
+                        {/* SALE QUANTITY */}
+                        <td className="p-2">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={item.currentStock}
+                            {...form.register(`items.${formIndex}.quantity`, {
+                              valueAsNumber: true,
+                              setValueAs: (value) =>
+                                value === "" || value == null
+                                  ? 0
+                                  : Number(value),
+                            })}
+                            onFocus={(e) => {
+                              if (e.target.value === "0") {
+                                e.target.value = "";
+                              }
+                            }}
+                            onBlur={(e) => {
+                              if (e.target.value === "") {
+                                form.setValue(
+                                  `items.${formIndex}.quantity`,
+                                  0,
+                                  { shouldDirty: true }
+                                );
+                              }
+                            }}
+                          />
+                        </td>
 
-      {/* SALE AMOUNT */}
-      <td className="p-2">
-        <Input
-          type="number"
-          step="0.01"
-          min={0}
-          value={saleAmount || ""}
-          onChange={(e) =>
-            form.setValue(
-              `items.${formIndex}.amount`,
-              e.target.value === ""
-                ? 0
-                : Number(e.target.value),
-              { shouldDirty: true }
-            )
-          }
-          placeholder="Enter amount"
-        />
-      </td>
+                        {/* SALE AMOUNT */}
+                        <td className="p-2">
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min={0}
+                            value={saleAmount || ""}
+                            onChange={(e) =>
+                              form.setValue(
+                                `items.${formIndex}.amount`,
+                                e.target.value === ""
+                                  ? 0
+                                  : Number(e.target.value),
+                                { shouldDirty: true }
+                              )
+                            }
+                            placeholder="Enter amount"
+                          />
+                        </td>
 
-      {/* CALCULATED UNIT PRICE */}
-      <td className="text-center font-semibold text-blue-700">
-        ₹{calculatedPrice.toFixed(2)}
-      </td>
-    </tr>
-  );
-})}
+                        {/* CALCULATED UNIT PRICE */}
+                        <td className="text-center font-semibold text-blue-700">
+                          ₹{calculatedPrice.toFixed(2)}
+                        </td>
+                      </tr>
+                    );
+                  })}
 
 
                   {rows.length === 0 && (
@@ -660,10 +679,7 @@ const rows = useMemo(() => {
 
               </div>
 
-              <Button type="submit" size="lg">
-                {/* <Truck className="mr-2 h-5 w-5" /> */}
-                Record Sale
-              </Button>
+
 
             </div>
 

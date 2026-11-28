@@ -209,7 +209,7 @@ function TableRows({
               }`}
           >
             {/* {displayAverageCost}/{primaryMapping.purchaseUnit} */}
-            {item.averageCost}
+         {Number(item.averageCost).toFixed(2)}
           </span>
 
           <span className="text-xs text-gray-400">
@@ -228,7 +228,7 @@ function TableRows({
               : "text-gray-800"
               }`}
           >
-            Rs {item.stockValue}
+            Rs {Number(item.stockValue).toFixed(2)}
           </span>
 
           <span className="text-xs text-gray-400">
